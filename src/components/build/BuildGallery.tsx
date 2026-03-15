@@ -87,7 +87,7 @@ export default function BuildGallery({ images, title }: Props) {
           {images.length > 1 && (
             <button
               onClick={e => { e.stopPropagation(); prev() }}
-              className="absolute left-3 sm:left-6 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
             >
               <ChevronLeft size={22} />
             </button>
@@ -107,7 +107,7 @@ export default function BuildGallery({ images, title }: Props) {
           {images.length > 1 && (
             <button
               onClick={e => { e.stopPropagation(); next() }}
-              className="absolute right-3 sm:right-6 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
             >
               <ChevronRight size={22} />
             </button>
