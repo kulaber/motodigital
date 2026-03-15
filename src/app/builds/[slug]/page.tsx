@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { BadgeCheck, ArrowLeft, MapPin, Calendar, Clock, Wrench, ChevronRight } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
+import BuildGallery from '@/components/build/BuildGallery'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -99,23 +100,10 @@ export default async function BuildPage({ params }: Props) {
             </div>
 
             {/* Gallery */}
-            {gallery.length > 0 && (
+            {build.images.length > 0 && (
               <div>
                 <h2 className="text-base font-semibold text-[#F0EDE4] mb-4">Galerie</h2>
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  {gallery.map((img, i) => (
-                    <div
-                      key={i}
-                      className={`overflow-hidden rounded-xl ${i === 0 ? 'col-span-2 aspect-[16/7]' : 'aspect-square'}`}
-                    >
-                      <img
-                        src={img}
-                        alt={`${build.title} ${i + 1}`}
-                        className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-500"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <BuildGallery images={build.images} title={build.title} />
               </div>
             )}
 
