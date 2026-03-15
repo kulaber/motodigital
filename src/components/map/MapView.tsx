@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import BikeCard from '@/components/bike/BikeCard'
 import SearchBar, { type UmbauTyp } from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
-import { BadgeCheck } from 'lucide-react'
+import { BadgeCheck, Map as MapIcon, List } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import type { Database } from '@/types/database'
@@ -56,6 +56,7 @@ export default function MapView({ initialBikes }: Props) {
   const [selectedTypes, setSelectedTypes] = useState<UmbauTyp[]>([])
   const [onlyVerified, setOnlyVerified] = useState(false)
   const [visibleBuilders, setVisibleBuilders] = useState<Builder[]>(MOCK_BUILDERS)
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
   const supabase = createClient()
 
   const UMBAU_TYPEN = ['Café Racer','Scrambler','Bobber','Chopper','Tracker','Streetfighter','Brat Style','Bagger'] as const
@@ -222,11 +223,13 @@ export default function MapView({ initialBikes }: Props) {
         />
       </div>
 
-      {/* Split: List left (2/3) + Map right (1/3) */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* Split: list left + map right */}
+      <div className="flex flex-1 overflow-hidden relative">
 
         {/* Left — Results list */}
-        <div className="w-1/2 overflow-y-auto border-r border-creme/5">
+        <div className={`overflow-y-auto border-r border-creme/5 ${
+          mobileView === 'list' ? 'flex-1 md:flex-none md:w-1/2' : 'hidden md:block md:w-1/2'
+        }`}>
 
           {/* Builder list */}
           {activeTab === 'workshops' && (
@@ -285,8 +288,23 @@ export default function MapView({ initialBikes }: Props) {
           )}
         </div>
 
-        {/* Right — Map */}
-        <div ref={mapContainer} className="w-1/2 h-full" />
+        {/* Right — Map (always rendered so Mapbox stays initialized) */}
+        <div ref={mapContainer} className={`h-full ${
+          mobileView === 'map' ? 'flex-1 md:flex-none md:w-1/2' : 'hidden md:block md:w-1/2'
+        }`} />
+
+        {/* Mobile toggle button — Airbnb style */}
+        <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
+          <button
+            onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')}
+            className="flex items-center gap-2 bg-[#141414] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
+          >
+            {mobileView === 'list'
+              ? <><MapIcon size={15} /> Karte</>
+              : <><List size={15} /> Liste</>
+            }
+          </button>
+        </div>
 
         {/* Selected builder popup */}
         {selectedBuilder && (
