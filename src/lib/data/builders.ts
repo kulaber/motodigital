@@ -58,8 +58,8 @@ export const BUILDERS: Builder[] = [
     ],
     featuredBuilds: [
       { title: 'The Midnight Scrambler', slug: 'the-midnight-scrambler', base: 'Honda CB550', style: 'Scrambler', year: 2023, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-      { title: 'Berlin Cafe No. 7',      base: 'Honda CB750', style: 'Cafe Racer', year: 2022, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
-      { title: 'SR Ghost',               base: 'Yamaha SR500', style: 'Tracker',  year: 2024, img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80' },
+      { title: 'Berlin Cafe No. 7', slug: 'berlin-cafe-no-7', base: 'Honda CB750', style: 'Cafe Racer', year: 2022, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
+      { title: 'SR Ghost', slug: 'sr-ghost', base: 'Yamaha SR500', style: 'Tracker', year: 2024, img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80' },
     ],
   },
   {
@@ -89,8 +89,8 @@ export const BUILDERS: Builder[] = [
     ],
     featuredBuilds: [
       { title: 'Iron Bastard No. 3', slug: 'iron-bastard-no-3', base: 'BMW R80', style: 'Bobber', year: 2023, img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80' },
-      { title: 'Black Monk',         base: 'BMW R100',     style: 'Chopper', year: 2022, img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=800&q=80' },
-      { title: 'Low Rider 1200',     base: 'H-D Sportster',style: 'Bobber',  year: 2024, img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80' },
+      { title: 'Black Monk', slug: 'black-monk', base: 'BMW R100', style: 'Chopper', year: 2022, img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=800&q=80' },
+      { title: 'Low Rider 1200', slug: 'low-rider-1200', base: 'H-D Sportster', style: 'Bobber', year: 2024, img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80' },
     ],
   },
   {
@@ -115,8 +115,8 @@ export const BUILDERS: Builder[] = [
       { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85', type: 'image', title: 'Hafengarage' },
     ],
     featuredBuilds: [
-      { title: 'Hamburg Tracker',  base: 'Kawasaki Z650', style: 'Tracker', year: 2023, img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80' },
-      { title: 'Berlin Ghost',     base: 'Suzuki GS750',  style: 'Street',  year: 2022, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
+      { title: 'Hamburg Tracker', slug: 'hamburg-tracker', base: 'Kawasaki Z650', style: 'Tracker', year: 2023, img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80' },
+      { title: 'Berlin Ghost', slug: 'berlin-ghost', base: 'Suzuki GS750', style: 'Street', year: 2022, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
     ],
   },
   {
@@ -142,7 +142,7 @@ export const BUILDERS: Builder[] = [
     ],
     featuredBuilds: [
       { title: 'Desert Fox Scrambler', slug: 'desert-fox-scrambler', base: 'Triumph T100', style: 'Scrambler', year: 2023, img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80' },
-      { title: 'Green Enduro',         base: 'Honda XR600',  style: 'Enduro',    year: 2022, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+      { title: 'Green Enduro', slug: 'green-enduro', base: 'Honda XR600', style: 'Enduro', year: 2022, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
     ],
   },
   {
@@ -193,8 +193,8 @@ export const BUILDERS: Builder[] = [
     ],
     featuredBuilds: [
       { title: 'Low & Slow', slug: 'low-and-slow', base: 'H-D Sportster', style: 'Chopper', year: 2023, img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=800&q=80' },
-      { title: 'Shovel Devil',       base: 'H-D Shovelhead', style: 'Old School', year: 2022, img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80' },
-      { title: 'FXR Street Punk',    base: 'H-D FXR',        style: 'Chopper',   year: 2024, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
+      { title: 'Shovel Devil', slug: 'shovel-devil', base: 'H-D Shovelhead', style: 'Old School', year: 2022, img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80' },
+      { title: 'FXR Street Punk', slug: 'fxr-street-punk', base: 'H-D FXR', style: 'Chopper', year: 2024, img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80' },
     ],
   },
 ]
