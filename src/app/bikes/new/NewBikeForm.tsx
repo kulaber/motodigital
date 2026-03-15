@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
 import { MAKES, MODELS, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
+import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -45,6 +46,8 @@ export default function NewBikeForm() {
   const [mileage, setMileage]       = useState('')
   const [price, setPrice]           = useState('')
   const [city, setCity]             = useState('')
+  const [locationLat, setLocationLat] = useState<number | null>(null)
+  const [locationLng, setLocationLng] = useState<number | null>(null)
   const [description, setDescription] = useState('')
   const [status, setStatus]         = useState<'active' | 'draft'>('active')
 
@@ -135,6 +138,8 @@ export default function NewBikeForm() {
       mileage_km:  mileage ? parseInt(mileage) : null,
       price:       parseFloat(price.replace(/[^0-9.]/g, '')),
       city:        city.trim() || null,
+      lat:         locationLat,
+      lng:         locationLng,
       description: description.trim() || null,
       status,
       is_verified: false,
@@ -387,8 +392,20 @@ export default function NewBikeForm() {
 
           <div>
             <label className={labelClass}>Standort / Stadt</label>
-            <input value={city} onChange={e => setCity(e.target.value)}
-              placeholder="Berlin, München, Hamburg…" className={inputClass} />
+            <LocationAutocomplete
+              value={city}
+              onChange={(result: LocationResult | null) => {
+                setCity(result?.city ?? '')
+                setLocationLat(result?.lat ?? null)
+                setLocationLng(result?.lng ?? null)
+              }}
+              className={inputClass}
+            />
+            {locationLat && (
+              <p className="text-xs text-[#2AABAB]/60 mt-1 flex items-center gap-1">
+                ✓ Koordinaten gespeichert · {locationLat.toFixed(4)}, {locationLng?.toFixed(4)}
+              </p>
+            )}
           </div>
 
           <div>
