@@ -6,6 +6,18 @@ import { BadgeCheck, MapPin, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice, formatRelativeTime } from '@/lib/utils'
 import ContactButton from '@/components/messaging/ContactButton'
+import type { Database } from '@/types/database'
+
+type BikeRow = Database['public']['Tables']['bikes']['Row']
+type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
+type ProfileRow = Database['public']['Tables']['profiles']['Row']
+type WorkshopRow = Database['public']['Tables']['workshops']['Row']
+
+type BikeWithRelations = BikeRow & {
+  bike_images: BikeImageRow[]
+  profiles: ProfileRow | null
+  workshops: WorkshopRow | null
+}
 
 interface Props {
   params: Promise<{ id: string }>
@@ -18,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('bikes')
     .select('title, make, model, year, price')
     .eq('id', id)
-    .single()
+    .maybeSingle() as { data: Pick<BikeRow, 'title' | 'make' | 'model' | 'year' | 'price'> | null, error: unknown }
 
   if (!bike) return { title: 'Bike nicht gefunden' }
 
@@ -48,20 +60,20 @@ export default async function BikeDetailPage({ params }: Props) {
     `)
     .eq('id', id)
     .eq('status', 'active')
-    .single()
+    .single() as { data: BikeWithRelations | null, error: unknown }
 
   if (!bike) notFound()
 
   // Increment view count (fire and forget)
-  supabase
-    .from('bikes')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(supabase.from('bikes') as any)
     .update({ view_count: (bike.view_count ?? 0) + 1 })
     .eq('id', id)
     .then(() => {})
 
   const images = [...(bike.bike_images ?? [])].sort((a, b) => a.position - b.position)
-  const seller = bike.profiles as any
-  const workshop = bike.workshops as any
+  const seller = bike.profiles
+  const workshop = bike.workshops
 
   const specs = [
     { label: 'Marke', value: bike.make },
@@ -163,7 +175,7 @@ export default async function BikeDetailPage({ params }: Props) {
                 {workshop ? 'Workshop-Inserat' : 'Privates Inserat'} · {formatRelativeTime(bike.created_at)}
               </p>
               <div className="flex flex-col gap-2">
-                <ContactButton bikeId={bike.id} sellerId={seller?.id} />
+                <ContactButton bikeId={bike.id} sellerId={seller?.id ?? ''} />
                 <button className="w-full py-2.5 text-sm border border-creme/15 rounded-full text-creme/70 hover:text-creme hover:border-creme/30 transition-all">
                   Speichern
                 </button>
