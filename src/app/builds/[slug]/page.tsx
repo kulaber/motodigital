@@ -152,25 +152,6 @@ export default async function BuildPage({ params }: Props) {
               </button>
             </div>
 
-            {/* Specs */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
-              <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-4">Technische Daten</p>
-              {[
-                { label: 'Basis', value: build.base },
-                { label: 'Baujahr', value: `${build.year}` },
-                { label: 'Motor', value: build.engine },
-                { label: 'Hubraum', value: build.displacement },
-                { label: 'Standort', value: build.city },
-                { label: 'Umbau-Jahr', value: `${build.buildYear}` },
-                { label: 'Bauzeit', value: build.buildDuration },
-              ].map(s => (
-                <div key={s.label} className="flex items-center justify-between py-2 border-b border-[#F0EDE4]/5 last:border-0">
-                  <span className="text-xs text-[#F0EDE4]/35">{s.label}</span>
-                  <span className="text-xs font-medium text-[#F0EDE4]/75">{s.value}</span>
-                </div>
-              ))}
-            </div>
-
             {/* Builder card */}
             <Link
               href={`/builder/${build.builder.slug}`}
@@ -194,6 +175,25 @@ export default async function BuildPage({ params }: Props) {
                 Profil ansehen <ChevronRight size={13} />
               </div>
             </Link>
+
+            {/* Specs */}
+            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
+              <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-4">Technische Daten</p>
+              {[
+                { label: 'Basis', value: build.base },
+                { label: 'Baujahr', value: `${build.year}` },
+                { label: 'Motor', value: build.engine },
+                { label: 'Hubraum', value: build.displacement },
+                { label: 'Standort', value: build.city },
+                { label: 'Umbau-Jahr', value: `${build.buildYear}` },
+                { label: 'Bauzeit', value: build.buildDuration },
+              ].map(s => (
+                <div key={s.label} className="flex items-center justify-between py-2 border-b border-[#F0EDE4]/5 last:border-0">
+                  <span className="text-xs text-[#F0EDE4]/35">{s.label}</span>
+                  <span className="text-xs font-medium text-[#F0EDE4]/75">{s.value}</span>
+                </div>
+              ))}
+            </div>
 
           </div>
         </div>
