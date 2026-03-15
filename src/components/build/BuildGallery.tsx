@@ -91,7 +91,7 @@ export default function BuildGallery({ images, title }: Props) {
           </div>
 
           {/* Image row */}
-          <div className="relative z-10 flex flex-1 items-center min-h-0">
+          <div className="relative z-10 flex flex-1 min-h-0 items-center overflow-hidden">
 
             {/* Prev */}
             <button
@@ -102,12 +102,12 @@ export default function BuildGallery({ images, title }: Props) {
             </button>
 
             {/* Image */}
-            <div className="flex-1 flex items-center justify-center min-w-0 px-2" onClick={e => e.stopPropagation()}>
+            <div className="flex-1 min-w-0 h-full flex items-center justify-center overflow-hidden py-4" onClick={e => e.stopPropagation()}>
               <img
                 key={lightbox}
                 src={images[lightbox]}
                 alt={`${title} ${lightbox + 1}`}
-                className="max-w-full max-h-[calc(100vh-120px)] w-auto h-auto object-contain rounded-xl animate-scale-in shadow-2xl"
+                className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl animate-scale-in shadow-2xl"
               />
             </div>
 
@@ -122,7 +122,7 @@ export default function BuildGallery({ images, title }: Props) {
           </div>
 
           {/* Bottom spacer */}
-          <div className="relative z-10 h-8 flex-shrink-0" />
+          <div className="relative z-10 h-6 flex-shrink-0" />
         </div>
       )}
     </>
