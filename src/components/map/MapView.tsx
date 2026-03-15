@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { createClient } from '@/lib/supabase/client'
@@ -55,7 +55,18 @@ export default function MapView({ initialBikes }: Props) {
   const [activeTab, setActiveTab] = useState<'bikes' | 'workshops'>('workshops')
   const [selectedTypes, setSelectedTypes] = useState<UmbauTyp[]>([])
   const [onlyVerified, setOnlyVerified] = useState(false)
+  const [visibleBuilders, setVisibleBuilders] = useState<Builder[]>(MOCK_BUILDERS)
   const supabase = createClient()
+
+  const filteredBuilders = useMemo(() => MOCK_BUILDERS.filter(b => {
+    if (onlyVerified && !b.verified) return false
+    if (selectedTypes.length === 0) return true
+    return selectedTypes.some(t => b.specialty.toLowerCase().includes(t.toLowerCase()))
+  }), [selectedTypes, onlyVerified])
+
+  // Keep a ref so map event handlers always see latest filteredBuilders
+  const filteredBuildersRef = useRef(filteredBuilders)
+  filteredBuildersRef.current = filteredBuilders
 
   // Init Mapbox
   useEffect(() => {
@@ -75,6 +86,15 @@ export default function MapView({ initialBikes }: Props) {
       new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }),
       'bottom-right'
     )
+
+    function syncVisible() {
+      const bounds = map.current?.getBounds()
+      if (!bounds) return
+      setVisibleBuilders(filteredBuildersRef.current.filter(b => bounds.contains([b.lng, b.lat])))
+    }
+
+    map.current.on('moveend', syncVisible)
+    map.current.on('zoomend', syncVisible)
 
     return () => {
       map.current?.remove()
@@ -96,7 +116,7 @@ export default function MapView({ initialBikes }: Props) {
     })
   }, [bikes, activeTab])
 
-  // Builder markers
+  // Builder markers — re-run when filteredBuilders or tab changes
   useEffect(() => {
     if (!map.current) return
     builderMarkers.current.forEach(m => m.remove())
@@ -104,10 +124,15 @@ export default function MapView({ initialBikes }: Props) {
 
     if (activeTab !== 'workshops') return
 
-    // Fly out to show all of Germany
+    // Fly out to show all of Germany, then sync visible list
+    map.current.once('moveend', () => {
+      const bounds = map.current?.getBounds()
+      if (!bounds) return
+      setVisibleBuilders(filteredBuilders.filter(b => bounds.contains([b.lng, b.lat])))
+    })
     map.current.flyTo({ center: [10.5, 51.2], zoom: 5.5, duration: 1400 })
 
-    MOCK_BUILDERS.forEach(builder => {
+    filteredBuilders.forEach(builder => {
       const el = document.createElement('div')
       el.style.cssText = `
         background: #2AABAB; color: #141414;
@@ -145,7 +170,7 @@ export default function MapView({ initialBikes }: Props) {
 
       builderMarkers.current.push(marker)
     })
-  }, [activeTab])
+  }, [activeTab, filteredBuilders])
 
   // Fly back to Berlin when switching back to bikes
   useEffect(() => {
@@ -167,11 +192,6 @@ export default function MapView({ initialBikes }: Props) {
     if (data) setBikes(data as Bike[])
   }, [supabase])
 
-  const filteredBuilders = MOCK_BUILDERS.filter(b => {
-    if (onlyVerified && !b.verified) return false
-    if (selectedTypes.length === 0) return true
-    return selectedTypes.some(t => b.specialty.toLowerCase().includes(t.toLowerCase()))
-  })
 
   return (
     <div className="flex flex-col h-screen bg-bg overflow-hidden">
@@ -201,9 +221,9 @@ export default function MapView({ initialBikes }: Props) {
           {/* Builder list */}
           {activeTab === 'workshops' && (
             <div className="px-5 py-4">
-              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{filteredBuilders.length} Builder</p>
+              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{visibleBuilders.length} Builder</p>
               <div className="flex flex-col gap-3">
-                {filteredBuilders.map(b => (
+                {visibleBuilders.map(b => (
                   <Link
                     key={b.id}
                     href={`/builder/${b.slug}`}
