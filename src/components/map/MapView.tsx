@@ -242,10 +242,7 @@ export default function MapView({ initialBikes }: Props) {
                         ? 'bg-teal/8 border-teal/30'
                         : 'bg-bg-2 border-creme/6 hover:border-teal/20'
                     }`}
-                    onClick={() => {
-                      setSelectedBuilder(b)
-                      map.current?.flyTo({ center: [b.lng, b.lat], zoom: 13, duration: 1000 })
-                    }}
+                    onClick={() => {}}
                   >
                     <div className="w-11 h-11 rounded-xl bg-teal/12 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
                       {b.initials}
