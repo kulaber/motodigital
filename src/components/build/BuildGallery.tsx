@@ -113,22 +113,6 @@ export default function BuildGallery({ images, title }: Props) {
             </button>
           )}
 
-          {/* Thumbnail strip */}
-          {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-4">
-              {images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={e => { e.stopPropagation(); setLightbox(i) }}
-                  className={`w-12 h-9 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
-                    i === lightbox ? 'border-[#2AABAB] opacity-100' : 'border-transparent opacity-40 hover:opacity-70'
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </>
