@@ -1,6 +1,13 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import MapView from '@/components/map/MapView'
+import type { Database } from '@/types/database'
+
+type BikeRow = Database['public']['Tables']['bikes']['Row']
+type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
+type MapBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' | 'style' | 'city'> & {
+  bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
+}
 
 export const metadata: Metadata = {
   title: 'Bikes in deiner Nähe',
@@ -19,7 +26,7 @@ export default async function MapPage() {
     `)
     .eq('status', 'active')
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(100) as unknown as { data: MapBike[] | null }
 
   return <MapView initialBikes={bikes ?? []} />
 }

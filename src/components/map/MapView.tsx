@@ -9,7 +9,8 @@ import SearchBar from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
-type Bike = Database['public']['Tables']['bikes']['Row'] & {
+type BikeRow = Database['public']['Tables']['bikes']['Row']
+type Bike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' | 'style' | 'city'> & {
   bike_images: { url: string; is_cover: boolean }[]
 }
 
