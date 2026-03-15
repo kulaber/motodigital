@@ -98,12 +98,12 @@ export default function BuildGallery({ images, title }: Props) {
             </button>
 
             {/* Image */}
-            <div className="flex-1 flex items-center justify-center min-w-0 min-h-0 py-4" onClick={e => e.stopPropagation()}>
+            <div className="flex-1 self-stretch flex items-center justify-center min-w-0 py-4 overflow-hidden" onClick={e => e.stopPropagation()}>
               <img
                 key={lightbox}
                 src={images[lightbox]}
                 alt={`${title} ${lightbox + 1}`}
-                className="max-w-full max-h-[75vh] object-contain rounded-xl animate-scale-in shadow-2xl"
+                className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl animate-scale-in shadow-2xl"
               />
             </div>
 
