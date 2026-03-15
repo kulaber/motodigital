@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 items-start">
 
           {/* Listings */}
           <div className="bg-bg-2 border border-creme/6 rounded-2xl overflow-hidden">

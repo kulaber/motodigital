@@ -141,7 +141,7 @@ export default function RegisterForm() {
         {loading ? 'Wird erstellt...' : 'Account erstellen'}
       </button>
 
-      <p className="text-center text-[10px] text-[#F0EDE4]/20 leading-relaxed">
+      <p className="text-center text-xs text-[#F0EDE4]/30 leading-relaxed">
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>

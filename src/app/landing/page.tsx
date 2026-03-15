@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
+import Header from '@/components/layout/Header'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
@@ -35,26 +35,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4]" style={{ fontFamily: 'var(--font-sans)' }}>
 
       {/* ── NAV ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#F0EDE4]/5 bg-[#141414]/90 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8 flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.svg" alt="MotoDigital" width={220} height={83} className="h-12 w-auto" priority />
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/builds"  className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builds</Link>
-            <Link href="/builder" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builder</Link>
-            <Link href="#waitlist" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Early Access</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/auth/login" className="text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-4 py-2">
-              Anmelden
-            </Link>
-            <Link href="/auth/register" className="bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#3DBFBF] transition-all">
-              Registrieren
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header activePage="landing" />
 
       {/* ── HERO ── */}
       <section
