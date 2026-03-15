@@ -50,7 +50,7 @@ export default async function DashboardPage() {
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
-  const isBuilder = profile?.role === 'builder' || profile?.role === 'workshop'
+  const isBuilder = profile?.role === 'builder' || profile?.role === 'superadmin'
 
   return (
     <div className="min-h-screen bg-[#141414]">
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
           {/* LEFT */}
           <div className="flex flex-col gap-5">
 
-            {/* Builder profile card — only for builder/workshop */}
+            {/* Builder profile card — only for builder/superadmin */}
             {isBuilder && (
               <div className="bg-[#1C1C1C] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"

@@ -172,7 +172,7 @@ export default async function BikeDetailPage({ params }: Props) {
             <div className="bg-bg-2 border border-creme/6 rounded-2xl p-5">
               <p className="text-2xl font-bold text-creme mb-0.5">{formatPrice(bike.price)}</p>
               <p className="text-xs text-creme/35 mb-4">
-                {workshop ? 'Workshop-Inserat' : 'Privates Inserat'} · {formatRelativeTime(bike.created_at)}
+                {workshop ? 'Builder-Inserat' : 'Privates Inserat'} · {formatRelativeTime(bike.created_at)}
               </p>
               <div className="flex flex-col gap-2">
                 <ContactButton bikeId={bike.id} sellerId={seller?.id ?? ''} />
@@ -187,7 +187,7 @@ export default async function BikeDetailPage({ params }: Props) {
             <div className="bg-bg-2 border border-creme/6 rounded-2xl p-5">
               {workshop ? (
                 <>
-                  <p className="text-xs text-creme/35 uppercase tracking-widest mb-3">Workshop</p>
+                  <p className="text-xs text-creme/35 uppercase tracking-widest mb-3">Builder</p>
                   <Link href={`/workshops/${workshop.slug}`} className="flex items-center gap-3 group">
                     <div className="w-10 h-10 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
                       {workshop.name.charAt(0)}

@@ -6,7 +6,7 @@ import { BUILDERS } from '@/lib/data/builders'
 
 export const metadata: Metadata = {
   title: 'Builder',
-  description: 'Finde Custom Motorrad Builder und Workshops in deiner Nähe auf MotoDigital.',
+  description: 'Finde Custom Motorrad Builder in deiner Nähe auf MotoDigital.',
 }
 
 export default function BuilderPage() {
@@ -27,7 +27,7 @@ export default function BuilderPage() {
               <span className="text-[#F0EDE4]/25">hinter den Bikes.</span>
             </h1>
             <p className="text-[#F0EDE4]/40 text-sm mt-3 max-w-md leading-relaxed">
-              Verifizierte Builder und Workshops — direkt kontaktierbar, ohne Umwege.
+              Verifizierte Builder — direkt kontaktierbar, ohne Umwege.
             </p>
           </div>
         </div>

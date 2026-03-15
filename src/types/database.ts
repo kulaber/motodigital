@@ -12,7 +12,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type UserRole = 'rider' | 'builder' | 'workshop'
+export type UserRole = 'rider' | 'builder' | 'superadmin'
 export type BikeStatus = 'draft' | 'active' | 'sold'
 export type BikeStyle =
   | 'naked'

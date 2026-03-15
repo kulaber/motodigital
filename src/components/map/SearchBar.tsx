@@ -61,7 +61,7 @@ export default function SearchBar({ view, onViewChange, activeTab, onTabChange }
 
       {/* Filter chips */}
       <div className="flex gap-2 overflow-x-auto pb-0.5">
-        {/* Bikes / Workshops toggle */}
+        {/* Bikes / Builder toggle */}
         <div className="flex bg-bg-2 border border-creme/10 rounded-full p-0.5 flex-shrink-0">
           <button
             onClick={() => onTabChange('bikes')}
@@ -79,7 +79,7 @@ export default function SearchBar({ view, onViewChange, activeTab, onTabChange }
               activeTab === 'workshops' ? 'bg-creme text-bg' : 'text-creme/50'
             )}
           >
-            Workshops
+            Builder
           </button>
         </div>
 

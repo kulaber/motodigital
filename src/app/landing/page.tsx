@@ -284,7 +284,7 @@ function WaitlistForm() {
       <div>
         <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-2">Ich bin</label>
         <div className="grid grid-cols-2 gap-2">
-          {[['builder','🔧 Builder'],['rider','🏍️ Rider']].map(([val, label]) => (
+          {[['builder','🔧 Builder / Workshop'],['rider','🏍️ Rider']].map(([val, label]) => (
             <label key={val} className="cursor-pointer">
               <input type="radio" name="role" value={val} className="sr-only" required />
               <div className="border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-center text-sm font-medium text-[#F0EDE4]/50 hover:border-[#2AABAB]/40 transition-all has-[:checked]:border-[#2AABAB] has-[:checked]:text-[#2AABAB] has-[:checked]:bg-[#2AABAB]/08">

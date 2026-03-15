@@ -4,12 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-type Role = 'rider' | 'builder' | 'workshop'
+type Role = 'rider' | 'builder'
 
 const ROLES: { value: Role; emoji: string; label: string; desc: string }[] = [
-  { value: 'rider',    emoji: '🏍️', label: 'Rider',    desc: 'Ich suche Bikes' },
-  { value: 'builder',  emoji: '🔧', label: 'Builder',  desc: 'Ich baue Bikes' },
-  { value: 'workshop', emoji: '🏪', label: 'Workshop', desc: 'Ich betreibe eine Werkstatt' },
+  { value: 'rider',   emoji: '🏍️', label: 'Rider',            desc: 'Ich suche Bikes & Inspiration' },
+  { value: 'builder', emoji: '🔧', label: 'Builder / Workshop', desc: 'Ich baue Custom Bikes' },
 ]
 
 export default function RegisterForm() {
