@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BadgeCheck, SlidersHorizontal } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import { BUILDS } from '@/lib/data/builds'
 
 export const metadata: Metadata = {
   title: 'Builds',
@@ -9,21 +10,6 @@ export const metadata: Metadata = {
 }
 
 const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
-
-const BUILDS = [
-  { title: 'The Midnight Scrambler', style: 'Cafe Racer',  base: 'Honda CB550',      builder: 'Jakob K.',    city: 'Berlin',    year: 1974, price: '14.500 €', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=75',   verified: true  },
-  { title: 'Iron Bastard No. 3',     style: 'Bobber',      base: 'BMW R80',            builder: 'Max S.',      city: 'München',   year: 1981, price: '18.900 €', img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=75', verified: true  },
-  { title: 'Desert Fox Scrambler',   style: 'Scrambler',   base: 'Triumph T100',       builder: 'Anna W.',     city: 'Hamburg',   year: 2003, price: '11.200 €', img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=75', verified: false },
-  { title: 'Flat Track Killer',      style: 'Tracker',     base: 'Yamaha SR500',       builder: 'René B.',     city: 'Köln',      year: 1986, price: '9.800 €',  img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=75',   verified: true  },
-  { title: 'Low & Slow',             style: 'Chopper',     base: 'H-D Sportster',      builder: 'Kai F.',      city: 'Stuttgart', year: 1998, price: '22.000 €', img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=800&q=75',   verified: false },
-  { title: 'Berlin Ghost',           style: 'Street',      base: 'Suzuki GS750',       builder: 'Studio Nord', city: 'Berlin',    year: 1979, price: '13.400 €', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=75', verified: true  },
-  { title: 'Old Soul Enduro',        style: 'Enduro',      base: 'KTM 500 EXC',        builder: 'Lukas H.',    city: 'Dresden',   year: 2010, price: '8.500 €',  img: 'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=800&q=75', verified: false },
-  { title: 'Velvet Thunder',         style: 'Bobber',      base: 'Norton Commando',    builder: 'T. Braun',    city: 'Frankfurt', year: 1972, price: '31.000 €', img: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&q=75',   verified: true  },
-  { title: 'Salt Lake Racer',        style: 'Cafe Racer',  base: 'Moto Guzzi V7',      builder: 'Moto Roma',   city: 'Berlin',    year: 2015, price: '16.700 €', img: 'https://images.unsplash.com/photo-1609899537878-d7f95a37d5bd?w=800&q=75', verified: false },
-  { title: 'Steinzeit Tracker',      style: 'Tracker',     base: 'Royal Enfield 500',  builder: 'P. Koch',     city: 'Leipzig',   year: 2018, price: '7.200 €',  img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80', verified: false },
-  { title: 'Black Forest Bobber',    style: 'Bobber',      base: 'Honda Shadow 600',   builder: 'T. Kern',     city: 'Freiburg',  year: 1995, price: '10.500 €', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',   verified: true  },
-  { title: 'Munich Cruiser',         style: 'Chopper',     base: 'Kawasaki VN 800',    builder: 'G. Weiß',    city: 'München',   year: 2001, price: '6.900 €',  img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80', verified: false },
-]
 
 export default function BuildsPage() {
   return (
@@ -79,14 +65,14 @@ export default function BuildsPage() {
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {BUILDS.map((build, i) => (
               <Link
-                key={build.title}
-                href="/map"
+                key={build.slug}
+                href={`/builds/${build.slug}`}
                 className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 opacity-0 animate-slide-up-sm"
                 style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
-                    src={build.img}
+                    src={build.coverImg}
                     alt={build.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                   />
@@ -108,6 +94,7 @@ export default function BuildsPage() {
                     <span className="text-xs sm:text-sm font-bold text-[#2AABAB] flex-shrink-0">{build.price}</span>
                   </div>
                   <p className="text-[10px] sm:text-xs text-[#F0EDE4]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
+                  <p className="text-[10px] text-[#F0EDE4]/25 mt-0.5 truncate">{build.builder.name}</p>
                 </div>
               </Link>
             ))}
