@@ -38,26 +38,35 @@ export default function LandingPage() {
       <Header activePage="landing" />
 
       {/* ── HERO ── */}
-      <section
-        className="relative min-h-screen flex flex-col justify-end pb-16 lg:pb-24 pt-16"
-        style={{
-          background: `
-            linear-gradient(to bottom, rgba(20,20,20,0.5) 0%, rgba(20,20,20,0.25) 40%, rgba(20,20,20,0.92) 100%),
-            url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=80') center/cover no-repeat
-          `
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-5 lg:px-8 w-full">
+      <section className="relative min-h-screen flex flex-col justify-end pb-16 lg:pb-24 overflow-hidden">
+
+        {/* Video background */}
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          poster="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=80"
+        >
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
+
+        {/* Grey base overlay */}
+        <div className="absolute inset-0 bg-[#1a1a1a]/50" />
+        {/* Gradient: dark at top (behind nav) and bottom (behind text) */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(to bottom, rgba(20,20,20,0.55) 0%, rgba(20,20,20,0.1) 38%, rgba(20,20,20,0.85) 80%, rgba(20,20,20,0.97) 100%)'
+        }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto px-5 lg:px-8 w-full">
           <div className="max-w-2xl">
-            <span className="inline-block bg-[#2AABAB]/15 text-[#2AABAB] border border-[#2AABAB]/25 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5">
+            <span className="inline-block bg-[#2AABAB]/15 text-[#2AABAB] border border-[#2AABAB]/25 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
               Beta — Jetzt registrieren
             </span>
-            <h1 className="font-bold text-[#F0EDE4] leading-[1.08] mb-5"
-                style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', letterSpacing: '-0.03em' }}>
+            <h1 className="font-bold text-[#F0EDE4] leading-[1.1] mb-5"
+                style={{ fontSize: 'clamp(2rem, 4.5vw, 3.6rem)', letterSpacing: '-0.03em' }}>
               Entdecke die Welt<br />der Custom Bikes
             </h1>
             <p className="text-[#F0EDE4]/55 font-light mb-8 leading-relaxed"
-               style={{ fontSize: 'clamp(1rem, 1.8vw, 1.15rem)', maxWidth: '30rem' }}>
+               style={{ fontSize: 'clamp(0.9rem, 1.5vw, 1.05rem)', maxWidth: '30rem' }}>
               Finde Builder, kaufe Builds, starte dein eigenes Projekt. Die erste deutschsprachige Plattform für Custom Motorrad Kultur.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mb-12">
