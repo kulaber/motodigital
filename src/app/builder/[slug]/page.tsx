@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { BadgeCheck, MapPin, Calendar, Star, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
+import BuildGallery from '@/components/build/BuildGallery'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -106,35 +107,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             {images.length > 0 && (
               <div className="mb-8">
                 <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Galerie</p>
-                <div className={`grid gap-2 ${
-                  images.length === 1 ? 'grid-cols-1' :
-                  images.length === 2 ? 'grid-cols-2' :
-                  images.length === 3 ? 'grid-cols-3' :
-                  'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-                }`}>
-                  {/* First image larger */}
-                  {images.map((item, i) => (
-                    <div
-                      key={i}
-                      className={`group relative overflow-hidden rounded-xl bg-[#1C1C1C] border border-[#F0EDE4]/5 ${
-                        i === 0 && images.length > 2 ? 'row-span-2 col-span-2 sm:col-span-1 lg:col-span-2' : ''
-                      }`}
-                    >
-                      <div className={`overflow-hidden ${i === 0 && images.length > 2 ? 'aspect-[4/3] sm:aspect-square lg:aspect-[4/3]' : 'aspect-square'}`}>
-                        <img
-                          src={item.url}
-                          alt={item.title ?? ''}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        />
-                      </div>
-                      {item.title && (
-                        <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-[#141414]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-xs text-[#F0EDE4]/80 font-medium">{item.title}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <BuildGallery images={images.map(m => m.url)} title={builder.name} />
               </div>
             )}
 
