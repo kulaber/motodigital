@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
+import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
 import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield } from 'lucide-react'
 import Header from '@/components/layout/Header'
@@ -82,6 +83,16 @@ export default async function DashboardPage() {
       ridersOnline,
     }
   }
+
+  const weeklyVisitors = isSuperAdmin ? await getWeeklyVisitors() : []
+  const hasRealVisitors = weeklyVisitors.length > 0
+  const chartData = hasRealVisitors
+    ? weeklyVisitors
+    : [42, 68, 55, 91, 73, 84, 110].map((v, i) => ({
+        date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0],
+        visitors: v,
+      }))
+  const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
     <div className="min-h-screen bg-[#141414]">
@@ -165,31 +176,49 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-semibold text-[#F0EDE4]">Besucher</p>
-                  <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Letzte 7 Tage</p>
+                  <p className="text-xs text-[#F0EDE4]/30 mt-0.5">
+                    {hasRealVisitors
+                      ? `${chartData.reduce((s, d) => s + d.visitors, 0).toLocaleString('de-DE')} diese Woche`
+                      : 'Letzte 7 Tage'}
+                  </p>
                 </div>
-                <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-semibold">
-                  Vercel Analytics aktivieren
-                </span>
+                {!hasRealVisitors && (
+                  <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-semibold">
+                    Token fehlt
+                  </span>
+                )}
+                {hasRealVisitors && (
+                  <span className="text-[10px] bg-teal/10 text-teal border border-teal/20 px-2.5 py-1 rounded-full font-semibold">
+                    Live Daten
+                  </span>
+                )}
               </div>
-              {/* Bar chart mock */}
+              {/* Bar chart */}
               <div className="flex items-end gap-1.5 h-20">
-                {[42, 68, 55, 91, 73, 84, 110].map((v, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                {chartData.map((d, i) => (
+                  <div key={i} className="flex-1 group relative">
                     <div
-                      className="w-full rounded-sm bg-teal/20 hover:bg-teal/40 transition-colors"
-                      style={{ height: `${(v / 110) * 100}%` }}
+                      className="w-full rounded-sm bg-teal/25 group-hover:bg-teal/50 transition-colors"
+                      style={{ height: `${(d.visitors / maxVisitors) * 100}%` }}
                     />
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#141414] border border-creme/10 rounded px-1.5 py-0.5 text-[10px] text-creme whitespace-nowrap z-10">
+                      {d.visitors}
+                    </div>
                   </div>
                 ))}
               </div>
               <div className="flex justify-between mt-2">
-                {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(d => (
-                  <span key={d} className="flex-1 text-center text-[10px] text-[#F0EDE4]/20">{d}</span>
+                {chartData.map((d, i) => (
+                  <span key={i} className="flex-1 text-center text-[10px] text-[#F0EDE4]/20">
+                    {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
+                  </span>
                 ))}
               </div>
-              <p className="text-[10px] text-[#F0EDE4]/20 mt-3">
-                * Platzhalterdaten — echte Werte nach Aktivierung von Vercel Analytics
-              </p>
+              {!hasRealVisitors && (
+                <p className="text-[10px] text-[#F0EDE4]/20 mt-3">
+                  * Platzhalterdaten — VERCEL_ACCESS_TOKEN + VERCEL_PROJECT_ID als Env-Variable setzen
+                </p>
+              )}
             </div>
           </div>
         )}

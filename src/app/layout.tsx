@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Archivo, Space_Grotesk } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const archivo = Archivo({
@@ -36,7 +37,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de" className={`${archivo.variable} ${spaceGrotesk.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
