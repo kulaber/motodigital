@@ -7,6 +7,7 @@ export type Build = {
   year: number
   price: string
   city: string
+  country: string
   verified: boolean
   buildYear: number
   buildDuration: string
@@ -37,6 +38,7 @@ export const BUILDS: Build[] = [
     year: 1974,
     price: '14.500 €',
     city: 'Berlin',
+    country: 'Deutschland',
     verified: true,
     buildYear: 2023,
     buildDuration: '8 Monate',
@@ -82,6 +84,7 @@ export const BUILDS: Build[] = [
     year: 1981,
     price: '18.900 €',
     city: 'München',
+    country: 'Deutschland',
     verified: true,
     buildYear: 2024,
     buildDuration: '11 Monate',
@@ -126,6 +129,7 @@ export const BUILDS: Build[] = [
     year: 2003,
     price: '11.200 €',
     city: 'Hamburg',
+    country: 'Deutschland',
     verified: false,
     buildYear: 2023,
     buildDuration: '5 Monate',
@@ -168,6 +172,7 @@ export const BUILDS: Build[] = [
     year: 1986,
     price: '9.800 €',
     city: 'Köln',
+    country: 'Deutschland',
     verified: true,
     buildYear: 2022,
     buildDuration: '4 Monate',
@@ -209,6 +214,7 @@ export const BUILDS: Build[] = [
     year: 1998,
     price: '22.000 €',
     city: 'Stuttgart',
+    country: 'Österreich',
     verified: false,
     buildYear: 2024,
     buildDuration: '14 Monate',
@@ -252,6 +258,7 @@ export const BUILDS: Build[] = [
     year: 1979,
     price: '13.400 €',
     city: 'Berlin',
+    country: 'Schweiz',
     verified: true,
     buildYear: 2023,
     buildDuration: '6 Monate',
