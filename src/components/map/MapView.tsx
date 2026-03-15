@@ -58,6 +58,14 @@ export default function MapView({ initialBikes }: Props) {
   const [onlyVerified, setOnlyVerified] = useState(false)
   const [visibleBuilders, setVisibleBuilders] = useState<Builder[]>(MOCK_BUILDERS)
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   const supabase = createClient()
 
   const availableTypes = useMemo(() => {
@@ -240,9 +248,12 @@ export default function MapView({ initialBikes }: Props) {
           {/* Builder list */}
           {activeTab === 'workshops' && (
             <div className="px-5 py-4 pb-24 md:pb-4">
-              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{visibleBuilders.length} Builder</p>
-              <div className="flex flex-col gap-3">
-                {visibleBuilders.map(b => (
+              {(() => {
+                const list = isMobile ? filteredBuilders : visibleBuilders
+                return <>
+                  <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{list.length} Builder</p>
+                  <div className="flex flex-col gap-3">
+                    {list.map(b => (
                   <Link
                     key={b.id}
                     href={`/builder/${b.slug}`}
@@ -265,8 +276,10 @@ export default function MapView({ initialBikes }: Props) {
                       <p className="text-xs text-creme/30 mt-0.5">{b.builds} Builds · ★ {b.rating}</p>
                     </div>
                   </Link>
-                ))}
-              </div>
+                    ))}
+                  </div>
+                </>
+              })()}
             </div>
           )}
 
