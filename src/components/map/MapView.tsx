@@ -114,25 +114,32 @@ export default function MapView({ initialBikes }: Props) {
         display: flex; align-items: center; justify-content: center;
         font-size: 11px; font-weight: 700; cursor: pointer;
         box-shadow: 0 2px 16px rgba(42,171,171,0.4);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
         font-family: var(--font-sans);
+        position: relative; z-index: 1;
       `
       el.textContent = builder.initials
       el.title = builder.name
 
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.2)'
-        el.style.boxShadow = '0 4px 20px rgba(42,171,171,0.6)'
+        el.style.background = '#3DBFBF'
+        el.style.boxShadow = '0 4px 24px rgba(42,171,171,0.7)'
+        el.style.borderColor = '#fff'
       })
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)'
+        el.style.background = '#2AABAB'
         el.style.boxShadow = '0 2px 16px rgba(42,171,171,0.4)'
+        el.style.borderColor = '#141414'
       })
       el.addEventListener('click', () => setSelectedBuilder(builder))
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat([builder.lng, builder.lat])
         .addTo(map.current!)
+
+      // Mapbox wraps the element in a div with overflow:hidden — fix it
+      const wrapper = el.parentElement
+      if (wrapper) wrapper.style.overflow = 'visible'
 
       builderMarkers.current.push(marker)
     })
