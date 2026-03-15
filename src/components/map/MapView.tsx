@@ -69,7 +69,8 @@ export default function MapView({ initialBikes }: Props) {
 
   // Proximity search via PostGIS function
   const searchNearby = useCallback(async (lat: number, lng: number, radiusM = 30000) => {
-    const { data } = await supabase.rpc('search_bikes_nearby', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase.rpc as any)('search_bikes_nearby', {
       lat,
       lng,
       radius_m: radiusM,
