@@ -41,8 +41,8 @@ export default function LandingPage() {
             <Image src="/logo.svg" alt="MotoDigital" width={220} height={83} className="h-12 w-auto" priority />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="#builds" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builds</Link>
-            <Link href="#builder" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builder</Link>
+            <Link href="/builds"  className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builds</Link>
+            <Link href="/builder" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builder</Link>
             <Link href="#waitlist" className="text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Early Access</Link>
           </nav>
           <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export default function LandingPage() {
                 <span className="text-[#F0EDE4]/25">Aus der Community.</span>
               </h2>
             </div>
-            <Link href="/map" className="flex-shrink-0 border border-[#F0EDE4]/15 text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-all">
+            <Link href="/builds" className="flex-shrink-0 border border-[#F0EDE4]/15 text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-all">
               Alle ansehen →
             </Link>
           </div>
@@ -200,8 +200,8 @@ export default function LandingPage() {
                 <span className="text-[#F0EDE4]/25">hinter den Bikes.</span>
               </h2>
             </div>
-            <Link href="/auth/register" className="flex-shrink-0 border border-[#F0EDE4]/15 text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-all">
-              Als Builder registrieren →
+            <Link href="/builder" className="flex-shrink-0 border border-[#F0EDE4]/15 text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-all">
+              Alle Builder →
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

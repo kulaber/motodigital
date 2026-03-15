@@ -48,3 +48,32 @@ body {
 ::-webkit-scrollbar-track   { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb   { background: var(--color-bg-4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-teal-dark); }
+
+/* ─── Keyframes ──────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up-sm {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Animation utilities ────────────────────────────────── */
+@theme {
+  --animate-fade-in:     fade-in 0.5s ease forwards;
+  --animate-slide-up:    slide-up 0.55s ease forwards;
+  --animate-slide-up-sm: slide-up-sm 0.4s ease forwards;
+  --animate-scale-in:    scale-in 0.4s ease forwards;
+}
