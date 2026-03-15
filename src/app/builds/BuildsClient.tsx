@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, SlidersHorizontal, ChevronDown } from 'lucide-react'
+import { BadgeCheck, ChevronDown } from 'lucide-react'
 import type { Build } from '@/lib/data/builds'
 
 const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
@@ -33,76 +33,75 @@ export default function BuildsClient({ builds }: Props) {
       {/* FILTER BAR */}
       <div className="sticky top-16 z-30 bg-[#141414]/95 backdrop-blur-md border-b border-[#F0EDE4]/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
-          <div className="flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex items-center gap-2">
 
-            {/* Style chips */}
-            {STYLES.map(s => (
-              <button
-                key={s}
-                onClick={() => setActiveStyle(s)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
-                  activeStyle === s
-                    ? 'bg-[#2AABAB] text-[#141414] border-[#2AABAB]'
-                    : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2AABAB]/40 hover:text-[#F0EDE4]'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-
-            {/* Divider */}
-            <div className="flex-shrink-0 w-px h-4 bg-[#F0EDE4]/10 mx-1" />
-
-            {/* Land dropdown */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setCountryOpen(v => !v)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
-                  activeCountry !== 'Alle'
-                    ? 'bg-[#2AABAB] text-[#141414] border-[#2AABAB]'
-                    : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2AABAB]/40 hover:text-[#F0EDE4]'
-                }`}
-              >
-                {activeCountry === 'Alle' ? 'Land' : activeCountry}
-                <ChevronDown size={11} className={`transition-transform ${countryOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {countryOpen && (
-                <>
-                  {/* Backdrop */}
-                  <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[150px]">
-                    {countries.map(c => (
-                      <button
-                        key={c}
-                        onClick={() => { setActiveCountry(c); setCountryOpen(false) }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#F0EDE4]/5 last:border-0 ${
-                          activeCountry === c
-                            ? 'text-[#2AABAB] bg-[#2AABAB]/8'
-                            : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
-                        }`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+            {/* Style chips — scrollable */}
+            <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
+              {STYLES.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setActiveStyle(s)}
+                  className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
+                    activeStyle === s
+                      ? 'bg-[#2AABAB] text-[#141414] border-[#2AABAB]'
+                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2AABAB]/40 hover:text-[#F0EDE4]'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
 
-            {/* Active filter count */}
-            {(activeStyle !== 'Alle' || activeCountry !== 'Alle') && (
-              <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                className="flex-shrink-0 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors px-2"
-              >
-                Zurücksetzen
-              </button>
-            )}
+            {/* Right side — not inside overflow container so dropdown is never clipped */}
+            <div className="flex items-center gap-2 flex-shrink-0">
 
-            <button className="flex-shrink-0 ml-auto flex items-center gap-1.5 text-xs text-[#F0EDE4]/40 hover:text-[#F0EDE4] transition-colors border border-[#F0EDE4]/10 hover:border-[#F0EDE4]/25 px-3 py-2 rounded-full">
-              <SlidersHorizontal size={11} /> Filter
-            </button>
+              <div className="w-px h-4 bg-[#F0EDE4]/10" />
+
+              {/* Land dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setCountryOpen(v => !v)}
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
+                    activeCountry !== 'Alle'
+                      ? 'bg-[#2AABAB] text-[#141414] border-[#2AABAB]'
+                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2AABAB]/40 hover:text-[#F0EDE4]'
+                  }`}
+                >
+                  {activeCountry === 'Alle' ? 'Land' : activeCountry}
+                  <ChevronDown size={11} className={`transition-transform ${countryOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {countryOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
+                    <div className="absolute top-full mt-2 right-0 z-50 bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                      {countries.map(c => (
+                        <button
+                          key={c}
+                          onClick={() => { setActiveCountry(c); setCountryOpen(false) }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#F0EDE4]/5 last:border-0 ${
+                            activeCountry === c
+                              ? 'text-[#2AABAB] bg-[#2AABAB]/8'
+                              : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {(activeStyle !== 'Alle' || activeCountry !== 'Alle') && (
+                <button
+                  onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
+                  className="text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors px-1"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
