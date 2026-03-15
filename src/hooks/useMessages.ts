@@ -48,7 +48,8 @@ export function useMessages(conversationId: string) {
   }, [conversationId])
 
   async function sendMessage(body: string, senderId: string) {
-    const { error } = await supabase.from('messages').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('messages') as any).insert({
       conversation_id: conversationId,
       sender_id: senderId,
       body,
