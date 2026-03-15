@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { createClient } from '@/lib/supabase/client'
 import BikeCard from '@/components/bike/BikeCard'
-import SearchBar from '@/components/map/SearchBar'
+import SearchBar, { type UmbauTyp } from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
 import { BadgeCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
@@ -53,6 +53,8 @@ export default function MapView({ initialBikes }: Props) {
   const [selectedBike, setSelectedBike] = useState<Bike | null>(null)
   const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
   const [activeTab, setActiveTab] = useState<'bikes' | 'workshops'>('workshops')
+  const [selectedTypes, setSelectedTypes] = useState<UmbauTyp[]>([])
+  const [onlyVerified, setOnlyVerified] = useState(false)
   const supabase = createClient()
 
   // Init Mapbox
@@ -165,7 +167,11 @@ export default function MapView({ initialBikes }: Props) {
     if (data) setBikes(data as Bike[])
   }, [supabase])
 
-  const items = activeTab === 'workshops' ? MOCK_BUILDERS : bikes
+  const filteredBuilders = MOCK_BUILDERS.filter(b => {
+    if (onlyVerified && !b.verified) return false
+    if (selectedTypes.length === 0) return true
+    return selectedTypes.some(t => b.specialty.toLowerCase().includes(t.toLowerCase()))
+  })
 
   return (
     <div className="flex flex-col h-screen bg-bg overflow-hidden">
@@ -179,6 +185,10 @@ export default function MapView({ initialBikes }: Props) {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onSearch={searchNearby}
+          selectedTypes={selectedTypes}
+          onTypesChange={setSelectedTypes}
+          onlyVerified={onlyVerified}
+          onVerifiedChange={setOnlyVerified}
         />
       </div>
 
@@ -191,9 +201,9 @@ export default function MapView({ initialBikes }: Props) {
           {/* Builder list */}
           {activeTab === 'workshops' && (
             <div className="px-5 py-4">
-              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{MOCK_BUILDERS.length} Builder</p>
+              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{filteredBuilders.length} Builder</p>
               <div className="flex flex-col gap-3">
-                {MOCK_BUILDERS.map(b => (
+                {filteredBuilders.map(b => (
                   <Link
                     key={b.id}
                     href={`/builder/${b.slug}`}

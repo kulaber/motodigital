@@ -1,40 +1,63 @@
 'use client'
 
-import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+const UMBAU_TYPEN = [
+  'Café Racer',
+  'Scrambler',
+  'Bobber',
+  'Chopper',
+  'Tracker',
+  'Streetfighter',
+  'Brat Style',
+  'Bagger',
+] as const
+
+export type UmbauTyp = typeof UMBAU_TYPEN[number]
 
 interface Props {
   activeTab: 'bikes' | 'workshops'
   onTabChange: (t: 'bikes' | 'workshops') => void
   onSearch: (lat: number, lng: number, radius: number) => void
+  selectedTypes: UmbauTyp[]
+  onTypesChange: (types: UmbauTyp[]) => void
+  onlyVerified: boolean
+  onVerifiedChange: (v: boolean) => void
 }
 
-export default function SearchBar({ activeTab, onTabChange }: Props) {
-  const [radius] = useState(30)
+export default function SearchBar({
+  activeTab,
+  onTabChange,
+  selectedTypes,
+  onTypesChange,
+  onlyVerified,
+  onVerifiedChange,
+}: Props) {
+  function toggleType(type: UmbauTyp) {
+    onTypesChange(
+      selectedTypes.includes(type)
+        ? selectedTypes.filter(t => t !== type)
+        : [...selectedTypes, type]
+    )
+  }
 
   return (
     <div className="flex flex-col gap-2">
       {/* Main row */}
       <div className="flex gap-2 items-center">
-        {/* Search input */}
         <div className="flex-1 flex items-center gap-2 bg-bg-2 border border-creme/10 rounded-full px-4 py-2.5">
           <Search size={14} className="text-creme/40 flex-shrink-0" />
           <input
             type="text"
-            placeholder="Marke, Modell, Typ..."
+            placeholder={activeTab === 'workshops' ? 'Builder suchen...' : 'Marke, Modell, Typ...'}
             className="bg-transparent text-sm text-creme placeholder:text-creme/25 outline-none w-full"
           />
         </div>
-
-        {/* Radius pill */}
-        <div className="flex items-center gap-2 bg-bg-2 border border-creme/10 rounded-full px-4 py-2.5 text-sm text-creme/60">
-          {radius} km
-        </div>
       </div>
 
-      {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-0.5">
+      {/* Filter row */}
+      <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
         {/* Builder / Bikes toggle */}
         <div className="flex bg-bg-2 border border-creme/10 rounded-full p-0.5 flex-shrink-0">
           <button
@@ -57,15 +80,59 @@ export default function SearchBar({ activeTab, onTabChange }: Props) {
           </button>
         </div>
 
-        {/* Filter chips */}
-        {(['Preis', 'Typ', 'Hubraum', 'Nur Verified'] as const).map(label => (
-          <button
-            key={label}
-            className="flex-shrink-0 bg-bg-2 border border-creme/10 rounded-full px-3 py-1 text-xs text-creme/50 hover:text-creme hover:border-creme/25 transition-all"
-          >
-            {label}
-          </button>
-        ))}
+        {/* Builder filters */}
+        {activeTab === 'workshops' && (
+          <>
+            {/* Umbau-Typ chips */}
+            {UMBAU_TYPEN.map(type => {
+              const active = selectedTypes.includes(type)
+              return (
+                <button
+                  key={type}
+                  onClick={() => toggleType(type)}
+                  className={cn(
+                    'flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-all',
+                    active
+                      ? 'bg-teal text-bg border-teal'
+                      : 'bg-bg-2 border-creme/10 text-creme/50 hover:text-creme hover:border-creme/25'
+                  )}
+                >
+                  {type}
+                </button>
+              )
+            })}
+
+            {/* Divider */}
+            <div className="w-px bg-creme/8 flex-shrink-0 my-0.5" />
+
+            {/* Nur Verifiziert */}
+            <button
+              onClick={() => onVerifiedChange(!onlyVerified)}
+              className={cn(
+                'flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-all whitespace-nowrap',
+                onlyVerified
+                  ? 'bg-amber-400/15 border-amber-400/40 text-amber-400'
+                  : 'bg-bg-2 border-creme/10 text-creme/50 hover:text-creme hover:border-creme/25'
+              )}
+            >
+              ✓ Nur Verifiziert
+            </button>
+          </>
+        )}
+
+        {/* Bike filters */}
+        {activeTab === 'bikes' && (
+          <>
+            {(['Preis', 'Typ', 'Hubraum'] as const).map(label => (
+              <button
+                key={label}
+                className="flex-shrink-0 bg-bg-2 border border-creme/10 rounded-full px-3 py-1 text-xs text-creme/50 hover:text-creme hover:border-creme/25 transition-all"
+              >
+                {label}
+              </button>
+            ))}
+          </>
+        )}
       </div>
     </div>
   )
