@@ -1,11 +1,19 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Archivo, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 
-const font = Plus_Jakarta_Sans({
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
+})
+
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -27,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de" className={font.variable}>
+    <html lang="de" className={`${archivo.variable} ${spaceGrotesk.variable}`}>
       <body>{children}</body>
     </html>
   )
