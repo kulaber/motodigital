@@ -173,24 +173,44 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <div>
                   <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Featured Builds</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {builder.featuredBuilds.map(build => (
-                      <div key={build.title} className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#F0EDE4]/15 transition-all">
-                        <div className="relative aspect-[16/9] overflow-hidden">
-                          <img
-                            src={build.img}
-                            alt={build.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                          />
-                          <span className="absolute top-2.5 left-2.5 bg-[#141414]/80 backdrop-blur-sm border border-[#F0EDE4]/15 text-[#F0EDE4] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                            {build.style}
-                          </span>
+                    {builder.featuredBuilds.map(build => {
+                      const inner = (
+                        <>
+                          <div className="relative aspect-[16/9] overflow-hidden">
+                            <img
+                              src={build.img}
+                              alt={build.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                            />
+                            <span className="absolute top-2.5 left-2.5 bg-[#141414]/80 backdrop-blur-sm border border-[#F0EDE4]/15 text-[#F0EDE4] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                              {build.style}
+                            </span>
+                            {build.slug && (
+                              <span className="absolute bottom-2.5 right-2.5 text-[10px] text-[#F0EDE4]/60 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                                Ansehen →
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-3.5">
+                            <p className="text-sm font-semibold text-[#F0EDE4]">{build.title}</p>
+                            <p className="text-xs text-[#F0EDE4]/35 mt-0.5">{build.base} · {build.year}</p>
+                          </div>
+                        </>
+                      )
+                      return build.slug ? (
+                        <Link
+                          key={build.title}
+                          href={`/builds/${build.slug}`}
+                          className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/30 transition-all hover:-translate-y-0.5"
+                        >
+                          {inner}
+                        </Link>
+                      ) : (
+                        <div key={build.title} className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
+                          {inner}
                         </div>
-                        <div className="p-3.5">
-                          <p className="text-sm font-semibold text-[#F0EDE4]">{build.title}</p>
-                          <p className="text-xs text-[#F0EDE4]/35 mt-0.5">{build.base} · {build.year}</p>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -221,16 +241,26 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
-                      <div className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50">
-                        <Instagram size={13} className="text-[#F0EDE4]/25 flex-shrink-0" />
+                      <a
+                        href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                      >
+                        <Instagram size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
                         <span>{builder.instagram}</span>
-                      </div>
+                      </a>
                     )}
                     {builder.website && (
-                      <div className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50">
-                        <Globe size={13} className="text-[#F0EDE4]/25 flex-shrink-0" />
+                      <a
+                        href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                      >
+                        <Globe size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
                         <span>{builder.website}</span>
-                      </div>
+                      </a>
                     )}
                   </div>
                 </div>
