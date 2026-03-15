@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, Eye, MessageCircle, TrendingUp } from 'lucide-react'
+import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -47,7 +48,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="max-w-5xl mx-auto px-4 py-8 lg:px-8">
+      <Header />
+      <div className="max-w-5xl mx-auto px-4 pt-24 pb-8 lg:px-8">
 
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-creme">Dashboard</h1>
