@@ -20,7 +20,13 @@ const NAV_LINKS = [
 
 export default function Header({ activePage }: Props) {
   const [open, setOpen] = useState(false)
-  const { user, loading } = useAuth()
+  const { user, role, loading } = useAuth()
+
+  const ROLE_BADGE: Record<string, { label: string; color: string }> = {
+    superadmin: { label: 'Superadmin', color: 'bg-amber-400/15 text-amber-400 border-amber-400/25' },
+    builder:    { label: 'Builder',    color: 'bg-[#2AABAB]/12 text-[#2AABAB] border-[#2AABAB]/25' },
+    rider:      { label: 'Rider',      color: 'bg-[#F0EDE4]/8 text-[#F0EDE4]/50 border-[#F0EDE4]/12' },
+  }
   const router = useRouter()
   const supabase = createClient()
 
@@ -61,6 +67,11 @@ export default function Header({ activePage }: Props) {
         <div className="hidden md:flex items-center gap-2">
           {!loading && user ? (
             <>
+              {role && ROLE_BADGE[role] && (
+                <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${ROLE_BADGE[role].color}`}>
+                  {ROLE_BADGE[role].label}
+                </span>
+              )}
               <Link href="/dashboard" className="flex items-center gap-2 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-3 py-2">
                 <LayoutDashboard size={15} />
                 Dashboard
@@ -116,6 +127,13 @@ export default function Header({ activePage }: Props) {
             <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#F0EDE4]/8">
               {!loading && user ? (
                 <>
+                  {role && ROLE_BADGE[role] && (
+                    <div className="flex justify-center py-1">
+                      <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${ROLE_BADGE[role].color}`}>
+                        {ROLE_BADGE[role].label}
+                      </span>
+                    </div>
+                  )}
                   <Link
                     href="/dashboard"
                     onClick={() => setOpen(false)}
