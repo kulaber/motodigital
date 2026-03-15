@@ -1,0 +1,25 @@
+import type { Metadata } from 'next'
+import { createClient } from '@/lib/supabase/server'
+import MapView from '@/components/map/MapView'
+
+export const metadata: Metadata = {
+  title: 'Bikes in deiner Nähe',
+  description: 'Finde Custom Bikes in deiner Nähe auf der Karte.',
+}
+
+export default async function MapPage() {
+  const supabase = await createClient()
+
+  // Initial load: active bikes with images (SSR for fast first paint)
+  const { data: bikes } = await supabase
+    .from('bikes')
+    .select(`
+      id, title, make, model, year, price, style, city,
+      bike_images ( url, is_cover )
+    `)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  return <MapView initialBikes={bikes ?? []} />
+}
