@@ -8,6 +8,8 @@ import BikeCard from '@/components/bike/BikeCard'
 import SearchBar from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
 import { BadgeCheck } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -159,15 +161,33 @@ export default function MapView({ initialBikes }: Props) {
   return (
     <div className="flex h-screen bg-bg overflow-hidden relative">
 
-      {/* Search + filter bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-3">
-        <SearchBar
-          view={view}
-          onViewChange={setView}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onSearch={searchNearby}
-        />
+      {/* Header + SearchBar */}
+      <div className="absolute top-0 left-0 right-0 z-20">
+        <header className="border-b border-[#F0EDE4]/5 bg-[#141414]/90 backdrop-blur-md">
+          <div className="max-w-6xl mx-auto px-5 lg:px-8 flex items-center justify-between h-14">
+            <Link href="/">
+              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-8 w-auto" priority />
+            </Link>
+            <nav className="hidden md:flex items-center gap-5">
+              <Link href="/builds"  className="text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builds</Link>
+              <Link href="/builder" className="text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors">Builder</Link>
+              <Link href="/map"     className="text-xs text-[#F0EDE4] font-semibold">Karte</Link>
+            </nav>
+            <div className="flex items-center gap-2">
+              <Link href="/auth/login" className="text-xs text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-3 py-1.5">Anmelden</Link>
+              <Link href="/auth/register" className="bg-[#2AABAB] text-[#141414] text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-[#3DBFBF] transition-all">Registrieren</Link>
+            </div>
+          </div>
+        </header>
+        <div className="p-3">
+          <SearchBar
+            view={view}
+            onViewChange={setView}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onSearch={searchNearby}
+          />
+        </div>
       </div>
 
       {/* Map */}
@@ -179,7 +199,7 @@ export default function MapView({ initialBikes }: Props) {
 
       {/* List view — bikes */}
       {view === 'list' && activeTab === 'bikes' && (
-        <div className="flex-1 overflow-y-auto pt-20 px-4 pb-6">
+        <div className="flex-1 overflow-y-auto pt-28 px-4 pb-6">
           <p className="text-sm text-creme/40 mb-4">{bikes.length} Bikes in der Nähe</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {bikes.map(bike => (
@@ -191,7 +211,7 @@ export default function MapView({ initialBikes }: Props) {
 
       {/* List view — builders */}
       {view === 'list' && activeTab === 'workshops' && (
-        <div className="flex-1 overflow-y-auto pt-20 px-4 pb-6">
+        <div className="flex-1 overflow-y-auto pt-28 px-4 pb-6">
           <p className="text-sm text-creme/40 mb-4">{MOCK_BUILDERS.length} Builder in Deutschland</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {MOCK_BUILDERS.map(b => (
@@ -224,7 +244,7 @@ export default function MapView({ initialBikes }: Props) {
 
       {/* Side panel — bikes */}
       {view === 'map' && activeTab === 'bikes' && (
-        <div className="w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-20">
+        <div className="w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-28">
           <div className="px-3 py-2 border-b border-creme/5">
             <span className="text-xs text-creme/40">{bikes.length} Bikes</span>
           </div>
@@ -245,7 +265,7 @@ export default function MapView({ initialBikes }: Props) {
 
       {/* Side panel — builders */}
       {view === 'map' && activeTab === 'workshops' && (
-        <div className="w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-20">
+        <div className="w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-28">
           <div className="px-3 py-2 border-b border-creme/5">
             <span className="text-xs text-creme/40">{MOCK_BUILDERS.length} Builder in DE</span>
           </div>
