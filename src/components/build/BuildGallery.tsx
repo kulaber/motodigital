@@ -67,52 +67,58 @@ export default function BuildGallery({ images, title }: Props) {
       {/* Lightbox */}
       {lightbox !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex flex-col"
           onClick={() => setLightbox(null)}
         >
-          {/* Close */}
-          <button
-            onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 z-10 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-all"
-          >
-            <X size={20} />
-          </button>
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/92" />
 
-          {/* Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/40 text-sm font-medium">
-            {lightbox + 1} / {images.length}
+          {/* Top bar */}
+          <div className="relative z-10 flex items-center justify-between px-4 py-3 flex-shrink-0">
+            <div className="text-white/40 text-sm font-medium">
+              {lightbox + 1} / {images.length}
+            </div>
+            <button
+              onClick={() => setLightbox(null)}
+              className="text-white/50 hover:text-white bg-white/8 hover:bg-white/15 rounded-full p-2 transition-all"
+            >
+              <X size={20} />
+            </button>
           </div>
 
-          {/* Prev */}
-          {images.length > 1 && (
+          {/* Image row */}
+          <div className="relative z-10 flex flex-1 items-center min-h-0">
+
+            {/* Prev */}
             <button
               onClick={e => { e.stopPropagation(); prev() }}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
+              className="flex-shrink-0 mx-2 sm:mx-4 text-white/50 hover:text-white bg-white/8 hover:bg-white/15 rounded-full p-2 sm:p-3 transition-all"
             >
               <ChevronLeft size={22} />
             </button>
-          )}
 
-          {/* Image */}
-          <div className="max-w-5xl max-h-[85vh] mx-auto px-14 sm:px-20" onClick={e => e.stopPropagation()}>
-            <img
-              key={lightbox}
-              src={images[lightbox]}
-              alt={`${title} ${lightbox + 1}`}
-              className="max-w-full max-h-[85vh] object-contain rounded-lg animate-scale-in"
-            />
-          </div>
+            {/* Image */}
+            <div className="flex-1 flex items-center justify-center min-w-0 min-h-0 py-4" onClick={e => e.stopPropagation()}>
+              <img
+                key={lightbox}
+                src={images[lightbox]}
+                alt={`${title} ${lightbox + 1}`}
+                className="max-w-full max-h-[75vh] object-contain rounded-xl animate-scale-in shadow-2xl"
+              />
+            </div>
 
-          {/* Next */}
-          {images.length > 1 && (
+            {/* Next */}
             <button
               onClick={e => { e.stopPropagation(); next() }}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 sm:p-3 transition-all"
+              className="flex-shrink-0 mx-2 sm:mx-4 text-white/50 hover:text-white bg-white/8 hover:bg-white/15 rounded-full p-2 sm:p-3 transition-all"
             >
               <ChevronRight size={22} />
             </button>
-          )}
 
+          </div>
+
+          {/* Bottom spacer */}
+          <div className="relative z-10 h-8 flex-shrink-0" />
         </div>
       )}
     </>
