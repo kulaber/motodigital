@@ -103,13 +103,15 @@ export default function BuildGallery({ images, title }: Props) {
 
             {/* Image */}
             <div className="flex-1 min-w-0 flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
-              <img
-                key={lightbox}
-                src={images[lightbox]}
-                alt={`${title} ${lightbox + 1}`}
-                style={{ maxHeight: 'calc(100vh - 110px)', maxWidth: '100%', objectFit: 'contain' }}
-                className="w-auto h-auto rounded-xl animate-scale-in shadow-2xl"
-              />
+              <div className="relative rounded-2xl overflow-hidden bg-white/4 shadow-2xl animate-scale-in">
+                <img
+                  key={lightbox}
+                  src={images[lightbox]}
+                  alt={`${title} ${lightbox + 1}`}
+                  style={{ maxHeight: 'calc(100vh - 110px)', maxWidth: '100%', objectFit: 'contain', display: 'block' }}
+                  className="w-auto h-auto"
+                />
+              </div>
             </div>
 
             {/* Next */}
