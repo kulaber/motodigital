@@ -26,8 +26,8 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
     setLoading(true)
 
     // Upsert conversation (unique constraint: bike_id + buyer_id)
-    const { data, error } = await supabase
-      .from('conversations')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('conversations') as any)
       .upsert(
         { bike_id: bikeId, buyer_id: user.id, seller_id: sellerId },
         { onConflict: 'bike_id,buyer_id', ignoreDuplicates: false }
