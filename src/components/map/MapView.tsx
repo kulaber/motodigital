@@ -4,13 +4,14 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { createClient } from '@/lib/supabase/client'
-import BikeCard from '@/components/bike/BikeCard'
 import SearchBar, { type UmbauTyp } from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
 import { BadgeCheck, Map as MapIcon, List } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import type { Database } from '@/types/database'
+
+const UMBAU_TYPEN = ['Café Racer','Scrambler','Bobber','Chopper','Tracker','Streetfighter','Brat Style','Bagger'] as const
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type Bike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' | 'style' | 'city' | 'mileage_km' | 'is_verified'> & {
@@ -58,8 +59,6 @@ export default function MapView({ initialBikes }: Props) {
   const [visibleBuilders, setVisibleBuilders] = useState<Builder[]>(MOCK_BUILDERS)
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
   const supabase = createClient()
-
-  const UMBAU_TYPEN = ['Café Racer','Scrambler','Bobber','Chopper','Tracker','Streetfighter','Brat Style','Bagger'] as const
 
   const availableTypes = useMemo(() => {
     const base = onlyVerified ? MOCK_BUILDERS.filter(b => b.verified) : MOCK_BUILDERS
@@ -182,6 +181,13 @@ export default function MapView({ initialBikes }: Props) {
     })
   }, [activeTab, filteredBuilders])
 
+  // Resize map when mobile view switches to map (was hidden, now visible)
+  useEffect(() => {
+    if (mobileView === 'map') {
+      setTimeout(() => map.current?.resize(), 50)
+    }
+  }, [mobileView])
+
   // Fly back to Berlin when switching back to bikes
   useEffect(() => {
     if (activeTab === 'bikes' && map.current) {
@@ -233,7 +239,7 @@ export default function MapView({ initialBikes }: Props) {
 
           {/* Builder list */}
           {activeTab === 'workshops' && (
-            <div className="px-5 py-4">
+            <div className="px-5 py-4 pb-24 md:pb-4">
               <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{visibleBuilders.length} Builder</p>
               <div className="flex flex-col gap-3">
                 {visibleBuilders.map(b => (
@@ -266,7 +272,7 @@ export default function MapView({ initialBikes }: Props) {
 
           {/* Bike list */}
           {activeTab === 'bikes' && (
-            <div className="px-5 py-4">
+            <div className="px-5 py-4 pb-24 md:pb-4">
               <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{bikes.length} Bikes</p>
               <div className="flex flex-col gap-3">
                 {bikes.map(bike => (
@@ -293,22 +299,24 @@ export default function MapView({ initialBikes }: Props) {
           mobileView === 'map' ? 'flex-1 md:flex-none md:w-1/2' : 'hidden md:block md:w-1/2'
         }`} />
 
-        {/* Mobile toggle button — Airbnb style */}
-        <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
-          <button
-            onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')}
-            className="flex items-center gap-2 bg-[#141414] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
-          >
-            {mobileView === 'list'
-              ? <><MapIcon size={15} /> Karte</>
-              : <><List size={15} /> Liste</>
-            }
-          </button>
-        </div>
+        {/* Mobile toggle button — Airbnb style (hidden when popup is open) */}
+        {!selectedBuilder && (
+          <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
+            <button
+              onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')}
+              className="flex items-center gap-2 bg-[#141414] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
+            >
+              {mobileView === 'list'
+                ? <><MapIcon size={15} /> Karte</>
+                : <><List size={15} /> Liste</>
+              }
+            </button>
+          </div>
+        )}
 
-        {/* Selected builder popup */}
+        {/* Selected builder popup — centered on mobile, right on desktop */}
         {selectedBuilder && (
-          <div className="absolute bottom-6 right-6 z-30 bg-bg-2 border border-teal/20 rounded-2xl p-4 shadow-2xl flex items-center gap-3 animate-slide-up-sm max-w-xs">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-6 z-30 bg-bg-2 border border-teal/20 rounded-2xl p-4 shadow-2xl flex items-center gap-3 animate-slide-up-sm w-[calc(100%-3rem)] md:w-auto md:max-w-xs">
             <div className="w-11 h-11 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
               {selectedBuilder.initials}
             </div>
