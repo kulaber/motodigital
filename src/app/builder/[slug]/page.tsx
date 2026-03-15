@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { BadgeCheck, MapPin, Calendar, Star, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
-import BuildGallery from '@/components/build/BuildGallery'
+import BuilderGallery from '@/components/builder/BuilderGallery'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -107,7 +107,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             {images.length > 0 && (
               <div className="mb-8">
                 <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Galerie</p>
-                <BuildGallery images={images.map(m => m.url)} title={builder.name} />
+                <BuilderGallery images={images} />
               </div>
             )}
 
