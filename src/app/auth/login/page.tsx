@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import LoginForm from './LoginForm'
 
 export const metadata: Metadata = { title: 'Anmelden' }
@@ -10,9 +11,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
 
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="w-8 h-8 bg-teal rounded-lg flex items-center justify-center text-bg font-bold text-sm">M</span>
-            <span className="font-bold text-creme">Moto<span className="text-teal">Digital</span></span>
+          <Link href="/" className="inline-flex mb-6">
+            <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
           </Link>
           <h1 className="text-xl font-bold text-creme">Willkommen zurück</h1>
           <p className="text-sm text-creme/40 mt-1">Meld dich in deinem Account an</p>

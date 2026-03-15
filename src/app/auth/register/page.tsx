@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import RegisterForm from './RegisterForm'
 
 export const metadata: Metadata = { title: 'Registrieren — MotoDigital' }
@@ -11,9 +12,8 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/landing" className="inline-flex items-center gap-2 mb-6">
-            <span className="w-9 h-9 bg-[#2AABAB] rounded-xl flex items-center justify-center text-[#141414] font-bold">M</span>
-            <span className="font-bold text-[#F0EDE4] text-lg">Moto<span className="text-[#2AABAB]">Digital</span></span>
+          <Link href="/" className="inline-flex mb-6">
+            <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
           </Link>
           <h1 className="text-xl font-bold text-[#F0EDE4]">Account erstellen</h1>
           <p className="text-sm text-[#F0EDE4]/40 mt-1">Kostenlos registrieren — keine Kreditkarte</p>
