@@ -38,6 +38,11 @@ export interface Database {
           bio: string | null
           instagram_url: string | null
           tiktok_url: string | null
+          website_url: string | null
+          city: string | null
+          specialty: string | null
+          since_year: number | null
+          tags: string[] | null
           is_verified: boolean
           created_at: string
         }
@@ -45,6 +50,19 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>
+      }
+      builder_media: {
+        Row: {
+          id: string
+          builder_id: string
+          url: string
+          type: 'image' | 'video'
+          title: string | null
+          position: number
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['builder_media']['Row'], 'id' | 'created_at'> & { id?: string }
+        Update: Partial<Database['public']['Tables']['builder_media']['Insert']>
       }
       workshops: {
         Row: {

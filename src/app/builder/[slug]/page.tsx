@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, Star, ArrowLeft, Globe, Instagram } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, Star, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 
@@ -26,6 +26,9 @@ export default async function BuilderProfilePage({ params }: Props) {
   const builder = getBuilderBySlug(slug)
   if (!builder) notFound()
 
+  const images = builder.media.filter(m => m.type === 'image')
+  const videos = builder.media.filter(m => m.type === 'video')
+
   return (
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
       <Header activePage="builder" />
@@ -34,11 +37,8 @@ export default async function BuilderProfilePage({ params }: Props) {
       <section className="pt-24 pb-0 bg-[#141414]">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8">
 
-          {/* Back */}
-          <Link
-            href="/builder"
-            className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors mb-8"
-          >
+          <Link href="/builder"
+            className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors mb-8">
             <ArrowLeft size={13} /> Alle Builder
           </Link>
 
@@ -48,7 +48,6 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.initials}
             </div>
 
-            {/* Name + meta */}
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
                 <h1 className="text-2xl sm:text-3xl font-bold text-[#F0EDE4] tracking-tight">
@@ -84,7 +83,6 @@ export default async function BuilderProfilePage({ params }: Props) {
               </div>
             </div>
 
-            {/* Stats */}
             <div className="flex sm:flex-col gap-4 sm:gap-2 text-right flex-shrink-0">
               <div>
                 <p className="text-2xl font-bold text-[#F0EDE4] leading-none">{builder.builds}</p>
@@ -99,14 +97,85 @@ export default async function BuilderProfilePage({ params }: Props) {
         </div>
       </section>
 
+      {/* ── MEDIA GALLERY ── */}
+      {builder.media.length > 0 && (
+        <section className="mb-0">
+          <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pb-0">
+
+            {/* Photo grid */}
+            {images.length > 0 && (
+              <div className="mb-8">
+                <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Galerie</p>
+                <div className={`grid gap-2 ${
+                  images.length === 1 ? 'grid-cols-1' :
+                  images.length === 2 ? 'grid-cols-2' :
+                  images.length === 3 ? 'grid-cols-3' :
+                  'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+                }`}>
+                  {/* First image larger */}
+                  {images.map((item, i) => (
+                    <div
+                      key={i}
+                      className={`group relative overflow-hidden rounded-xl bg-[#1C1C1C] border border-[#F0EDE4]/5 ${
+                        i === 0 && images.length > 2 ? 'row-span-2 col-span-2 sm:col-span-1 lg:col-span-2' : ''
+                      }`}
+                    >
+                      <div className={`overflow-hidden ${i === 0 && images.length > 2 ? 'aspect-[4/3] sm:aspect-square lg:aspect-[4/3]' : 'aspect-square'}`}>
+                        <img
+                          src={item.url}
+                          alt={item.title ?? ''}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      </div>
+                      {item.title && (
+                        <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-[#141414]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-xs text-[#F0EDE4]/80 font-medium">{item.title}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Videos */}
+            {videos.length > 0 && (
+              <div className="mb-8">
+                <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Videos</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {videos.map((item, i) => (
+                    <div key={i} className="group relative rounded-xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/5">
+                      <div className="aspect-video">
+                        <video
+                          src={item.url}
+                          controls
+                          className="w-full h-full object-cover"
+                          poster=""
+                        />
+                      </div>
+                      {item.title && (
+                        <div className="px-3 py-2.5">
+                          <p className="text-xs text-[#F0EDE4]/60 font-medium flex items-center gap-1.5">
+                            <Play size={10} className="text-[#2AABAB]" /> {item.title}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* ── CONTENT ── */}
       <section className="pb-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
 
-            {/* LEFT — Bio + builds */}
+            {/* LEFT */}
             <div>
-
               {/* About */}
               <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
                 <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Über</h2>
@@ -154,7 +223,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               )}
             </div>
 
-            {/* RIGHT — Sidebar */}
+            {/* RIGHT sidebar */}
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA */}
@@ -205,7 +274,6 @@ export default async function BuilderProfilePage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
       <footer className="bg-[#141414] border-t border-[#F0EDE4]/5 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <Link href="/builder" className="text-xs text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
