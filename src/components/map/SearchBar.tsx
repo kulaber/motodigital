@@ -1,19 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Map, List } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Props {
-  view: 'map' | 'list'
-  onViewChange: (v: 'map' | 'list') => void
   activeTab: 'bikes' | 'workshops'
   onTabChange: (t: 'bikes' | 'workshops') => void
   onSearch: (lat: number, lng: number, radius: number) => void
 }
 
-export default function SearchBar({ view, onViewChange, activeTab, onTabChange }: Props) {
-  const [radius, setRadius] = useState(30)
+export default function SearchBar({ activeTab, onTabChange }: Props) {
+  const [radius] = useState(30)
 
   return (
     <div className="flex flex-col gap-2">
@@ -32,30 +30,6 @@ export default function SearchBar({ view, onViewChange, activeTab, onTabChange }
         {/* Radius pill */}
         <div className="flex items-center gap-2 bg-bg-2 border border-creme/10 rounded-full px-4 py-2.5 text-sm text-creme/60">
           {radius} km
-        </div>
-
-        {/* View toggle */}
-        <div className="flex bg-bg-2 border border-creme/10 rounded-full p-1">
-          <button
-            onClick={() => onViewChange('map')}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
-              view === 'map' ? 'bg-teal text-bg' : 'text-creme/50 hover:text-creme'
-            )}
-          >
-            <Map size={12} />
-            Karte
-          </button>
-          <button
-            onClick={() => onViewChange('list')}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
-              view === 'list' ? 'bg-teal text-bg' : 'text-creme/50 hover:text-creme'
-            )}
-          >
-            <List size={12} />
-            Liste
-          </button>
         </div>
       </div>
 
