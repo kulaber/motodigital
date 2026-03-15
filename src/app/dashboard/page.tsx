@@ -4,6 +4,21 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, Eye, MessageCircle, TrendingUp } from 'lucide-react'
+import type { Database } from '@/types/database'
+
+type BikeRow = Database['public']['Tables']['bikes']['Row']
+type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
+
+type DashboardBike = Pick<BikeRow, 'id' | 'title' | 'status' | 'price' | 'view_count' | 'created_at'> & {
+  bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
+}
+
+type DashboardConversation = {
+  id: string
+  last_message_at: string | null
+  bikes: { title: string } | null
+  profiles: { username: string; full_name: string | null } | null
+}
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -17,13 +32,13 @@ export default async function DashboardPage() {
       .from('bikes')
       .select('id, title, status, price, view_count, created_at, bike_images(url,is_cover)')
       .eq('seller_id', user.id)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false }) as unknown as Promise<{ data: DashboardBike[] | null, error: unknown }>,
     supabase
       .from('conversations')
       .select('id, last_message_at, bikes(title), profiles:buyer_id(username, full_name)')
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false })
-      .limit(10),
+      .limit(10) as unknown as Promise<{ data: DashboardConversation[] | null, error: unknown }>,
   ])
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
@@ -72,7 +87,7 @@ export default async function DashboardPage() {
               {bikes?.map(bike => (
                 <div key={bike.id} className="flex items-center gap-4 px-5 py-3.5">
                   <div className="w-12 h-9 rounded-lg bg-bg-3 border border-creme/8 flex-shrink-0 overflow-hidden relative">
-                    {(bike.bike_images as any)?.[0]?.url ? null : (
+                    {bike.bike_images?.[0]?.url ? null : (
                       <div className="w-full h-full flex items-center justify-center opacity-30">
                         <svg width="24" height="17" viewBox="0 0 48 34" fill="none">
                           <circle cx="8" cy="26" r="7" stroke="white" strokeWidth="1.5"/>
@@ -115,7 +130,7 @@ export default async function DashboardPage() {
               <h2 className="text-sm font-semibold text-creme">Nachrichten</h2>
             </div>
             <div className="divide-y divide-creme/5">
-              {conversations?.map((conv: any) => (
+              {conversations?.map((conv) => (
                 <Link
                   key={conv.id}
                   href={`/dashboard?conversation=${conv.id}`}
