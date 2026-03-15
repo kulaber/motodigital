@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LayoutDashboard, LogOut } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   activePage?: 'builds' | 'builder' | 'map' | 'landing'
@@ -17,6 +20,16 @@ const NAV_LINKS = [
 
 export default function Header({ activePage }: Props) {
   const [open, setOpen] = useState(false)
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const supabase = createClient()
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setOpen(false)
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#F0EDE4]/5 bg-[#141414]/95 backdrop-blur-md">
@@ -46,12 +59,30 @@ export default function Header({ activePage }: Props) {
 
         {/* Desktop auth */}
         <div className="hidden md:flex items-center gap-2">
-          <Link href="/auth/login" className="text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-4 py-2">
-            Anmelden
-          </Link>
-          <Link href="/auth/register" className="bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#3DBFBF] transition-all">
-            Registrieren
-          </Link>
+          {!loading && user ? (
+            <>
+              <Link href="/dashboard" className="flex items-center gap-2 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-3 py-2">
+                <LayoutDashboard size={15} />
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-sm text-[#F0EDE4]/50 hover:text-[#F0EDE4] border border-[#F0EDE4]/12 hover:border-[#F0EDE4]/25 px-4 py-2 rounded-full transition-all"
+              >
+                <LogOut size={14} />
+                Abmelden
+              </button>
+            </>
+          ) : !loading ? (
+            <>
+              <Link href="/auth/login" className="text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-4 py-2">
+                Anmelden
+              </Link>
+              <Link href="/auth/register" className="bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#3DBFBF] transition-all">
+                Registrieren
+              </Link>
+            </>
+          ) : null}
         </div>
 
         {/* Mobile hamburger */}
@@ -83,20 +114,40 @@ export default function Header({ activePage }: Props) {
               </Link>
             ))}
             <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#F0EDE4]/8">
-              <Link
-                href="/auth/login"
-                onClick={() => setOpen(false)}
-                className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all"
-              >
-                Anmelden
-              </Link>
-              <Link
-                href="/auth/register"
-                onClick={() => setOpen(false)}
-                className="py-3 text-center text-sm font-semibold bg-[#2AABAB] text-[#141414] rounded-full hover:bg-[#3DBFBF] transition-all"
-              >
-                Registrieren
-              </Link>
+              {!loading && user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard size={15} /> Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogOut size={14} /> Abmelden
+                  </button>
+                </>
+              ) : !loading ? (
+                <>
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setOpen(false)}
+                    className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all"
+                  >
+                    Anmelden
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    onClick={() => setOpen(false)}
+                    className="py-3 text-center text-sm font-semibold bg-[#2AABAB] text-[#141414] rounded-full hover:bg-[#3DBFBF] transition-all"
+                  >
+                    Registrieren
+                  </Link>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
