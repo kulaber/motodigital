@@ -53,7 +53,7 @@ export default function MapView({ initialBikes }: Props) {
   const [selectedBike, setSelectedBike] = useState<Bike | null>(null)
   const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
   const [view, setView] = useState<'map' | 'list'>('map')
-  const [activeTab, setActiveTab] = useState<'bikes' | 'workshops'>('bikes')
+  const [activeTab, setActiveTab] = useState<'bikes' | 'workshops'>('workshops')
   const supabase = createClient()
 
   // Init Mapbox
@@ -160,153 +160,157 @@ export default function MapView({ initialBikes }: Props) {
   }, [supabase])
 
   return (
-    <div className="flex h-screen bg-bg overflow-hidden relative">
+    <div className="flex flex-col h-screen bg-bg overflow-hidden">
 
-      {/* Header + SearchBar */}
-      <div className="absolute top-0 left-0 right-0 z-20">
-        <Header activePage="map" />
-        <div className="p-3">
-          <SearchBar
-            view={view}
-            onViewChange={setView}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            onSearch={searchNearby}
-          />
-        </div>
+      {/* Header in normal flow */}
+      <Header activePage="map" />
+
+      {/* SearchBar below header */}
+      <div className="px-4 py-3 border-b border-creme/5 bg-bg z-10 flex-shrink-0">
+        <SearchBar
+          view={view}
+          onViewChange={setView}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onSearch={searchNearby}
+        />
       </div>
 
-      {/* Map */}
-      <div
-        ref={mapContainer}
-        className="flex-1"
-        style={{ display: view === 'map' ? 'block' : 'none' }}
-      />
+      {/* Map + Sidebar row — fills remaining height */}
+      <div className="flex flex-1 overflow-hidden relative">
 
-      {/* List view — bikes */}
-      {view === 'list' && activeTab === 'bikes' && (
-        <div className="flex-1 overflow-y-auto pt-28 px-4 pb-6">
-          <p className="text-sm text-creme/40 mb-4">{bikes.length} Bikes in der Nähe</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bikes.map(bike => (
-              <BikeCard key={bike.id} bike={bike} />
-            ))}
-          </div>
-        </div>
-      )}
+        {/* Map */}
+        <div
+          ref={mapContainer}
+          className="flex-1 h-full"
+          style={{ display: view === 'map' ? 'block' : 'none' }}
+        />
 
-      {/* List view — builders */}
-      {view === 'list' && activeTab === 'workshops' && (
-        <div className="flex-1 overflow-y-auto pt-28 px-4 pb-6">
-          <p className="text-sm text-creme/40 mb-4">{MOCK_BUILDERS.length} Builder in Deutschland</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {MOCK_BUILDERS.map(b => (
-              <div key={b.id} className="bg-bg-2 border border-creme/6 rounded-2xl p-5 hover:border-teal/25 transition-all hover:-translate-y-0.5 cursor-pointer">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-11 h-11 rounded-xl bg-teal/12 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
-                    {b.initials}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-creme">{b.name}</p>
-                      {b.verified && <BadgeCheck size={12} className="text-teal" />}
-                    </div>
-                    <p className="text-xs text-creme/35">{b.city}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-creme/40 mb-3">{b.specialty}</p>
-                <div className="flex items-center justify-between pt-3 border-t border-creme/5 text-xs text-creme/35">
-                  <span><span className="text-creme/60 font-semibold">{b.builds}</span> Builds</span>
-                  <span className="flex items-center gap-1">
-                    <svg width="9" height="9" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                    {b.rating}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Side panel — bikes */}
-      {view === 'map' && activeTab === 'bikes' && (
-        <div className="hidden md:block w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-28">
-          <div className="px-3 py-2 border-b border-creme/5">
-            <span className="text-xs text-creme/40">{bikes.length} Bikes</span>
-          </div>
-          <div className="divide-y divide-creme/5">
-            {bikes.map(bike => (
-              <button
-                key={bike.id}
-                onClick={() => setSelectedBike(bike)}
-                className={`w-full text-left px-3 py-3 hover:bg-bg-3 transition-colors ${selectedBike?.id === bike.id ? 'bg-bg-3' : ''}`}
-              >
-                <p className="text-sm font-medium text-creme">{bike.title}</p>
-                <p className="text-xs text-creme/40 mt-0.5">{bike.year} · {bike.city} · {formatPrice(bike.price)}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Side panel — builders */}
-      {view === 'map' && activeTab === 'workshops' && (
-        <div className="hidden md:block w-72 border-l border-creme/5 overflow-y-auto bg-bg-2 pt-28">
-          <div className="px-3 py-2 border-b border-creme/5">
-            <span className="text-xs text-creme/40">{MOCK_BUILDERS.length} Builder in DE</span>
-          </div>
-          <div className="divide-y divide-creme/5">
-            {MOCK_BUILDERS.map(b => (
-              <button
-                key={b.id}
-                onClick={() => {
-                  setSelectedBuilder(b)
-                  map.current?.flyTo({ center: [b.lng, b.lat], zoom: 13, duration: 1000 })
-                }}
-                className={`w-full text-left px-3 py-3 hover:bg-bg-3 transition-colors ${selectedBuilder?.id === b.id ? 'bg-bg-3 border-l-2 border-teal' : ''}`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-teal/12 border border-teal/20 flex items-center justify-center text-xs font-bold text-teal flex-shrink-0">
-                    {b.initials}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-creme truncate">{b.name}</p>
-                    <p className="text-xs text-creme/40">{b.city} · {b.builds} Builds</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Selected builder popup */}
-      {selectedBuilder && view === 'map' && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 bg-bg-2 border border-teal/20 rounded-2xl p-4 shadow-2xl flex items-center gap-4 animate-slide-up-sm">
-          <div className="w-12 h-12 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center text-base font-bold text-teal flex-shrink-0">
-            {selectedBuilder.initials}
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <p className="text-sm font-semibold text-creme">{selectedBuilder.name}</p>
-              {selectedBuilder.verified && <BadgeCheck size={12} className="text-teal" />}
+        {/* List view — bikes */}
+        {view === 'list' && activeTab === 'bikes' && (
+          <div className="flex-1 overflow-y-auto px-4 py-5">
+            <p className="text-sm text-creme/40 mb-4">{bikes.length} Bikes in der Nähe</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {bikes.map(bike => (
+                <BikeCard key={bike.id} bike={bike} />
+              ))}
             </div>
-            <p className="text-xs text-creme/40">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
-            <p className="text-xs text-creme/35 mt-0.5">{selectedBuilder.builds} Builds · ★ {selectedBuilder.rating}</p>
           </div>
-          <Link
-            href={`/builder/${selectedBuilder.slug}`}
-            className="ml-1 text-xs text-teal font-semibold hover:text-teal-light transition-colors whitespace-nowrap"
-          >
-            Profil →
-          </Link>
-          <button
-            onClick={() => setSelectedBuilder(null)}
-            className="ml-1 text-creme/25 hover:text-creme transition-colors text-lg leading-none"
-          >×</button>
-        </div>
-      )}
+        )}
 
+        {/* List view — builders */}
+        {view === 'list' && activeTab === 'workshops' && (
+          <div className="flex-1 overflow-y-auto px-4 py-5">
+            <p className="text-sm text-creme/40 mb-4">{MOCK_BUILDERS.length} Builder in Deutschland</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {MOCK_BUILDERS.map(b => (
+                <div key={b.id} className="bg-bg-2 border border-creme/6 rounded-2xl p-5 hover:border-teal/25 transition-all hover:-translate-y-0.5 cursor-pointer">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-11 h-11 rounded-xl bg-teal/12 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
+                      {b.initials}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-creme">{b.name}</p>
+                        {b.verified && <BadgeCheck size={12} className="text-teal" />}
+                      </div>
+                      <p className="text-xs text-creme/35">{b.city}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-creme/40 mb-3">{b.specialty}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-creme/5 text-xs text-creme/35">
+                    <span><span className="text-creme/60 font-semibold">{b.builds}</span> Builds</span>
+                    <span className="flex items-center gap-1">
+                      <svg width="9" height="9" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
+                      {b.rating}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Side panel — bikes */}
+        {view === 'map' && activeTab === 'bikes' && (
+          <div className="hidden md:block w-72 border-l border-creme/5 overflow-y-auto bg-bg-2">
+            <div className="px-3 py-2 border-b border-creme/5">
+              <span className="text-xs text-creme/40">{bikes.length} Bikes</span>
+            </div>
+            <div className="divide-y divide-creme/5">
+              {bikes.map(bike => (
+                <button
+                  key={bike.id}
+                  onClick={() => setSelectedBike(bike)}
+                  className={`w-full text-left px-3 py-3 hover:bg-bg-3 transition-colors ${selectedBike?.id === bike.id ? 'bg-bg-3' : ''}`}
+                >
+                  <p className="text-sm font-medium text-creme">{bike.title}</p>
+                  <p className="text-xs text-creme/40 mt-0.5">{bike.year} · {bike.city} · {formatPrice(bike.price)}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Side panel — builders */}
+        {view === 'map' && activeTab === 'workshops' && (
+          <div className="hidden md:block w-72 border-l border-creme/5 overflow-y-auto bg-bg-2">
+            <div className="px-3 py-2 border-b border-creme/5">
+              <span className="text-xs text-creme/40">{MOCK_BUILDERS.length} Builder in DE</span>
+            </div>
+            <div className="divide-y divide-creme/5">
+              {MOCK_BUILDERS.map(b => (
+                <button
+                  key={b.id}
+                  onClick={() => {
+                    setSelectedBuilder(b)
+                    map.current?.flyTo({ center: [b.lng, b.lat], zoom: 13, duration: 1000 })
+                  }}
+                  className={`w-full text-left px-3 py-3 hover:bg-bg-3 transition-colors ${selectedBuilder?.id === b.id ? 'bg-bg-3 border-l-2 border-teal' : ''}`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-teal/12 border border-teal/20 flex items-center justify-center text-xs font-bold text-teal flex-shrink-0">
+                      {b.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-creme truncate">{b.name}</p>
+                      <p className="text-xs text-creme/40">{b.city} · {b.builds} Builds</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Selected builder popup */}
+        {selectedBuilder && view === 'map' && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 bg-bg-2 border border-teal/20 rounded-2xl p-4 shadow-2xl flex items-center gap-4 animate-slide-up-sm">
+            <div className="w-12 h-12 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center text-base font-bold text-teal flex-shrink-0">
+              {selectedBuilder.initials}
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <p className="text-sm font-semibold text-creme">{selectedBuilder.name}</p>
+                {selectedBuilder.verified && <BadgeCheck size={12} className="text-teal" />}
+              </div>
+              <p className="text-xs text-creme/40">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
+              <p className="text-xs text-creme/35 mt-0.5">{selectedBuilder.builds} Builds · ★ {selectedBuilder.rating}</p>
+            </div>
+            <Link
+              href={`/builder/${selectedBuilder.slug}`}
+              className="ml-1 text-xs text-teal font-semibold hover:text-teal-light transition-colors whitespace-nowrap"
+            >
+              Profil →
+            </Link>
+            <button
+              onClick={() => setSelectedBuilder(null)}
+              className="ml-1 text-creme/25 hover:text-creme transition-colors text-lg leading-none"
+            >×</button>
+          </div>
+        )}
+
+      </div>
     </div>
   )
 }

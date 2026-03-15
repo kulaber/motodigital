@@ -61,17 +61,8 @@ export default function SearchBar({ view, onViewChange, activeTab, onTabChange }
 
       {/* Filter chips */}
       <div className="flex gap-2 overflow-x-auto pb-0.5">
-        {/* Bikes / Builder toggle */}
+        {/* Builder / Bikes toggle */}
         <div className="flex bg-bg-2 border border-creme/10 rounded-full p-0.5 flex-shrink-0">
-          <button
-            onClick={() => onTabChange('bikes')}
-            className={cn(
-              'px-3 py-1 rounded-full text-xs font-medium transition-all',
-              activeTab === 'bikes' ? 'bg-creme text-bg' : 'text-creme/50'
-            )}
-          >
-            Bikes
-          </button>
           <button
             onClick={() => onTabChange('workshops')}
             className={cn(
@@ -80,6 +71,15 @@ export default function SearchBar({ view, onViewChange, activeTab, onTabChange }
             )}
           >
             Builder
+          </button>
+          <button
+            onClick={() => onTabChange('bikes')}
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-medium transition-all',
+              activeTab === 'bikes' ? 'bg-creme text-bg' : 'text-creme/50'
+            )}
+          >
+            Bikes
           </button>
         </div>
 
