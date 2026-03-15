@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
@@ -51,11 +51,42 @@ export default async function DashboardPage() {
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
   const isBuilder = profile?.role === 'builder' || profile?.role === 'superadmin'
+  const isSuperAdmin = profile?.role === 'superadmin'
+
+  // Superadmin platform stats
+  type AdminStats = {
+    buildersTotal: number
+    buildersLive: number
+    ridersTotal: number
+    ridersOnline: number
+  }
+  let adminStats: AdminStats | null = null
+
+  if (isSuperAdmin) {
+    const [buildersTotal, buildersLive, ridersTotal, authResult] = await Promise.all([
+      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'builder') as Promise<{ count: number | null }>,
+      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'builder').eq('is_verified', true) as Promise<{ count: number | null }>,
+      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'rider').eq('is_verified', true) as Promise<{ count: number | null }>,
+      supabase.auth.admin.listUsers({ perPage: 1000 }),
+    ])
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const ridersOnline = authResult.data?.users?.filter(u =>
+      u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
+    ).length ?? 0
+
+    adminStats = {
+      buildersTotal: buildersTotal.count ?? 0,
+      buildersLive: buildersLive.count ?? 0,
+      ridersTotal: ridersTotal.count ?? 0,
+      ridersOnline,
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#141414]">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 pt-24 pb-12 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 pt-8 pb-12 lg:px-8">
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
@@ -73,6 +104,95 @@ export default async function DashboardPage() {
             Neues Inserat
           </Link>
         </div>
+
+        {/* Superadmin Platform Stats */}
+        {isSuperAdmin && adminStats && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield size={14} className="text-amber-400" />
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-400/80">Plattform Übersicht</p>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+              {[
+                {
+                  label: 'Builder gesamt',
+                  value: adminStats.buildersTotal,
+                  sub: 'registriert',
+                  icon: <Wrench size={15} />,
+                  color: 'text-teal',
+                  bg: 'bg-teal/8 border-teal/15',
+                },
+                {
+                  label: 'Builder LIVE',
+                  value: adminStats.buildersLive,
+                  sub: 'verifiziert & aktiv',
+                  icon: <Radio size={15} />,
+                  color: 'text-green-400',
+                  bg: 'bg-green-500/8 border-green-500/15',
+                },
+                {
+                  label: 'Rider registriert',
+                  value: adminStats.ridersTotal,
+                  sub: 'verifizierte Accounts',
+                  icon: <Users size={15} />,
+                  color: 'text-[#F0EDE4]',
+                  bg: 'bg-[#F0EDE4]/5 border-[#F0EDE4]/10',
+                },
+                {
+                  label: 'Rider online',
+                  value: adminStats.ridersOnline,
+                  sub: 'letzte 7 Tage',
+                  icon: <BarChart3 size={15} />,
+                  color: 'text-amber-400',
+                  bg: 'bg-amber-500/8 border-amber-500/15',
+                },
+              ].map(s => (
+                <div key={s.label} className={`rounded-2xl border p-4 ${s.bg}`}>
+                  <div className={`flex items-center gap-2 mb-2 ${s.color} opacity-70`}>
+                    {s.icon}
+                    <span className="text-xs">{s.label}</span>
+                  </div>
+                  <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-xs text-[#F0EDE4]/25 mt-0.5">{s.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Visitor chart placeholder */}
+            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm font-semibold text-[#F0EDE4]">Besucher</p>
+                  <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Letzte 7 Tage</p>
+                </div>
+                <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-semibold">
+                  Vercel Analytics aktivieren
+                </span>
+              </div>
+              {/* Bar chart mock */}
+              <div className="flex items-end gap-1.5 h-20">
+                {[42, 68, 55, 91, 73, 84, 110].map((v, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      className="w-full rounded-sm bg-teal/20 hover:bg-teal/40 transition-colors"
+                      style={{ height: `${(v / 110) * 100}%` }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between mt-2">
+                {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(d => (
+                  <span key={d} className="flex-1 text-center text-[10px] text-[#F0EDE4]/20">{d}</span>
+                ))}
+              </div>
+              <p className="text-[10px] text-[#F0EDE4]/20 mt-3">
+                * Platzhalterdaten — echte Werte nach Aktivierung von Vercel Analytics
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
