@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import { BUILDERS } from '@/lib/data/builders'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
@@ -17,11 +18,6 @@ const BUILDS = [
   { title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750', builder: 'Studio Nord', city: 'Berlin', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600&q=75' },
 ]
 
-const BUILDERS = [
-  { initials: 'JK', name: 'Jakob Kraft',  city: 'Berlin',   specialty: 'Cafe Racer · Scrambler', builds: 14, rating: 4.9 },
-  { initials: 'MS', name: 'Max Steiner',  city: 'München',  specialty: 'Bobber · Chopper',        builds: 22, rating: 5.0 },
-  { initials: 'SN', name: 'Studio Nord',  city: 'Hamburg',  specialty: 'Street · Tracker',        builds: 8,  rating: 4.7 },
-]
 
 const USPS = [
   { icon: <Map size={20} className="text-teal" />, title: 'Builder & Rider', desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
@@ -195,25 +191,31 @@ export default function LandingPage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {BUILDERS.map(b => (
-              <div key={b.name} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 hover:border-[#2AABAB]/25 hover:-translate-y-0.5 transition-all cursor-pointer">
+            {BUILDERS.slice(0, 3).map(b => (
+              <Link key={b.slug} href={`/builder/${b.slug}`}
+                className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 hover:border-[#2AABAB]/25 hover:-translate-y-0.5 transition-all block">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-11 h-11 rounded-xl bg-[#2AABAB]/15 border border-[#2AABAB]/20 flex items-center justify-center text-sm font-bold text-[#2AABAB] flex-shrink-0">
                     {b.initials}
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#F0EDE4]">{b.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#2AABAB] transition-colors">{b.name}</p>
+                      {b.verified && <BadgeCheck size={11} className="text-[#2AABAB] flex-shrink-0" />}
+                    </div>
                     <p className="text-xs text-[#F0EDE4]/35">{b.city} · {b.specialty}</p>
                   </div>
-                  <div className="ml-auto flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <svg width="11" height="11" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
                     <span className="text-xs text-[#F0EDE4]/40 font-medium">{b.rating}</span>
                   </div>
                 </div>
-                <div className="flex gap-4 pt-4 border-t border-[#F0EDE4]/6">
+                <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mb-3 line-clamp-2">{b.bio}</p>
+                <div className="flex items-center justify-between pt-4 border-t border-[#F0EDE4]/6">
                   <span className="text-xs text-[#F0EDE4]/30 font-medium">{b.builds} Builds</span>
+                  <span className="text-xs text-[#2AABAB] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Profil →</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

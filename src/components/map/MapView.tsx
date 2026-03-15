@@ -9,6 +9,7 @@ import SearchBar from '@/components/map/SearchBar'
 import { formatPrice } from '@/lib/utils'
 import { BadgeCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import Link from 'next/link'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -18,6 +19,7 @@ type Bike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' |
 
 type Builder = {
   id: string
+  slug: string
   name: string
   initials: string
   city: string
@@ -30,12 +32,12 @@ type Builder = {
 }
 
 const MOCK_BUILDERS: Builder[] = [
-  { id: 'b1', name: 'Jakob Kraft',       initials: 'JK', city: 'Berlin',    specialty: 'Cafe Racer · Scrambler', builds: 14, rating: 4.9, verified: true,  lat: 52.520,  lng: 13.405 },
-  { id: 'b2', name: 'Studio Nord',       initials: 'SN', city: 'Hamburg',   specialty: 'Street · Tracker',        builds: 8,  rating: 4.7, verified: true,  lat: 53.551,  lng: 9.993  },
-  { id: 'b3', name: 'Max Steiner',       initials: 'MS', city: 'München',   specialty: 'Bobber · Chopper',        builds: 22, rating: 5.0, verified: true,  lat: 48.137,  lng: 11.576 },
-  { id: 'b4', name: 'René Bauer Cycles', initials: 'RB', city: 'Köln',      specialty: 'Tracker · Flat Track',    builds: 6,  rating: 4.6, verified: false, lat: 50.938,  lng: 6.960  },
-  { id: 'b5', name: 'Kai Fuchs Custom',  initials: 'KF', city: 'Stuttgart', specialty: 'Chopper · Old School',    builds: 18, rating: 4.9, verified: true,  lat: 48.775,  lng: 9.182  },
-  { id: 'b6', name: 'Anna Wolff Moto',   initials: 'AW', city: 'Hamburg',   specialty: 'Scrambler · Enduro',      builds: 11, rating: 4.8, verified: false, lat: 53.565,  lng: 10.010 },
+  { id: 'b1', slug: 'jakob-kraft',       name: 'Jakob Kraft',       initials: 'JK', city: 'Berlin',    specialty: 'Cafe Racer · Scrambler', builds: 14, rating: 4.9, verified: true,  lat: 52.520,  lng: 13.405 },
+  { id: 'b2', slug: 'studio-nord',       name: 'Studio Nord',       initials: 'SN', city: 'Hamburg',   specialty: 'Street · Tracker',        builds: 8,  rating: 4.7, verified: true,  lat: 53.551,  lng: 9.993  },
+  { id: 'b3', slug: 'max-steiner',       name: 'Max Steiner',       initials: 'MS', city: 'München',   specialty: 'Bobber · Chopper',        builds: 22, rating: 5.0, verified: true,  lat: 48.137,  lng: 11.576 },
+  { id: 'b4', slug: 'rene-bauer-cycles', name: 'René Bauer Cycles', initials: 'RB', city: 'Köln',      specialty: 'Tracker · Flat Track',    builds: 6,  rating: 4.6, verified: false, lat: 50.938,  lng: 6.960  },
+  { id: 'b5', slug: 'kai-fuchs-custom',  name: 'Kai Fuchs Custom',  initials: 'KF', city: 'Stuttgart', specialty: 'Chopper · Old School',    builds: 18, rating: 4.9, verified: true,  lat: 48.775,  lng: 9.182  },
+  { id: 'b6', slug: 'anna-wolff-moto',   name: 'Anna Wolff Moto',   initials: 'AW', city: 'Hamburg',   specialty: 'Scrambler · Enduro',      builds: 11, rating: 4.8, verified: false, lat: 53.565,  lng: 10.010 },
 ]
 
 interface Props {
@@ -292,9 +294,15 @@ export default function MapView({ initialBikes }: Props) {
             <p className="text-xs text-creme/40">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
             <p className="text-xs text-creme/35 mt-0.5">{selectedBuilder.builds} Builds · ★ {selectedBuilder.rating}</p>
           </div>
+          <Link
+            href={`/builder/${selectedBuilder.slug}`}
+            className="ml-1 text-xs text-teal font-semibold hover:text-teal-light transition-colors whitespace-nowrap"
+          >
+            Profil →
+          </Link>
           <button
             onClick={() => setSelectedBuilder(null)}
-            className="ml-2 text-creme/25 hover:text-creme transition-colors text-lg leading-none"
+            className="ml-1 text-creme/25 hover:text-creme transition-colors text-lg leading-none"
           >×</button>
         </div>
       )}

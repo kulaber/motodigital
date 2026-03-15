@@ -2,50 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, Wrench } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import { BUILDERS } from '@/lib/data/builders'
 
 export const metadata: Metadata = {
   title: 'Builder',
   description: 'Finde Custom Motorrad Builder und Workshops in deiner Nähe auf MotoDigital.',
 }
-
-const BUILDERS = [
-  {
-    initials: 'JK', name: 'Jakob Kraft',       city: 'Berlin',    specialty: 'Cafe Racer · Scrambler',
-    builds: 14, rating: 4.9, verified: true,  featured: true,  since: '2019',
-    tags: ['Cafe Racer', 'Scrambler', 'Restaurierung'],
-    bio: 'Spezialist für luftgekühlte Japaner aus den 70ern. Jeder Build ist eine Zusammenarbeit.',
-  },
-  {
-    initials: 'MS', name: 'Max Steiner',        city: 'München',   specialty: 'Bobber · Chopper',
-    builds: 22, rating: 5.0, verified: true,  featured: true,  since: '2017',
-    tags: ['Bobber', 'Chopper', 'Custom Paint'],
-    bio: 'Über 20 fertiggestellte Builds. Fokus auf saubere Linien und handlackierte Tanks.',
-  },
-  {
-    initials: 'SN', name: 'Studio Nord',        city: 'Hamburg',   specialty: 'Street · Tracker',
-    builds: 8,  rating: 4.7, verified: true,  featured: false, since: '2021',
-    tags: ['Street', 'Tracker'],
-    bio: 'Kleines Studio im Hamburger Hafen. Tracker und Street Fighter sind unsere Welt.',
-  },
-  {
-    initials: 'AW', name: 'Anna Wolff Moto',    city: 'Hamburg',   specialty: 'Scrambler · Enduro',
-    builds: 11, rating: 4.8, verified: false, featured: false, since: '2020',
-    tags: ['Scrambler', 'Enduro', 'Off-Road'],
-    bio: 'Abenteuermaschinen für Straße und Gelände. Nachhaltige Restaurierungen bevorzugt.',
-  },
-  {
-    initials: 'RB', name: 'René Bauer Cycles',  city: 'Köln',      specialty: 'Tracker · Flat Track',
-    builds: 6,  rating: 4.6, verified: false, featured: false, since: '2022',
-    tags: ['Tracker', 'Flat Track'],
-    bio: 'Flat Track ist eine Lebenseinstellung. Leichte, schnelle Builds ohne Schnickschnack.',
-  },
-  {
-    initials: 'KF', name: 'Kai Fuchs Custom',   city: 'Stuttgart', specialty: 'Chopper · Old School',
-    builds: 18, rating: 4.9, verified: true,  featured: false, since: '2016',
-    tags: ['Chopper', 'Old School', 'H-D'],
-    bio: 'Old-School-Chopper aus Stuttgart seit 2016. Harley Davidson Experte.',
-  },
-]
 
 export default function BuilderPage() {
   const totalBuilds = BUILDERS.reduce((a, b) => a + b.builds, 0)
@@ -79,9 +41,10 @@ export default function BuilderPage() {
             {/* Builder cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {BUILDERS.map((b, i) => (
-                <div
-                  key={b.name}
-                  className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4 sm:p-5 hover:border-[#2AABAB]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer group opacity-0 animate-scale-in"
+                <Link
+                  key={b.slug}
+                  href={`/builder/${b.slug}`}
+                  className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4 sm:p-5 hover:border-[#2AABAB]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer group opacity-0 animate-scale-in block"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="flex items-start gap-3 mb-3">
@@ -125,10 +88,10 @@ export default function BuilderPage() {
                       </span>
                     </div>
                     <span className="text-xs text-[#2AABAB] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                      Kontakt →
+                      Profil ansehen →
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 
