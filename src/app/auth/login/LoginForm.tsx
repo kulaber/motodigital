@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export default function LoginForm() {
+function LoginFormInner() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -86,5 +86,13 @@ export default function LoginForm() {
         Magic Link per E-Mail
       </button>
     </form>
+  )
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={<div className="h-48" />}>
+      <LoginFormInner />
+    </Suspense>
   )
 }
