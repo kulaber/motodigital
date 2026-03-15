@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight } from 'lucide-react'
+import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
+import { MAKES, MODELS, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -17,8 +18,6 @@ const STYLES = [
   { value: 'other',      label: 'Sonstiges'  },
 ]
 
-const CURRENT_YEAR = new Date().getFullYear()
-
 type Step = 1 | 2 | 3
 
 export default function NewBikeForm() {
@@ -31,18 +30,75 @@ export default function NewBikeForm() {
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
-  // Form fields
-  const [title, setTitle] = useState('')
-  const [make, setMake] = useState('')
-  const [model, setModel] = useState('')
-  const [year, setYear] = useState('')
-  const [style, setStyle] = useState('')
-  const [cc, setCc] = useState('')
-  const [mileage, setMileage] = useState('')
-  const [price, setPrice] = useState('')
-  const [city, setCity] = useState('')
+  // ── Bike selection state ─────────────────────────
+  const [makeId, setMakeId]       = useState('')
+  const [modelId, setModelId]     = useState('')
+  const [variantIdx, setVariantIdx] = useState(0)
+  const [customMake, setCustomMake] = useState('')
+  const [customModel, setCustomModel] = useState('')
+
+  // ── Form fields ──────────────────────────────────
+  const [title, setTitle]           = useState('')
+  const [year, setYear]             = useState('')
+  const [style, setStyle]           = useState('')
+  const [cc, setCc]                 = useState('')
+  const [mileage, setMileage]       = useState('')
+  const [price, setPrice]           = useState('')
+  const [city, setCity]             = useState('')
   const [description, setDescription] = useState('')
-  const [status, setStatus] = useState<'active' | 'draft'>('active')
+  const [status, setStatus]         = useState<'active' | 'draft'>('active')
+
+  // ── Derived values ───────────────────────────────
+  const isCustomMake = makeId === 'andere'
+  const modelsForMake: MotorcycleModel[] = useMemo(
+    () => (makeId && !isCustomMake ? getModelsByMake(makeId) : []),
+    [makeId, isCustomMake]
+  )
+  const selectedModel = useMemo(
+    () => modelsForMake.find(m => m.id === modelId) ?? null,
+    [modelsForMake, modelId]
+  )
+  const yearsForModel = useMemo(
+    () => (selectedModel ? getYearsForModel(selectedModel) : []),
+    [selectedModel]
+  )
+  const selectedVariant = selectedModel?.variants[variantIdx] ?? null
+  const selectedMakeName = MAKES.find(m => m.id === makeId)?.name ?? customMake
+  const selectedModelName = selectedModel?.name ?? customModel
+
+  // Submitted values for DB
+  const submitMake  = selectedMakeName
+  const submitModel = selectedModelName
+
+  // ── Handlers ─────────────────────────────────────
+  function onMakeChange(id: string) {
+    setMakeId(id)
+    setModelId('')
+    setVariantIdx(0)
+    setYear('')
+    setCc('')
+    setCustomMake('')
+    setCustomModel('')
+  }
+
+  function onModelChange(id: string) {
+    setModelId(id)
+    setVariantIdx(0)
+    setYear('')
+    const m = modelsForMake.find(x => x.id === id)
+    if (m?.variants.length === 1) {
+      setCc(String(m.variants[0].displacement))
+    } else {
+      setCc('')
+    }
+  }
+
+  function onVariantChange(idx: number) {
+    setVariantIdx(idx)
+    if (selectedModel) {
+      setCc(String(selectedModel.variants[idx].displacement))
+    }
+  }
 
   function handleImages(files: FileList | null) {
     if (!files) return
@@ -67,13 +123,12 @@ export default function NewBikeForm() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Nicht eingeloggt.'); setLoading(false); return }
 
-    // Insert bike
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bike, error: bikeError } = await (supabase.from('bikes') as any).insert({
       seller_id:   user.id,
       title:       title.trim(),
-      make:        make.trim(),
-      model:       model.trim(),
+      make:        submitMake,
+      model:       submitModel,
       year:        parseInt(year),
       style,
       cc:          cc ? parseInt(cc) : null,
@@ -91,16 +146,13 @@ export default function NewBikeForm() {
       return
     }
 
-    // Upload images
     for (let i = 0; i < imageFiles.length; i++) {
       const file = imageFiles[i]
       const ext = file.name.split('.').pop()
       const path = `${user.id}/${bike.id}/${i}.${ext}`
-
       const { data: upload } = await supabase.storage
         .from('bike-images')
         .upload(path, file, { upsert: true })
-
       if (upload) {
         const { data: urlData } = supabase.storage.from('bike-images').getPublicUrl(path)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,10 +169,8 @@ export default function NewBikeForm() {
     router.refresh()
   }
 
-  const step1Valid = title && make && model && year && style && price
-  const step2Valid = true // description & city optional
+  const step1Valid = title && submitMake && submitModel && year && style && price
 
-  // ── Step indicator ──────────────────────────────────────
   const steps = ['Basis', 'Details', 'Fotos & Veröffentlichen']
 
   return (
@@ -156,6 +206,7 @@ export default function NewBikeForm() {
       {/* ── STEP 1: Basis ── */}
       {step === 1 && (
         <div className="flex flex-col gap-5 animate-fade-in">
+
           <div>
             <label className={labelClass}>Inserat-Titel *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
@@ -164,25 +215,118 @@ export default function NewBikeForm() {
             <p className="text-xs text-[#F0EDE4]/25 mt-1">Ein prägnanter Titel erhöht die Aufmerksamkeit.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Marke *</label>
-              <input value={make} onChange={e => setMake(e.target.value)}
-                placeholder="Honda, BMW, Triumph…" className={inputClass} />
+          {/* Marke */}
+          <div>
+            <label className={labelClass}>Marke *</label>
+            <div className="relative">
+              <select
+                value={makeId}
+                onChange={e => onMakeChange(e.target.value)}
+                className={selectClass}
+              >
+                <option value="">Marke wählen…</option>
+                {MAKES.map(m => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#F0EDE4]/30 pointer-events-none" />
             </div>
-            <div>
-              <label className={labelClass}>Modell *</label>
-              <input value={model} onChange={e => setModel(e.target.value)}
-                placeholder="CB550, R80, T100…" className={inputClass} />
-            </div>
+            {isCustomMake && (
+              <input value={customMake} onChange={e => setCustomMake(e.target.value)}
+                placeholder="Marke eingeben…" className={`${inputClass} mt-2`} />
+            )}
           </div>
 
+          {/* Modell */}
+          <div>
+            <label className={labelClass}>Modell *</label>
+            {isCustomMake ? (
+              <input value={customModel} onChange={e => setCustomModel(e.target.value)}
+                placeholder="Modell eingeben…" className={inputClass} />
+            ) : (
+              <div className="relative">
+                <select
+                  value={modelId}
+                  onChange={e => onModelChange(e.target.value)}
+                  disabled={!makeId}
+                  className={`${selectClass} disabled:opacity-40`}
+                >
+                  <option value="">{makeId ? 'Modell wählen…' : 'Zuerst Marke wählen'}</option>
+                  {modelsForMake.map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} ({m.yearFrom}{m.yearTo ? `–${m.yearTo}` : '+'})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#F0EDE4]/30 pointer-events-none" />
+              </div>
+            )}
+          </div>
+
+          {/* Variante — nur wenn Modell mehrere Hubraumvarianten hat */}
+          {selectedModel && selectedModel.variants.length > 1 && (
+            <div>
+              <label className={labelClass}>Variante / Hubraum *</label>
+              <div className="relative">
+                <select
+                  value={variantIdx}
+                  onChange={e => onVariantChange(Number(e.target.value))}
+                  className={selectClass}
+                >
+                  {selectedModel.variants.map((v, i) => (
+                    <option key={i} value={i}>
+                      {v.name ?? `${v.displacement} cc`}{v.power ? ` — ${v.power}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#F0EDE4]/30 pointer-events-none" />
+              </div>
+            </div>
+          )}
+
+          {/* Technische Daten — auto-befüllt, read-only wenn aus Datenbank */}
+          {selectedVariant && (
+            <div className="bg-[#1C1C1C] border border-[#2AABAB]/15 rounded-2xl p-4">
+              <p className="text-xs font-semibold text-[#2AABAB]/70 uppercase tracking-widest mb-3">Technische Daten (auto-befüllt)</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'Motor', value: selectedVariant.engine },
+                  { label: 'Hubraum', value: `${selectedVariant.displacement} cc` },
+                  selectedVariant.power   ? { label: 'Leistung', value: selectedVariant.power }   : null,
+                  selectedVariant.torque  ? { label: 'Drehmoment', value: selectedVariant.torque } : null,
+                ].filter(Boolean).map(item => (
+                  <div key={item!.label}>
+                    <p className="text-[10px] text-[#F0EDE4]/30 uppercase tracking-widest">{item!.label}</p>
+                    <p className="text-xs font-semibold text-[#F0EDE4]/70 mt-0.5">{item!.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Baujahr */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Baujahr *</label>
-              <input value={year} onChange={e => setYear(e.target.value)}
-                type="number" min="1920" max={CURRENT_YEAR}
-                placeholder="1974" className={inputClass} />
+              {yearsForModel.length > 0 ? (
+                <div className="relative">
+                  <select
+                    value={year}
+                    onChange={e => setYear(e.target.value)}
+                    className={selectClass}
+                  >
+                    <option value="">Jahr wählen…</option>
+                    {yearsForModel.map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#F0EDE4]/30 pointer-events-none" />
+                </div>
+              ) : (
+                <input value={year} onChange={e => setYear(e.target.value)}
+                  type="number" min="1920" max={new Date().getFullYear()}
+                  placeholder="1974" className={inputClass} />
+              )}
             </div>
             <div>
               <label className={labelClass}>Preis (€) *</label>
@@ -191,6 +335,7 @@ export default function NewBikeForm() {
             </div>
           </div>
 
+          {/* Typ / Style */}
           <div>
             <label className={labelClass}>Typ / Style *</label>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -229,6 +374,9 @@ export default function NewBikeForm() {
               <label className={labelClass}>Hubraum (cc)</label>
               <input value={cc} onChange={e => setCc(e.target.value)}
                 type="number" min="0" placeholder="550" className={inputClass} />
+              {selectedVariant && (
+                <p className="text-xs text-[#F0EDE4]/25 mt-1">Auto-befüllt · anpassbar</p>
+              )}
             </div>
             <div>
               <label className={labelClass}>Kilometerstand</label>
@@ -257,7 +405,7 @@ export default function NewBikeForm() {
               ← Zurück
             </button>
             <button
-              onClick={() => step2Valid && setStep(3)}
+              onClick={() => setStep(3)}
               className="flex items-center gap-2 bg-[#2AABAB] text-[#141414] font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#3DBFBF] transition-all"
             >
               Weiter <ChevronRight size={16} />
@@ -270,7 +418,6 @@ export default function NewBikeForm() {
       {step === 3 && (
         <div className="flex flex-col gap-6 animate-fade-in">
 
-          {/* Image upload */}
           <div>
             <label className={labelClass}>Fotos (max. 8)</label>
             <label className="block border-2 border-dashed border-[#F0EDE4]/10 hover:border-[#2AABAB]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
@@ -315,8 +462,14 @@ export default function NewBikeForm() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#F0EDE4]/40">Bike</span>
-                <span className="text-[#F0EDE4]">{make} {model} · {year}</span>
+                <span className="text-[#F0EDE4]">{submitMake} {submitModel} · {year}</span>
               </div>
+              {selectedVariant && (
+                <div className="flex justify-between">
+                  <span className="text-[#F0EDE4]/40">Motor</span>
+                  <span className="text-[#F0EDE4]">{selectedVariant.engine} · {selectedVariant.displacement} cc</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-[#F0EDE4]/40">Typ</span>
                 <span className="text-[#F0EDE4]">{STYLES.find(s => s.value === style)?.label}</span>
@@ -325,10 +478,12 @@ export default function NewBikeForm() {
                 <span className="text-[#F0EDE4]/40">Preis</span>
                 <span className="text-[#2AABAB] font-semibold">€ {parseFloat(price || '0').toLocaleString('de-DE')}</span>
               </div>
-              {city && <div className="flex justify-between">
-                <span className="text-[#F0EDE4]/40">Standort</span>
-                <span className="text-[#F0EDE4]">{city}</span>
-              </div>}
+              {city && (
+                <div className="flex justify-between">
+                  <span className="text-[#F0EDE4]/40">Standort</span>
+                  <span className="text-[#F0EDE4]">{city}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-[#F0EDE4]/40">Fotos</span>
                 <span className="text-[#F0EDE4]">{imageFiles.length} hochgeladen</span>
@@ -371,5 +526,6 @@ export default function NewBikeForm() {
   )
 }
 
-const labelClass = 'block text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest mb-2'
+const labelClass  = 'block text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest mb-2'
 const inputClass  = 'w-full bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors'
+const selectClass = 'w-full bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#F0EDE4] outline-none focus:border-[#2AABAB] transition-colors appearance-none cursor-pointer'
