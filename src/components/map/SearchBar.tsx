@@ -24,6 +24,7 @@ interface Props {
   onTypesChange: (types: UmbauTyp[]) => void
   onlyVerified: boolean
   onVerifiedChange: (v: boolean) => void
+  availableTypes: readonly UmbauTyp[]
 }
 
 export default function SearchBar({
@@ -33,6 +34,7 @@ export default function SearchBar({
   onTypesChange,
   onlyVerified,
   onVerifiedChange,
+  availableTypes,
 }: Props) {
   function toggleType(type: UmbauTyp) {
     onTypesChange(
@@ -83,8 +85,8 @@ export default function SearchBar({
         {/* Builder filters */}
         {activeTab === 'workshops' && (
           <>
-            {/* Umbau-Typ chips */}
-            {UMBAU_TYPEN.map(type => {
+            {/* Umbau-Typ chips — only show types with at least one builder */}
+            {availableTypes.map(type => {
               const active = selectedTypes.includes(type)
               return (
                 <button

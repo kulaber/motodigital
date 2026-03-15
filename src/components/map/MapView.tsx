@@ -58,6 +58,15 @@ export default function MapView({ initialBikes }: Props) {
   const [visibleBuilders, setVisibleBuilders] = useState<Builder[]>(MOCK_BUILDERS)
   const supabase = createClient()
 
+  const UMBAU_TYPEN = ['Café Racer','Scrambler','Bobber','Chopper','Tracker','Streetfighter','Brat Style','Bagger'] as const
+
+  const availableTypes = useMemo(() => {
+    const base = onlyVerified ? MOCK_BUILDERS.filter(b => b.verified) : MOCK_BUILDERS
+    return UMBAU_TYPEN.filter(t =>
+      base.some(b => b.specialty.toLowerCase().includes(t.toLowerCase()))
+    )
+  }, [onlyVerified])
+
   const filteredBuilders = useMemo(() => MOCK_BUILDERS.filter(b => {
     if (onlyVerified && !b.verified) return false
     if (selectedTypes.length === 0) return true
@@ -209,6 +218,7 @@ export default function MapView({ initialBikes }: Props) {
           onTypesChange={setSelectedTypes}
           onlyVerified={onlyVerified}
           onVerifiedChange={setOnlyVerified}
+          availableTypes={availableTypes}
         />
       </div>
 
