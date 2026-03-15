@@ -179,13 +179,13 @@ export default function MapView({ initialBikes }: Props) {
       <div className="flex flex-1 overflow-hidden">
 
         {/* Left — Results list */}
-        <div className="w-2/3 overflow-y-auto border-r border-creme/5">
+        <div className="w-1/2 overflow-y-auto border-r border-creme/5">
 
           {/* Builder list */}
           {activeTab === 'workshops' && (
             <div className="px-5 py-4">
               <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{MOCK_BUILDERS.length} Builder</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-3">
                 {MOCK_BUILDERS.map(b => (
                   <Link
                     key={b.id}
@@ -221,7 +221,7 @@ export default function MapView({ initialBikes }: Props) {
           {activeTab === 'bikes' && (
             <div className="px-5 py-4">
               <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{bikes.length} Bikes</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-3">
                 {bikes.map(bike => (
                   <button
                     key={bike.id}
@@ -242,7 +242,7 @@ export default function MapView({ initialBikes }: Props) {
         </div>
 
         {/* Right — Map */}
-        <div ref={mapContainer} className="w-1/3 h-full" />
+        <div ref={mapContainer} className="w-1/2 h-full" />
 
         {/* Selected builder popup */}
         {selectedBuilder && (
