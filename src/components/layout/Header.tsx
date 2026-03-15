@@ -56,7 +56,7 @@ export default function Header({ activePage }: Props) {
 
         {/* Logo */}
         <Link href="/" onClick={() => setOpen(false)}>
-          <Image src="/logo.svg" alt="MotoDigital" width={260} height={98} className="h-13 w-auto" priority />
+          <Image src="/logo.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}

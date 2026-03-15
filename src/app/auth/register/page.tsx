@@ -13,7 +13,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex mb-6">
-            <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
+            <Image src="/logo.svg" alt="MotoDigital" width={220} height={83} className="h-12 w-auto" priority />
           </Link>
           <h1 className="text-xl font-bold text-[#F0EDE4]">Account erstellen</h1>
           <p className="text-sm text-[#F0EDE4]/40 mt-1">Kostenlos registrieren — keine Kreditkarte</p>
