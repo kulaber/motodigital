@@ -5,7 +5,7 @@ import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
-type MapBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' | 'style' | 'city'> & {
+type MapBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'price' | 'style' | 'city' | 'mileage_km' | 'is_verified'> & {
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
 
@@ -21,7 +21,7 @@ export default async function MapPage() {
   const { data: bikes } = await supabase
     .from('bikes')
     .select(`
-      id, title, make, model, year, price, style, city,
+      id, title, make, model, year, price, style, city, mileage_km, is_verified,
       bike_images ( url, is_cover )
     `)
     .eq('status', 'active')

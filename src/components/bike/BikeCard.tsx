@@ -4,7 +4,8 @@ import { Star, MapPin, BadgeCheck } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
-type Bike = Database['public']['Tables']['bikes']['Row'] & {
+type BikeRow = Database['public']['Tables']['bikes']['Row']
+type Bike = Pick<BikeRow, 'id' | 'title' | 'price' | 'style' | 'year' | 'city' | 'mileage_km' | 'is_verified'> & {
   bike_images?: { url: string; is_cover: boolean }[]
 }
 
