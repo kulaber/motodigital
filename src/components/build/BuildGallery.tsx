@@ -21,13 +21,17 @@ export default function BuildGallery({ images, title }: Props) {
 
   useEffect(() => {
     if (lightbox === null) return
+    document.body.style.overflow = 'hidden'
     function onKey(e: KeyboardEvent) {
       if (e.key === 'ArrowLeft') prev()
       else if (e.key === 'ArrowRight') next()
       else if (e.key === 'Escape') setLightbox(null)
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
   }, [lightbox, prev, next])
 
   const [cover, ...gallery] = images
@@ -98,12 +102,12 @@ export default function BuildGallery({ images, title }: Props) {
             </button>
 
             {/* Image */}
-            <div className="flex-1 self-stretch flex items-center justify-center min-w-0 py-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex-1 flex items-center justify-center min-w-0 px-2" onClick={e => e.stopPropagation()}>
               <img
                 key={lightbox}
                 src={images[lightbox]}
                 alt={`${title} ${lightbox + 1}`}
-                className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl animate-scale-in shadow-2xl"
+                className="max-w-full max-h-[calc(100vh-120px)] w-auto h-auto object-contain rounded-xl animate-scale-in shadow-2xl"
               />
             </div>
 
