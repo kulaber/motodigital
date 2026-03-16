@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
@@ -141,7 +141,7 @@ export default function Header({ activePage }: Props) {
               <div className="relative" ref={dropdownRef}>
                 <button onClick={() => setDashDropdown(d => !d)}
                   className="flex items-center gap-1 text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
-                  <LayoutDashboard size={17} />
+                  <CircleUserRound size={19} />
                   <ChevronDown size={12} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {dashDropdown && (
