@@ -317,7 +317,7 @@ export default function MapView({ initialBikes }: Props) {
           <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
             <button
               onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')}
-              className="flex items-center gap-2 bg-[#141414] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
+              className="flex items-center gap-2 bg-[#F5F2EB] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
             >
               {mobileView === 'list'
                 ? <><MapIcon size={15} /> Karte</>

@@ -11,7 +11,7 @@ export default async function VerifyPage({ searchParams }: Props) {
   const { email } = await searchParams
 
   return (
-    <div className="min-h-screen bg-[#141414] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#F5F2EB] flex items-center justify-center px-4">
       <div className="w-full max-w-sm text-center">
 
         {/* Icon */}
@@ -22,20 +22,20 @@ export default async function VerifyPage({ searchParams }: Props) {
           </svg>
         </div>
 
-        <h1 className="text-xl font-bold text-[#F0EDE4] mb-2">E-Mail bestätigen</h1>
-        <p className="text-sm text-[#F0EDE4]/45 leading-relaxed mb-2">
+        <h1 className="text-xl font-bold text-[#1A1714] mb-2">E-Mail bestätigen</h1>
+        <p className="text-sm text-[#1A1714]/45 leading-relaxed mb-2">
           Wir haben einen Bestätigungslink an
         </p>
         {email && (
           <p className="text-sm font-semibold text-[#2AABAB] mb-4">{email}</p>
         )}
-        <p className="text-sm text-[#F0EDE4]/45 leading-relaxed mb-8">
+        <p className="text-sm text-[#1A1714]/45 leading-relaxed mb-8">
           gesendet. Klick auf den Link um deinen Account zu aktivieren.
         </p>
 
         {/* What happens next */}
-        <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 text-left mb-6">
-          <p className="text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-4">Was passiert als nächstes</p>
+        <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 text-left mb-6">
+          <p className="text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest mb-4">Was passiert als nächstes</p>
           <div className="flex flex-col gap-3">
             {[
               'E-Mail bestätigen — Link anklicken',
@@ -46,14 +46,14 @@ export default async function VerifyPage({ searchParams }: Props) {
                 <div className="w-6 h-6 rounded-full bg-[#2AABAB]/15 border border-[#2AABAB]/20 flex items-center justify-center text-[10px] font-bold text-[#2AABAB] flex-shrink-0">
                   {i + 1}
                 </div>
-                <p className="text-sm text-[#F0EDE4]/55">{step}</p>
+                <p className="text-sm text-[#1A1714]/55">{step}</p>
               </div>
             ))}
           </div>
         </div>
 
         <Link href="/auth/login"
-          className="block w-full border border-[#F0EDE4]/12 text-[#F0EDE4]/60 font-medium py-3 rounded-full text-sm hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all">
+          className="block w-full border border-[#1A1714]/12 text-[#1A1714]/60 font-medium py-3 rounded-full text-sm hover:text-[#1A1714] hover:border-[#1A1714]/25 transition-all">
           Zurück zum Login
         </Link>
 

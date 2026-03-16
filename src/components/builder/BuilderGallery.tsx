@@ -75,8 +75,8 @@ export default function BuilderGallery({ images }: Props) {
               />
               {/* Overlay on last visible thumb if more images */}
               {i === 3 && images.length > 5 && (
-                <div className="absolute inset-0 bg-[#141414]/60 flex items-center justify-center">
-                  <span className="text-[#F0EDE4] text-sm font-semibold">+{images.length - 5}</span>
+                <div className="absolute inset-0 bg-[#F5F2EB]/60 flex items-center justify-center">
+                  <span className="text-[#1A1714] text-sm font-semibold">+{images.length - 5}</span>
                 </div>
               )}
             </button>
@@ -84,14 +84,14 @@ export default function BuilderGallery({ images }: Props) {
 
           {/* Fill empty slots if fewer than 4 thumbs */}
           {thumbs.length < 4 && Array.from({ length: 4 - thumbs.length }).map((_, i) => (
-            <div key={`empty-${i}`} className="bg-[#1C1C1C]" />
+            <div key={`empty-${i}`} className="bg-white" />
           ))}
         </div>
 
         {/* "Alle Bilder ansehen" button */}
         <button
           onClick={() => setLightbox(0)}
-          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-[#F0EDE4] text-[#141414] text-xs font-semibold px-3 py-2 rounded-xl shadow-lg hover:bg-white transition-colors"
+          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-[#1A1714] text-[#141414] text-xs font-semibold px-3 py-2 rounded-xl shadow-lg hover:bg-white transition-colors"
         >
           <Grid2x2 size={13} />
           Alle Bilder ansehen

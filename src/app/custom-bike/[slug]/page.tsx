@@ -39,17 +39,17 @@ export default async function CustomBikePage({ params }: Props) {
   const styleSlug = styleToSlug(build.style)
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       <Header activePage="bikes" />
 
       {/* Hero */}
       <div className="relative h-[55vh] min-h-[360px] overflow-hidden">
         <img src={cover} alt={build.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2EB] via-[#F5F2EB]/40 to-transparent" />
 
         {/* Badges */}
         <div className="absolute top-5 right-5 flex items-center gap-2">
-          <span className="bg-[#141414]/70 backdrop-blur-sm border border-[#F0EDE4]/15 text-[#F0EDE4] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
+          <span className="bg-[#F5F2EB]/70 backdrop-blur-sm border border-[#1A1714]/15 text-[#1A1714] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
             {build.style}
           </span>
           {build.verified && (
@@ -63,10 +63,10 @@ export default async function CustomBikePage({ params }: Props) {
         <div className="absolute bottom-0 left-0 right-0 px-5 pb-8 lg:px-12">
           <div className="max-w-5xl mx-auto">
             <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-2">{build.base} · {build.year}</p>
-            <h1 className="font-bold text-[#F0EDE4] leading-tight mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
+            <h1 className="font-bold text-[#1A1714] leading-tight mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
               {build.title}
             </h1>
-            <p className="text-[#F0EDE4]/50 text-sm">{build.tagline}</p>
+            <p className="text-[#1A1714]/50 text-sm">{build.tagline}</p>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default async function CustomBikePage({ params }: Props) {
                 { icon: <Clock size={12} />, label: build.buildDuration },
                 { icon: <Wrench size={12} />, label: build.displacement },
               ].map(m => (
-                <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#F0EDE4]/50 bg-[#1C1C1C] border border-[#F0EDE4]/8 px-3 py-1.5 rounded-full">
+                <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#1A1714]/50 bg-white border border-[#1A1714]/8 px-3 py-1.5 rounded-full">
                   <span className="text-[#2aabab]">{m.icon}</span>
                   {m.label}
                 </span>
@@ -105,14 +105,14 @@ export default async function CustomBikePage({ params }: Props) {
 
             {/* Story */}
             <div>
-              <h2 className="text-base font-semibold text-[#F0EDE4] mb-3">Der Build</h2>
-              <p className="text-sm text-[#F0EDE4]/55 leading-relaxed">{build.description}</p>
+              <h2 className="text-base font-semibold text-[#1A1714] mb-3">Der Build</h2>
+              <p className="text-sm text-[#1A1714]/55 leading-relaxed">{build.description}</p>
             </div>
 
             {/* Gallery */}
             {build.images.length > 0 && (
               <div>
-                <h2 className="text-base font-semibold text-[#F0EDE4] mb-4">Galerie</h2>
+                <h2 className="text-base font-semibold text-[#1A1714] mb-4">Galerie</h2>
                 <BuildGallery images={build.images} title={build.title} />
               </div>
             )}
@@ -120,26 +120,26 @@ export default async function CustomBikePage({ params }: Props) {
             {/* Video */}
             {build.videoUrl && (
               <div>
-                <h2 className="text-base font-semibold text-[#F0EDE4] mb-4">Video</h2>
+                <h2 className="text-base font-semibold text-[#1A1714] mb-4">Video</h2>
                 <video
                   src={build.videoUrl}
                   controls
                   poster={cover}
-                  className="w-full rounded-2xl aspect-video object-cover bg-[#1C1C1C]"
+                  className="w-full rounded-2xl aspect-video object-cover bg-white"
                 />
               </div>
             )}
 
             {/* Modifications */}
             <div>
-              <h2 className="text-base font-semibold text-[#F0EDE4] mb-4">Umbauten & Modifikationen</h2>
+              <h2 className="text-base font-semibold text-[#1A1714] mb-4">Umbauten & Modifikationen</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {build.modifications.map((mod, i) => (
-                  <div key={i} className="flex items-start gap-2.5 bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-xl px-4 py-3">
+                  <div key={i} className="flex items-start gap-2.5 bg-white border border-[#1A1714]/6 rounded-xl px-4 py-3">
                     <span className="text-[#2aabab] mt-0.5 flex-shrink-0">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M10 3L5 8.5 2 5.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </span>
-                    <span className="text-xs text-[#F0EDE4]/65 leading-snug">{mod}</span>
+                    <span className="text-xs text-[#1A1714]/65 leading-snug">{mod}</span>
                   </div>
                 ))}
               </div>
@@ -151,21 +151,21 @@ export default async function CustomBikePage({ params }: Props) {
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
             {/* Builder card */}
-            <div className="card-interactive bg-[#1C1C1C] border border-[#2aabab]/15 rounded-2xl p-5">
-              <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-3">Builder</p>
+            <div className="card-interactive bg-white border border-[#2aabab]/15 rounded-2xl p-5">
+              <p className="text-xs text-[#1A1714]/35 uppercase tracking-widest mb-3">Builder</p>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-[#2aabab]/12 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
                   {build.builder.initials}
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-[#F0EDE4]">{build.builder.name}</p>
+                    <p className="text-sm font-semibold text-[#1A1714]">{build.builder.name}</p>
                     {build.builder.verified && <BadgeCheck size={13} className="text-[#2aabab]" />}
                   </div>
-                  <p className="text-xs text-[#F0EDE4]/40">{build.builder.city}</p>
+                  <p className="text-xs text-[#1A1714]/40">{build.builder.city}</p>
                 </div>
               </div>
-              <p className="text-xs text-[#F0EDE4]/35 mb-4">{build.builder.specialty}</p>
+              <p className="text-xs text-[#1A1714]/35 mb-4">{build.builder.specialty}</p>
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/builder/${build.builder.slug}#kontakt`}
@@ -175,7 +175,7 @@ export default async function CustomBikePage({ params }: Props) {
                 </Link>
                 <Link
                   href={`/builder/${build.builder.slug}`}
-                  className="w-full text-center text-sm font-semibold text-[#F0EDE4]/70 hover:text-[#F0EDE4] border border-[#F0EDE4]/15 hover:border-[#F0EDE4]/30 rounded-xl px-4 py-2.5 transition-colors"
+                  className="w-full text-center text-sm font-semibold text-[#1A1714]/70 hover:text-[#1A1714] border border-[#1A1714]/15 hover:border-[#1A1714]/30 rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Profil ansehen →
                 </Link>
@@ -183,8 +183,8 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
 
             {/* Specs */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
-              <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-4">Technische Daten</p>
+            <div className="bg-white border border-[#1A1714]/8 rounded-2xl p-5">
+              <p className="text-xs text-[#1A1714]/35 uppercase tracking-widest mb-4">Technische Daten</p>
               {[
                 { label: 'Basis', value: build.base },
                 { label: 'Baujahr', value: `${build.year}` },
@@ -194,9 +194,9 @@ export default async function CustomBikePage({ params }: Props) {
                 { label: 'Umbau-Jahr', value: `${build.buildYear}` },
                 { label: 'Bauzeit', value: build.buildDuration },
               ].map(s => (
-                <div key={s.label} className="flex items-center justify-between py-2 border-b border-[#F0EDE4]/5 last:border-0">
-                  <span className="text-xs text-[#F0EDE4]/35">{s.label}</span>
-                  <span className="text-xs font-medium text-[#F0EDE4]/75">{s.value}</span>
+                <div key={s.label} className="flex items-center justify-between py-2 border-b border-[#1A1714]/5 last:border-0">
+                  <span className="text-xs text-[#1A1714]/35">{s.label}</span>
+                  <span className="text-xs font-medium text-[#1A1714]/75">{s.value}</span>
                 </div>
               ))}
             </div>
@@ -207,9 +207,9 @@ export default async function CustomBikePage({ params }: Props) {
 
       {/* More bikes */}
       <div className="max-w-5xl mx-auto px-5 lg:px-8 pb-16">
-        <div className="border-t border-[#F0EDE4]/5 pt-10">
+        <div className="border-t border-[#1A1714]/5 pt-10">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-semibold text-[#F0EDE4]">Weitere Bikes</h2>
+            <h2 className="text-base font-semibold text-[#1A1714]">Weitere Bikes</h2>
             <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
               Alle ansehen →
             </Link>
@@ -219,14 +219,14 @@ export default async function CustomBikePage({ params }: Props) {
               <Link
                 key={b.slug}
                 href={`/custom-bike/${b.slug}`}
-                className="group rounded-xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 transition-all hover:-translate-y-0.5"
+                className="group rounded-xl overflow-hidden bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 transition-all hover:-translate-y-0.5"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-500" />
                 </div>
                 <div className="p-3">
-                  <p className="text-xs font-semibold text-[#F0EDE4] line-clamp-1">{b.title}</p>
-                  <p className="text-[10px] text-[#F0EDE4]/35 mt-0.5">{b.base} · {b.city}</p>
+                  <p className="text-xs font-semibold text-[#1A1714] line-clamp-1">{b.title}</p>
+                  <p className="text-[10px] text-[#1A1714]/35 mt-0.5">{b.base} · {b.city}</p>
                 </div>
               </Link>
             ))}
@@ -235,9 +235,9 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* Mobile floating CTA bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#141414]/95 backdrop-blur-md border-t border-[#F0EDE4]/8">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#F5F2EB]/95 backdrop-blur-md border-t border-[#1A1714]/8">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-[#F0EDE4] truncate">{build.builder.name}</p>
+          <p className="text-sm font-semibold text-[#1A1714] truncate">{build.builder.name}</p>
           <Link
             href={`/builder/${build.builder.slug}#kontakt`}
             className="flex-shrink-0 text-sm font-bold bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] rounded-xl px-5 py-2.5 transition-colors"

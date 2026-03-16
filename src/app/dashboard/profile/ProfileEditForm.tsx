@@ -152,8 +152,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     <div className="flex flex-col gap-6">
 
       {/* ── PROFILE FORM ── */}
-      <form onSubmit={handleSaveProfile} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#F0EDE4] mb-5">Profil-Informationen</h2>
+      <form onSubmit={handleSaveProfile} className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#1A1714] mb-5">Profil-Informationen</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <Field label="Name">
@@ -179,10 +179,10 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         </div>
 
         <Field label="Profil-URL (slug)" className="mb-4">
-          <div className={`${input} text-[#F0EDE4]/40 cursor-default`}>
+          <div className={`${input} text-[#1A1714]/40 cursor-default`}>
             motodigital.vercel.app/builder/<span className="text-[#2AABAB]">{computedSlug || '…'}</span>
           </div>
-          <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
+          <p className="text-[10px] text-[#1A1714]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
         </Field>
 
         <Field label="Kurz-Bio" className="mb-4">
@@ -203,14 +203,14 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           <input value={tagsInput} onChange={e => setTagsInput(e.target.value)}
             placeholder="z.B. Cafe Racer, Scrambler, Restaurierung"
             className={input} />
-          <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Werden auf deinem Profil als Badges angezeigt</p>
+          <p className="text-[10px] text-[#1A1714]/25 mt-1">Werden auf deinem Profil als Badges angezeigt</p>
         </Field>
 
         <Field label="Basis-Bikes (kommagetrennt)" className="mb-4">
           <input value={basesInput} onChange={e => setBasesInput(e.target.value)}
             placeholder="z.B. Honda CB750, Yamaha SR500, BMW R90"
             className={input} />
-          <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
+          <p className="text-[10px] text-[#1A1714]/25 mt-1">Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
         </Field>
 
         <Field label="Adresse" className="mb-4">
@@ -255,11 +255,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       </form>
 
       {/* ── MEDIA ── */}
-      <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6">
+      <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#F0EDE4]">Fotos & Videos</h2>
-            <p className="text-xs text-[#F0EDE4]/35 mt-0.5">Werden auf deinem öffentlichen Profil angezeigt</p>
+            <h2 className="text-sm font-semibold text-[#1A1714]">Fotos & Videos</h2>
+            <p className="text-xs text-[#1A1714]/35 mt-0.5">Werden auf deinem öffentlichen Profil angezeigt</p>
           </div>
           <div className="flex items-center gap-2">
             <input ref={fileInput} type="file" accept="image/*" multiple className="hidden"
@@ -267,7 +267,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             <input ref={videoInput} type="file" accept="video/*" className="hidden"
               onChange={e => handleMediaUpload(e.target.files, 'video')} />
             <button type="button" onClick={() => videoInput.current?.click()} disabled={uploading}
-              className="flex items-center gap-1.5 text-xs text-[#F0EDE4]/50 border border-[#F0EDE4]/10 px-3 py-2 rounded-full hover:border-[#F0EDE4]/25 hover:text-[#F0EDE4] transition-all disabled:opacity-40">
+              className="flex items-center gap-1.5 text-xs text-[#1A1714]/50 border border-[#1A1714]/10 px-3 py-2 rounded-full hover:border-[#1A1714]/25 hover:text-[#1A1714] transition-all disabled:opacity-40">
               <Play size={12} /> Video
             </button>
             <button type="button" onClick={() => fileInput.current?.click()} disabled={uploading}
@@ -279,22 +279,22 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
         {media.length === 0 ? (
           <div
-            className="border-2 border-dashed border-[#F0EDE4]/8 rounded-xl p-10 text-center cursor-pointer hover:border-[#2AABAB]/30 transition-colors"
+            className="border-2 border-dashed border-[#1A1714]/8 rounded-xl p-10 text-center cursor-pointer hover:border-[#2AABAB]/30 transition-colors"
             onClick={() => fileInput.current?.click()}
           >
-            <ImageIcon size={28} className="text-[#F0EDE4]/15 mx-auto mb-3" />
-            <p className="text-sm text-[#F0EDE4]/30">Fotos oder Videos hinzufügen</p>
-            <p className="text-xs text-[#F0EDE4]/15 mt-1">JPG, PNG, MP4 · max. 50 MB</p>
+            <ImageIcon size={28} className="text-[#1A1714]/15 mx-auto mb-3" />
+            <p className="text-sm text-[#1A1714]/30">Fotos oder Videos hinzufügen</p>
+            <p className="text-xs text-[#1A1714]/15 mt-1">JPG, PNG, MP4 · max. 50 MB</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {media.map(item => (
-              <div key={item.id} className="group relative rounded-xl overflow-hidden bg-[#141414] border border-[#F0EDE4]/6">
+              <div key={item.id} className="group relative rounded-xl overflow-hidden bg-[#F5F2EB] border border-[#1A1714]/6">
                 {item.type === 'video' ? (
                   <div className="relative aspect-[4/3]">
                     <video src={item.url} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#141414]/50">
-                      <Play size={22} className="text-[#F0EDE4]/70" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#F5F2EB]/50">
+                      <Play size={22} className="text-[#1A1714]/70" />
                     </div>
                   </div>
                 ) : (
@@ -303,7 +303,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                   </div>
                 )}
                 {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-[#141414]/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                <div className="absolute inset-0 bg-[#F5F2EB]/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                   <button
                     onClick={() => handleDeleteMedia(item)}
                     className="self-end w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
@@ -315,7 +315,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                     onBlur={e => handleUpdateTitle(item.id, e.target.value)}
                     placeholder="Titel..."
                     onClick={e => e.stopPropagation()}
-                    className="w-full text-xs bg-[#141414]/80 border border-[#F0EDE4]/15 rounded-lg px-2 py-1 text-[#F0EDE4] placeholder:text-[#F0EDE4]/30 outline-none"
+                    className="w-full text-xs bg-[#F5F2EB]/80 border border-[#1A1714]/15 rounded-lg px-2 py-1 text-[#1A1714] placeholder:text-[#1A1714]/30 outline-none"
                   />
                 </div>
                 {item.type === 'video' && (
@@ -329,7 +329,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
-              className="aspect-[4/3] rounded-xl border-2 border-dashed border-[#F0EDE4]/8 flex flex-col items-center justify-center gap-2 text-[#F0EDE4]/20 hover:border-[#2AABAB]/30 hover:text-[#2AABAB]/40 transition-colors"
+              className="aspect-[4/3] rounded-xl border-2 border-dashed border-[#1A1714]/8 flex flex-col items-center justify-center gap-2 text-[#1A1714]/20 hover:border-[#2AABAB]/30 hover:text-[#2AABAB]/40 transition-colors"
             >
               <Upload size={18} />
               <span className="text-xs">Hinzufügen</span>
@@ -343,12 +343,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 }
 
 // Helper components
-const input = 'w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-2.5 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors'
+const input = 'w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-2.5 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors'
 
 function Field({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">{label}</label>
+      <label className="block text-[10px] font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-1.5">{label}</label>
       {children}
     </div>
   )

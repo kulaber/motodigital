@@ -24,17 +24,17 @@ const NAV = [
   {
     heading: 'Rechtliches',
     links: [
-      { label: 'Impressum',       href: '/impressum' },
-      { label: 'Datenschutz',     href: '/datenschutz' },
+      { label: 'Impressum',           href: '/impressum' },
+      { label: 'Datenschutz',         href: '/datenschutz' },
       { label: 'Nutzungsbedingungen', href: '/nutzungsbedingungen' },
-      { label: 'Kontakt',         href: '/kontakt' },
+      { label: 'Kontakt',             href: '/kontakt' },
     ],
   },
 ]
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0E0E0E] border-t border-[#F0EDE4]/5 text-[#F0EDE4]">
+    <footer className="bg-[#1A1714] border-t border-white/8 text-white">
 
       {/* Main footer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-14">
@@ -43,19 +43,19 @@ export default function Footer() {
           {/* Brand column */}
           <div>
             <Link href="/" className="inline-block mb-4">
-              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-9 w-auto opacity-90" />
+              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-9 w-auto opacity-80" />
             </Link>
-            <p className="text-sm text-[#F0EDE4]/35 leading-relaxed max-w-xs mb-6">
+            <p className="text-sm text-white/35 leading-relaxed max-w-xs mb-6">
               Die Plattform für Custom Motorcycle Builder in Europa — direkt, kostenlos, ohne Umwege.
             </p>
             {/* Social */}
             <div className="flex items-center gap-3">
               <a href="#" aria-label="Instagram"
-                className="w-8 h-8 rounded-lg bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 flex items-center justify-center text-[#F0EDE4]/35 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20 transition-all">
+                className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
                 <Instagram size={14} />
               </a>
               <a href="#" aria-label="YouTube"
-                className="w-8 h-8 rounded-lg bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 flex items-center justify-center text-[#F0EDE4]/35 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20 transition-all">
+                className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
                 <Youtube size={14} />
               </a>
             </div>
@@ -64,16 +64,13 @@ export default function Footer() {
           {/* Nav columns */}
           {NAV.map(col => (
             <div key={col.heading}>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F0EDE4]/25 mb-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">
                 {col.heading}
               </p>
               <ul className="flex flex-col gap-2.5">
                 {col.links.map(l => (
                   <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      className="text-sm text-[#F0EDE4]/45 hover:text-[#F0EDE4] transition-colors"
-                    >
+                    <Link href={l.href} className="text-sm text-white/45 hover:text-white transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -85,12 +82,12 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#F0EDE4]/5">
+      <div className="border-t border-white/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-[#F0EDE4]/20">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
+          <p className="text-xs text-white/20">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs text-[#F0EDE4]/20">Alle Systeme aktiv</p>
+            <p className="text-xs text-white/20">Alle Systeme aktiv</p>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
@@ -95,16 +95,16 @@ export default async function DashboardPage() {
   const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
-    <div className="min-h-screen bg-[#141414]">
+    <div className="min-h-screen bg-[#F5F2EB]">
       <Header />
       <div className="max-w-5xl mx-auto px-4 pt-8 pb-12 lg:px-8">
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#F0EDE4]">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-[#1A1714]">Dashboard</h1>
             {profile?.full_name && (
-              <p className="text-sm text-[#F0EDE4]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
+              <p className="text-sm text-[#1A1714]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
             )}
           </div>
           <Link
@@ -148,8 +148,8 @@ export default async function DashboardPage() {
                   value: adminStats.ridersTotal,
                   sub: 'verifizierte Accounts',
                   icon: <Users size={15} />,
-                  color: 'text-[#F0EDE4]',
-                  bg: 'bg-[#F0EDE4]/5 border-[#F0EDE4]/10',
+                  color: 'text-[#1A1714]',
+                  bg: 'bg-[#1A1714]/5 border-[#1A1714]/10',
                 },
                 {
                   label: 'Rider online',
@@ -166,17 +166,17 @@ export default async function DashboardPage() {
                     <span className="text-xs">{s.label}</span>
                   </div>
                   <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-[#F0EDE4]/25 mt-0.5">{s.sub}</p>
+                  <p className="text-xs text-[#1A1714]/25 mt-0.5">{s.sub}</p>
                 </div>
               ))}
             </div>
 
             {/* Visitor chart placeholder */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-semibold text-[#F0EDE4]">Besucher</p>
-                  <p className="text-xs text-[#F0EDE4]/30 mt-0.5">
+                  <p className="text-sm font-semibold text-[#1A1714]">Besucher</p>
+                  <p className="text-xs text-[#1A1714]/30 mt-0.5">
                     {hasRealVisitors
                       ? `${chartData.reduce((s, d) => s + d.visitors, 0).toLocaleString('de-DE')} diese Woche`
                       : 'Letzte 7 Tage'}
@@ -201,7 +201,7 @@ export default async function DashboardPage() {
                       className="w-full rounded-sm bg-teal/25 group-hover:bg-teal/50 transition-colors"
                       style={{ height: `${(d.visitors / maxVisitors) * 100}%` }}
                     />
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#141414] border border-creme/10 rounded px-1.5 py-0.5 text-[10px] text-creme whitespace-nowrap z-10">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#F5F2EB] border border-creme/10 rounded px-1.5 py-0.5 text-[10px] text-creme whitespace-nowrap z-10">
                       {d.visitors}
                     </div>
                   </div>
@@ -209,13 +209,13 @@ export default async function DashboardPage() {
               </div>
               <div className="flex justify-between mt-2">
                 {chartData.map((d, i) => (
-                  <span key={i} className="flex-1 text-center text-[10px] text-[#F0EDE4]/20">
+                  <span key={i} className="flex-1 text-center text-[10px] text-[#1A1714]/20">
                     {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
                   </span>
                 ))}
               </div>
               {!hasRealVisitors && (
-                <p className="text-[10px] text-[#F0EDE4]/20 mt-3">
+                <p className="text-[10px] text-[#1A1714]/20 mt-3">
                   * Platzhalterdaten — VERCEL_ACCESS_TOKEN + VERCEL_PROJECT_ID als Env-Variable setzen
                 </p>
               )}
@@ -237,12 +237,12 @@ export default async function DashboardPage() {
                 { label: 'Events', desc: 'Events verwalten', href: '/admin/events', count: null },
               ].map(item => (
                 <Link key={item.href} href={item.href}
-                  className="flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#2AABAB]/30 rounded-2xl transition-all group">
+                  className="flex items-center justify-between p-4 bg-white border border-[#1A1714]/6 hover:border-[#2AABAB]/30 rounded-2xl transition-all group">
                   <div>
-                    <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#2AABAB] transition-colors">{item.label}</p>
-                    <p className="text-xs text-[#F0EDE4]/30 mt-0.5">{item.desc}</p>
+                    <p className="text-sm font-semibold text-[#1A1714] group-hover:text-[#2AABAB] transition-colors">{item.label}</p>
+                    <p className="text-xs text-[#1A1714]/30 mt-0.5">{item.desc}</p>
                   </div>
-                  <ChevronRight size={14} className="text-[#F0EDE4]/20 group-hover:text-[#2AABAB] transition-colors" />
+                  <ChevronRight size={14} className="text-[#1A1714]/20 group-hover:text-[#2AABAB] transition-colors" />
                 </Link>
               ))}
             </div>
@@ -257,9 +257,9 @@ export default async function DashboardPage() {
             { label: 'Nachrichten',     value: conversations?.length ?? 0,    icon: <MessageCircle size={16}/> },
             { label: 'Inserate gesamt', value: bikes?.length ?? 0,            icon: <Plus size={16}/> },
           ].map(s => (
-            <div key={s.label} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-[#F0EDE4]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
-              <p className="text-2xl font-bold text-[#F0EDE4]">{s.value}</p>
+            <div key={s.label} className="bg-white border border-[#1A1714]/6 rounded-2xl p-4">
+              <div className="flex items-center gap-2 text-[#1A1714]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
+              <p className="text-2xl font-bold text-[#1A1714]">{s.value}</p>
             </div>
           ))}
         </div>
@@ -271,7 +271,7 @@ export default async function DashboardPage() {
 
             {/* Builder profile card — only for builders, not superadmin (uses /admin/builder) */}
             {isBuilder && !isSuperAdmin && (
-              <div className="bg-[#1C1C1C] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="bg-white border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
                   style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.08) 0%, transparent 65%)', transform: 'translate(30%,-30%)' }} />
                 <div className="flex items-start justify-between gap-4 relative">
@@ -280,14 +280,14 @@ export default async function DashboardPage() {
                       <User size={20} className="text-[#2AABAB]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#F0EDE4] mb-0.5">Builder Profil</p>
+                      <p className="text-sm font-semibold text-[#1A1714] mb-0.5">Builder Profil</p>
                       {profile?.bio ? (
-                        <p className="text-xs text-[#F0EDE4]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
+                        <p className="text-xs text-[#1A1714]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
                       ) : (
-                        <p className="text-xs text-[#F0EDE4]/30">Noch keine Bio — füge eine hinzu, damit Rider dich finden</p>
+                        <p className="text-xs text-[#1A1714]/30">Noch keine Bio — füge eine hinzu, damit Rider dich finden</p>
                       )}
                       {(profile?.city || profile?.specialty) && (
-                        <p className="text-xs text-[#F0EDE4]/35 mt-1">
+                        <p className="text-xs text-[#1A1714]/35 mt-1">
                           {[profile.city, profile.specialty].filter(Boolean).join(' · ')}
                         </p>
                       )}
@@ -302,7 +302,7 @@ export default async function DashboardPage() {
                     </Link>
                     <Link
                       href={profile?.full_name ? `/builder/${profile.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '/builder'}
-                      className="flex items-center gap-1.5 text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-4 py-2 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all justify-center"
+                      className="flex items-center gap-1.5 text-xs text-[#1A1714]/40 border border-[#1A1714]/10 px-4 py-2 rounded-full hover:text-[#1A1714] hover:border-[#1A1714]/25 transition-all justify-center"
                     >
                       <ExternalLink size={11} /> Vorschau
                     </Link>
@@ -310,14 +310,14 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Profile completeness */}
-                <div className="mt-4 pt-4 border-t border-[#F0EDE4]/5">
+                <div className="mt-4 pt-4 border-t border-[#1A1714]/5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-[#F0EDE4]/30">Profil-Vollständigkeit</span>
+                    <span className="text-xs text-[#1A1714]/30">Profil-Vollständigkeit</span>
                     <span className="text-xs font-semibold text-[#2AABAB]">
                       {[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%
                     </span>
                   </div>
-                  <div className="h-1.5 bg-[#F0EDE4]/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#1A1714]/5 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-[#2AABAB] rounded-full transition-all"
                       style={{ width: `${[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%` }}
@@ -333,7 +333,7 @@ export default async function DashboardPage() {
                       <span key={item.label} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                         item.done
                           ? 'bg-[#2AABAB]/10 text-[#2AABAB] border border-[#2AABAB]/20'
-                          : 'bg-[#F0EDE4]/5 text-[#F0EDE4]/25 border border-[#F0EDE4]/8'
+                          : 'bg-[#1A1714]/5 text-[#1A1714]/25 border border-[#1A1714]/8'
                       }`}>
                         {item.done ? '✓ ' : ''}{item.label}
                       </span>
@@ -344,15 +344,15 @@ export default async function DashboardPage() {
             )}
 
             {/* Listings */}
-            {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[#F0EDE4]/5">
-                <h2 className="text-sm font-semibold text-[#F0EDE4]">Meine Custom-Bikes</h2>
-                <span className="text-xs text-[#F0EDE4]/35">{bikes?.length ?? 0} total</span>
+            {!isSuperAdmin && <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A1714]/5">
+                <h2 className="text-sm font-semibold text-[#1A1714]">Meine Custom-Bikes</h2>
+                <span className="text-xs text-[#1A1714]/35">{bikes?.length ?? 0} total</span>
               </div>
-              <div className="divide-y divide-[#F0EDE4]/5">
+              <div className="divide-y divide-[#1A1714]/5">
                 {bikes?.map(bike => (
                   <div key={bike.id} className="flex items-center gap-4 px-5 py-3.5">
-                    <div className="w-12 h-9 rounded-lg bg-[#141414] border border-[#F0EDE4]/8 flex-shrink-0 overflow-hidden relative">
+                    <div className="w-12 h-9 rounded-lg bg-[#F5F2EB] border border-[#1A1714]/8 flex-shrink-0 overflow-hidden relative">
                       {bike.bike_images?.[0]?.url ? (
                         <img src={bike.bike_images[0].url} alt={bike.title} className="w-full h-full object-cover" />
                       ) : (
@@ -366,24 +366,24 @@ export default async function DashboardPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#F0EDE4] truncate">{bike.title}</p>
-                      <p className="text-xs text-[#F0EDE4]/35">{formatPrice(bike.price)} · {bike.view_count ?? 0} Aufrufe</p>
+                      <p className="text-sm font-medium text-[#1A1714] truncate">{bike.title}</p>
+                      <p className="text-xs text-[#1A1714]/35">{formatPrice(bike.price)} · {bike.view_count ?? 0} Aufrufe</p>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
                       bike.status === 'active' ? 'bg-green-500/10 text-green-400'
-                      : bike.status === 'sold'   ? 'bg-[#F0EDE4]/5 text-[#F0EDE4]/30'
+                      : bike.status === 'sold'   ? 'bg-[#1A1714]/5 text-[#1A1714]/30'
                       : 'bg-amber-500/10 text-amber-400'
                     }`}>
                       {bike.status === 'active' ? 'Aktiv' : bike.status === 'sold' ? 'Verkauft' : 'Entwurf'}
                     </span>
-                    <Link href={`/bikes/${bike.id}/edit`} className="text-xs text-[#F0EDE4]/30 hover:text-[#F0EDE4] transition-colors flex-shrink-0">
+                    <Link href={`/bikes/${bike.id}/edit`} className="text-xs text-[#1A1714]/30 hover:text-[#1A1714] transition-colors flex-shrink-0">
                       Bearbeiten
                     </Link>
                   </div>
                 ))}
                 {!bikes?.length && (
                   <div className="px-5 py-10 text-center">
-                    <p className="text-sm text-[#F0EDE4]/30 mb-3">Noch keine Custom-Bikes</p>
+                    <p className="text-sm text-[#1A1714]/30 mb-3">Noch keine Custom-Bikes</p>
                     <Link href="/bikes/new" className="text-sm text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
                       Custom-Bike erstellen →
                     </Link>
@@ -396,48 +396,49 @@ export default async function DashboardPage() {
 
           {/* RIGHT — Messages */}
           <div className="flex flex-col gap-5">
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#F0EDE4]/5">
-                <h2 className="text-sm font-semibold text-[#F0EDE4]">Nachrichten</h2>
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-[#1A1714]/5">
+                <h2 className="text-sm font-semibold text-[#1A1714]">Nachrichten</h2>
               </div>
-              <div className="divide-y divide-[#F0EDE4]/5">
+              <div className="divide-y divide-[#1A1714]/5">
                 {conversations?.map((conv) => (
                   <Link
                     key={conv.id}
                     href={`/dashboard?conversation=${conv.id}`}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-[#141414] transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 hover:bg-[#F5F2EB] transition-colors"
                   >
                     <div className="w-8 h-8 rounded-full bg-[#2AABAB]/15 border border-[#2AABAB]/20 flex items-center justify-center text-xs font-bold text-[#2AABAB] flex-shrink-0 mt-0.5">
                       {(conv.profiles?.full_name ?? conv.profiles?.username ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#F0EDE4]">
+                      <p className="text-sm font-medium text-[#1A1714]">
                         {conv.profiles?.full_name ?? conv.profiles?.username}
                       </p>
-                      <p className="text-xs text-[#F0EDE4]/35 truncate">{conv.bikes?.title}</p>
+                      <p className="text-xs text-[#1A1714]/35 truncate">{conv.bikes?.title}</p>
                     </div>
-                    <ChevronRight size={14} className="text-[#F0EDE4]/20 flex-shrink-0 mt-1" />
+                    <ChevronRight size={14} className="text-[#1A1714]/20 flex-shrink-0 mt-1" />
                   </Link>
                 ))}
                 {!conversations?.length && (
-                  <p className="px-5 py-8 text-sm text-[#F0EDE4]/30 text-center">Keine Nachrichten</p>
+                  <p className="px-5 py-8 text-sm text-[#1A1714]/30 text-center">Keine Nachrichten</p>
                 )}
               </div>
             </div>
 
             {/* Quick links */}
-            {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
-              <p className="text-xs text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
+            {!isSuperAdmin && <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-4">
+              <p className="text-xs text-[#1A1714]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
-                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new', icon: <Plus size={13}/> },
-                { label: 'Builder entdecken', href: '/builder',            icon: <Eye size={13}/> },
-                ...(isBuilder ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={13}/> }] : []),
+                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',          icon: <Plus size={13}/> },
+                { label: 'Builder entdecken',           href: '/builder',              icon: <Eye size={13}/> },
+                ...(isBuilder ? [{ label: 'Profil bearbeiten',     href: '/dashboard/profile',  icon: <User size={13}/> }] : []),
+                { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
               ].map(l => (
                 <Link key={l.href} href={l.href}
-                  className="flex items-center gap-2.5 py-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors border-b border-[#F0EDE4]/5 last:border-0">
-                  <span className="text-[#F0EDE4]/25">{l.icon}</span>
+                  className="flex items-center gap-2.5 py-2.5 text-xs text-[#1A1714]/50 hover:text-[#1A1714] transition-colors border-b border-[#1A1714]/5 last:border-0">
+                  <span className="text-[#1A1714]/25">{l.icon}</span>
                   {l.label}
-                  <ChevronRight size={11} className="ml-auto text-[#F0EDE4]/20" />
+                  <ChevronRight size={11} className="ml-auto text-[#1A1714]/20" />
                 </Link>
               ))}
             </div>}
