@@ -150,7 +150,7 @@ export default function Header({ activePage }: Props) {
         </nav>
 
         {/* Desktop auth — flex-1 right anchor */}
-        <div className="hidden md:flex flex-1 items-center gap-2 justify-end">
+        <div className="hidden md:flex flex-1 items-center gap-2 justify-end pl-8">
           {loading ? (
             <div className="flex items-center gap-2">
               <div className="h-8 w-20 rounded-full bg-[#F0EDE4]/5 animate-pulse" />
