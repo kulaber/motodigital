@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Grid2x2 } from 'lucide-react'
 
 interface MediaItem {
   url: string
@@ -38,52 +38,74 @@ export default function BuilderGallery({ images }: Props) {
     }
   }, [lightbox, prev, next])
 
+  const main = images[0]
+  const thumbs = images.slice(1, 5) // up to 4 thumbs
+
   return (
     <>
-      {/* Original grid layout */}
-      <div className={`grid gap-2 ${
-        images.length === 1 ? 'grid-cols-1' :
-        images.length === 2 ? 'grid-cols-2' :
-        images.length === 3 ? 'grid-cols-3' :
-        'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-      }`}>
-        {images.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => setLightbox(i)}
-            className={`group relative overflow-hidden rounded-xl bg-[#1C1C1C] border border-[#F0EDE4]/5 cursor-zoom-in text-left ${
-              i === 0 && images.length > 2 ? 'row-span-2 col-span-2 sm:col-span-1 lg:col-span-2' : ''
-            }`}
-          >
-            <div className={`overflow-hidden ${i === 0 && images.length > 2 ? 'aspect-[4/3] sm:aspect-square lg:aspect-[4/3]' : 'aspect-square'}`}>
+      {/* ── Airbnb-style grid ── */}
+      <div className="relative rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 h-[320px] sm:h-[380px]">
+
+          {/* Main large image */}
+          {main && (
+            <button
+              onClick={() => setLightbox(0)}
+              className="col-span-2 row-span-2 relative overflow-hidden cursor-zoom-in group"
+            >
+              <img
+                src={main.url}
+                alt={main.title ?? ''}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </button>
+          )}
+
+          {/* 4 thumbnails */}
+          {thumbs.map((item, i) => (
+            <button
+              key={i}
+              onClick={() => setLightbox(i + 1)}
+              className="relative overflow-hidden cursor-zoom-in group"
+            >
               <img
                 src={item.url}
                 alt={item.title ?? ''}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
               />
-            </div>
-            {item.title && (
-              <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-[#141414]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-xs text-[#F0EDE4]/80 font-medium">{item.title}</p>
-              </div>
-            )}
-          </button>
-        ))}
+              {/* Overlay on last visible thumb if more images */}
+              {i === 3 && images.length > 5 && (
+                <div className="absolute inset-0 bg-[#141414]/60 flex items-center justify-center">
+                  <span className="text-[#F0EDE4] text-sm font-semibold">+{images.length - 5}</span>
+                </div>
+              )}
+            </button>
+          ))}
+
+          {/* Fill empty slots if fewer than 4 thumbs */}
+          {thumbs.length < 4 && Array.from({ length: 4 - thumbs.length }).map((_, i) => (
+            <div key={`empty-${i}`} className="bg-[#1C1C1C]" />
+          ))}
+        </div>
+
+        {/* "Alle Bilder ansehen" button */}
+        <button
+          onClick={() => setLightbox(0)}
+          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-[#F0EDE4] text-[#141414] text-xs font-semibold px-3 py-2 rounded-xl shadow-lg hover:bg-white transition-colors"
+        >
+          <Grid2x2 size={13} />
+          Alle Bilder ansehen
+        </button>
       </div>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ── */}
       {lightbox !== null && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col"
-          onClick={() => setLightbox(null)}
-        >
+        <div className="fixed inset-0 z-50 flex flex-col" onClick={() => setLightbox(null)}>
           <div className="absolute inset-0 bg-black/92" />
 
           {/* Top bar */}
           <div className="relative z-10 flex items-center justify-between px-4 py-3 flex-shrink-0">
-            <div className="text-white/40 text-sm font-medium">
-              {lightbox + 1} / {images.length}
-            </div>
+            <span className="text-white/40 text-sm font-medium">{lightbox + 1} / {images.length}</span>
             <button
               onClick={() => setLightbox(null)}
               className="text-white/50 hover:text-white bg-white/8 hover:bg-white/15 rounded-full p-2 transition-all"
@@ -121,7 +143,20 @@ export default function BuilderGallery({ images }: Props) {
             </button>
           </div>
 
-          <div className="relative z-10 h-4 flex-shrink-0" />
+          {/* Thumbnail strip */}
+          <div className="relative z-10 flex gap-2 justify-center px-4 pb-4 overflow-x-auto flex-shrink-0" onClick={e => e.stopPropagation()}>
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setLightbox(i)}
+                className={`flex-shrink-0 w-12 h-9 rounded-lg overflow-hidden border-2 transition-all ${
+                  i === lightbox ? 'border-white opacity-100' : 'border-transparent opacity-40 hover:opacity-70'
+                }`}
+              >
+                <img src={img.url} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </>

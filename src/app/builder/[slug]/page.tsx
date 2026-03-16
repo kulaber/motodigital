@@ -1,10 +1,41 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, Star, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <span className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map(i => {
+        const filled = rating >= i
+        const half = !filled && rating >= i - 0.5
+        return (
+          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#2AABAB]' : 'text-[#F0EDE4]/15'}>
+            {half ? (
+              <>
+                <defs>
+                  <linearGradient id={`h${i}`}>
+                    <stop offset="50%" stopColor="currentColor" />
+                    <stop offset="50%" stopColor="transparent" />
+                  </linearGradient>
+                </defs>
+                <path fill={`url(#h${i})`} stroke="currentColor" strokeWidth="1.5"
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </>
+            ) : (
+              <path fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5"
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            )}
+          </svg>
+        )
+      })}
+      <span className="ml-1 text-xs font-semibold text-[#F0EDE4]/60">{rating.toFixed(1)}</span>
+    </span>
+  )
+}
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -69,10 +100,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               <div className="flex flex-wrap items-center gap-4 text-xs text-[#F0EDE4]/40 mb-3">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
                 <span className="flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>
-                <span className="flex items-center gap-1">
-                  <Star size={11} className="text-[#2AABAB]" fill="#2AABAB" />
-                  <span className="text-[#F0EDE4]/60 font-semibold">{builder.rating}</span>
-                </span>
+                <StarRating rating={builder.rating} />
               </div>
 
               <div className="flex flex-wrap gap-1.5">
@@ -88,10 +116,6 @@ export default async function BuilderProfilePage({ params }: Props) {
               <div>
                 <p className="text-2xl font-bold text-[#F0EDE4] leading-none">{builder.builds}</p>
                 <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Builds</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#2AABAB] leading-none">{builder.rating}</p>
-                <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Rating</p>
               </div>
             </div>
           </div>
@@ -168,46 +192,53 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
 
-              {/* Featured builds */}
+              {/* Builds von diesem Builder */}
               {builder.featuredBuilds.length > 0 && (
                 <div>
-                  <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Featured Builds</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">
+                      Projekte · {builder.featuredBuilds.length} Builds
+                    </h2>
+                  </div>
+                  <div className="flex flex-col gap-2">
                     {builder.featuredBuilds.map(build => {
-                      const inner = (
-                        <>
-                          <div className="relative aspect-[16/9] overflow-hidden">
+                      const content = (
+                        <div className="flex items-center gap-3 p-3 group-hover:bg-[#242424] transition-colors rounded-2xl">
+                          {/* Thumbnail */}
+                          <div className="w-20 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-[#141414]">
                             <img
                               src={build.img}
                               alt={build.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                             />
-                            <span className="absolute top-2.5 left-2.5 bg-[#141414]/80 backdrop-blur-sm border border-[#F0EDE4]/15 text-[#F0EDE4] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                          </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#F0EDE4] leading-snug">{build.title}</p>
+                            <p className="text-xs text-[#F0EDE4]/35 mt-0.5">{build.base} · {build.year}</p>
+                          </div>
+                          {/* Style badge + arrow */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="hidden sm:inline text-[10px] font-semibold text-[#2AABAB] bg-[#2AABAB]/10 border border-[#2AABAB]/20 px-2 py-0.5 rounded-full">
                               {build.style}
                             </span>
                             {build.slug && (
-                              <span className="absolute bottom-2.5 right-2.5 text-[10px] text-[#F0EDE4]/60 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                                Ansehen →
-                              </span>
+                              <span className="text-[#F0EDE4]/25 group-hover:text-[#2AABAB] transition-colors text-xs">→</span>
                             )}
                           </div>
-                          <div className="p-3.5">
-                            <p className="text-sm font-semibold text-[#F0EDE4]">{build.title}</p>
-                            <p className="text-xs text-[#F0EDE4]/35 mt-0.5">{build.base} · {build.year}</p>
-                          </div>
-                        </>
+                        </div>
                       )
                       return build.slug ? (
                         <Link
                           key={build.title}
-                          href={`/builds/${build.slug}`}
-                          className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/30 transition-all hover:-translate-y-0.5"
+                          href={`/custom-bike/${build.slug}`}
+                          className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/25 transition-all"
                         >
-                          {inner}
+                          {content}
                         </Link>
                       ) : (
                         <div key={build.title} className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
-                          {inner}
+                          {content}
                         </div>
                       )
                     })}
