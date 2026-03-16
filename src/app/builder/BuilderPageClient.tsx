@@ -351,7 +351,6 @@ export default function BuilderPageClient({ builders }: Props) {
                     key={b.slug}
                     href={`/builder/${b.slug}`}
                     className="group"
-                    onClick={() => handleBuilderClick(b)}
                   >
                     {/* Photo carousel */}
                     <BuilderCardPhoto b={b} selected={selectedBuilder?.slug === b.slug} />
