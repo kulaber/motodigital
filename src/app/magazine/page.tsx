@@ -155,7 +155,7 @@ export default function MagazinePage() {
               <Link
                 key={article.slug}
                 href={`/magazine/${article.slug}`}
-                className="group block bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
+                className="card-interactive group block bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 rounded-2xl overflow-hidden"
               >
                 <article>
                   <div className="aspect-[16/9] overflow-hidden">

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import { Archivo, Space_Grotesk } from 'next/font/google'
+import { Bodoni_Moda, Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const archivo = Archivo({
+const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
   variable: '--font-heading',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
 })
 
 const spaceGrotesk = Space_Grotesk({
@@ -36,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de" className={`${archivo.variable} ${spaceGrotesk.variable}`}>
+    <html lang="de" className={`${bodoniModa.variable} ${spaceGrotesk.variable}`}>
       <body>
         {children}
         <Analytics />

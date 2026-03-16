@@ -125,7 +125,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                 <Link
                   key={build.slug}
                   href={`/custom-bike/${build.slug}`}
-                  className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 opacity-0 animate-slide-up-sm"
+                  className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 opacity-0 animate-slide-up-sm"
                   style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">

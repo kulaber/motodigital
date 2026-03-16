@@ -76,8 +76,13 @@ export default async function BuilderProfilePage({ params }: Props) {
 
           <div className="flex flex-col sm:flex-row items-start gap-6 mb-10 animate-slide-up">
             {/* Avatar */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#2AABAB]/12 border border-[#2AABAB]/25 flex items-center justify-center text-2xl font-bold text-[#2AABAB] flex-shrink-0">
-              {builder.initials}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+              {/* Ambient glow ring */}
+              <div className="absolute inset-0 rounded-2xl bg-[#2AABAB]/20 blur-xl scale-110 animate-pulse" style={{ animationDuration: '3s' }} />
+              {/* Avatar */}
+              <div className="relative w-full h-full rounded-2xl bg-[#2AABAB]/12 border border-[#2AABAB]/25 flex items-center justify-center text-2xl font-bold text-[#2AABAB]">
+                {builder.initials}
+              </div>
             </div>
 
             <div className="flex-1 min-w-0">
@@ -130,7 +135,10 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* Photo grid */}
             {images.length > 0 && (
               <div className="mb-8">
-                <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Galerie</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
+                  <p className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Galerie</p>
+                </div>
                 <BuilderGallery images={images} />
               </div>
             )}
@@ -175,7 +183,10 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div>
               {/* About */}
               <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
-                <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Über</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
+                  <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Über</h2>
+                </div>
                 <p className="text-sm text-[#F0EDE4]/70 leading-relaxed">{builder.bioLong}</p>
 
                 {builder.bases.length > 0 && (
@@ -194,7 +205,10 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Spezialisierung */}
               <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 mb-5">
-                <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Spezialisierung</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
+                  <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Spezialisierung</h2>
+                </div>
                 <p className="text-sm text-[#F0EDE4]/60 mb-3">{builder.specialty}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {builder.tags.map(tag => (
@@ -209,8 +223,8 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.team && builder.team.length > 0 && (
                 <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
                   <div className="flex items-center gap-2 mb-5">
-                    <Users size={13} className="text-[#F0EDE4]/30" />
-                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Team · {builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</p>
+                    <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
+                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Team · {builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {builder.team.map(member => (
@@ -272,8 +286,9 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Builds von diesem Builder */}
               {builder.featuredBuilds.length > 0 && (
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
+                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">
                       Projekte · {builder.featuredBuilds.length} Builds
                     </h2>
                   </div>
@@ -309,7 +324,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                         <Link
                           key={build.title}
                           href={`/custom-bike/${build.slug}`}
-                          className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/25 transition-all"
+                          className="card-interactive group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/25"
                         >
                           {content}
                         </Link>
@@ -328,9 +343,9 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA */}
-              <div className="bg-[#1C1C1C] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none"
-                  style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.1) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
+              <div className="bg-gradient-to-br from-[#1C1C1C] to-[#1a2626] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none rounded-full"
+                  style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.12) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
                 <p className="text-sm font-bold text-[#F0EDE4] mb-1">Projekt anfragen</p>
                 <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mb-4">
                   Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
@@ -381,24 +396,38 @@ export default async function BuilderProfilePage({ params }: Props) {
               )}
 
               {/* Opening hours */}
-              {builder.openingHours && builder.openingHours.length > 0 && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Clock size={13} className="text-[#F0EDE4]/30" />
-                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Öffnungszeiten</p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {builder.openingHours.map(h => (
-                      <div key={h.day} className="flex items-center justify-between">
-                        <span className="text-xs text-[#F0EDE4]/40">{h.day}</span>
-                        <span className={`text-xs font-medium ${h.hours === 'Geschlossen' ? 'text-[#F0EDE4]/20' : 'text-[#F0EDE4]/70'}`}>
-                          {h.hours}
+              {builder.openingHours && builder.openingHours.length > 0 && (() => {
+                const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+                const todayName = dayNames[new Date().getDay()]
+                const todayHours = builder.openingHours.find(h => h.day === todayName)
+                const isOpen = todayHours ? todayHours.hours !== 'Geschlossen' : false
+                return (
+                  <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Clock size={13} className="text-[#F0EDE4]/30" />
+                        <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Öffnungszeiten</p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                        <span className={`text-[10px] font-semibold ${isOpen ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {isOpen ? 'Geöffnet' : 'Geschlossen'}
                         </span>
                       </div>
-                    ))}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {builder.openingHours.map(h => (
+                        <div key={h.day} className="flex items-center justify-between">
+                          <span className="text-xs text-[#F0EDE4]/40">{h.day}</span>
+                          <span className={`text-xs font-medium ${h.hours === 'Geschlossen' ? 'text-[#F0EDE4]/20' : 'text-[#F0EDE4]/70'}`}>
+                            {h.hours}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )
+              })()}
 
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (

@@ -62,8 +62,10 @@ export default function Header({ activePage }: Props) {
       <div className="max-w-6xl mx-auto px-5 lg:px-8 flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link href="/" onClick={() => setOpen(false)}>
-          <Image src="/logo.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
+        <Link href="/" onClick={() => setOpen(false)} className="cursor-pointer">
+          <div className="transition-transform duration-200 hover:scale-[1.02]">
+            <Image src="/logo.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
+          </div>
         </Link>
 
         {/* Desktop nav */}
@@ -73,14 +75,17 @@ export default function Header({ activePage }: Props) {
           <div className="relative" ref={bikesRef}>
             <button
               onClick={() => setBikesDropdown(d => !d)}
-              className={`flex items-center gap-1 text-sm transition-colors ${
+              className={`relative flex items-center gap-1 text-sm font-medium transition-colors duration-200 pb-0.5 ${
                 activePage === 'bikes'
-                  ? 'text-[#F0EDE4] font-semibold'
-                  : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+                  ? 'text-[#2aabab]'
+                  : 'text-[#F0EDE4]/55 hover:text-[#F0EDE4]'
               }`}
             >
               Bikes
               <ChevronDown size={13} className={`transition-transform ${bikesDropdown ? 'rotate-180' : ''}`} />
+              {activePage === 'bikes' && (
+                <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />
+              )}
             </button>
             {bikesDropdown && (
               <div className="absolute top-full left-0 mt-2 w-44 bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl shadow-xl overflow-hidden z-50">
@@ -100,35 +105,44 @@ export default function Header({ activePage }: Props) {
 
           <Link
             href="/builder"
-            className={`text-sm transition-colors ${
+            className={`relative text-sm font-medium transition-colors duration-200 pb-0.5 ${
               activePage === 'builder'
-                ? 'text-[#F0EDE4] font-semibold'
-                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+                ? 'text-[#2aabab]'
+                : 'text-[#F0EDE4]/55 hover:text-[#F0EDE4]'
             }`}
           >
             Builder
+            {activePage === 'builder' && (
+              <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />
+            )}
           </Link>
 
           <Link
             href="/magazine"
-            className={`text-sm transition-colors ${
+            className={`relative text-sm font-medium transition-colors duration-200 pb-0.5 ${
               activePage === 'magazine'
-                ? 'text-[#F0EDE4] font-semibold'
-                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+                ? 'text-[#2aabab]'
+                : 'text-[#F0EDE4]/55 hover:text-[#F0EDE4]'
             }`}
           >
             Magazin
+            {activePage === 'magazine' && (
+              <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />
+            )}
           </Link>
 
           <Link
             href="/events"
-            className={`text-sm transition-colors ${
+            className={`relative text-sm font-medium transition-colors duration-200 pb-0.5 ${
               activePage === 'events'
-                ? 'text-[#F0EDE4] font-semibold'
-                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+                ? 'text-[#2aabab]'
+                : 'text-[#F0EDE4]/55 hover:text-[#F0EDE4]'
             }`}
           >
             Events
+            {activePage === 'events' && (
+              <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />
+            )}
           </Link>
 
         </nav>

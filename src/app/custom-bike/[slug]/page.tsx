@@ -151,7 +151,7 @@ export default async function CustomBikePage({ params }: Props) {
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
             {/* Builder card */}
-            <div className="bg-[#1C1C1C] border border-[#2aabab]/15 rounded-2xl p-5">
+            <div className="card-interactive bg-[#1C1C1C] border border-[#2aabab]/15 rounded-2xl p-5">
               <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-3">Builder</p>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-[#2aabab]/12 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
@@ -169,7 +169,7 @@ export default async function CustomBikePage({ params }: Props) {
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/builder/${build.builder.slug}#kontakt`}
-                  className="w-full text-center text-sm font-bold bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] rounded-xl px-4 py-2.5 transition-colors"
+                  className="btn-press w-full text-center text-sm font-bold bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Builder kontaktieren
                 </Link>
