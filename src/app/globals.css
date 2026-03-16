@@ -62,6 +62,15 @@ button, [role="button"], a, label[for], summary {
 ::-webkit-scrollbar-thumb   { background: var(--color-bg-4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-teal-dark); }
 
+/* ─── Utility: hide scrollbar ────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Keyframes ──────────────────────────────────────────── */
 @keyframes fade-in {
   from { opacity: 0; }
