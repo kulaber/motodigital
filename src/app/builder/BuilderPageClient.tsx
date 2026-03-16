@@ -347,10 +347,11 @@ export default function BuilderPageClient({ builders }: Props) {
               {/* 2-column grid */}
               <div className="grid grid-cols-2 gap-4">
                 {filtered.map(b => (
-                  <div
+                  <Link
                     key={b.slug}
+                    href={`/builder/${b.slug}`}
+                    className="group"
                     onClick={() => handleBuilderClick(b)}
-                    className="cursor-pointer group"
                   >
                     {/* Photo carousel */}
                     <BuilderCardPhoto b={b} selected={selectedBuilder?.slug === b.slug} />
@@ -393,16 +394,11 @@ export default function BuilderPageClient({ builders }: Props) {
                         </div>
                       )}
 
-                      {/* Profile link */}
-                      <Link
-                        href={`/builder/${b.slug}`}
-                        onClick={e => e.stopPropagation()}
-                        className="mt-2 text-[10px] font-semibold text-[#086565] hover:text-[#075555] transition-colors inline-block"
-                      >
+                      <p className="mt-2 text-[10px] font-semibold text-[#086565] group-hover:text-[#075555] transition-colors">
                         Profil ansehen →
-                      </Link>
+                      </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 
