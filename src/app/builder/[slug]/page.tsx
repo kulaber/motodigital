@@ -25,10 +25,17 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   if (!row) return null
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: mediaRows } = await (supabase.from('builder_media') as any)
-    .select('url, type, title')
-    .eq('builder_id', row.id)
-    .order('position', { ascending: true })
+  const [{ data: mediaRows }, { data: bikeRows }] = await Promise.all([
+    (supabase.from('builder_media') as any)
+      .select('url, type, title')
+      .eq('builder_id', row.id)
+      .order('position', { ascending: true }),
+    (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, price, bike_images(url, is_cover)')
+      .eq('seller_id', row.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false }),
+  ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
   const media: BuilderMedia[] = (mediaRows ?? []).map((m: Record<string, unknown>) => ({
@@ -36,6 +43,19 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     type:  m.type as 'image' | 'video',
     title: (m.title as string | null) ?? undefined,
   }))
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const featuredBuilds = (bikeRows ?? []).map((b: any) => {
+    const coverImg = b.bike_images?.find((i: any) => i.is_cover)?.url ?? b.bike_images?.[0]?.url ?? ''
+    return {
+      title: b.title as string,
+      slug:  b.id as string,
+      base:  [b.make, b.model].filter(Boolean).join(' '),
+      style: (b.style as string) ?? '',
+      year:  (b.year as number) ?? new Date().getFullYear(),
+      img:   coverImg,
+    }
+  })
 
   return {
     slug:        row.slug as string,
@@ -46,7 +66,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     lat:         (row.lat as number | null) ?? undefined,
     lng:         (row.lng as number | null) ?? undefined,
     specialty:   (row.specialty as string | null) ?? '',
-    builds:      0,
+    builds:      featuredBuilds.length,
     rating:      (row.rating as number | null) ?? 5.0,
     verified:    false,
     featured:    (row.featured as boolean | null) ?? false,
@@ -58,7 +78,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     instagram:   (row.instagram_url as string | null) ?? undefined,
     website:     (row.website_url as string | null) ?? undefined,
     media,
-    featuredBuilds: [],
+    featuredBuilds,
   }
 }
 
@@ -268,7 +288,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </div>
                 )
                 return build.slug ? (
-                  <Link key={build.title} href={`/builds/${build.slug}`}>{card}</Link>
+                  <Link key={build.title} href={`/bikes/${build.slug}`}>{card}</Link>
                 ) : (
                   <div key={build.title}>{card}</div>
                 )
