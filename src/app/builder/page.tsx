@@ -32,7 +32,9 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
     bases:       (row.bases as string[] | null) ?? [],
     instagram:   (row.instagram_url as string | null) ?? undefined,
     website:     (row.website_url as string | null) ?? undefined,
-    media:       [],
+    media:       ((row.builder_media as {url:string;type:string;title?:string;position?:number}[] | null) ?? [])
+                   .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                   .map(m => ({ url: m.url, type: m.type as 'image'|'video', title: m.title ?? undefined })),
     featuredBuilds: [],
   }
 }
@@ -42,7 +44,7 @@ export default async function BuilderPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRows } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
     .eq('role', 'builder')
     .not('slug', 'is', null)
 
