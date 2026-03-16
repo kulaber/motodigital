@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, Clock, Users, CreditCard, Mail, Phone } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
 import BuilderMap from '@/components/builder/BuilderMap'
+import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -372,39 +373,10 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* Opening hours */}
-              {builder.openingHours && builder.openingHours.length > 0 && (() => {
-                const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
-                const todayName = dayNames[new Date().getDay()]
-                const todayHours = builder.openingHours.find(h => h.day === todayName)
-                const isOpen = todayHours ? todayHours.hours !== 'Geschlossen' : false
-                return (
-                  <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Clock size={13} className="text-[#F0EDE4]/30" />
-                        <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Öffnungszeiten</p>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                        <span className={`text-[10px] font-semibold ${isOpen ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {isOpen ? 'Geöffnet' : 'Geschlossen'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      {builder.openingHours.map(h => (
-                        <div key={h.day} className="flex items-center justify-between">
-                          <span className="text-xs text-[#F0EDE4]/40">{h.day}</span>
-                          <span className={`text-xs font-medium ${h.hours === 'Geschlossen' ? 'text-[#F0EDE4]/20' : 'text-[#F0EDE4]/70'}`}>
-                            {h.hours}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })()}
+              {/* Opening hours — live status */}
+              {builder.openingHours && builder.openingHours.length > 0 && (
+                <OpeningHoursWidget openingHours={builder.openingHours} />
+              )}
 
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (
