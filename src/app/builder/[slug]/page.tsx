@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Footer from '@/components/layout/Footer'
 import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
@@ -431,14 +432,7 @@ export default async function BuilderProfilePage({ params }: Props) {
         </div>
       </section>
 
-      <footer className="bg-[#141414] border-t border-[#F0EDE4]/5 py-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <Link href="/builder" className="text-xs text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
-            ← Zurück zu allen Buildern
-          </Link>
-          <p className="text-xs text-[#F0EDE4]/15">© 2026 MotoDigital</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

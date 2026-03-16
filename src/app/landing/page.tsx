@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
 import { BUILDERS } from '@/lib/data/builders'
 
@@ -249,23 +250,7 @@ export default function LandingPage() {
         </AnimateIn>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-[#141414] border-t border-[#F0EDE4]/5 py-10">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-[#2AABAB] rounded-md flex items-center justify-center text-[#141414] font-bold text-xs">M</span>
-              <span className="text-sm font-bold text-[#F0EDE4]/50">Moto<span className="text-[#2AABAB]">Digital</span></span>
-            </Link>
-            <nav className="flex items-center gap-6">
-              {['Impressum', 'Datenschutz', 'Kontakt'].map(l => (
-                <Link key={l} href="#" className="text-xs text-[#F0EDE4]/25 hover:text-[#F0EDE4]/60 transition-colors duration-200 font-medium">{l}</Link>
-              ))}
-            </nav>
-            <p className="text-xs text-[#F0EDE4]/15">© 2026 MotoDigital · motodigital.io</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
     </div>
   )
