@@ -19,7 +19,7 @@ export default function BikesPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
             <div>
-              <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-2">Custom Motorcycles</p>
+              <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-2">Custom Motorcycles</p>
               <h1 className="font-bold text-[#F0EDE4] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
                 Handgefertigte Unikate.
               </h1>
@@ -44,7 +44,7 @@ export default function BikesPage() {
               <Link
                 key={s.href}
                 href={s.href}
-                className="text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-3 py-1.5 rounded-full hover:border-[#C8A96E]/40 hover:text-[#C8A96E] transition-all"
+                className="text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-3 py-1.5 rounded-full hover:border-[#2aabab]/40 hover:text-[#2aabab] transition-all"
               >
                 {s.label}
               </Link>

@@ -94,7 +94,7 @@ export default async function BikeSlugPage({ params }: Props) {
       <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
         {/* Hero */}
         <div className="relative border-b border-[#F0EDE4]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#C8A96E]/5 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2aabab]/5 via-transparent to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto relative">
             <Breadcrumbs crumbs={[
               { label: 'Home', href: '/' },
@@ -102,7 +102,7 @@ export default async function BikeSlugPage({ params }: Props) {
               { label: styleInfo.name },
             ]} />
             <div className="mt-5">
-              <span className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest">Custom Style</span>
+              <span className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest">Custom Style</span>
               <h1 className="font-bold text-[#F0EDE4] mt-2 mb-3" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
                 {styleInfo.name} Motorcycles
               </h1>
@@ -120,7 +120,7 @@ export default async function BikeSlugPage({ params }: Props) {
             <p className="text-sm text-[#F0EDE4]/40">
               <span className="text-[#F0EDE4] font-semibold">{filtered.length}</span> {styleInfo.name} Bikes
             </p>
-            <Link href="/bikes" className="text-xs text-[#C8A96E] hover:text-[#D4B87A] transition-colors">
+            <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
               ← Alle Stile
             </Link>
           </div>
@@ -140,13 +140,13 @@ export default async function BikeSlugPage({ params }: Props) {
                       className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                     />
                     {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-1 bg-[#C8A96E]/90 text-[#141414] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+                      <span className="absolute top-2 right-2 flex items-center gap-1 bg-[#2aabab]/90 text-[#141414] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
                         <BadgeCheck size={9} /> Verified
                       </span>
                     )}
                   </div>
                   <div className="p-4">
-                    <p className="text-xs text-[#C8A96E] font-semibold mb-1">{build.base}</p>
+                    <p className="text-xs text-[#2aabab] font-semibold mb-1">{build.base}</p>
                     <p className="text-sm font-semibold text-[#F0EDE4] line-clamp-1 mb-1">{build.title}</p>
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-[#F0EDE4]/35">{build.city} · {build.buildYear}</p>
@@ -159,7 +159,7 @@ export default async function BikeSlugPage({ params }: Props) {
           ) : (
             <div className="text-center py-20 text-[#F0EDE4]/30">
               <p className="text-base">Noch keine {styleInfo.name} Bikes verfügbar.</p>
-              <Link href="/bikes" className="mt-4 inline-block text-sm text-[#C8A96E] hover:text-[#D4B87A]">
+              <Link href="/bikes" className="mt-4 inline-block text-sm text-[#2aabab] hover:text-[#1f9999]">
                 Alle Bikes ansehen →
               </Link>
             </div>
@@ -176,9 +176,9 @@ export default async function BikeSlugPage({ params }: Props) {
                   <Link
                     key={b.slug}
                     href={`/builder/${b.slug}`}
-                    className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#C8A96E]/30 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
+                    className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#2aabab]/30 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
                   >
-                    <div className="w-11 h-11 rounded-xl bg-[#C8A96E]/10 border border-[#C8A96E]/20 flex items-center justify-center text-sm font-bold text-[#C8A96E]">
+                    <div className="w-11 h-11 rounded-xl bg-[#2aabab]/10 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab]">
                       {b.initials}
                     </div>
                     <div>
@@ -331,11 +331,11 @@ export default async function BikeSlugPage({ params }: Props) {
                 <>
                   <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-3">Builder</p>
                   <Link href={`/builder/${workshop.slug}`} className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-xl bg-[#C8A96E]/15 border border-[#C8A96E]/20 flex items-center justify-center text-sm font-bold text-[#C8A96E] flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#2aabab]/15 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
                       {workshop.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#C8A96E] transition-colors">{workshop.name}</p>
+                      <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#2aabab] transition-colors">{workshop.name}</p>
                       <p className="text-xs text-[#F0EDE4]/35">{workshop.city}</p>
                     </div>
                   </Link>
@@ -350,7 +350,7 @@ export default async function BikeSlugPage({ params }: Props) {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <p className="text-sm font-semibold text-[#F0EDE4]">{seller.full_name ?? seller.username}</p>
-                        {seller.is_verified && <BadgeCheck size={13} className="text-[#C8A96E]" />}
+                        {seller.is_verified && <BadgeCheck size={13} className="text-[#2aabab]" />}
                       </div>
                       <p className="text-xs text-[#F0EDE4]/35">Privater Verkäufer</p>
                     </div>

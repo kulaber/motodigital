@@ -11,11 +11,11 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
           <span key={i} className="flex items-center gap-1.5">
             {i > 0 && <span className="text-[#F0EDE4]/20">›</span>}
             {crumb.href && !isLast ? (
-              <Link href={crumb.href} className="text-[#C8A96E] hover:text-[#D4B87A] transition-colors">
+              <Link href={crumb.href} className="text-[#2aabab] hover:text-[#1f9999] transition-colors">
                 {crumb.label}
               </Link>
             ) : (
-              <span className={isLast ? 'text-[#F0EDE4]/60' : 'text-[#C8A96E]'}>
+              <span className={isLast ? 'text-[#F0EDE4]/60' : 'text-[#2aabab]'}>
                 {crumb.label}
               </span>
             )}

@@ -42,7 +42,7 @@ export default function BrandIndexPage() {
           ]} />
 
           <div className="mt-6">
-            <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-3">Marken</p>
+            <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">Marken</p>
             <h1 className="font-bold text-[#F0EDE4] leading-tight mb-3" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
               Custom Motorcycle Brands
             </h1>
@@ -60,11 +60,11 @@ export default function BrandIndexPage() {
               <Link
                 key={brand.slug}
                 href={`/brand/${brand.slug}`}
-                className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#C8A96E]/25 rounded-2xl p-6 transition-all hover:-translate-y-0.5"
+                className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#2aabab]/25 rounded-2xl p-6 transition-all hover:-translate-y-0.5"
               >
                 {/* Logo placeholder */}
-                <div className="w-12 h-12 rounded-xl bg-[#C8A96E]/10 border border-[#C8A96E]/15 flex items-center justify-center mb-4">
-                  <span className="text-sm font-bold text-[#C8A96E]">
+                <div className="w-12 h-12 rounded-xl bg-[#2aabab]/10 border border-[#2aabab]/15 flex items-center justify-center mb-4">
+                  <span className="text-sm font-bold text-[#2aabab]">
                     {brand.name.slice(0, 2).toUpperCase()}
                   </span>
                 </div>

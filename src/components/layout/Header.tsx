@@ -229,7 +229,7 @@ export default function Header({ activePage }: Props) {
                   key={s.href}
                   href={s.href}
                   onClick={() => setOpen(false)}
-                  className="py-2 px-2 text-sm text-[#F0EDE4]/40 hover:text-[#C8A96E] rounded-lg transition-colors"
+                  className="py-2 px-2 text-sm text-[#F0EDE4]/40 hover:text-[#2aabab] rounded-lg transition-colors"
                 >
                   {s.label}
                 </Link>

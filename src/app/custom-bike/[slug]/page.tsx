@@ -53,7 +53,7 @@ export default async function CustomBikePage({ params }: Props) {
             {build.style}
           </span>
           {build.verified && (
-            <span className="flex items-center gap-1 bg-[#C8A96E]/90 text-[#141414] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+            <span className="flex items-center gap-1 bg-[#2aabab]/90 text-[#141414] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
               <BadgeCheck size={10} /> Verified
             </span>
           )}
@@ -62,7 +62,7 @@ export default async function CustomBikePage({ params }: Props) {
         {/* Title overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-5 pb-8 lg:px-12">
           <div className="max-w-5xl mx-auto">
-            <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-2">{build.base} · {build.year}</p>
+            <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-2">{build.base} · {build.year}</p>
             <h1 className="font-bold text-[#F0EDE4] leading-tight mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
               {build.title}
             </h1>
@@ -97,7 +97,7 @@ export default async function CustomBikePage({ params }: Props) {
                 { icon: <Wrench size={12} />, label: build.displacement },
               ].map(m => (
                 <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#F0EDE4]/50 bg-[#1C1C1C] border border-[#F0EDE4]/8 px-3 py-1.5 rounded-full">
-                  <span className="text-[#C8A96E]">{m.icon}</span>
+                  <span className="text-[#2aabab]">{m.icon}</span>
                   {m.label}
                 </span>
               ))}
@@ -136,7 +136,7 @@ export default async function CustomBikePage({ params }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {build.modifications.map((mod, i) => (
                   <div key={i} className="flex items-start gap-2.5 bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-xl px-4 py-3">
-                    <span className="text-[#C8A96E] mt-0.5 flex-shrink-0">
+                    <span className="text-[#2aabab] mt-0.5 flex-shrink-0">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M10 3L5 8.5 2 5.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </span>
                     <span className="text-xs text-[#F0EDE4]/65 leading-snug">{mod}</span>
@@ -153,8 +153,8 @@ export default async function CustomBikePage({ params }: Props) {
             {/* Price */}
             <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
               <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-1">Preis</p>
-              <p className="text-3xl font-bold text-[#C8A96E]">{build.price}</p>
-              <button className="mt-4 w-full bg-[#C8A96E] text-[#141414] text-sm font-bold py-3 rounded-xl hover:bg-[#D4B87A] transition-colors">
+              <p className="text-3xl font-bold text-[#2aabab]">{build.price}</p>
+              <button className="mt-4 w-full bg-[#2aabab] text-[#141414] text-sm font-bold py-3 rounded-xl hover:bg-[#1f9999] transition-colors">
                 Anfrage senden
               </button>
               <button className="mt-2 w-full border border-[#F0EDE4]/10 text-[#F0EDE4]/50 text-sm font-medium py-2.5 rounded-xl hover:border-[#F0EDE4]/25 hover:text-[#F0EDE4] transition-colors">
@@ -165,23 +165,23 @@ export default async function CustomBikePage({ params }: Props) {
             {/* Builder card */}
             <Link
               href={`/builder/${build.builder.slug}`}
-              className="bg-[#1C1C1C] border border-[#C8A96E]/15 hover:border-[#C8A96E]/35 rounded-2xl p-5 transition-all group"
+              className="bg-[#1C1C1C] border border-[#2aabab]/15 hover:border-[#2aabab]/35 rounded-2xl p-5 transition-all group"
             >
               <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-3">Builder</p>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-[#C8A96E]/12 border border-[#C8A96E]/20 flex items-center justify-center text-sm font-bold text-[#C8A96E] flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#2aabab]/12 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
                   {build.builder.initials}
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-semibold text-[#F0EDE4]">{build.builder.name}</p>
-                    {build.builder.verified && <BadgeCheck size={13} className="text-[#C8A96E]" />}
+                    {build.builder.verified && <BadgeCheck size={13} className="text-[#2aabab]" />}
                   </div>
                   <p className="text-xs text-[#F0EDE4]/40">{build.builder.city}</p>
                 </div>
               </div>
               <p className="text-xs text-[#F0EDE4]/35 mb-3">{build.builder.specialty}</p>
-              <div className="flex items-center gap-1 text-xs text-[#C8A96E] font-semibold group-hover:gap-2 transition-all">
+              <div className="flex items-center gap-1 text-xs text-[#2aabab] font-semibold group-hover:gap-2 transition-all">
                 Profil ansehen <ChevronRight size={13} />
               </div>
             </Link>
@@ -214,7 +214,7 @@ export default async function CustomBikePage({ params }: Props) {
         <div className="border-t border-[#F0EDE4]/5 pt-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-semibold text-[#F0EDE4]">Weitere Bikes</h2>
-            <Link href="/bikes" className="text-xs text-[#C8A96E] hover:text-[#D4B87A] transition-colors">
+            <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
               Alle ansehen →
             </Link>
           </div>

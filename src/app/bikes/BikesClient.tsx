@@ -43,8 +43,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   onClick={() => setActiveStyle(s)}
                   className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
                     activeStyle === s
-                      ? 'bg-[#C8A96E] text-[#141414] border-[#C8A96E]'
-                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#C8A96E]/40 hover:text-[#F0EDE4]'
+                      ? 'bg-[#2aabab] text-[#141414] border-[#2aabab]'
+                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2aabab]/40 hover:text-[#F0EDE4]'
                   }`}
                 >
                   {s}
@@ -62,8 +62,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   onClick={() => setCountryOpen(v => !v)}
                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
                     activeCountry !== 'Alle'
-                      ? 'bg-[#C8A96E] text-[#141414] border-[#C8A96E]'
-                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#C8A96E]/40 hover:text-[#F0EDE4]'
+                      ? 'bg-[#2aabab] text-[#141414] border-[#2aabab]'
+                      : 'border-[#F0EDE4]/10 text-[#F0EDE4]/45 hover:border-[#2aabab]/40 hover:text-[#F0EDE4]'
                   }`}
                 >
                   {activeCountry === 'Alle' ? 'Land' : activeCountry}
@@ -80,7 +80,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                           onClick={() => { setActiveCountry(c); setCountryOpen(false) }}
                           className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#F0EDE4]/5 last:border-0 ${
                             activeCountry === c
-                              ? 'text-[#C8A96E] bg-[#C8A96E]/8'
+                              ? 'text-[#2aabab] bg-[#2aabab]/8'
                               : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
                           }`}
                         >
@@ -114,7 +114,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <p className="text-[#F0EDE4]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
                 onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                className="mt-4 text-xs text-[#C8A96E] hover:text-[#D4B87A] transition-colors"
+                className="mt-4 text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors"
               >
                 Filter zurücksetzen
               </button>
@@ -141,7 +141,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                       {build.style}
                     </span>
                     {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#C8A96E]/90 text-[#141414] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#2aabab]/90 text-[#141414] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
                         <BadgeCheck size={8} /> Verified
                       </span>
                     )}
@@ -149,7 +149,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-1 mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#F0EDE4] leading-snug line-clamp-1">{build.title}</h3>
-                      <span className="text-xs sm:text-sm font-bold text-[#C8A96E] flex-shrink-0">{build.price}</span>
+                      <span className="text-xs sm:text-sm font-bold text-[#2aabab] flex-shrink-0">{build.price}</span>
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#F0EDE4]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
                     <p className="text-[10px] text-[#F0EDE4]/25 mt-0.5 truncate">{build.builder.name}</p>

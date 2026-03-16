@@ -34,17 +34,17 @@ export default function SellPage() {
       {/* Hero */}
       <section className="pt-28 pb-20 bg-[#141414]">
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 text-center">
-          <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-4">Inserieren</p>
+          <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-4">Inserieren</p>
           <h1 className="font-bold text-[#F0EDE4] leading-tight mb-6" style={{ fontSize: 'clamp(2.5rem,6vw,4.5rem)', letterSpacing: '-0.03em' }}>
             Dein Custom Bike.<br />
-            <span className="text-[#C8A96E]">Weltweit sichtbar.</span>
+            <span className="text-[#2aabab]">Weltweit sichtbar.</span>
           </h1>
           <p className="text-[#F0EDE4]/45 text-base max-w-xl mx-auto leading-relaxed mb-10">
             Zeig der Welt, was du gebaut hast. MotoDigital bringt dein Unikat zu den richtigen Käufern — schnell, einfach, ohne Kompromisse.
           </p>
           <Link
             href="/bikes/new"
-            className="inline-flex items-center gap-2 bg-[#C8A96E] text-[#141414] text-base font-bold px-8 py-4 rounded-full hover:bg-[#D4B87A] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#C8A96E]/20"
+            className="inline-flex items-center gap-2 bg-[#2aabab] text-[#141414] text-base font-bold px-8 py-4 rounded-full hover:bg-[#1f9999] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#2aabab]/20"
           >
             Jetzt inserieren
           </Link>
@@ -63,8 +63,8 @@ export default function SellPage() {
               const Icon = benefit.icon
               return (
                 <div key={benefit.title} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-8">
-                  <div className="w-12 h-12 rounded-xl bg-[#C8A96E]/12 border border-[#C8A96E]/20 flex items-center justify-center mb-5">
-                    <Icon size={22} className="text-[#C8A96E]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#2aabab]/12 border border-[#2aabab]/20 flex items-center justify-center mb-5">
+                    <Icon size={22} className="text-[#2aabab]" />
                   </div>
                   <h3 className="text-base font-bold text-[#F0EDE4] mb-2">{benefit.title}</h3>
                   <p className="text-sm text-[#F0EDE4]/40 leading-relaxed">{benefit.description}</p>
@@ -85,7 +85,7 @@ export default function SellPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/bikes/new"
-              className="inline-flex items-center justify-center gap-2 bg-[#C8A96E] text-[#141414] text-sm font-bold px-8 py-3.5 rounded-full hover:bg-[#D4B87A] transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 bg-[#2aabab] text-[#141414] text-sm font-bold px-8 py-3.5 rounded-full hover:bg-[#1f9999] transition-all hover:-translate-y-0.5"
             >
               Jetzt inserieren
             </Link>

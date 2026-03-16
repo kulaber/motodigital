@@ -72,7 +72,7 @@ export default async function BrandPage({ params }: Props) {
           ]} />
 
           <div className="mt-6">
-            <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">
               {builds.length} {builds.length === 1 ? 'Build' : 'Builds'} verfügbar
             </p>
             <h1 className="font-bold text-[#F0EDE4] leading-tight mb-3" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
@@ -92,7 +92,7 @@ export default async function BrandPage({ params }: Props) {
                   <Link
                     key={style}
                     href={`/bikes/${styleSlug}`}
-                    className="text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-3 py-1.5 rounded-full hover:border-[#C8A96E]/40 hover:text-[#C8A96E] transition-all"
+                    className="text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-3 py-1.5 rounded-full hover:border-[#2aabab]/40 hover:text-[#2aabab] transition-all"
                   >
                     {style}
                   </Link>
@@ -109,7 +109,7 @@ export default async function BrandPage({ params }: Props) {
           {builds.length === 0 ? (
             <div className="text-center py-24">
               <p className="text-[#F0EDE4]/25 text-sm mb-4">Noch keine {brand.name} Builds auf der Plattform.</p>
-              <Link href="/bikes" className="text-xs text-[#C8A96E] hover:text-[#D4B87A] transition-colors">
+              <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
                 Alle Bikes ansehen →
               </Link>
             </div>
@@ -134,7 +134,7 @@ export default async function BrandPage({ params }: Props) {
                       {build.style}
                     </span>
                     {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#C8A96E]/90 text-[#141414] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#2aabab]/90 text-[#141414] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
                         <BadgeCheck size={8} /> Verified
                       </span>
                     )}
@@ -142,7 +142,7 @@ export default async function BrandPage({ params }: Props) {
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-1 mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#F0EDE4] leading-snug line-clamp-1">{build.title}</h3>
-                      <span className="text-xs sm:text-sm font-bold text-[#C8A96E] flex-shrink-0">{build.price}</span>
+                      <span className="text-xs sm:text-sm font-bold text-[#2aabab] flex-shrink-0">{build.price}</span>
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#F0EDE4]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
                     <p className="text-[10px] text-[#F0EDE4]/25 mt-0.5 truncate">{build.builder.name}</p>

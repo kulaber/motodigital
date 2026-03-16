@@ -59,7 +59,7 @@ const ARTICLES = [
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Build Story': 'bg-[#C8A96E]/15 text-[#C8A96E] border-[#C8A96E]/20',
+  'Build Story': 'bg-[#2aabab]/15 text-[#2aabab] border-[#2aabab]/20',
   'Interview':   'bg-[#2AABAB]/12 text-[#2AABAB] border-[#2AABAB]/20',
   'Guide':       'bg-[#F0EDE4]/8 text-[#F0EDE4]/60 border-[#F0EDE4]/12',
 }
@@ -72,7 +72,7 @@ export default function MagazinePage() {
       {/* Hero */}
       <section className="pt-28 pb-14 bg-[#141414]">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <p className="text-xs font-semibold text-[#C8A96E] uppercase tracking-widest mb-3">Magazin</p>
+          <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">Magazin</p>
           <h1 className="font-bold text-[#F0EDE4] leading-tight mb-4" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
             MotoDigital Magazin
           </h1>
@@ -116,7 +116,7 @@ export default function MagazinePage() {
                   </p>
                   <Link
                     href="#"
-                    className="text-xs font-semibold text-[#C8A96E] hover:text-[#D4B87A] transition-colors"
+                    className="text-xs font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors"
                   >
                     Lesen →
                   </Link>
