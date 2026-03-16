@@ -4,10 +4,63 @@ import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
 import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/layout/Header'
-import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
+import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
 import BuilderMap from '@/components/builder/BuilderMap'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
+import { createClient } from '@/lib/supabase/server'
+
+export const dynamicParams = true
+
+async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
+  const supabase = await createClient()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: row } = await (supabase.from('profiles') as any)
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url')
+    .eq('slug', slug)
+    .eq('role', 'builder')
+    .single()
+
+  if (!row) return null
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: mediaRows } = await (supabase.from('builder_media') as any)
+    .select('url, type, title')
+    .eq('builder_id', row.id)
+    .order('position', { ascending: true })
+
+  const name = (row.full_name as string | null) ?? 'Unbekannt'
+  const media: BuilderMedia[] = (mediaRows ?? []).map((m: Record<string, unknown>) => ({
+    url:   m.url as string,
+    type:  m.type as 'image' | 'video',
+    title: (m.title as string | null) ?? undefined,
+  }))
+
+  return {
+    slug:        row.slug as string,
+    initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+    name,
+    city:        (row.city as string | null) ?? '',
+    address:     (row.address as string | null) ?? undefined,
+    lat:         (row.lat as number | null) ?? undefined,
+    lng:         (row.lng as number | null) ?? undefined,
+    specialty:   (row.specialty as string | null) ?? '',
+    builds:      0,
+    rating:      (row.rating as number | null) ?? 5.0,
+    verified:    false,
+    featured:    (row.featured as boolean | null) ?? false,
+    since:       (row.since_year as number | null)?.toString() ?? '',
+    tags:        (row.tags as string[] | null) ?? [],
+    bio:         (row.bio as string | null) ?? '',
+    bioLong:     (row.bio_long as string | null) ?? '',
+    bases:       (row.bases as string[] | null) ?? [],
+    instagram:   (row.instagram_url as string | null) ?? undefined,
+    website:     (row.website_url as string | null) ?? undefined,
+    media,
+    featuredBuilds: [],
+  }
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -44,7 +97,7 @@ type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const builder = getBuilderBySlug(slug)
+  const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
   if (!builder) return {}
   return {
     title: `${builder.name} — Builder auf MotoDigital`,
@@ -58,7 +111,7 @@ export function generateStaticParams() {
 
 export default async function BuilderProfilePage({ params }: Props) {
   const { slug } = await params
-  const builder = getBuilderBySlug(slug)
+  const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
   if (!builder) notFound()
 
   const images = builder.media.filter(m => m.type === 'image')
