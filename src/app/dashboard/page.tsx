@@ -346,7 +346,7 @@ export default async function DashboardPage() {
             {/* Listings */}
             {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#F0EDE4]/5">
-                <h2 className="text-sm font-semibold text-[#F0EDE4]">Meine Inserate</h2>
+                <h2 className="text-sm font-semibold text-[#F0EDE4]">Meine Custom-Bikes</h2>
                 <span className="text-xs text-[#F0EDE4]/35">{bikes?.length ?? 0} total</span>
               </div>
               <div className="divide-y divide-[#F0EDE4]/5">
@@ -383,9 +383,9 @@ export default async function DashboardPage() {
                 ))}
                 {!bikes?.length && (
                   <div className="px-5 py-10 text-center">
-                    <p className="text-sm text-[#F0EDE4]/30 mb-3">Noch keine Inserate</p>
+                    <p className="text-sm text-[#F0EDE4]/30 mb-3">Noch keine Custom-Bikes</p>
                     <Link href="/bikes/new" className="text-sm text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
-                      Erstes Inserat erstellen →
+                      Custom-Bike erstellen →
                     </Link>
                   </div>
                 )}
