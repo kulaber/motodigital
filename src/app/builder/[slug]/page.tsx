@@ -123,7 +123,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── HERO ── */}
       <section className="pt-24 pb-0 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
 
           <Link href="/builder"
             className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
@@ -186,7 +186,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       {/* ── MEDIA GALLERY ── */}
       {builder.media.length > 0 && (
         <section className="mb-0">
-          <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pb-0">
+          <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 pb-0">
 
             {/* Photo grid */}
             {images.length > 0 && (
@@ -232,7 +232,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── CONTENT ── */}
       <section className="pb-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
 
             {/* LEFT */}
