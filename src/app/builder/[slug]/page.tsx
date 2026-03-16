@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, Clock, Users, CreditCard } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, Clock, Users, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
@@ -192,6 +192,83 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
 
+              {/* Spezialisierung */}
+              <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 mb-5">
+                <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Spezialisierung</p>
+                <p className="text-sm text-[#F0EDE4]/60 mb-3">{builder.specialty}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {builder.tags.map(tag => (
+                    <span key={tag} className="text-[10px] font-medium text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-2.5 py-1 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Team */}
+              {builder.team && builder.team.length > 0 && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
+                  <div className="flex items-center gap-2 mb-5">
+                    <Users size={13} className="text-[#F0EDE4]/30" />
+                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Team · {builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {builder.team.map(member => (
+                      <div key={member.name} className="flex gap-3 p-3 bg-[#141414] rounded-xl border border-[#F0EDE4]/5">
+                        {/* Avatar */}
+                        <div className="w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-[#2AABAB]/10 border border-[#2AABAB]/15">
+                          {member.avatar ? (
+                            <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-sm font-bold text-[#2AABAB]">
+                              {member.initials}
+                            </div>
+                          )}
+                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#F0EDE4] leading-snug">{member.name}</p>
+                          <p className="text-[10px] text-[#F0EDE4]/40 mt-0.5 mb-2">{member.role}</p>
+                          <div className="flex flex-col gap-1">
+                            {member.email && (
+                              <a href={`mailto:${member.email}`} className="flex items-center gap-1.5 text-[10px] text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
+                                <Mail size={9} className="flex-shrink-0" />
+                                <span className="truncate">{member.email}</span>
+                              </a>
+                            )}
+                            {member.phone && (
+                              <a href={`tel:${member.phone}`} className="flex items-center gap-1.5 text-[10px] text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors">
+                                <Phone size={9} className="flex-shrink-0" />
+                                <span>{member.phone}</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Map */}
+              {builder.lat && builder.lng && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden mb-5">
+                  <img
+                    src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/pin-l+2aabab(${builder.lng},${builder.lat})/${builder.lng},${builder.lat},13,0/900x320@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+                    alt={`Standort ${builder.name}`}
+                    className="w-full h-52 object-cover"
+                  />
+                  <div className="px-5 py-3 border-t border-[#F0EDE4]/5">
+                    <div className="flex items-start gap-2">
+                      <MapPin size={12} className="text-[#2AABAB] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-[#F0EDE4]/50 leading-snug">
+                        {builder.address ?? builder.city}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Builds von diesem Builder */}
               {builder.featuredBuilds.length > 0 && (
                 <div>
@@ -297,51 +374,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </div>
               )}
 
-              {/* Specialty */}
-              <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Spezialisierung</p>
-                <p className="text-sm text-[#F0EDE4]/60">{builder.specialty}</p>
-              </div>
-
-              {/* Map */}
-              {builder.lat && builder.lng && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
-                  <img
-                    src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/pin-l+2aabab(${builder.lng},${builder.lat})/${builder.lng},${builder.lat},13,0/560x220@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
-                    alt={`Standort ${builder.name}`}
-                    className="w-full h-36 object-cover"
-                  />
-                  <div className="px-4 py-3">
-                    <div className="flex items-start gap-2">
-                      <MapPin size={12} className="text-[#2AABAB] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#F0EDE4]/50 leading-snug">
-                        {builder.address ?? builder.city}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Team */}
-              {builder.team && builder.team.length > 0 && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Users size={13} className="text-[#F0EDE4]/30" />
-                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Team</p>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    {builder.team.map(member => (
-                      <div key={member.name} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#2AABAB]/10 border border-[#2AABAB]/15 flex items-center justify-center text-[10px] font-bold text-[#2AABAB] flex-shrink-0">
-                          {member.initials}
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-[#F0EDE4]">{member.name}</p>
-                          <p className="text-[10px] text-[#F0EDE4]/35">{member.role}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              {/* placeholder — removed from sidebar */}
+              {false && (
+                <div>
                 </div>
               )}
 

@@ -8,6 +8,9 @@ export type TeamMember = {
   name: string
   role: string
   initials: string
+  email?: string
+  phone?: string
+  avatar?: string
 }
 
 export type OpeningHours = {
@@ -70,8 +73,8 @@ export const BUILDERS: Builder[] = [
     lat: 52.5338,
     lng: 13.4268,
     team: [
-      { name: 'Jakob Kraft', role: 'Gründer & Head Builder', initials: 'JK' },
-      { name: 'Leon Müller', role: 'Mechaniker', initials: 'LM' },
+      { name: 'Jakob Kraft', role: 'Gründer & Head Builder', initials: 'JK', email: 'jakob@jakobkraft.de', phone: '+49 30 12345678', avatar: 'https://i.pravatar.cc/100?img=12' },
+      { name: 'Leon Müller', role: 'Mechaniker', initials: 'LM', email: 'leon@jakobkraft.de', avatar: 'https://i.pravatar.cc/100?img=8' },
     ],
     openingHours: [
       { day: 'Mo – Fr', hours: '10:00 – 18:00' },
@@ -113,9 +116,9 @@ export const BUILDERS: Builder[] = [
     lat: 48.1256,
     lng: 11.5653,
     team: [
-      { name: 'Max Steiner', role: 'Gründer & Master Builder', initials: 'MS' },
-      { name: 'Tobias Renn', role: 'Lackierung & Finish', initials: 'TR' },
-      { name: 'Sara Hofer', role: 'Design & Konzept', initials: 'SH' },
+      { name: 'Max Steiner', role: 'Gründer & Master Builder', initials: 'MS', email: 'max@maxsteinercustom.de', phone: '+49 89 98765432', avatar: 'https://i.pravatar.cc/100?img=53' },
+      { name: 'Tobias Renn', role: 'Lackierung & Finish', initials: 'TR', email: 'tobias@maxsteinercustom.de', avatar: 'https://i.pravatar.cc/100?img=7' },
+      { name: 'Sara Hofer', role: 'Design & Konzept', initials: 'SH', email: 'sara@maxsteinercustom.de', phone: '+49 89 98765433', avatar: 'https://i.pravatar.cc/100?img=47' },
     ],
     openingHours: [
       { day: 'Mo – Do', hours: '09:00 – 17:00' },
@@ -157,8 +160,8 @@ export const BUILDERS: Builder[] = [
     lat: 53.5450,
     lng: 9.9418,
     team: [
-      { name: 'Finn Brandt', role: 'Co-Gründer & Builder', initials: 'FB' },
-      { name: 'Nils Kruse', role: 'Co-Gründer & Mechaniker', initials: 'NK' },
+      { name: 'Finn Brandt', role: 'Co-Gründer & Builder', initials: 'FB', email: 'finn@studionord.de', phone: '+49 40 11223344', avatar: 'https://i.pravatar.cc/100?img=3' },
+      { name: 'Nils Kruse', role: 'Co-Gründer & Mechaniker', initials: 'NK', email: 'nils@studionord.de', avatar: 'https://i.pravatar.cc/100?img=15' },
     ],
     openingHours: [
       { day: 'Di – Fr', hours: '11:00 – 18:00' },
@@ -196,7 +199,7 @@ export const BUILDERS: Builder[] = [
     lat: 53.5620,
     lng: 9.9195,
     team: [
-      { name: 'Anna Wolff', role: 'Gründerin & Builder', initials: 'AW' },
+      { name: 'Anna Wolff', role: 'Gründerin & Builder', initials: 'AW', email: 'anna@annawolff.de', phone: '+49 40 55667788', avatar: 'https://i.pravatar.cc/100?img=49' },
     ],
     openingHours: [
       { day: 'Mo – Fr', hours: '10:00 – 17:00' },
@@ -232,7 +235,7 @@ export const BUILDERS: Builder[] = [
     lat: 50.9530,
     lng: 6.9090,
     team: [
-      { name: 'René Bauer', role: 'Gründer & Builder', initials: 'RB' },
+      { name: 'René Bauer', role: 'Gründer & Builder', initials: 'RB', email: 'rene@renebauer.de', phone: '+49 221 33445566', avatar: 'https://i.pravatar.cc/100?img=22' },
     ],
     openingHours: [
       { day: 'Mo – Fr', hours: '09:00 – 18:00' },
@@ -269,8 +272,8 @@ export const BUILDERS: Builder[] = [
     lat: 48.7619,
     lng: 9.1709,
     team: [
-      { name: 'Kai Fuchs', role: 'Gründer & Builder', initials: 'KF' },
-      { name: 'Markus Seidel', role: 'Mechaniker & Restaurierung', initials: 'MK' },
+      { name: 'Kai Fuchs', role: 'Gründer & Builder', initials: 'KF', email: 'kai@kaifuchscustom.de', phone: '+49 711 99887766', avatar: 'https://i.pravatar.cc/100?img=6' },
+      { name: 'Markus Seidel', role: 'Mechaniker & Restaurierung', initials: 'MK', email: 'markus@kaifuchscustom.de', avatar: 'https://i.pravatar.cc/100?img=33' },
     ],
     openingHours: [
       { day: 'Mo – Fr', hours: '08:00 – 17:00' },
