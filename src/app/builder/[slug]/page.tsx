@@ -289,7 +289,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                       <div key={member.name} className="flex flex-col p-4 bg-white rounded-2xl border border-[#222222]/5 hover:border-[#DDDDDD]/20 transition-all duration-200">
                         {/* Avatar + identity */}
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#086565]/20 ring-offset-2 ring-offset-[#141414]">
+                          <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#DDDDDD] ring-offset-2 ring-offset-white">
                             {member.avatar ? (
                               <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                             ) : (
@@ -412,16 +412,14 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA */}
-              <div className="bg-gradient-to-br from-white to-[#1a2626] border border-[#DDDDDD]/20 rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none rounded-full"
-                  style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.12) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
+              <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
                 <p className="text-sm font-bold text-[#222222] mb-1">Projekt anfragen</p>
-                <p className="text-xs text-[#222222]/40 leading-relaxed mb-4">
+                <p className="text-xs text-[#717171] leading-relaxed mb-4">
                   Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
                 </p>
                 <Link
                   href="/auth/register"
-                  className="block w-full bg-[#086565] text-white text-sm font-semibold py-3 rounded-full text-center hover:bg-[#075555] transition-all hover:-translate-y-0.5"
+                  className="block w-full bg-[#086565] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#075555] transition-all"
                 >
                   Nachricht senden
                 </Link>
