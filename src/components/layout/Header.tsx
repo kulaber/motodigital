@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, LayoutDashboard, LogOut, ChevronDown, Users, Shield } from 'lucide-react'
+import { Menu, X, LayoutDashboard, LogOut, ChevronDown, Users, Shield, BookOpen, CalendarDays } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -180,6 +180,14 @@ export default function Header({ activePage }: Props) {
                         className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
                         <Users size={14} /> Builder
                       </Link>
+                      <Link href="/admin/magazine" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
+                        <BookOpen size={14} /> Magazin
+                      </Link>
+                      <Link href="/admin/events" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
+                        <CalendarDays size={14} /> Events
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -304,13 +312,20 @@ export default function Header({ activePage }: Props) {
                     <LayoutDashboard size={15} /> Dashboard
                   </Link>
                   {role === 'superadmin' && (
-                    <Link
-                      href="/admin/builder"
-                      onClick={() => setOpen(false)}
-                      className="py-3 text-center text-sm font-medium text-amber-400/70 border border-amber-400/20 rounded-full hover:text-amber-400 hover:border-amber-400/40 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Users size={14} /> Builder (Admin)
-                    </Link>
+                    <>
+                      <Link href="/admin/builder" onClick={() => setOpen(false)}
+                        className="py-3 text-center text-sm font-medium text-amber-400/70 border border-amber-400/20 rounded-full hover:text-amber-400 hover:border-amber-400/40 transition-all flex items-center justify-center gap-2">
+                        <Users size={14} /> Builder
+                      </Link>
+                      <Link href="/admin/magazine" onClick={() => setOpen(false)}
+                        className="py-3 text-center text-sm font-medium text-amber-400/70 border border-amber-400/20 rounded-full hover:text-amber-400 hover:border-amber-400/40 transition-all flex items-center justify-center gap-2">
+                        <BookOpen size={14} /> Magazin
+                      </Link>
+                      <Link href="/admin/events" onClick={() => setOpen(false)}
+                        className="py-3 text-center text-sm font-medium text-amber-400/70 border border-amber-400/20 rounded-full hover:text-amber-400 hover:border-amber-400/40 transition-all flex items-center justify-center gap-2">
+                        <CalendarDays size={14} /> Events
+                      </Link>
+                    </>
                   )}
                   <button
                     onClick={handleLogout}
