@@ -9,26 +9,33 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 interface Props {
-  activePage?: 'builds' | 'builder' | 'map' | 'landing'
+  activePage?: 'bikes' | 'builder' | 'map' | 'landing' | 'magazine' | 'events' | 'sell' | 'builds'
 }
 
-const NAV_LINKS = [
-  { href: '/builds',  label: 'Builds'  },
-  { href: '/builder', label: 'Builder' },
-  { href: '/map',     label: 'Karte'   },
+const BIKE_STYLES = [
+  { href: '/bikes',             label: 'Alle Bikes'  },
+  { href: '/bikes/cafe-racer',  label: 'Cafe Racer'  },
+  { href: '/bikes/bobber',      label: 'Bobber'       },
+  { href: '/bikes/scrambler',   label: 'Scrambler'    },
+  { href: '/bikes/tracker',     label: 'Tracker'      },
+  { href: '/bikes/chopper',     label: 'Chopper'      },
 ]
 
 export default function Header({ activePage }: Props) {
   const [open, setOpen] = useState(false)
   const [dashDropdown, setDashDropdown] = useState(false)
+  const [bikesDropdown, setBikesDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const bikesRef = useRef<HTMLDivElement>(null)
   const { user, role, loading } = useAuth()
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDashDropdown(false)
+      }
+      if (bikesRef.current && !bikesRef.current.contains(e.target as Node)) {
+        setBikesDropdown(false)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -61,19 +68,75 @@ export default function Header({ activePage }: Props) {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`text-sm transition-colors ${
-                activePage === l.label.toLowerCase()
+
+          {/* Bikes with dropdown */}
+          <div className="relative" ref={bikesRef}>
+            <button
+              onClick={() => setBikesDropdown(d => !d)}
+              className={`flex items-center gap-1 text-sm transition-colors ${
+                activePage === 'bikes'
                   ? 'text-[#F0EDE4] font-semibold'
                   : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
               }`}
             >
-              {l.label}
-            </Link>
-          ))}
+              Bikes
+              <ChevronDown size={13} className={`transition-transform ${bikesDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            {bikesDropdown && (
+              <div className="absolute top-full left-0 mt-2 w-44 bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl shadow-xl overflow-hidden z-50">
+                {BIKE_STYLES.map(s => (
+                  <Link
+                    key={s.href}
+                    href={s.href}
+                    onClick={() => setBikesDropdown(false)}
+                    className="block px-4 py-2.5 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors border-b border-[#F0EDE4]/5 last:border-0"
+                  >
+                    {s.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/builder"
+            className={`text-sm transition-colors ${
+              activePage === 'builder'
+                ? 'text-[#F0EDE4] font-semibold'
+                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+            }`}
+          >
+            Builder
+          </Link>
+
+          <Link
+            href="/magazine"
+            className={`text-sm transition-colors ${
+              activePage === 'magazine'
+                ? 'text-[#F0EDE4] font-semibold'
+                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+            }`}
+          >
+            Magazin
+          </Link>
+
+          <Link
+            href="/events"
+            className={`text-sm transition-colors ${
+              activePage === 'events'
+                ? 'text-[#F0EDE4] font-semibold'
+                : 'text-[#F0EDE4]/50 hover:text-[#F0EDE4]'
+            }`}
+          >
+            Events
+          </Link>
+
+          <Link
+            href="/sell"
+            className="bg-[#C8A96E] text-[#141414] text-sm font-semibold px-4 py-2 rounded-full hover:bg-[#D4B87A] transition-all"
+          >
+            Inserieren
+          </Link>
         </nav>
 
         {/* Desktop auth */}
@@ -152,20 +215,77 @@ export default function Header({ activePage }: Props) {
       {open && (
         <div className="md:hidden border-t border-[#F0EDE4]/5 bg-[#141414]/98 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-5 py-4 flex flex-col gap-1">
-            {NAV_LINKS.map(l => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className={`py-3 px-2 text-base rounded-xl transition-colors ${
-                  activePage === l.label.toLowerCase()
-                    ? 'text-[#F0EDE4] font-semibold bg-[#F0EDE4]/5'
-                    : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))}
+
+            <Link
+              href="/bikes"
+              onClick={() => setOpen(false)}
+              className={`py-3 px-2 text-base rounded-xl transition-colors ${
+                activePage === 'bikes'
+                  ? 'text-[#F0EDE4] font-semibold bg-[#F0EDE4]/5'
+                  : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
+              }`}
+            >
+              Bikes
+            </Link>
+
+            {/* Style sub-links on mobile */}
+            <div className="pl-4 flex flex-col gap-0.5">
+              {BIKE_STYLES.slice(1).map(s => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  onClick={() => setOpen(false)}
+                  className="py-2 px-2 text-sm text-[#F0EDE4]/40 hover:text-[#C8A96E] rounded-lg transition-colors"
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              href="/builder"
+              onClick={() => setOpen(false)}
+              className={`py-3 px-2 text-base rounded-xl transition-colors ${
+                activePage === 'builder'
+                  ? 'text-[#F0EDE4] font-semibold bg-[#F0EDE4]/5'
+                  : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
+              }`}
+            >
+              Builder
+            </Link>
+
+            <Link
+              href="/magazine"
+              onClick={() => setOpen(false)}
+              className={`py-3 px-2 text-base rounded-xl transition-colors ${
+                activePage === 'magazine'
+                  ? 'text-[#F0EDE4] font-semibold bg-[#F0EDE4]/5'
+                  : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
+              }`}
+            >
+              Magazin
+            </Link>
+
+            <Link
+              href="/events"
+              onClick={() => setOpen(false)}
+              className={`py-3 px-2 text-base rounded-xl transition-colors ${
+                activePage === 'events'
+                  ? 'text-[#F0EDE4] font-semibold bg-[#F0EDE4]/5'
+                  : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
+              }`}
+            >
+              Events
+            </Link>
+
+            <Link
+              href="/sell"
+              onClick={() => setOpen(false)}
+              className="mt-1 py-3 px-2 text-base rounded-xl bg-[#C8A96E] text-[#141414] font-semibold text-center hover:bg-[#D4B87A] transition-colors"
+            >
+              Inserieren
+            </Link>
+
             <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#F0EDE4]/8">
               {!loading && user ? (
                 <>
