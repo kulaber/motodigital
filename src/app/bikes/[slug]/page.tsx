@@ -148,10 +148,7 @@ export default async function BikeSlugPage({ params }: Props) {
                   <div className="p-4">
                     <p className="text-xs text-[#2aabab] font-semibold mb-1">{build.base}</p>
                     <p className="text-sm font-semibold text-[#F0EDE4] line-clamp-1 mb-1">{build.title}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-[#F0EDE4]/35">{build.city} · {build.buildYear}</p>
-                      <p className="text-sm font-bold text-[#F0EDE4]">{build.price}</p>
-                    </div>
+                    <p className="text-xs text-[#F0EDE4]/35">{build.city} · {build.buildYear}</p>
                   </div>
                 </Link>
               ))}

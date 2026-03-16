@@ -147,9 +147,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
-                    <div className="flex items-start justify-between gap-1 mb-1">
+                    <div className="mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#F0EDE4] leading-snug line-clamp-1">{build.title}</h3>
-                      <span className="text-xs sm:text-sm font-bold text-[#2aabab] flex-shrink-0">{build.price}</span>
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#F0EDE4]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
                     <p className="text-[10px] text-[#F0EDE4]/25 mt-0.5 truncate">{build.builder.name}</p>

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const build = getBuildBySlug(slug)
   if (!build) return {}
   return {
-    title: `${build.title} — ${build.style} Custom Motorcycle for sale`,
+    title: `${build.title} — ${build.style} Custom Build`,
     description: build.tagline,
   }
 }
@@ -149,18 +149,6 @@ export default async function CustomBikePage({ params }: Props) {
 
           {/* RIGHT — Sidebar */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
-
-            {/* Price */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
-              <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-1">Preis</p>
-              <p className="text-3xl font-bold text-[#2aabab]">{build.price}</p>
-              <button className="mt-4 w-full bg-[#2aabab] text-[#141414] text-sm font-bold py-3 rounded-xl hover:bg-[#1f9999] transition-colors">
-                Anfrage senden
-              </button>
-              <button className="mt-2 w-full border border-[#F0EDE4]/10 text-[#F0EDE4]/50 text-sm font-medium py-2.5 rounded-xl hover:border-[#F0EDE4]/25 hover:text-[#F0EDE4] transition-colors">
-                Merken
-              </button>
-            </div>
 
             {/* Builder card */}
             <Link
