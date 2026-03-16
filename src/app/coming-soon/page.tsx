@@ -13,7 +13,7 @@ export default function ComingSoonPage() {
 
         {/* Logo */}
         <div className="flex justify-center mb-12">
-          <Image src="/logo.svg" alt="MotoDigital" width={260} height={98} className="h-14 w-auto" priority />
+          <Image src="/logo-dark.svg" alt="MotoDigital" width={260} height={98} className="h-14 w-auto" priority />
         </div>
 
         {/* Badge */}
