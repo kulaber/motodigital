@@ -31,7 +31,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   return (
     <>
       {/* FILTER BAR */}
-      <div className="sticky top-16 z-30 bg-[#F5F2EB]/95 backdrop-blur-md border-b border-[#1A1714]/5">
+      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
 
@@ -43,8 +43,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   onClick={() => setActiveStyle(s)}
                   className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
                     activeStyle === s
-                      ? 'bg-[#2aabab] text-[#141414] border-[#2aabab]'
-                      : 'border-[#1A1714]/10 text-[#1A1714]/45 hover:border-[#2aabab]/40 hover:text-[#1A1714]'
+                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
                   {s}
@@ -54,7 +54,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
             {/* Right side */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-px h-4 bg-[#1A1714]/10" />
+              <div className="w-px h-4 bg-[#222222]/10" />
 
               {/* Land dropdown */}
               <div className="relative">
@@ -62,8 +62,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   onClick={() => setCountryOpen(v => !v)}
                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
                     activeCountry !== 'Alle'
-                      ? 'bg-[#2aabab] text-[#141414] border-[#2aabab]'
-                      : 'border-[#1A1714]/10 text-[#1A1714]/45 hover:border-[#2aabab]/40 hover:text-[#1A1714]'
+                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
                   {activeCountry === 'Alle' ? 'Land' : activeCountry}
@@ -73,15 +73,15 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                 {countryOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
-                    <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#1A1714]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                    <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
                       {countries.map(c => (
                         <button
                           key={c}
                           onClick={() => { setActiveCountry(c); setCountryOpen(false) }}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#1A1714]/5 last:border-0 ${
+                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${
                             activeCountry === c
-                              ? 'text-[#2aabab] bg-[#2aabab]/8'
-                              : 'text-[#1A1714]/50 hover:text-[#1A1714] hover:bg-[#1A1714]/5'
+                              ? 'text-[#717171] bg-[#222222]/8'
+                              : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'
                           }`}
                         >
                           {c}
@@ -95,7 +95,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               {(activeStyle !== 'Alle' || activeCountry !== 'Alle') && (
                 <button
                   onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                  className="text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors px-1"
+                  className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors px-1"
                 >
                   ✕
                 </button>
@@ -106,15 +106,15 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
       </div>
 
       {/* GRID */}
-      <section className="py-8 sm:py-10 bg-[#F5F2EB]">
+      <section className="py-8 sm:py-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
 
           {filtered.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-[#1A1714]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
+              <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
                 onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                className="mt-4 text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors"
+                className="mt-4 text-xs text-[#717171] hover:text-[#1f9999] transition-colors"
               >
                 Filter zurücksetzen
               </button>
@@ -125,7 +125,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                 <Link
                   key={build.slug}
                   href={`/custom-bike/${build.slug}`}
-                  className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 opacity-0 animate-slide-up-sm"
+                  className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 opacity-0 animate-slide-up-sm"
                   style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
@@ -134,24 +134,24 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                       alt={build.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2EB]/85 via-[#F5F2EB]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                      <span className="text-[#1A1714] text-xs font-semibold">Ansehen →</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                      <span className="text-[#222222] text-xs font-semibold">Ansehen →</span>
                     </div>
-                    <span className="absolute top-2 left-2 bg-[#F5F2EB]/80 backdrop-blur-sm border border-[#1A1714]/15 text-[#1A1714] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
                     {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#2aabab]/90 text-[#141414] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#222222]/90 text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
                         <BadgeCheck size={8} /> Verified
                       </span>
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
                     <div className="mb-1">
-                      <h3 className="text-xs sm:text-sm font-semibold text-[#1A1714] leading-snug line-clamp-1">{build.title}</h3>
+                      <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
                     </div>
-                    <p className="text-[10px] sm:text-xs text-[#1A1714]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
-                    <p className="text-[10px] text-[#1A1714]/25 mt-0.5 truncate">{build.builder.name}</p>
+                    <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
+                    <p className="text-[10px] text-[#222222]/25 mt-0.5 truncate">{build.builder.name}</p>
                   </div>
                 </Link>
               ))}
@@ -160,8 +160,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
           {filtered.length > 0 && (
             <div className="mt-10 sm:mt-14 text-center">
-              <p className="text-xs text-[#1A1714]/20 mb-4">{filtered.length} von {builds.length} Bikes</p>
-              <button className="border border-[#1A1714]/12 text-[#1A1714]/50 hover:text-[#1A1714] hover:border-[#1A1714]/25 text-sm font-medium px-8 py-3 rounded-full transition-all hover:-translate-y-0.5">
+              <p className="text-xs text-[#222222]/20 mb-4">{filtered.length} von {builds.length} Bikes</p>
+              <button className="border border-[#222222]/12 text-[#222222]/50 hover:text-[#222222] hover:border-[#222222]/25 text-sm font-medium px-8 py-3 rounded-full transition-all hover:-translate-y-0.5">
                 Mehr laden
               </button>
             </div>

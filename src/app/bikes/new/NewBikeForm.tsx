@@ -186,17 +186,17 @@ export default function NewBikeForm() {
         {steps.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
             <div className={`flex items-center gap-2 text-xs font-semibold transition-colors ${
-              step === i + 1 ? 'text-[#2AABAB]' : step > i + 1 ? 'text-[#1A1714]/50' : 'text-[#1A1714]/20'
+              step === i + 1 ? 'text-[#717171]' : step > i + 1 ? 'text-[#222222]/50' : 'text-[#222222]/20'
             }`}>
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition-all ${
-                step === i + 1 ? 'bg-[#2AABAB] text-[#141414]' :
-                step > i + 1  ? 'bg-[#1A1714]/15 text-[#1A1714]/50' :
-                                 'bg-[#1A1714]/6 text-[#1A1714]/20'
+                step === i + 1 ? 'bg-[#086565] text-white' :
+                step > i + 1  ? 'bg-[#222222]/15 text-[#222222]/50' :
+                                 'bg-[#222222]/6 text-[#222222]/20'
               }`}>{i + 1}</span>
               <span className="hidden sm:inline">{s}</span>
             </div>
             {i < steps.length - 1 && (
-              <div className={`flex-1 h-px mx-1 transition-colors ${step > i + 1 ? 'bg-[#1A1714]/20' : 'bg-[#1A1714]/6'}`} />
+              <div className={`flex-1 h-px mx-1 transition-colors ${step > i + 1 ? 'bg-[#222222]/20' : 'bg-[#222222]/6'}`} />
             )}
           </div>
         ))}
@@ -217,7 +217,7 @@ export default function NewBikeForm() {
             <input value={title} onChange={e => setTitle(e.target.value)}
               placeholder="z.B. Honda CB550 Cafe Racer — The Midnight Scrambler"
               className={inputClass} />
-            <p className="text-xs text-[#1A1714]/25 mt-1">Ein prägnanter Titel erhöht die Aufmerksamkeit.</p>
+            <p className="text-xs text-[#222222]/25 mt-1">Ein prägnanter Titel erhöht die Aufmerksamkeit.</p>
           </div>
 
           {/* Marke */}
@@ -234,7 +234,7 @@ export default function NewBikeForm() {
                   <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
               </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/30 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
             </div>
             {isCustomMake && (
               <input value={customMake} onChange={e => setCustomMake(e.target.value)}
@@ -263,7 +263,7 @@ export default function NewBikeForm() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/30 pointer-events-none" />
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
               </div>
             )}
           </div>
@@ -284,15 +284,15 @@ export default function NewBikeForm() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/30 pointer-events-none" />
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
               </div>
             </div>
           )}
 
           {/* Technische Daten — auto-befüllt, read-only wenn aus Datenbank */}
           {selectedVariant && (
-            <div className="bg-white border border-[#2AABAB]/15 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-[#2AABAB]/70 uppercase tracking-widest mb-3">Technische Daten (auto-befüllt)</p>
+            <div className="bg-white border border-[#DDDDDD]/15 rounded-2xl p-4">
+              <p className="text-xs font-semibold text-[#717171]/70 uppercase tracking-widest mb-3">Technische Daten (auto-befüllt)</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: 'Motor', value: selectedVariant.engine },
@@ -301,8 +301,8 @@ export default function NewBikeForm() {
                   selectedVariant.torque  ? { label: 'Drehmoment', value: selectedVariant.torque } : null,
                 ].filter(Boolean).map(item => (
                   <div key={item!.label}>
-                    <p className="text-[10px] text-[#1A1714]/30 uppercase tracking-widest">{item!.label}</p>
-                    <p className="text-xs font-semibold text-[#1A1714]/70 mt-0.5">{item!.value}</p>
+                    <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest">{item!.label}</p>
+                    <p className="text-xs font-semibold text-[#222222]/70 mt-0.5">{item!.value}</p>
                   </div>
                 ))}
               </div>
@@ -325,7 +325,7 @@ export default function NewBikeForm() {
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/30 pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
                 </div>
               ) : (
                 <input value={year} onChange={e => setYear(e.target.value)}
@@ -351,8 +351,8 @@ export default function NewBikeForm() {
                   onClick={() => setStyle(s.value)}
                   className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all ${
                     style === s.value
-                      ? 'bg-[#2AABAB]/15 border-[#2AABAB] text-[#2AABAB]'
-                      : 'border-[#1A1714]/8 text-[#1A1714]/40 hover:border-[#1A1714]/20 hover:text-[#1A1714]'
+                      ? 'bg-[#222222]/15 border-[#DDDDDD] text-[#717171]'
+                      : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20 hover:text-[#222222]'
                   }`}
                 >{s.label}</button>
               ))}
@@ -363,7 +363,7 @@ export default function NewBikeForm() {
             <button
               onClick={() => step1Valid && setStep(2)}
               disabled={!step1Valid}
-              className="flex items-center gap-2 bg-[#2AABAB] text-[#141414] font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#3DBFBF] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 bg-[#086565] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Weiter <ChevronRight size={16} />
             </button>
@@ -380,7 +380,7 @@ export default function NewBikeForm() {
               <input value={cc} onChange={e => setCc(e.target.value)}
                 type="number" min="0" placeholder="550" className={inputClass} />
               {selectedVariant && (
-                <p className="text-xs text-[#1A1714]/25 mt-1">Auto-befüllt · anpassbar</p>
+                <p className="text-xs text-[#222222]/25 mt-1">Auto-befüllt · anpassbar</p>
               )}
             </div>
             <div>
@@ -402,7 +402,7 @@ export default function NewBikeForm() {
               className={inputClass}
             />
             {locationLat && (
-              <p className="text-xs text-[#2AABAB]/60 mt-1 flex items-center gap-1">
+              <p className="text-xs text-[#717171]/60 mt-1 flex items-center gap-1">
                 ✓ Koordinaten gespeichert · {locationLat.toFixed(4)}, {locationLng?.toFixed(4)}
               </p>
             )}
@@ -413,17 +413,17 @@ export default function NewBikeForm() {
             <textarea value={description} onChange={e => setDescription(e.target.value)}
               rows={5} placeholder="Erzähl die Geschichte des Bikes — Umbauten, besondere Parts, Zustand…"
               className={`${inputClass} resize-none leading-relaxed`} />
-            <p className="text-xs text-[#1A1714]/25 mt-1">{description.length} / 2000 Zeichen</p>
+            <p className="text-xs text-[#222222]/25 mt-1">{description.length} / 2000 Zeichen</p>
           </div>
 
           <div className="flex justify-between pt-2">
             <button onClick={() => setStep(1)}
-              className="text-sm text-[#1A1714]/40 hover:text-[#1A1714] transition-colors px-4 py-3">
+              className="text-sm text-[#222222]/40 hover:text-[#222222] transition-colors px-4 py-3">
               ← Zurück
             </button>
             <button
               onClick={() => setStep(3)}
-              className="flex items-center gap-2 bg-[#2AABAB] text-[#141414] font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#3DBFBF] transition-all"
+              className="flex items-center gap-2 bg-[#086565] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#075555] transition-all"
             >
               Weiter <ChevronRight size={16} />
             </button>
@@ -437,31 +437,31 @@ export default function NewBikeForm() {
 
           <div>
             <label className={labelClass}>Fotos (max. 8)</label>
-            <label className="block border-2 border-dashed border-[#1A1714]/10 hover:border-[#2AABAB]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
+            <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#DDDDDD]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
               <input type="file" accept="image/*" multiple className="sr-only"
                 onChange={e => handleImages(e.target.files)} />
-              <Upload size={24} className="mx-auto mb-3 text-[#1A1714]/20 group-hover:text-[#2AABAB] transition-colors" />
-              <p className="text-sm text-[#1A1714]/40 group-hover:text-[#1A1714]/60 transition-colors">
+              <Upload size={24} className="mx-auto mb-3 text-[#222222]/20 group-hover:text-[#717171] transition-colors" />
+              <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">
                 Fotos auswählen oder hierher ziehen
               </p>
-              <p className="text-xs text-[#1A1714]/20 mt-1">JPG, PNG, WebP — max. 10 MB pro Bild</p>
+              <p className="text-xs text-[#222222]/20 mt-1">JPG, PNG, WebP — max. 10 MB pro Bild</p>
             </label>
 
             {imagePreviews.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3">
                 {imagePreviews.map((src, i) => (
-                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-white border border-[#1A1714]/8 group">
+                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-white border border-[#222222]/8 group">
                     <img src={src} alt="" className="w-full h-full object-cover" />
                     {i === 0 && (
-                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#2AABAB] text-[#141414] px-1.5 py-0.5 rounded-full">
+                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#086565] text-white px-1.5 py-0.5 rounded-full">
                         Cover
                       </span>
                     )}
                     <button
                       onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 w-5 h-5 bg-[#F5F2EB]/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <X size={10} className="text-[#1A1714]" />
+                      <X size={10} className="text-[#222222]" />
                     </button>
                   </div>
                 ))}
@@ -470,40 +470,40 @@ export default function NewBikeForm() {
           </div>
 
           {/* Summary */}
-          <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-            <p className="text-xs text-[#1A1714]/30 uppercase tracking-widest font-semibold mb-3">Zusammenfassung</p>
+          <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+            <p className="text-xs text-[#222222]/30 uppercase tracking-widest font-semibold mb-3">Zusammenfassung</p>
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#1A1714]/40">Titel</span>
-                <span className="text-[#1A1714] font-medium text-right max-w-[60%] truncate">{title}</span>
+                <span className="text-[#222222]/40">Titel</span>
+                <span className="text-[#222222] font-medium text-right max-w-[60%] truncate">{title}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#1A1714]/40">Bike</span>
-                <span className="text-[#1A1714]">{submitMake} {submitModel} · {year}</span>
+                <span className="text-[#222222]/40">Bike</span>
+                <span className="text-[#222222]">{submitMake} {submitModel} · {year}</span>
               </div>
               {selectedVariant && (
                 <div className="flex justify-between">
-                  <span className="text-[#1A1714]/40">Motor</span>
-                  <span className="text-[#1A1714]">{selectedVariant.engine} · {selectedVariant.displacement} cc</span>
+                  <span className="text-[#222222]/40">Motor</span>
+                  <span className="text-[#222222]">{selectedVariant.engine} · {selectedVariant.displacement} cc</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[#1A1714]/40">Typ</span>
-                <span className="text-[#1A1714]">{STYLES.find(s => s.value === style)?.label}</span>
+                <span className="text-[#222222]/40">Typ</span>
+                <span className="text-[#222222]">{STYLES.find(s => s.value === style)?.label}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#1A1714]/40">Preis</span>
-                <span className="text-[#2AABAB] font-semibold">€ {parseFloat(price || '0').toLocaleString('de-DE')}</span>
+                <span className="text-[#222222]/40">Preis</span>
+                <span className="text-[#717171] font-semibold">€ {parseFloat(price || '0').toLocaleString('de-DE')}</span>
               </div>
               {city && (
                 <div className="flex justify-between">
-                  <span className="text-[#1A1714]/40">Standort</span>
-                  <span className="text-[#1A1714]">{city}</span>
+                  <span className="text-[#222222]/40">Standort</span>
+                  <span className="text-[#222222]">{city}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[#1A1714]/40">Fotos</span>
-                <span className="text-[#1A1714]">{imageFiles.length} hochgeladen</span>
+                <span className="text-[#222222]/40">Fotos</span>
+                <span className="text-[#222222]">{imageFiles.length} hochgeladen</span>
               </div>
             </div>
           </div>
@@ -517,8 +517,8 @@ export default function NewBikeForm() {
                 onClick={() => setStatus(val)}
                 className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
                   status === val
-                    ? 'border-[#2AABAB] bg-[#2AABAB]/10 text-[#2AABAB]'
-                    : 'border-[#1A1714]/8 text-[#1A1714]/40 hover:border-[#1A1714]/20'
+                    ? 'border-[#DDDDDD] bg-[#222222]/10 text-[#717171]'
+                    : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20'
                 }`}
               >{label}</button>
             ))}
@@ -526,13 +526,13 @@ export default function NewBikeForm() {
 
           <div className="flex justify-between pt-2">
             <button onClick={() => setStep(2)}
-              className="text-sm text-[#1A1714]/40 hover:text-[#1A1714] transition-colors px-4 py-3">
+              className="text-sm text-[#222222]/40 hover:text-[#222222] transition-colors px-4 py-3">
               ← Zurück
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-[#2AABAB] text-[#141414] font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#3DBFBF] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+              className="bg-[#086565] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
             >
               {loading ? 'Wird gespeichert…' : status === 'active' ? 'Jetzt veröffentlichen' : 'Entwurf speichern'}
             </button>
@@ -543,6 +543,6 @@ export default function NewBikeForm() {
   )
 }
 
-const labelClass  = 'block text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest mb-2'
-const inputClass  = 'w-full bg-white border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors'
-const selectClass = 'w-full bg-white border border-[#1A1714]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#1A1714] outline-none focus:border-[#2AABAB] transition-colors appearance-none cursor-pointer'
+const labelClass  = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-2'
+const inputClass  = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors'
+const selectClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#222222] outline-none focus:border-[#DDDDDD] transition-colors appearance-none cursor-pointer'

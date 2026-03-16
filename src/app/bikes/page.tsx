@@ -12,24 +12,24 @@ export const metadata: Metadata = {
 
 export default function BikesPage() {
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]" style={{ fontFamily: 'var(--font-sans)' }}>
+    <div className="min-h-screen bg-white text-[#222222]" style={{ fontFamily: 'var(--font-sans)' }}>
       <Header activePage="bikes" />
 
       {/* PAGE HEADER */}
-      <section className="pt-28 pb-10 bg-[#F5F2EB]">
+      <section className="pt-28 pb-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
             <div>
-              <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-2">Custom Motorcycles</p>
-              <h1 className="font-bold text-[#1A1714] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
+              <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Motorcycles</p>
+              <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
                 Handgefertigte Unikate.
               </h1>
-              <p className="text-[#1A1714]/40 text-sm mt-2 max-w-md leading-relaxed">
+              <p className="text-[#222222]/40 text-sm mt-2 max-w-md leading-relaxed">
                 Durchstöbere alle Custom Bikes — von Cafe Racern bis zum Chopper.
               </p>
             </div>
-            <p className="text-xs text-[#1A1714]/30 flex-shrink-0">
-              <span className="text-[#1A1714]/60 font-semibold">{BUILDS.length} Bikes</span> · täglich aktualisiert
+            <p className="text-xs text-[#222222]/30 flex-shrink-0">
+              <span className="text-[#222222]/60 font-semibold">{BUILDS.length} Bikes</span> · täglich aktualisiert
             </p>
           </div>
 
@@ -45,7 +45,7 @@ export default function BikesPage() {
               <Link
                 key={s.href}
                 href={s.href}
-                className="text-xs text-[#1A1714]/40 border border-[#1A1714]/10 px-3 py-1.5 rounded-full hover:border-[#2aabab]/40 hover:text-[#2aabab] transition-all"
+                className="text-xs text-[#222222]/40 border border-[#222222]/10 px-3 py-1.5 rounded-full hover:border-[#DDDDDD]/40 hover:text-[#717171] transition-all"
               >
                 {s.label}
               </Link>

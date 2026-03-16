@@ -20,15 +20,15 @@ export default async function AccountSettingsPage() {
     .single() as { data: { username: string | null } | null }
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB]">
+    <div className="min-h-screen bg-white">
       <Header />
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors mb-8">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
           <ArrowLeft size={13} /> Dashboard
         </Link>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#1A1714]">Konto-Einstellungen</h1>
-          <p className="text-sm text-[#1A1714]/40 mt-1">Benutzername, E-Mail und Passwort verwalten</p>
+          <h1 className="text-2xl font-bold text-[#222222]">Konto-Einstellungen</h1>
+          <p className="text-sm text-[#222222]/40 mt-1">Benutzername, E-Mail und Passwort verwalten</p>
         </div>
         <AccountSettingsForm
           userId={user.id}

@@ -23,11 +23,11 @@ type SectionType = typeof SECTION_TYPES[number]
 const SECTION_BADGE: Record<SectionType, string> = {
   intro: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   h2:    'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  p:     'bg-[#1A1714]/8 text-[#1A1714]/50 border-[#1A1714]/10',
+  p:     'bg-[#222222]/8 text-[#222222]/50 border-[#222222]/10',
   quote: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   image: 'bg-green-500/10 text-green-400 border-green-500/20',
   list:  'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  cta:   'bg-[#2AABAB]/10 text-[#2AABAB] border-[#2AABAB]/20',
+  cta:   'bg-[#222222]/10 text-[#717171] border-[#DDDDDD]/20',
 }
 
 const SECTION_LABEL: Record<SectionType, string> = {
@@ -71,8 +71,8 @@ function getSectionPreview(section: ArticleSection): string {
 
 // ─── Input / Textarea helpers ────────────────────────────────────────────────
 
-const inputCls = 'w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#2AABAB]/50 transition-colors'
-const labelCls = 'block text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest mb-1.5'
+const inputCls = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors'
+const labelCls = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-1.5'
 
 // ─── Section editor ──────────────────────────────────────────────────────────
 
@@ -138,7 +138,7 @@ function SectionEditor({
             placeholder="https://..."
           />
           {section.src && (
-            <div className="mt-2 rounded-xl overflow-hidden border border-[#1A1714]/8 h-32">
+            <div className="mt-2 rounded-xl overflow-hidden border border-[#222222]/8 h-32">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={section.src} alt="" className="w-full h-full object-cover" />
             </div>
@@ -169,7 +169,7 @@ function SectionEditor({
           className={inputCls + ' resize-y'}
           placeholder={'Punkt 1\nPunkt 2\nPunkt 3'}
         />
-        <p className="text-[10px] text-[#1A1714]/25 mt-1">{section.items.filter(i => i.trim()).length} Punkte</p>
+        <p className="text-[10px] text-[#222222]/25 mt-1">{section.items.filter(i => i.trim()).length} Punkte</p>
       </div>
     )
   }
@@ -346,7 +346,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
   const metaDescLen  = metaDescription.length
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       {/* Success banner */}
       {successBanner && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-green-500/15 border-b border-green-500/25 px-6 py-3 flex items-center justify-between">
@@ -363,19 +363,19 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/admin/magazine" className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors">
+          <Link href="/admin/magazine" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
             <ArrowLeft size={13} /> Magazin
           </Link>
           <div className="flex items-center gap-3">
             {slug && (
               <a href={`/magazine/${slug}`} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] border border-[#1A1714]/10 hover:border-[#1A1714]/25 px-3 py-1.5 rounded-full transition-all">
+                className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] border border-[#222222]/10 hover:border-[#222222]/25 px-3 py-1.5 rounded-full transition-all">
                 <ExternalLink size={11} /> Vorschau
               </a>
             )}
             <button
               onClick={handleSave}
-              className="inline-flex items-center gap-2 bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#3DBFBF] transition-all"
+              className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Kopiert!' : 'Speichern / Code kopieren'}
@@ -383,7 +383,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
           </div>
         </div>
 
-        <h1 className="text-xl font-bold text-[#1A1714] mb-8">
+        <h1 className="text-xl font-bold text-[#222222] mb-8">
           {isNew ? 'Neuer Beitrag' : 'Beitrag bearbeiten'}
         </h1>
 
@@ -393,8 +393,8 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
           <div className="flex flex-col gap-5">
 
             {/* Beitrag card */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30 mb-5">Beitrag</p>
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30 mb-5">Beitrag</p>
 
               <div className="flex flex-col gap-5">
                 {/* Title */}
@@ -432,7 +432,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                     placeholder="https://images.unsplash.com/..."
                   />
                   {coverImage && (
-                    <div className="mt-3 rounded-xl overflow-hidden border border-[#1A1714]/8 h-48">
+                    <div className="mt-3 rounded-xl overflow-hidden border border-[#222222]/8 h-48">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
                     </div>
@@ -442,10 +442,10 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
             </div>
 
             {/* Content / Sections card */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-6">
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30">Inhalt</p>
-                <span className="text-xs text-[#1A1714]/25">{sections.length} Abschnitte</span>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30">Inhalt</p>
+                <span className="text-xs text-[#222222]/25">{sections.length} Abschnitte</span>
               </div>
 
               {/* Sections list */}
@@ -453,7 +453,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                 {sections.map((section, idx) => {
                   const isExpanded = expandedIdx === idx
                   return (
-                    <div key={idx} className={`border rounded-xl transition-all ${isExpanded ? 'border-[#2AABAB]/30 bg-[#F5F2EB]' : 'border-[#1A1714]/8 bg-[#F5F2EB]/50 hover:border-[#1A1714]/15'}`}>
+                    <div key={idx} className={`border rounded-xl transition-all ${isExpanded ? 'border-[#DDDDDD]/30 bg-white' : 'border-[#222222]/8 bg-white/50 hover:border-[#222222]/15'}`}>
                       {/* Section header */}
                       <div
                         className="flex items-center gap-3 px-4 py-3 cursor-pointer"
@@ -462,14 +462,14 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                         <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border flex-shrink-0 ${SECTION_BADGE[section.type as SectionType]}`}>
                           {SECTION_LABEL[section.type as SectionType]}
                         </span>
-                        <span className="text-xs text-[#1A1714]/45 flex-1 truncate">
+                        <span className="text-xs text-[#222222]/45 flex-1 truncate">
                           {getSectionPreview(section)}
                         </span>
                         <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                           <button
                             onClick={() => moveSection(idx, 'up')}
                             disabled={idx === 0}
-                            className="p-1 rounded text-[#1A1714]/25 hover:text-[#1A1714] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                            className="p-1 rounded text-[#222222]/25 hover:text-[#222222] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                             title="Nach oben"
                           >
                             <ChevronUp size={13} />
@@ -477,14 +477,14 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                           <button
                             onClick={() => moveSection(idx, 'down')}
                             disabled={idx === sections.length - 1}
-                            className="p-1 rounded text-[#1A1714]/25 hover:text-[#1A1714] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                            className="p-1 rounded text-[#222222]/25 hover:text-[#222222] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                             title="Nach unten"
                           >
                             <ChevronDown size={13} />
                           </button>
                           <button
                             onClick={() => removeSection(idx)}
-                            className="p-1 rounded text-[#1A1714]/25 hover:text-red-400 transition-colors"
+                            className="p-1 rounded text-[#222222]/25 hover:text-red-400 transition-colors"
                             title="Löschen"
                           >
                             <Trash2 size={13} />
@@ -494,7 +494,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
 
                       {/* Expanded editor */}
                       {isExpanded && (
-                        <div className="px-4 pb-4 border-t border-[#1A1714]/6 pt-4">
+                        <div className="px-4 pb-4 border-t border-[#222222]/6 pt-4">
                           <SectionEditor
                             section={section}
                             onChange={updated => updateSection(idx, updated)}
@@ -506,8 +506,8 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                 })}
 
                 {sections.length === 0 && (
-                  <div className="text-center py-8 border border-dashed border-[#1A1714]/10 rounded-xl">
-                    <p className="text-sm text-[#1A1714]/25">Noch keine Abschnitte — füge deinen ersten hinzu</p>
+                  <div className="text-center py-8 border border-dashed border-[#222222]/10 rounded-xl">
+                    <p className="text-sm text-[#222222]/25">Noch keine Abschnitte — füge deinen ersten hinzu</p>
                   </div>
                 )}
               </div>
@@ -516,19 +516,19 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
               <div className="relative">
                 <button
                   onClick={() => setShowAddDropdown(prev => !prev)}
-                  className="inline-flex items-center gap-2 text-xs text-[#2AABAB] border border-[#2AABAB]/25 hover:border-[#2AABAB]/50 hover:bg-[#2AABAB]/5 px-4 py-2.5 rounded-full transition-all font-semibold"
+                  className="inline-flex items-center gap-2 text-xs text-[#717171] border border-[#DDDDDD]/25 hover:border-[#DDDDDD]/50 hover:bg-[#222222]/5 px-4 py-2.5 rounded-full transition-all font-semibold"
                 >
                   <Plus size={13} /> Abschnitt hinzufügen
                   <ChevronDown size={11} className={`transition-transform ${showAddDropdown ? 'rotate-180' : ''}`} />
                 </button>
 
                 {showAddDropdown && (
-                  <div className="absolute top-full left-0 mt-2 bg-white border border-[#1A1714]/10 rounded-xl shadow-2xl z-20 py-1 min-w-[180px]">
+                  <div className="absolute top-full left-0 mt-2 bg-white border border-[#222222]/10 rounded-xl shadow-2xl z-20 py-1 min-w-[180px]">
                     {SECTION_TYPES.map(type => (
                       <button
                         key={type}
                         onClick={() => addSection(type)}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/4 transition-colors text-left"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/4 transition-colors text-left"
                       >
                         <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full border ${SECTION_BADGE[type]}`}>
                           {SECTION_LABEL[type]}
@@ -546,8 +546,8 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
           <div className="flex flex-col gap-5 lg:sticky lg:top-8">
 
             {/* SEO card */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30 mb-4">SEO</p>
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30 mb-4">SEO</p>
 
               <div className="flex flex-col gap-4">
                 {/* Slug */}
@@ -561,20 +561,20 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                     placeholder="mein-artikel-slug"
                   />
                   {!slugManual && title && (
-                    <p className="text-[10px] text-[#1A1714]/20 mt-1">Auto-generiert aus Titel</p>
+                    <p className="text-[10px] text-[#222222]/20 mt-1">Auto-generiert aus Titel</p>
                   )}
                 </div>
 
                 {/* Meta Title */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Meta Title</label>
+                    <label className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Meta Title</label>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       metaTitleLen >= 50 && metaTitleLen <= 60
                         ? 'text-green-400 bg-green-500/10'
                         : metaTitleLen > 0
                         ? 'text-amber-400 bg-amber-500/10'
-                        : 'text-[#1A1714]/25 bg-[#1A1714]/5'
+                        : 'text-[#222222]/25 bg-[#222222]/5'
                     }`}>
                       {metaTitleLen}/60
                     </span>
@@ -596,13 +596,13 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
                 {/* Meta Description */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Meta Description</label>
+                    <label className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Meta Description</label>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       metaDescLen >= 120 && metaDescLen <= 160
                         ? 'text-green-400 bg-green-500/10'
                         : metaDescLen > 0
                         ? 'text-amber-400 bg-amber-500/10'
-                        : 'text-[#1A1714]/25 bg-[#1A1714]/5'
+                        : 'text-[#222222]/25 bg-[#222222]/5'
                     }`}>
                       {metaDescLen}/160
                     </span>
@@ -624,8 +624,8 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
             </div>
 
             {/* Settings card */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30 mb-4">Einstellungen</p>
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30 mb-4">Einstellungen</p>
 
               <div className="flex flex-col gap-4">
                 {/* Category */}
@@ -718,13 +718,13 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
             {/* Save button */}
             <button
               onClick={handleSave}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-3.5 rounded-full hover:bg-[#3DBFBF] transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-3.5 rounded-full hover:bg-[#075555] transition-all"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Code kopiert!' : 'Speichern / Code kopieren'}
             </button>
 
-            <p className="text-[10px] text-[#1A1714]/20 text-center leading-relaxed">
+            <p className="text-[10px] text-[#222222]/20 text-center leading-relaxed">
               Generiert TypeScript-Code und kopiert ihn in die Zwischenablage. In{' '}
               <code className="font-mono">src/lib/data/magazine.ts</code> einfügen.
             </p>

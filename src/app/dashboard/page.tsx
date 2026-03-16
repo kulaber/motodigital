@@ -95,21 +95,21 @@ export default async function DashboardPage() {
   const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB]">
+    <div className="min-h-screen bg-white">
       <Header />
       <div className="max-w-5xl mx-auto px-4 pt-8 pb-12 lg:px-8">
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#1A1714]">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-[#222222]">Dashboard</h1>
             {profile?.full_name && (
-              <p className="text-sm text-[#1A1714]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
+              <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
             )}
           </div>
           <Link
             href="/bikes/new"
-            className="inline-flex items-center gap-2 bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#3DBFBF] transition-all"
+            className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all"
           >
             <Plus size={14} />
             Neues Custom-Bike hinzufügen
@@ -132,8 +132,8 @@ export default async function DashboardPage() {
                   value: adminStats.buildersTotal,
                   sub: 'registriert',
                   icon: <Wrench size={15} />,
-                  color: 'text-teal',
-                  bg: 'bg-teal/8 border-teal/15',
+                  color: 'text-[#717171]',
+                  bg: 'bg-[#222222]/8 border-[#222222]/15',
                 },
                 {
                   label: 'Builder LIVE',
@@ -148,8 +148,8 @@ export default async function DashboardPage() {
                   value: adminStats.ridersTotal,
                   sub: 'verifizierte Accounts',
                   icon: <Users size={15} />,
-                  color: 'text-[#1A1714]',
-                  bg: 'bg-[#1A1714]/5 border-[#1A1714]/10',
+                  color: 'text-[#222222]',
+                  bg: 'bg-[#222222]/5 border-[#222222]/10',
                 },
                 {
                   label: 'Rider online',
@@ -166,17 +166,17 @@ export default async function DashboardPage() {
                     <span className="text-xs">{s.label}</span>
                   </div>
                   <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-[#1A1714]/25 mt-0.5">{s.sub}</p>
+                  <p className="text-xs text-[#222222]/25 mt-0.5">{s.sub}</p>
                 </div>
               ))}
             </div>
 
             {/* Visitor chart placeholder */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-semibold text-[#1A1714]">Besucher</p>
-                  <p className="text-xs text-[#1A1714]/30 mt-0.5">
+                  <p className="text-sm font-semibold text-[#222222]">Besucher</p>
+                  <p className="text-xs text-[#222222]/30 mt-0.5">
                     {hasRealVisitors
                       ? `${chartData.reduce((s, d) => s + d.visitors, 0).toLocaleString('de-DE')} diese Woche`
                       : 'Letzte 7 Tage'}
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
                   </span>
                 )}
                 {hasRealVisitors && (
-                  <span className="text-[10px] bg-teal/10 text-teal border border-teal/20 px-2.5 py-1 rounded-full font-semibold">
+                  <span className="text-[10px] bg-[#222222]/10 text-[#717171] border border-[#222222]/20 px-2.5 py-1 rounded-full font-semibold">
                     Live Daten
                   </span>
                 )}
@@ -198,10 +198,10 @@ export default async function DashboardPage() {
                 {chartData.map((d, i) => (
                   <div key={i} className="flex-1 group relative">
                     <div
-                      className="w-full rounded-sm bg-teal/25 group-hover:bg-teal/50 transition-colors"
+                      className="w-full rounded-sm bg-[#222222]/25 group-hover:bg-[#222222]/50 transition-colors"
                       style={{ height: `${(d.visitors / maxVisitors) * 100}%` }}
                     />
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#F5F2EB] border border-creme/10 rounded px-1.5 py-0.5 text-[10px] text-creme whitespace-nowrap z-10">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white border border-[#222222]/10 rounded px-1.5 py-0.5 text-[10px] text-[#222222] whitespace-nowrap z-10">
                       {d.visitors}
                     </div>
                   </div>
@@ -209,13 +209,13 @@ export default async function DashboardPage() {
               </div>
               <div className="flex justify-between mt-2">
                 {chartData.map((d, i) => (
-                  <span key={i} className="flex-1 text-center text-[10px] text-[#1A1714]/20">
+                  <span key={i} className="flex-1 text-center text-[10px] text-[#222222]/20">
                     {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
                   </span>
                 ))}
               </div>
               {!hasRealVisitors && (
-                <p className="text-[10px] text-[#1A1714]/20 mt-3">
+                <p className="text-[10px] text-[#222222]/20 mt-3">
                   * Platzhalterdaten — VERCEL_ACCESS_TOKEN + VERCEL_PROJECT_ID als Env-Variable setzen
                 </p>
               )}
@@ -237,12 +237,12 @@ export default async function DashboardPage() {
                 { label: 'Events', desc: 'Events verwalten', href: '/admin/events', count: null },
               ].map(item => (
                 <Link key={item.href} href={item.href}
-                  className="flex items-center justify-between p-4 bg-white border border-[#1A1714]/6 hover:border-[#2AABAB]/30 rounded-2xl transition-all group">
+                  className="flex items-center justify-between p-4 bg-white border border-[#222222]/6 hover:border-[#DDDDDD]/30 rounded-2xl transition-all group">
                   <div>
-                    <p className="text-sm font-semibold text-[#1A1714] group-hover:text-[#2AABAB] transition-colors">{item.label}</p>
-                    <p className="text-xs text-[#1A1714]/30 mt-0.5">{item.desc}</p>
+                    <p className="text-sm font-semibold text-[#222222] group-hover:text-[#717171] transition-colors">{item.label}</p>
+                    <p className="text-xs text-[#222222]/30 mt-0.5">{item.desc}</p>
                   </div>
-                  <ChevronRight size={14} className="text-[#1A1714]/20 group-hover:text-[#2AABAB] transition-colors" />
+                  <ChevronRight size={14} className="text-[#222222]/20 group-hover:text-[#717171] transition-colors" />
                 </Link>
               ))}
             </div>
@@ -257,9 +257,9 @@ export default async function DashboardPage() {
             { label: 'Nachrichten',     value: conversations?.length ?? 0,    icon: <MessageCircle size={16}/> },
             { label: 'Inserate gesamt', value: bikes?.length ?? 0,            icon: <Plus size={16}/> },
           ].map(s => (
-            <div key={s.label} className="bg-white border border-[#1A1714]/6 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-[#1A1714]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
-              <p className="text-2xl font-bold text-[#1A1714]">{s.value}</p>
+            <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+              <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
+              <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
             </div>
           ))}
         </div>
@@ -271,23 +271,23 @@ export default async function DashboardPage() {
 
             {/* Builder profile card — only for builders, not superadmin (uses /admin/builder) */}
             {isBuilder && !isSuperAdmin && (
-              <div className="bg-white border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
                   style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.08) 0%, transparent 65%)', transform: 'translate(30%,-30%)' }} />
                 <div className="flex items-start justify-between gap-4 relative">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#2AABAB]/12 border border-[#2AABAB]/20 flex items-center justify-center flex-shrink-0">
-                      <User size={20} className="text-[#2AABAB]" />
+                    <div className="w-12 h-12 rounded-xl bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center flex-shrink-0">
+                      <User size={20} className="text-[#717171]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#1A1714] mb-0.5">Builder Profil</p>
+                      <p className="text-sm font-semibold text-[#222222] mb-0.5">Builder Profil</p>
                       {profile?.bio ? (
-                        <p className="text-xs text-[#1A1714]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
+                        <p className="text-xs text-[#222222]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
                       ) : (
-                        <p className="text-xs text-[#1A1714]/30">Noch keine Bio — füge eine hinzu, damit Rider dich finden</p>
+                        <p className="text-xs text-[#222222]/30">Noch keine Bio — füge eine hinzu, damit Rider dich finden</p>
                       )}
                       {(profile?.city || profile?.specialty) && (
-                        <p className="text-xs text-[#1A1714]/35 mt-1">
+                        <p className="text-xs text-[#222222]/35 mt-1">
                           {[profile.city, profile.specialty].filter(Boolean).join(' · ')}
                         </p>
                       )}
@@ -296,13 +296,13 @@ export default async function DashboardPage() {
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     <Link
                       href="/dashboard/profile"
-                      className="flex items-center gap-1.5 text-xs bg-[#2AABAB] text-[#141414] font-semibold px-4 py-2 rounded-full hover:bg-[#3DBFBF] transition-all whitespace-nowrap"
+                      className="flex items-center gap-1.5 text-xs bg-[#086565] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#075555] transition-all whitespace-nowrap"
                     >
                       Profil bearbeiten
                     </Link>
                     <Link
                       href={profile?.full_name ? `/builder/${profile.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '/builder'}
-                      className="flex items-center gap-1.5 text-xs text-[#1A1714]/40 border border-[#1A1714]/10 px-4 py-2 rounded-full hover:text-[#1A1714] hover:border-[#1A1714]/25 transition-all justify-center"
+                      className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
                     >
                       <ExternalLink size={11} /> Vorschau
                     </Link>
@@ -310,16 +310,16 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Profile completeness */}
-                <div className="mt-4 pt-4 border-t border-[#1A1714]/5">
+                <div className="mt-4 pt-4 border-t border-[#222222]/5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-[#1A1714]/30">Profil-Vollständigkeit</span>
-                    <span className="text-xs font-semibold text-[#2AABAB]">
+                    <span className="text-xs text-[#222222]/30">Profil-Vollständigkeit</span>
+                    <span className="text-xs font-semibold text-[#717171]">
                       {[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%
                     </span>
                   </div>
-                  <div className="h-1.5 bg-[#1A1714]/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#2AABAB] rounded-full transition-all"
+                      className="h-full bg-[#086565] rounded-full transition-all"
                       style={{ width: `${[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%` }}
                     />
                   </div>
@@ -332,8 +332,8 @@ export default async function DashboardPage() {
                     ].map(item => (
                       <span key={item.label} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                         item.done
-                          ? 'bg-[#2AABAB]/10 text-[#2AABAB] border border-[#2AABAB]/20'
-                          : 'bg-[#1A1714]/5 text-[#1A1714]/25 border border-[#1A1714]/8'
+                          ? 'bg-[#222222]/10 text-[#717171] border border-[#DDDDDD]/20'
+                          : 'bg-[#222222]/5 text-[#222222]/25 border border-[#222222]/8'
                       }`}>
                         {item.done ? '✓ ' : ''}{item.label}
                       </span>
@@ -344,15 +344,15 @@ export default async function DashboardPage() {
             )}
 
             {/* Listings */}
-            {!isSuperAdmin && <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A1714]/5">
-                <h2 className="text-sm font-semibold text-[#1A1714]">Meine Custom-Bikes</h2>
-                <span className="text-xs text-[#1A1714]/35">{bikes?.length ?? 0} total</span>
+            {!isSuperAdmin && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#222222]/5">
+                <h2 className="text-sm font-semibold text-[#222222]">Meine Custom-Bikes</h2>
+                <span className="text-xs text-[#222222]/35">{bikes?.length ?? 0} total</span>
               </div>
-              <div className="divide-y divide-[#1A1714]/5">
+              <div className="divide-y divide-[#222222]/5">
                 {bikes?.map(bike => (
                   <div key={bike.id} className="flex items-center gap-4 px-5 py-3.5">
-                    <div className="w-12 h-9 rounded-lg bg-[#F5F2EB] border border-[#1A1714]/8 flex-shrink-0 overflow-hidden relative">
+                    <div className="w-12 h-9 rounded-lg bg-white border border-[#222222]/8 flex-shrink-0 overflow-hidden relative">
                       {bike.bike_images?.[0]?.url ? (
                         <img src={bike.bike_images[0].url} alt={bike.title} className="w-full h-full object-cover" />
                       ) : (
@@ -366,25 +366,25 @@ export default async function DashboardPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1A1714] truncate">{bike.title}</p>
-                      <p className="text-xs text-[#1A1714]/35">{formatPrice(bike.price)} · {bike.view_count ?? 0} Aufrufe</p>
+                      <p className="text-sm font-medium text-[#222222] truncate">{bike.title}</p>
+                      <p className="text-xs text-[#222222]/35">{formatPrice(bike.price)} · {bike.view_count ?? 0} Aufrufe</p>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
                       bike.status === 'active' ? 'bg-green-500/10 text-green-400'
-                      : bike.status === 'sold'   ? 'bg-[#1A1714]/5 text-[#1A1714]/30'
+                      : bike.status === 'sold'   ? 'bg-[#222222]/5 text-[#222222]/30'
                       : 'bg-amber-500/10 text-amber-400'
                     }`}>
                       {bike.status === 'active' ? 'Aktiv' : bike.status === 'sold' ? 'Verkauft' : 'Entwurf'}
                     </span>
-                    <Link href={`/bikes/${bike.id}/edit`} className="text-xs text-[#1A1714]/30 hover:text-[#1A1714] transition-colors flex-shrink-0">
+                    <Link href={`/bikes/${bike.id}/edit`} className="text-xs text-[#222222]/30 hover:text-[#222222] transition-colors flex-shrink-0">
                       Bearbeiten
                     </Link>
                   </div>
                 ))}
                 {!bikes?.length && (
                   <div className="px-5 py-10 text-center">
-                    <p className="text-sm text-[#1A1714]/30 mb-3">Noch keine Custom-Bikes</p>
-                    <Link href="/bikes/new" className="text-sm text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
+                    <p className="text-sm text-[#222222]/30 mb-3">Noch keine Custom-Bikes</p>
+                    <Link href="/bikes/new" className="text-sm text-[#717171] hover:text-[#086565] transition-colors">
                       Custom-Bike erstellen →
                     </Link>
                   </div>
@@ -396,38 +396,38 @@ export default async function DashboardPage() {
 
           {/* RIGHT — Messages */}
           <div className="flex flex-col gap-5">
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#1A1714]/5">
-                <h2 className="text-sm font-semibold text-[#1A1714]">Nachrichten</h2>
+            <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-[#222222]/5">
+                <h2 className="text-sm font-semibold text-[#222222]">Nachrichten</h2>
               </div>
-              <div className="divide-y divide-[#1A1714]/5">
+              <div className="divide-y divide-[#222222]/5">
                 {conversations?.map((conv) => (
                   <Link
                     key={conv.id}
                     href={`/dashboard?conversation=${conv.id}`}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-[#F5F2EB] transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 hover:bg-white transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#2AABAB]/15 border border-[#2AABAB]/20 flex items-center justify-center text-xs font-bold text-[#2AABAB] flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-xs font-bold text-[#717171] flex-shrink-0 mt-0.5">
                       {(conv.profiles?.full_name ?? conv.profiles?.username ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1A1714]">
+                      <p className="text-sm font-medium text-[#222222]">
                         {conv.profiles?.full_name ?? conv.profiles?.username}
                       </p>
-                      <p className="text-xs text-[#1A1714]/35 truncate">{conv.bikes?.title}</p>
+                      <p className="text-xs text-[#222222]/35 truncate">{conv.bikes?.title}</p>
                     </div>
-                    <ChevronRight size={14} className="text-[#1A1714]/20 flex-shrink-0 mt-1" />
+                    <ChevronRight size={14} className="text-[#222222]/20 flex-shrink-0 mt-1" />
                   </Link>
                 ))}
                 {!conversations?.length && (
-                  <p className="px-5 py-8 text-sm text-[#1A1714]/30 text-center">Keine Nachrichten</p>
+                  <p className="px-5 py-8 text-sm text-[#222222]/30 text-center">Keine Nachrichten</p>
                 )}
               </div>
             </div>
 
             {/* Quick links */}
-            {!isSuperAdmin && <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-4">
-              <p className="text-xs text-[#1A1714]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
+            {!isSuperAdmin && <div className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+              <p className="text-xs text-[#222222]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
                 { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',          icon: <Plus size={13}/> },
                 { label: 'Builder entdecken',           href: '/builder',              icon: <Eye size={13}/> },
@@ -435,10 +435,10 @@ export default async function DashboardPage() {
                 { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
               ].map(l => (
                 <Link key={l.href} href={l.href}
-                  className="flex items-center gap-2.5 py-2.5 text-xs text-[#1A1714]/50 hover:text-[#1A1714] transition-colors border-b border-[#1A1714]/5 last:border-0">
-                  <span className="text-[#1A1714]/25">{l.icon}</span>
+                  className="flex items-center gap-2.5 py-2.5 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors border-b border-[#222222]/5 last:border-0">
+                  <span className="text-[#222222]/25">{l.icon}</span>
                   {l.label}
-                  <ChevronRight size={11} className="ml-auto text-[#1A1714]/20" />
+                  <ChevronRight size={11} className="ml-auto text-[#222222]/20" />
                 </Link>
               ))}
             </div>}

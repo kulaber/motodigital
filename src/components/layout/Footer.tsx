@@ -34,7 +34,7 @@ const NAV = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1A1714] border-t border-white/8 text-white">
+    <footer className="bg-[#222222] border-t border-white/8 text-white">
 
       {/* Main footer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-14">

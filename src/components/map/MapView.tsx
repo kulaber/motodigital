@@ -218,13 +218,13 @@ export default function MapView({ initialBikes }: Props) {
 
 
   return (
-    <div className="flex flex-col h-screen bg-bg overflow-hidden">
+    <div className="flex flex-col h-screen bg-white overflow-hidden">
 
       {/* Header */}
       <Header activePage="map" />
 
       {/* SearchBar */}
-      <div className="px-4 py-3 border-b border-creme/5 bg-bg z-10 flex-shrink-0">
+      <div className="px-4 py-3 border-b border-[#222222]/5 bg-white z-10 flex-shrink-0">
         <SearchBar
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -241,7 +241,7 @@ export default function MapView({ initialBikes }: Props) {
       <div className="flex flex-1 overflow-hidden relative">
 
         {/* Left — Results list */}
-        <div className={`overflow-y-auto border-r border-creme/5 ${
+        <div className={`overflow-y-auto border-r border-[#222222]/5 ${
           mobileView === 'list' ? 'flex-1 md:flex-none md:w-1/2' : 'hidden md:block md:w-1/2'
         }`}>
 
@@ -251,7 +251,7 @@ export default function MapView({ initialBikes }: Props) {
               {(() => {
                 const list = isMobile ? filteredBuilders : visibleBuilders
                 return <>
-                  <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{list.length} Builder</p>
+                  <p className="text-xs text-[#222222]/35 mb-4 uppercase tracking-widest">{list.length} Builder</p>
                   <div className="flex flex-col gap-3">
                     {list.map(b => (
                   <Link
@@ -259,21 +259,21 @@ export default function MapView({ initialBikes }: Props) {
                     href={`/builder/${b.slug}`}
                     className={`flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 ${
                       selectedBuilder?.id === b.id
-                        ? 'bg-teal/8 border-teal/30'
-                        : 'bg-bg-2 border-creme/6 hover:border-teal/20'
+                        ? 'bg-[#222222]/8 border-[#222222]/30'
+                        : 'bg-white border-[#222222]/6 hover:border-[#222222]/20'
                     }`}
                     onClick={() => {}}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-teal/12 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#222222]/12 border border-[#222222]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
                       {b.initials}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-semibold text-creme truncate">{b.name}</p>
-                        {b.verified && <BadgeCheck size={12} className="text-teal flex-shrink-0" />}
+                        <p className="text-sm font-semibold text-[#222222] truncate">{b.name}</p>
+                        {b.verified && <BadgeCheck size={12} className="text-[#717171] flex-shrink-0" />}
                       </div>
-                      <p className="text-xs text-creme/40 truncate">{b.city} · {b.specialty}</p>
-                      <p className="text-xs text-creme/30 mt-0.5">{b.builds} Builds · ★ {b.rating}</p>
+                      <p className="text-xs text-[#222222]/40 truncate">{b.city} · {b.specialty}</p>
+                      <p className="text-xs text-[#222222]/30 mt-0.5">{b.builds} Builds · ★ {b.rating}</p>
                     </div>
                   </Link>
                     ))}
@@ -286,7 +286,7 @@ export default function MapView({ initialBikes }: Props) {
           {/* Bike list */}
           {activeTab === 'bikes' && (
             <div className="px-5 py-4 pb-24 md:pb-4">
-              <p className="text-xs text-creme/35 mb-4 uppercase tracking-widest">{bikes.length} Bikes</p>
+              <p className="text-xs text-[#222222]/35 mb-4 uppercase tracking-widest">{bikes.length} Bikes</p>
               <div className="flex flex-col gap-3">
                 {bikes.map(bike => (
                   <button
@@ -294,12 +294,12 @@ export default function MapView({ initialBikes }: Props) {
                     onClick={() => setSelectedBike(bike)}
                     className={`text-left p-4 rounded-2xl border transition-all hover:-translate-y-0.5 ${
                       selectedBike?.id === bike.id
-                        ? 'bg-teal/8 border-teal/30'
-                        : 'bg-bg-2 border-creme/6 hover:border-teal/20'
+                        ? 'bg-[#222222]/8 border-[#222222]/30'
+                        : 'bg-white border-[#222222]/6 hover:border-[#222222]/20'
                     }`}
                   >
-                    <p className="text-sm font-semibold text-creme">{bike.title}</p>
-                    <p className="text-xs text-creme/40 mt-0.5">{bike.year} · {bike.city} · {formatPrice(bike.price)}</p>
+                    <p className="text-sm font-semibold text-[#222222]">{bike.title}</p>
+                    <p className="text-xs text-[#222222]/40 mt-0.5">{bike.year} · {bike.city} · {formatPrice(bike.price)}</p>
                   </button>
                 ))}
               </div>
@@ -317,7 +317,7 @@ export default function MapView({ initialBikes }: Props) {
           <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
             <button
               onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')}
-              className="flex items-center gap-2 bg-[#F5F2EB] border border-creme/15 rounded-full px-5 py-3 text-sm font-semibold text-creme shadow-2xl active:scale-95 transition-transform"
+              className="flex items-center gap-2 bg-white border border-[#222222]/15 rounded-full px-5 py-3 text-sm font-semibold text-[#222222] shadow-2xl active:scale-95 transition-transform"
             >
               {mobileView === 'list'
                 ? <><MapIcon size={15} /> Karte</>
@@ -329,24 +329,24 @@ export default function MapView({ initialBikes }: Props) {
 
         {/* Selected builder popup — centered on mobile, right on desktop */}
         {selectedBuilder && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-6 z-30 bg-bg-2 border border-teal/20 rounded-2xl p-4 shadow-2xl flex items-center gap-3 animate-slide-up-sm w-[calc(100%-3rem)] md:w-auto md:max-w-xs">
-            <div className="w-11 h-11 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center text-sm font-bold text-teal flex-shrink-0">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-6 z-30 bg-white border border-[#222222]/20 rounded-2xl p-4 shadow-2xl flex items-center gap-3 animate-slide-up-sm w-[calc(100%-3rem)] md:w-auto md:max-w-xs">
+            <div className="w-11 h-11 rounded-xl bg-[#222222]/15 border border-[#222222]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
               {selectedBuilder.initials}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-sm font-semibold text-creme truncate">{selectedBuilder.name}</p>
-                {selectedBuilder.verified && <BadgeCheck size={12} className="text-teal flex-shrink-0" />}
+                <p className="text-sm font-semibold text-[#222222] truncate">{selectedBuilder.name}</p>
+                {selectedBuilder.verified && <BadgeCheck size={12} className="text-[#717171] flex-shrink-0" />}
               </div>
-              <p className="text-xs text-creme/40 truncate">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
+              <p className="text-xs text-[#222222]/40 truncate">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
             </div>
             <Link
               href={`/builder/${selectedBuilder.slug}`}
-              className="text-xs text-teal font-semibold hover:text-teal-light transition-colors whitespace-nowrap flex-shrink-0"
+              className="text-xs text-[#717171] font-semibold hover:text-[#717171]-light transition-colors whitespace-nowrap flex-shrink-0"
             >
               Profil →
             </Link>
-            <button onClick={() => setSelectedBuilder(null)} className="text-creme/25 hover:text-creme transition-colors text-lg leading-none flex-shrink-0">×</button>
+            <button onClick={() => setSelectedBuilder(null)} className="text-[#222222]/25 hover:text-[#222222] transition-colors text-lg leading-none flex-shrink-0">×</button>
           </div>
         )}
 

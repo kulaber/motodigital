@@ -12,12 +12,12 @@ export default async function NewBikePage() {
   if (!user) redirect('/auth/login')
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-white">
       <Header />
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-creme">Neues Custom-Bike hinzufügen</h1>
-          <p className="text-sm text-creme/40 mt-1">Erstelle ein Inserat für dein Custom Bike</p>
+          <h1 className="text-2xl font-bold text-[#222222]">Neues Custom-Bike hinzufügen</h1>
+          <p className="text-sm text-[#222222]/40 mt-1">Erstelle ein Inserat für dein Custom Bike</p>
         </div>
         <NewBikeForm />
       </div>

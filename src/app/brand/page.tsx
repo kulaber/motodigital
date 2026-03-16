@@ -32,7 +32,7 @@ export default function BrandIndexPage() {
   }).filter(b => b.count > 0)
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <Header />
 
       <section className="pt-28 pb-14">
@@ -43,11 +43,11 @@ export default function BrandIndexPage() {
           ]} />
 
           <div className="mt-6">
-            <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">Marken</p>
-            <h1 className="font-bold text-[#1A1714] leading-tight mb-3" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
+            <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">Marken</p>
+            <h1 className="font-bold text-[#222222] leading-tight mb-3" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
               Custom Motorcycle Brands
             </h1>
-            <p className="text-[#1A1714]/40 text-sm max-w-lg leading-relaxed">
+            <p className="text-[#222222]/40 text-sm max-w-lg leading-relaxed">
               Entdecke handgefertigte Custom Bikes nach Hersteller — finde deine bevorzugte Basis.
             </p>
           </div>
@@ -61,16 +61,16 @@ export default function BrandIndexPage() {
               <Link
                 key={brand.slug}
                 href={`/brand/${brand.slug}`}
-                className="group bg-white border border-[#1A1714]/6 hover:border-[#2aabab]/25 rounded-2xl p-6 transition-all hover:-translate-y-0.5"
+                className="group bg-white border border-[#222222]/6 hover:border-[#DDDDDD]/25 rounded-2xl p-6 transition-all hover:-translate-y-0.5"
               >
                 {/* Logo placeholder */}
-                <div className="w-12 h-12 rounded-xl bg-[#2aabab]/10 border border-[#2aabab]/15 flex items-center justify-center mb-4">
-                  <span className="text-sm font-bold text-[#2aabab]">
+                <div className="w-12 h-12 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/15 flex items-center justify-center mb-4">
+                  <span className="text-sm font-bold text-[#717171]">
                     {brand.name.slice(0, 2).toUpperCase()}
                   </span>
                 </div>
-                <p className="text-sm font-semibold text-[#1A1714] mb-1">{brand.name}</p>
-                <p className="text-xs text-[#1A1714]/35">{brand.count} {brand.count === 1 ? 'Build' : 'Builds'}</p>
+                <p className="text-sm font-semibold text-[#222222] mb-1">{brand.name}</p>
+                <p className="text-xs text-[#222222]/35">{brand.count} {brand.count === 1 ? 'Build' : 'Builds'}</p>
               </Link>
             ))}
           </div>

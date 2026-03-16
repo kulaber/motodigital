@@ -25,9 +25,9 @@ const BIKE_STYLES = [
 ]
 
 const ROLE_BADGE: Record<string, { label: string; color: string }> = {
-  superadmin: { label: 'Superadmin', color: 'bg-amber-400/15 text-amber-400 border-amber-400/25' },
-  builder:    { label: 'Builder',    color: 'bg-[#2AABAB]/12 text-[#2AABAB] border-[#2AABAB]/25'  },
-  rider:      { label: 'Rider',      color: 'bg-[#1A1714]/8 text-[#1A1714]/50 border-[#1A1714]/12' },
+  superadmin: { label: 'Superadmin', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  builder:    { label: 'Builder',    color: 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]'  },
+  rider:      { label: 'Rider',      color: 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]' },
 }
 
 export default function Header({ activePage }: Props) {
@@ -66,15 +66,15 @@ export default function Header({ activePage }: Props) {
   /* ── shared class helpers ── */
   const mobileNavLink = (active: boolean) =>
     `flex items-center justify-between w-full px-3 py-3.5 rounded-xl text-base font-medium transition-colors ${
-      active ? 'text-[#1A1714] bg-[#1A1714]/6' : 'text-[#1A1714]/65 active:bg-[#1A1714]/5'
+      active ? 'text-[#222222] bg-[#222222]/6' : 'text-[#222222]/65 active:bg-[#222222]/5'
     }`
 
-  const mobileSubLink = 'flex items-center w-full px-3 py-2.5 rounded-lg text-sm text-[#1A1714]/50 transition-colors active:text-[#2AABAB] active:bg-[#2AABAB]/6'
+  const mobileSubLink = 'flex items-center w-full px-3 py-2.5 rounded-lg text-sm text-[#222222]/50 transition-colors active:text-[#717171] active:bg-[#222222]/6'
 
-  const mobileDashLink = 'flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-[#1A1714]/65 transition-colors active:bg-[#1A1714]/5 active:text-[#1A1714]'
+  const mobileDashLink = 'flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-[#222222]/65 transition-colors active:bg-[#222222]/5 active:text-[#222222]'
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#1A1714]/5 bg-[#F5F2EB]/95 backdrop-blur-md">
+    <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#222222]/5 bg-white/95 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16">
 
         {/* Logo */}
@@ -92,18 +92,18 @@ export default function Header({ activePage }: Props) {
             <button
               onClick={() => setBikesDropdown(d => !d)}
               className={`relative flex items-center gap-1 text-sm font-medium transition-colors pb-0.5 ${
-                activePage === 'bikes' ? 'text-[#2aabab]' : 'text-[#1A1714]/55 hover:text-[#1A1714]'
+                activePage === 'bikes' ? 'text-[#222222] font-semibold' : 'text-[#717171] hover:text-[#222222]'
               }`}
             >
               Custom Bikes
               <ChevronDown size={13} className={`transition-transform ${bikesDropdown ? 'rotate-180' : ''}`} />
-              {activePage === 'bikes' && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />}
+              {activePage === 'bikes' && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#222222] rounded-full" />}
             </button>
             {bikesDropdown && (
-              <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-[#1A1714]/10 rounded-xl shadow-xl overflow-hidden z-50">
+              <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50">
                 {BIKE_STYLES.map(s => (
                   <Link key={s.href} href={s.href} onClick={() => setBikesDropdown(false)}
-                    className="block px-4 py-2.5 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors border-b border-[#1A1714]/5 last:border-0">
+                    className="block px-4 py-2.5 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-b border-[#222222]/5 last:border-0">
                     {s.label}
                   </Link>
                 ))}
@@ -114,10 +114,10 @@ export default function Header({ activePage }: Props) {
           {(['builder', 'magazine', 'events'] as const).map(page => (
             <Link key={page} href={`/${page}`}
               className={`relative text-sm font-medium transition-colors pb-0.5 ${
-                activePage === page ? 'text-[#2aabab]' : 'text-[#1A1714]/55 hover:text-[#1A1714]'
+                activePage === page ? 'text-[#222222] font-semibold' : 'text-[#717171] hover:text-[#222222]'
               }`}>
               {page === 'builder' ? 'Builder' : page === 'magazine' ? 'Magazin' : 'Events'}
-              {activePage === page && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />}
+              {activePage === page && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#222222] rounded-full" />}
             </Link>
           ))}
         </nav>
@@ -126,8 +126,8 @@ export default function Header({ activePage }: Props) {
         <div className="hidden md:flex flex-1 items-center gap-2 justify-end pl-8">
           {loading ? (
             <div className="flex items-center gap-2">
-              <div className="h-8 w-20 rounded-full bg-[#1A1714]/5 animate-pulse" />
-              <div className="h-8 w-24 rounded-full bg-[#1A1714]/5 animate-pulse" />
+              <div className="h-8 w-20 rounded-full bg-[#222222]/5 animate-pulse" />
+              <div className="h-8 w-24 rounded-full bg-[#222222]/5 animate-pulse" />
             </div>
           ) : user ? (
             <>
@@ -140,46 +140,46 @@ export default function Header({ activePage }: Props) {
               {/* Dashboard dropdown — all authenticated roles */}
               <div className="relative" ref={dropdownRef}>
                 <button onClick={() => setDashDropdown(d => !d)}
-                  className="flex items-center gap-1.5 text-sm text-[#1A1714]/60 hover:text-[#1A1714] transition-colors px-3 py-2">
+                  className="flex items-center gap-1.5 text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
                   <LayoutDashboard size={15} />
                   Dashboard
                   <ChevronDown size={13} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {dashDropdown && (
-                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-[#1A1714]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
+                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
                     <Link href="/dashboard" onClick={() => setDashDropdown(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors">
+                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                       <LayoutDashboard size={14} /> Dashboard
                     </Link>
                     {role === 'builder' && (
                       <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
-                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors border-t border-[#1A1714]/5">
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                         <User size={14} /> Profil bearbeiten
                       </Link>
                     )}
                     {role === 'superadmin' && (
                       <>
-                        <div className="h-px bg-[#1A1714]/6 mx-3 my-1" />
+                        <div className="h-px bg-[#222222]/6 mx-3 my-1" />
                         <p className="px-4 pt-1 pb-1 text-[9px] font-bold uppercase tracking-widest text-amber-400/60 flex items-center gap-1">
                           <Shield size={9} /> Admin
                         </p>
                         <Link href="/admin/builder" onClick={() => setDashDropdown(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors">
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                           <Users size={14} /> Builder
                         </Link>
                         <Link href="/admin/magazine" onClick={() => setDashDropdown(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors">
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                           <BookOpen size={14} /> Magazin
                         </Link>
                         <Link href="/admin/events" onClick={() => setDashDropdown(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors">
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                           <CalendarDays size={14} /> Events
                         </Link>
                       </>
                     )}
-                    <div className="h-px bg-[#1A1714]/6 mx-3 my-1" />
+                    <div className="h-px bg-[#222222]/6 mx-3 my-1" />
                     <Link href="/dashboard/account" onClick={() => setDashDropdown(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#1A1714]/60 hover:text-[#1A1714] hover:bg-[#1A1714]/5 transition-colors">
+                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                       <Settings size={14} /> Konto-Einstellungen
                     </Link>
                   </div>
@@ -187,16 +187,16 @@ export default function Header({ activePage }: Props) {
               </div>
 
               <button onClick={handleLogout}
-                className="flex items-center gap-2 text-sm text-[#1A1714]/50 hover:text-[#1A1714] border border-[#1A1714]/12 hover:border-[#1A1714]/25 px-4 py-2 rounded-full transition-all">
+                className="flex items-center gap-2 text-sm text-[#222222]/50 hover:text-[#222222] border border-[#222222]/12 hover:border-[#222222]/25 px-4 py-2 rounded-full transition-all">
                 <LogOut size={14} /> Abmelden
               </button>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="text-sm text-[#1A1714]/60 hover:text-[#1A1714] transition-colors px-4 py-2">
+              <Link href="/auth/login" className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
                 Anmelden
               </Link>
-              <Link href="/auth/register" className="bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#3DBFBF] transition-all">
+              <Link href="/auth/register" className="bg-[#086565] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#075555] transition-all">
                 Registrieren
               </Link>
             </>
@@ -205,7 +205,7 @@ export default function Header({ activePage }: Props) {
 
         {/* ── Mobile hamburger ── */}
         <button
-          className="md:hidden ml-3 flex-shrink-0 w-10 h-10 flex items-center justify-center text-[#1A1714]/60 hover:text-[#1A1714] transition-colors rounded-xl"
+          className="md:hidden ml-3 flex-shrink-0 w-10 h-10 flex items-center justify-center text-[#222222]/60 hover:text-[#222222] transition-colors rounded-xl"
           onClick={() => setOpen(o => !o)}
           aria-label="Menü"
         >
@@ -215,7 +215,7 @@ export default function Header({ activePage }: Props) {
 
       {/* ── Mobile menu ── */}
       {open && (
-        <div className="md:hidden border-t border-[#1A1714]/5 bg-[#F5F2EB] overflow-hidden">
+        <div className="md:hidden border-t border-[#222222]/5 bg-white overflow-hidden">
           <div className="px-4 py-3 flex flex-col gap-0.5">
 
             {/* ── Custom Bikes accordion ── */}
@@ -224,10 +224,10 @@ export default function Header({ activePage }: Props) {
               className={mobileNavLink(activePage === 'bikes')}
             >
               <span className="flex items-center gap-2.5">
-                <Bike size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                <Bike size={17} className="text-[#222222]/30 flex-shrink-0" />
                 Custom Bikes
               </span>
-              <ChevronDown size={16} className={`text-[#1A1714]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
             </button>
             {mobileBikesOpen && (
               <div className="pl-9 flex flex-col gap-0.5 mb-1">
@@ -242,7 +242,7 @@ export default function Header({ activePage }: Props) {
             {/* ── Builder ── */}
             <Link href="/builder" onClick={close} className={mobileNavLink(activePage === 'builder')}>
               <span className="flex items-center gap-2.5">
-                <Users size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                <Users size={17} className="text-[#222222]/30 flex-shrink-0" />
                 Builder
               </span>
             </Link>
@@ -250,7 +250,7 @@ export default function Header({ activePage }: Props) {
             {/* ── Magazin ── */}
             <Link href="/magazine" onClick={close} className={mobileNavLink(activePage === 'magazine')}>
               <span className="flex items-center gap-2.5">
-                <BookOpen size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                <BookOpen size={17} className="text-[#222222]/30 flex-shrink-0" />
                 Magazin
               </span>
             </Link>
@@ -258,13 +258,13 @@ export default function Header({ activePage }: Props) {
             {/* ── Events ── */}
             <Link href="/events" onClick={close} className={mobileNavLink(activePage === 'events')}>
               <span className="flex items-center gap-2.5">
-                <CalendarDays size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                <CalendarDays size={17} className="text-[#222222]/30 flex-shrink-0" />
                 Events
               </span>
             </Link>
 
             {/* ── Auth section ── */}
-            <div className="mt-3 pt-3 border-t border-[#1A1714]/8 flex flex-col gap-0.5">
+            <div className="mt-3 pt-3 border-t border-[#222222]/8 flex flex-col gap-0.5">
 
               {!loading && user ? (
                 <>
@@ -283,20 +283,20 @@ export default function Header({ activePage }: Props) {
                     className={mobileNavLink(false)}
                   >
                     <span className="flex items-center gap-2.5">
-                      <LayoutDashboard size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                      <LayoutDashboard size={17} className="text-[#222222]/30 flex-shrink-0" />
                       Dashboard
                     </span>
-                    <ChevronDown size={16} className={`text-[#1A1714]/30 flex-shrink-0 transition-transform ${mobileDashOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileDashOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {mobileDashOpen && (
                     <div className="pl-9 flex flex-col gap-0.5 mb-1">
                       <Link href="/dashboard" onClick={close} className={mobileDashLink}>
-                        <LayoutDashboard size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Übersicht
+                        <LayoutDashboard size={15} className="text-[#222222]/25 flex-shrink-0" /> Übersicht
                       </Link>
                       {role === 'builder' && (
                         <Link href="/dashboard/profile" onClick={close} className={mobileDashLink}>
-                          <User size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Profil bearbeiten
+                          <User size={15} className="text-[#222222]/25 flex-shrink-0" /> Profil bearbeiten
                         </Link>
                       )}
                       {role === 'superadmin' && (
@@ -305,18 +305,18 @@ export default function Header({ activePage }: Props) {
                             <Shield size={9} /> Admin
                           </p>
                           <Link href="/admin/builder" onClick={close} className={mobileDashLink}>
-                            <Users size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Builder
+                            <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Builder
                           </Link>
                           <Link href="/admin/magazine" onClick={close} className={mobileDashLink}>
-                            <BookOpen size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Magazin
+                            <BookOpen size={15} className="text-[#222222]/25 flex-shrink-0" /> Magazin
                           </Link>
                           <Link href="/admin/events" onClick={close} className={mobileDashLink}>
-                            <CalendarDays size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Events
+                            <CalendarDays size={15} className="text-[#222222]/25 flex-shrink-0" /> Events
                           </Link>
                         </>
                       )}
                       <Link href="/dashboard/account" onClick={close} className={mobileDashLink}>
-                        <Settings size={15} className="text-[#1A1714]/25 flex-shrink-0" /> Konto-Einstellungen
+                        <Settings size={15} className="text-[#222222]/25 flex-shrink-0" /> Konto-Einstellungen
                       </Link>
                     </div>
                   )}
@@ -324,20 +324,20 @@ export default function Header({ activePage }: Props) {
                   {/* Abmelden — always visible */}
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2.5 w-full px-3 py-3.5 rounded-xl text-base font-medium text-[#1A1714]/60 transition-colors active:bg-red-500/8 active:text-red-400 mt-1"
+                    className="flex items-center gap-2.5 w-full px-3 py-3.5 rounded-xl text-base font-medium text-[#222222]/60 transition-colors active:bg-red-500/8 active:text-red-400 mt-1"
                   >
-                    <LogOut size={17} className="text-[#1A1714]/30 flex-shrink-0" />
+                    <LogOut size={17} className="text-[#222222]/30 flex-shrink-0" />
                     Abmelden
                   </button>
                 </>
               ) : !loading ? (
                 <div className="flex flex-col gap-2 pt-1">
                   <Link href="/auth/login" onClick={close}
-                    className="w-full py-3 text-center text-sm font-medium text-[#1A1714]/70 border border-[#1A1714]/12 rounded-xl hover:text-[#1A1714] hover:border-[#1A1714]/25 transition-all">
+                    className="w-full py-3 text-center text-sm font-medium text-[#222222]/70 border border-[#222222]/12 rounded-xl hover:text-[#222222] hover:border-[#222222]/25 transition-all">
                     Anmelden
                   </Link>
                   <Link href="/auth/register" onClick={close}
-                    className="w-full py-3 text-center text-sm font-semibold bg-[#2AABAB] text-[#141414] rounded-xl hover:bg-[#3DBFBF] transition-all">
+                    className="w-full py-3 text-center text-sm font-semibold bg-[#086565] text-white rounded-xl hover:bg-[#075555] transition-all">
                     Registrieren
                   </Link>
                 </div>
