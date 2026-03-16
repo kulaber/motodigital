@@ -59,16 +59,18 @@ export default function Header({ activePage }: Props) {
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#F0EDE4]/5 bg-[#141414]/95 backdrop-blur-md">
-      <div className="max-w-6xl mx-auto px-5 lg:px-8 flex items-center justify-between h-16">
+      <div className="max-w-6xl mx-auto px-5 lg:px-8 flex items-center h-16">
 
-        {/* Logo */}
-        <Link href="/" onClick={() => setOpen(false)} className="cursor-pointer">
-          <div className="transition-transform duration-200 hover:scale-[1.02]">
-            <Image src="/logo.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
-          </div>
-        </Link>
+        {/* Logo — flex-1 left anchor */}
+        <div className="flex-1">
+          <Link href="/" onClick={() => setOpen(false)} className="cursor-pointer inline-block">
+            <div className="transition-transform duration-200 hover:scale-[1.02]">
+              <Image src="/logo.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
+            </div>
+          </Link>
+        </div>
 
-        {/* Desktop nav */}
+        {/* Desktop nav — always centered */}
         <nav className="hidden md:flex items-center gap-6">
 
           {/* Bikes with dropdown */}
@@ -147,8 +149,8 @@ export default function Header({ activePage }: Props) {
 
         </nav>
 
-        {/* Desktop auth */}
-        <div className="hidden md:flex items-center gap-2 min-w-[196px] justify-end">
+        {/* Desktop auth — flex-1 right anchor */}
+        <div className="hidden md:flex flex-1 items-center gap-2 justify-end">
           {loading ? (
             <div className="flex items-center gap-2">
               <div className="h-8 w-20 rounded-full bg-[#F0EDE4]/5 animate-pulse" />
@@ -224,7 +226,7 @@ export default function Header({ activePage }: Props) {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors"
+          className="md:hidden ml-auto p-2 text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors"
           onClick={() => setOpen(o => !o)}
           aria-label="Menü"
         >
