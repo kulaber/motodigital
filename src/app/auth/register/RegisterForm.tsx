@@ -71,10 +71,10 @@ export default function RegisterForm() {
               <Wrench size={18} className="text-[#2AABAB]" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-sm font-bold text-[#F0EDE4]">Builder / Workshop</p>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#2AABAB] text-[#141414] px-2 py-0.5 rounded-full">
-                  Empfohlen
+              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                <p className="text-sm font-bold text-[#F0EDE4] whitespace-nowrap">Builder / Workshop</p>
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#2AABAB] text-[#141414] px-2 py-0.5 rounded-full whitespace-nowrap">
+                  Beliebt
                 </span>
               </div>
               <p className="text-xs text-[#F0EDE4]/45">Ich baue Custom Bikes & möchte Kunden gewinnen</p>
