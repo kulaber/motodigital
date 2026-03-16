@@ -34,17 +34,15 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-white text-[#222222] flex flex-col lg:flex-row">
 
       {/* Left — Builder pitch */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#111] border-r border-[#222222]/5 px-12 py-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#F7F7F7] border-r border-[#EBEBEB] px-12 py-12 relative overflow-hidden">
 
-        {/* Background glow */}
+        {/* Subtle accent glow */}
         <div className="absolute top-0 left-0 w-96 h-96 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 0% 0%, rgba(42,171,171,0.08) 0%, transparent 65%)' }} />
-        <div className="absolute bottom-0 right-0 w-64 h-64 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 100% 100%, rgba(42,171,171,0.05) 0%, transparent 65%)' }} />
+          style={{ background: 'radial-gradient(circle at 0% 0%, rgba(8,101,101,0.06) 0%, transparent 65%)' }} />
 
         {/* Logo */}
         <Link href="/">
-          <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
+          <Image src="/logo-dark.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
         </Link>
 
         {/* Headline */}
@@ -53,9 +51,9 @@ export default function RegisterPage() {
           <h2 className="font-bold text-[#222222] leading-tight mb-4"
             style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em' }}>
             Zeig der Welt,<br />
-            <span className="text-[#222222]/30">was du baust.</span>
+            <span className="text-[#B0B0B0]">was du baust.</span>
           </h2>
-          <p className="text-sm text-[#222222]/45 leading-relaxed mb-10 max-w-xs">
+          <p className="text-sm text-[#717171] leading-relaxed mb-10 max-w-xs">
             MotoDigital ist die Plattform für Custom Motorcycle Builder in Europa — kostenlos, ohne Provision.
           </p>
 
@@ -63,12 +61,12 @@ export default function RegisterPage() {
           <div className="flex flex-col gap-5">
             {BENEFITS.map((b, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-lg bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-lg bg-white border border-[#DDDDDD] flex items-center justify-center flex-shrink-0 mt-0.5">
                   {b.icon}
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-[#222222]">{b.title}</p>
-                  <p className="text-xs text-[#222222]/40 leading-relaxed mt-0.5">{b.desc}</p>
+                  <p className="text-xs text-[#717171] leading-relaxed mt-0.5">{b.desc}</p>
                 </div>
               </div>
             ))}
@@ -79,17 +77,17 @@ export default function RegisterPage() {
         <div className="flex items-center gap-6 relative">
           <div>
             <p className="text-2xl font-bold text-[#222222]">6+</p>
-            <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest">Builder</p>
+            <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest">Builder</p>
           </div>
-          <div className="w-px h-8 bg-[#222222]/10" />
+          <div className="w-px h-8 bg-[#DDDDDD]" />
           <div>
             <p className="text-2xl font-bold text-[#222222]">5</p>
-            <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest">Länder</p>
+            <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest">Länder</p>
           </div>
-          <div className="w-px h-8 bg-[#222222]/10" />
+          <div className="w-px h-8 bg-[#DDDDDD]" />
           <div>
             <p className="text-2xl font-bold text-[#222222]">100%</p>
-            <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest">Kostenlos</p>
+            <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest">Kostenlos</p>
           </div>
         </div>
       </div>
@@ -100,9 +98,9 @@ export default function RegisterPage() {
         {/* Mobile logo */}
         <div className="lg:hidden mb-8 text-center">
           <Link href="/" className="inline-flex mb-4">
-            <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
+            <Image src="/logo-dark.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
           </Link>
-          <p className="text-xs text-[#222222]/35">Für Builder & Workshops</p>
+          <p className="text-xs text-[#717171]">Für Builder & Workshops</p>
         </div>
 
         <div className="w-full max-w-sm">
