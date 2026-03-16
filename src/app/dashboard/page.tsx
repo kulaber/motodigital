@@ -223,6 +223,32 @@ export default async function DashboardPage() {
           </div>
         )}
 
+        {/* Admin navigation */}
+        {isSuperAdmin && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield size={14} className="text-amber-400" />
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-400/80">Admin-Bereiche</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { label: 'Builder', desc: 'Profile verwalten & verifizieren', href: '/admin/builder', count: adminStats?.buildersTotal },
+                { label: 'Magazin', desc: 'Beiträge erstellen & bearbeiten', href: '/admin/magazine', count: null },
+                { label: 'Events', desc: 'Events verwalten', href: '/admin/events', count: null },
+              ].map(item => (
+                <Link key={item.href} href={item.href}
+                  className="flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#2AABAB]/30 rounded-2xl transition-all group">
+                  <div>
+                    <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#2AABAB] transition-colors">{item.label}</p>
+                    <p className="text-xs text-[#F0EDE4]/30 mt-0.5">{item.desc}</p>
+                  </div>
+                  <ChevronRight size={14} className="text-[#F0EDE4]/20 group-hover:text-[#2AABAB] transition-colors" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
