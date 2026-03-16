@@ -12,6 +12,21 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamicParams = true
 
+async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+  if (!token) return null
+  try {
+    const res = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1&types=place,address&language=de`,
+      { next: { revalidate: 86400 } }
+    )
+    if (!res.ok) return null
+    const json = await res.json()
+    const [lng, lat] = json.features?.[0]?.center ?? []
+    return lng && lat ? { lat, lng } : null
+  } catch { return null }
+}
+
 async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   const supabase = await createClient()
 
@@ -33,7 +48,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     (supabase.from('bikes') as any)
       .select('id, title, make, model, year, style, price, bike_images(url, is_cover)')
       .eq('seller_id', row.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
   ])
 
@@ -46,16 +61,25 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const featuredBuilds = (bikeRows ?? []).map((b: any) => {
-    const coverImg = b.bike_images?.find((i: any) => i.is_cover)?.url ?? b.bike_images?.[0]?.url ?? ''
+    const images: { url: string; is_cover: boolean }[] = b.bike_images ?? []
+    const coverImg = images.find(i => i.is_cover)?.url ?? images[0]?.url ?? null
     return {
       title: b.title as string,
       slug:  b.id as string,
       base:  [b.make, b.model].filter(Boolean).join(' '),
       style: (b.style as string) ?? '',
       year:  (b.year as number) ?? new Date().getFullYear(),
-      img:   coverImg,
+      img:   coverImg ?? '',
     }
   })
+
+  // Resolve coordinates — use DB values or geocode from city/address
+  let lat: number | undefined = (row.lat as number | null) ?? undefined
+  let lng: number | undefined = (row.lng as number | null) ?? undefined
+  if ((!lat || !lng) && (row.address || row.city)) {
+    const coords = await geocode((row.address ?? row.city) as string)
+    if (coords) { lat = coords.lat; lng = coords.lng }
+  }
 
   return {
     slug:        row.slug as string,
@@ -63,8 +87,8 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     name,
     city:        (row.city as string | null) ?? '',
     address:     (row.address as string | null) ?? undefined,
-    lat:         (row.lat as number | null) ?? undefined,
-    lng:         (row.lng as number | null) ?? undefined,
+    lat,
+    lng,
     specialty:   (row.specialty as string | null) ?? '',
     builds:      featuredBuilds.length,
     rating:      (row.rating as number | null) ?? 5.0,
@@ -270,11 +294,17 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <div className="group">
                     {/* Image */}
                     <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
-                      <img
-                        src={build.img}
-                        alt={build.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                      />
+                      {build.img ? (
+                        <img
+                          src={build.img}
+                          alt={build.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-2xl font-bold text-[#DDDDDD]">{build.style || 'Build'}</span>
+                        </div>
+                      )}
                       {/* Style badge overlay */}
                       <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
                         {build.style}
