@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import mapboxgl from 'mapbox-gl'
@@ -107,6 +107,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
 
 export default function BuilderPageClient({ builders }: Props) {
   const [activeSpecialty, setActiveSpecialty] = useState('Alle')
+  const [styleOpen,       setStyleOpen]       = useState(false)
   const [onlyVerified,    setOnlyVerified]    = useState(false)
   const [onlyOpen,        setOnlyOpen]        = useState(false)
   const [now,             setNow]             = useState<Date | null>(null)
@@ -258,42 +259,69 @@ export default function BuilderPageClient({ builders }: Props) {
 
       {/* ── Sticky filter bar ── */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-        <div className="px-4 sm:px-5 lg:px-6 py-3">
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-2 min-w-max">
-              {SPECIALTIES.map(spec => (
-                <button key={spec} onClick={() => setActiveSpecialty(spec)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
-                    activeSpecialty === spec
-                      ? 'bg-[#222222] text-white'
-                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                  }`}>
-                  {spec}
-                </button>
-              ))}
+        <div className="px-4 sm:px-5 lg:px-6 py-3 flex items-center gap-2">
 
-              <button onClick={() => setOnlyVerified(v => !v)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                  onlyVerified
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                }`}>
-                <BadgeCheck size={11} /> Verifiziert
-              </button>
+          {/* Stil dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setStyleOpen(v => !v)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeSpecialty !== 'Alle'
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}
+            >
+              <SlidersHorizontal size={11} />
+              {activeSpecialty === 'Alle' ? 'Stil' : activeSpecialty}
+              <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-              {now && (
-                <button onClick={() => setOnlyOpen(v => !v)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                    onlyOpen
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                  }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-[#717171]'}`} />
-                  Jetzt geöffnet
-                </button>
-              )}
-            </div>
+            {styleOpen && (
+              <>
+                {/* backdrop */}
+                <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
+                <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
+                  {SPECIALTIES.map(spec => (
+                    <button
+                      key={spec}
+                      onClick={() => { setActiveSpecialty(spec); setStyleOpen(false) }}
+                      className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
+                        activeSpecialty === spec
+                          ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
+                          : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
+                      }`}
+                    >
+                      {spec}
+                      {activeSpecialty === spec && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Verifiziert */}
+          <button onClick={() => setOnlyVerified(v => !v)}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+              onlyVerified
+                ? 'bg-[#222222] text-white'
+                : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+            }`}>
+            <BadgeCheck size={11} /> Verifiziert
+          </button>
+
+          {/* Jetzt geöffnet */}
+          {now && (
+            <button onClick={() => setOnlyOpen(v => !v)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                onlyOpen
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-[#717171]'}`} />
+              Jetzt geöffnet
+            </button>
+          )}
         </div>
       </div>
 
