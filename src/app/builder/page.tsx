@@ -39,6 +39,21 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
   }
 }
 
+/** Geocode a city/address string via Mapbox — returns [lng, lat] or null */
+async function geocode(query: string, token: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1&types=place,address&language=de`
+    const res = await fetch(url, { next: { revalidate: 86400 } }) // cache 24h
+    if (!res.ok) return null
+    const json = await res.json()
+    const [lng, lat] = json.features?.[0]?.center ?? []
+    if (!lng || !lat) return null
+    return { lat, lng }
+  } catch {
+    return null
+  }
+}
+
 export default async function BuilderPage() {
   const supabase = await createClient()
 
@@ -49,6 +64,23 @@ export default async function BuilderPage() {
     .not('slug', 'is', null)
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
+
+  // Geocode builders that have a city/address but no coordinates
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
+  if (token) {
+    await Promise.all(
+      dbBuilders.map(async b => {
+        if (b.lat && b.lng) return
+        const query = b.address || b.city
+        if (!query) return
+        const coords = await geocode(query, token)
+        if (coords) {
+          b.lat = coords.lat
+          b.lng = coords.lng
+        }
+      })
+    )
+  }
 
   // Merge: DB takes precedence over static for matching slugs
   const dbSlugs = new Set(dbBuilders.map(b => b.slug))
