@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import NewBikeForm from './NewBikeForm'
 
-export const metadata: Metadata = { title: 'Neues Inserat' }
+export const metadata: Metadata = { title: 'Neues Custom-Bike hinzufügen' }
 
 export default async function NewBikePage() {
   const supabase = await createClient()
@@ -16,7 +16,7 @@ export default async function NewBikePage() {
       <Header />
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-creme">Neues Inserat</h1>
+          <h1 className="text-2xl font-bold text-creme">Neues Custom-Bike hinzufügen</h1>
           <p className="text-sm text-creme/40 mt-1">Erstelle ein Inserat für dein Custom Bike</p>
         </div>
         <NewBikeForm />

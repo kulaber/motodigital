@@ -75,7 +75,7 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="max-w-5xl mx-auto px-5 lg:px-8 pt-6">
         <Breadcrumbs crumbs={[
           { label: 'Home', href: '/' },
-          { label: 'Bikes', href: '/bikes' },
+          { label: 'Custom Bikes', href: '/bikes' },
           { label: build.style, href: `/bikes/${styleSlug}` },
           { label: build.title },
         ]} />

@@ -100,7 +100,7 @@ export default async function BikeSlugPage({ params }: Props) {
           <div className="max-w-5xl mx-auto relative">
             <Breadcrumbs crumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Bikes', href: '/bikes' },
+              { label: 'Custom Bikes', href: '/bikes' },
               { label: styleInfo.name },
             ]} />
             <div className="mt-5">

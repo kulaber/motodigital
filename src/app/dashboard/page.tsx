@@ -112,7 +112,7 @@ export default async function DashboardPage() {
             className="inline-flex items-center gap-2 bg-[#2AABAB] text-[#141414] text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#3DBFBF] transition-all"
           >
             <Plus size={14} />
-            Neues Inserat
+            Neues Custom-Bike hinzufügen
           </Link>
         </div>
 
@@ -429,7 +429,7 @@ export default async function DashboardPage() {
             {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
               <p className="text-xs text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
-                { label: 'Neues Inserat',    href: '/bikes/new',         icon: <Plus size={13}/> },
+                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new', icon: <Plus size={13}/> },
                 { label: 'Karte öffnen',     href: '/map',               icon: <Eye size={13}/> },
                 ...(isBuilder ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={13}/> }] : []),
               ].map(l => (

@@ -83,7 +83,7 @@ export default function Header({ activePage }: Props) {
                   : 'text-[#F0EDE4]/55 hover:text-[#F0EDE4]'
               }`}
             >
-              Bikes
+              Custom Bikes
               <ChevronDown size={13} className={`transition-transform ${bikesDropdown ? 'rotate-180' : ''}`} />
               {activePage === 'bikes' && (
                 <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#2aabab] rounded-full" />
@@ -248,7 +248,7 @@ export default function Header({ activePage }: Props) {
                   : 'text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5'
               }`}
             >
-              Bikes
+              Custom Bikes
             </Link>
 
             {/* Style sub-links on mobile */}
