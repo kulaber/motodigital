@@ -22,10 +22,12 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
   const [hovered, setHovered] = useState(false)
 
   const prev = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setIdx(i => (i - 1 + images.length) % images.length)
   }
   const next = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setIdx(i => (i + 1) % images.length)
   }
@@ -81,7 +83,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
           {images.map((_, i) => (
             <button
               key={i}
-              onClick={e => { e.stopPropagation(); setIdx(i) }}
+              onClick={e => { e.preventDefault(); e.stopPropagation(); setIdx(i) }}
               className={`rounded-full transition-all ${i === idx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'}`}
             />
           ))}
