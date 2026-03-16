@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
@@ -429,9 +429,10 @@ export default async function DashboardPage() {
             {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
               <p className="text-xs text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
-                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new', icon: <Plus size={13}/> },
-                { label: 'Builder entdecken', href: '/builder',            icon: <Eye size={13}/> },
-                ...(isBuilder ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={13}/> }] : []),
+                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',          icon: <Plus size={13}/> },
+                { label: 'Builder entdecken',           href: '/builder',              icon: <Eye size={13}/> },
+                ...(isBuilder ? [{ label: 'Profil bearbeiten',     href: '/dashboard/profile',  icon: <User size={13}/> }] : []),
+                { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
               ].map(l => (
                 <Link key={l.href} href={l.href}
                   className="flex items-center gap-2.5 py-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors border-b border-[#F0EDE4]/5 last:border-0">

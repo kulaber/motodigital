@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, LayoutDashboard, LogOut, ChevronDown, Users, Shield, BookOpen, CalendarDays } from 'lucide-react'
+import { Menu, X, LayoutDashboard, LogOut, ChevronDown, Users, Shield, BookOpen, CalendarDays, Settings, User } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -195,14 +195,43 @@ export default function Header({ activePage }: Props) {
                         className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
                         <CalendarDays size={14} /> Events
                       </Link>
+                      <div className="h-px bg-[#F0EDE4]/6 mx-3" />
+                      <Link href="/dashboard/account" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
+                        <Settings size={14} /> Konto-Einstellungen
+                      </Link>
                     </div>
                   )}
                 </div>
               ) : (
-                <Link href="/dashboard" className="flex items-center gap-2 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-3 py-2">
-                  <LayoutDashboard size={15} />
-                  Dashboard
-                </Link>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDashDropdown(d => !d)}
+                    className="flex items-center gap-1.5 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-3 py-2"
+                  >
+                    <LayoutDashboard size={15} />
+                    Dashboard
+                    <ChevronDown size={13} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {dashDropdown && (
+                    <div className="absolute top-full right-0 mt-1 w-48 bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
+                      <Link href="/dashboard" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors">
+                        <LayoutDashboard size={14} /> Dashboard
+                      </Link>
+                      {role === 'builder' && (
+                        <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors border-t border-[#F0EDE4]/5">
+                          <User size={14} /> Profil bearbeiten
+                        </Link>
+                      )}
+                      <Link href="/dashboard/account" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] hover:bg-[#F0EDE4]/5 transition-colors border-t border-[#F0EDE4]/5">
+                        <Settings size={14} /> Konto-Einstellungen
+                      </Link>
+                    </div>
+                  )}
+                </div>
               )}
               <button
                 onClick={handleLogout}
@@ -318,6 +347,12 @@ export default function Header({ activePage }: Props) {
                   >
                     <LayoutDashboard size={15} /> Dashboard
                   </Link>
+                  {role === 'builder' && (
+                    <Link href="/dashboard/profile" onClick={() => setOpen(false)}
+                      className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all flex items-center justify-center gap-2">
+                      <User size={14} /> Profil bearbeiten
+                    </Link>
+                  )}
                   {role === 'superadmin' && (
                     <>
                       <Link href="/admin/builder" onClick={() => setOpen(false)}
@@ -334,6 +369,10 @@ export default function Header({ activePage }: Props) {
                       </Link>
                     </>
                   )}
+                  <Link href="/dashboard/account" onClick={() => setOpen(false)}
+                    className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all flex items-center justify-center gap-2">
+                    <Settings size={14} /> Konto-Einstellungen
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="py-3 text-center text-sm font-medium text-[#F0EDE4]/60 border border-[#F0EDE4]/12 rounded-full hover:text-[#F0EDE4] hover:border-[#F0EDE4]/25 transition-all flex items-center justify-center gap-2"
