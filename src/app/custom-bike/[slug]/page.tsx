@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, Clock, Wrench, ChevronRight } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, Clock, Wrench } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -151,10 +151,7 @@ export default async function CustomBikePage({ params }: Props) {
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
             {/* Builder card */}
-            <Link
-              href={`/builder/${build.builder.slug}`}
-              className="bg-[#1C1C1C] border border-[#2aabab]/15 hover:border-[#2aabab]/35 rounded-2xl p-5 transition-all group"
-            >
+            <div className="bg-[#1C1C1C] border border-[#2aabab]/15 rounded-2xl p-5">
               <p className="text-xs text-[#F0EDE4]/35 uppercase tracking-widest mb-3">Builder</p>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-[#2aabab]/12 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
@@ -168,11 +165,22 @@ export default async function CustomBikePage({ params }: Props) {
                   <p className="text-xs text-[#F0EDE4]/40">{build.builder.city}</p>
                 </div>
               </div>
-              <p className="text-xs text-[#F0EDE4]/35 mb-3">{build.builder.specialty}</p>
-              <div className="flex items-center gap-1 text-xs text-[#2aabab] font-semibold group-hover:gap-2 transition-all">
-                Profil ansehen <ChevronRight size={13} />
+              <p className="text-xs text-[#F0EDE4]/35 mb-4">{build.builder.specialty}</p>
+              <div className="flex flex-col gap-2">
+                <Link
+                  href={`/builder/${build.builder.slug}#kontakt`}
+                  className="w-full text-center text-sm font-bold bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] rounded-xl px-4 py-2.5 transition-colors"
+                >
+                  Builder kontaktieren
+                </Link>
+                <Link
+                  href={`/builder/${build.builder.slug}`}
+                  className="w-full text-center text-sm font-semibold text-[#F0EDE4]/70 hover:text-[#F0EDE4] border border-[#F0EDE4]/15 hover:border-[#F0EDE4]/30 rounded-xl px-4 py-2.5 transition-colors"
+                >
+                  Profil ansehen →
+                </Link>
               </div>
-            </Link>
+            </div>
 
             {/* Specs */}
             <div className="bg-[#1C1C1C] border border-[#F0EDE4]/8 rounded-2xl p-5">
@@ -223,6 +231,19 @@ export default async function CustomBikePage({ params }: Props) {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile floating CTA bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#141414]/95 backdrop-blur-md border-t border-[#F0EDE4]/8">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-[#F0EDE4] truncate">{build.builder.name}</p>
+          <Link
+            href={`/builder/${build.builder.slug}#kontakt`}
+            className="flex-shrink-0 text-sm font-bold bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] rounded-xl px-5 py-2.5 transition-colors"
+          >
+            Kontaktieren
+          </Link>
         </div>
       </div>
 
