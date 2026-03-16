@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, CreditCard, Mail, Phone } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
+import VideoGallery from '@/components/builder/VideoGallery'
 import BuilderMap from '@/components/builder/BuilderMap'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
@@ -247,24 +248,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             {videos.length > 0 && (
               <div className="mb-8">
                 <p className="text-xs font-semibold text-[#222222]/25 uppercase tracking-widest mb-3">Videos</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {videos.map((item, i) => (
-                    <div key={i} className="group relative rounded-xl overflow-hidden bg-white border border-[#222222]/5">
-                      <video
-                        src={item.url}
-                        controls
-                        className="w-full h-auto block"
-                      />
-                      {item.title && (
-                        <div className="px-3 py-2.5">
-                          <p className="text-xs text-[#222222]/60 font-medium flex items-center gap-1.5">
-                            <Play size={10} className="text-[#717171]" /> {item.title}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <VideoGallery videos={videos} />
               </div>
             )}
           </div>
