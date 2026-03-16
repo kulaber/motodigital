@@ -114,6 +114,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [onlyOpen,        setOnlyOpen]        = useState(false)
   const [now,             setNow]             = useState<Date | null>(null)
   const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
+  const [hoveredBuilder,  setHoveredBuilder]  = useState<Builder | null>(null)
 
   // Hydration-safe clock
   useEffect(() => {
@@ -145,7 +146,7 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current = []
       for (const b of filtered) {
         if (!b.lat || !b.lng) continue
-        const isSelected = selectedBuilder?.slug === b.slug
+        const isActive = selectedBuilder?.slug === b.slug || hoveredBuilder?.slug === b.slug
 
         const el = document.createElement('div')
         el.style.cssText = 'width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;'
@@ -153,12 +154,12 @@ export default function BuilderPageClient({ builders }: Props) {
         const inner = document.createElement('div')
         inner.style.cssText = `
           width:36px;height:36px;
-          background:${isSelected ? '#086565' : '#ffffff'};
-          border:2px solid ${isSelected ? '#086565' : '#DDDDDD'};
+          background:${isActive ? '#086565' : '#ffffff'};
+          border:2px solid ${isActive ? '#086565' : '#DDDDDD'};
           border-radius:50%;
           display:flex;align-items:center;justify-content:center;
           font-size:10px;font-weight:700;
-          color:${isSelected ? '#ffffff' : '#222222'};
+          color:${isActive ? '#ffffff' : '#222222'};
           box-shadow:0 2px 8px rgba(0,0,0,0.15);
           font-family:Inter,system-ui,sans-serif;
           transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s;
@@ -196,7 +197,7 @@ export default function BuilderPageClient({ builders }: Props) {
         markersRef.current.push(m)
       }
     }
-  }, [filtered, selectedBuilder])
+  }, [filtered, selectedBuilder, hoveredBuilder])
 
   /* ── init map once ── */
   useEffect(() => {
@@ -228,11 +229,11 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── redraw markers on filter change ── */
+  /* ── redraw markers on filter/hover change ── */
   useEffect(() => {
     const map = mapRef.current
     if (map?.loaded()) addMarkersRef.current()
-  }, [filtered, selectedBuilder])
+  }, [filtered, selectedBuilder, hoveredBuilder])
 
   /* ── fly to selected ── */
   const handleBuilderClick = useCallback((b: Builder) => {
@@ -353,6 +354,8 @@ export default function BuilderPageClient({ builders }: Props) {
                     key={b.slug}
                     href={`/builder/${b.slug}`}
                     className="group"
+                    onMouseEnter={() => setHoveredBuilder(b)}
+                    onMouseLeave={() => setHoveredBuilder(null)}
                   >
                     {/* Photo carousel */}
                     <BuilderCardPhoto b={b} selected={selectedBuilder?.slug === b.slug} />
