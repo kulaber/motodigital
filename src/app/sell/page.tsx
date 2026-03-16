@@ -54,7 +54,7 @@ export default function SellPage() {
 
       {/* Benefits */}
       <section className="py-20 border-t border-[#222222]/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <h2 className="text-center text-xl font-bold text-[#222222] mb-3">Warum MotoDigital?</h2>
           <p className="text-center text-sm text-[#222222]/35 mb-12 max-w-md mx-auto">
             Die Plattform, die Custom-Bike-Builder und Käufer zusammenbringt.

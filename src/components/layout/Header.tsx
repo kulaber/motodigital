@@ -75,7 +75,7 @@ export default function Header({ activePage }: Props) {
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#222222]/5 bg-white/95 backdrop-blur-md">
-      <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16">
 
         {/* Logo */}
         <div className="flex-1 min-w-0">

@@ -97,7 +97,7 @@ export default async function BikeSlugPage({ params }: Props) {
         {/* Hero */}
         <div className="relative border-b border-[#222222]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#2aabab]/5 via-transparent to-transparent pointer-events-none" />
-          <div className="max-w-5xl mx-auto relative">
+          <div className="max-w-7xl mx-auto relative">
             <Breadcrumbs crumbs={[
               { label: 'Home', href: '/' },
               { label: 'Custom Bikes', href: '/bikes' },
@@ -115,7 +115,7 @@ export default async function BikeSlugPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-5 lg:px-8 py-10">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
 
           {/* Results count */}
           <div className="flex items-center justify-between mb-6">
@@ -232,7 +232,7 @@ export default async function BikeSlugPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
-      <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:px-8">
 
         <Link href="/bikes" className="inline-flex items-center gap-1.5 text-sm text-[#222222]/40 hover:text-[#222222] mb-6 transition-colors">
           <ChevronLeft size={14} />

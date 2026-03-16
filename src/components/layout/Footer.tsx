@@ -37,7 +37,7 @@ export default function Footer() {
     <footer className="bg-[#222222] border-t border-white/8 text-white">
 
       {/* Main footer */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 md:gap-8">
 
           {/* Brand column */}
@@ -83,7 +83,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/20">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

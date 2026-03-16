@@ -61,7 +61,7 @@ export default async function CustomBikePage({ params }: Props) {
 
         {/* Title overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-5 pb-8 lg:px-12">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">{build.base} · {build.year}</p>
             <h1 className="font-bold text-[#222222] leading-tight mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
               {build.title}
@@ -72,7 +72,7 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* Breadcrumbs */}
-      <div className="max-w-5xl mx-auto px-5 lg:px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 pt-6">
         <Breadcrumbs crumbs={[
           { label: 'Home', href: '/' },
           { label: 'Custom Bikes', href: '/bikes' },
@@ -82,7 +82,7 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-5 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10 items-start">
 
           {/* LEFT */}
@@ -206,7 +206,7 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* More bikes */}
-      <div className="max-w-5xl mx-auto px-5 lg:px-8 pb-16">
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 pb-16">
         <div className="border-t border-[#222222]/5 pt-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-semibold text-[#222222]">Weitere Bikes</h2>

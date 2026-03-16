@@ -17,7 +17,7 @@ export default function BikesPage() {
 
       {/* PAGE HEADER */}
       <section className="pt-28 pb-10 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
             <div>
               <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Motorcycles</p>
