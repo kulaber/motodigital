@@ -344,7 +344,7 @@ export default async function DashboardPage() {
             )}
 
             {/* Listings */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
+            {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#F0EDE4]/5">
                 <h2 className="text-sm font-semibold text-[#F0EDE4]">Meine Inserate</h2>
                 <span className="text-xs text-[#F0EDE4]/35">{bikes?.length ?? 0} total</span>
@@ -390,7 +390,7 @@ export default async function DashboardPage() {
                   </div>
                 )}
               </div>
-            </div>
+            </div>}
 
           </div>
 
@@ -426,7 +426,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Quick links */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
+            {!isSuperAdmin && <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
               <p className="text-xs text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
                 { label: 'Neues Inserat',    href: '/bikes/new',         icon: <Plus size={13}/> },
@@ -440,7 +440,7 @@ export default async function DashboardPage() {
                   <ChevronRight size={11} className="ml-auto text-[#F0EDE4]/20" />
                 </Link>
               ))}
-            </div>
+            </div>}
           </div>
 
         </div>
