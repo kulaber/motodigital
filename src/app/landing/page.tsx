@@ -70,7 +70,7 @@ export default function LandingPage() {
                 className="bg-[#2AABAB] text-[#141414] font-semibold px-7 py-3.5 rounded-full text-sm text-center hover:bg-[#3DBFBF] transition-colors duration-200 hover:-translate-y-0.5 transform min-h-[44px] flex items-center justify-center">
                 Jetzt kostenlos registrieren
               </Link>
-              <Link href="/map"
+              <Link href="/builder"
                 className="border border-[#F0EDE4]/20 text-[#F0EDE4] font-medium px-7 py-3.5 rounded-full text-sm text-center hover:border-[#2AABAB] hover:text-[#2AABAB] transition-colors duration-200 min-h-[44px] flex items-center justify-center">
                 Bikes entdecken
               </Link>
@@ -132,7 +132,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {BUILDS.map((build, i) => (
               <AnimateIn key={build.title} delay={i * 60}>
-                <Link href="/map"
+                <Link href="/builder"
                   className="group block rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/15 transition-colors duration-200 h-full">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img src={build.img} alt={build.title}

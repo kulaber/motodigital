@@ -430,7 +430,7 @@ export default async function DashboardPage() {
               <p className="text-xs text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
                 { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new', icon: <Plus size={13}/> },
-                { label: 'Karte öffnen',     href: '/map',               icon: <Eye size={13}/> },
+                { label: 'Builder entdecken', href: '/builder',            icon: <Eye size={13}/> },
                 ...(isBuilder ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={13}/> }] : []),
               ].map(l => (
                 <Link key={l.href} href={l.href}
