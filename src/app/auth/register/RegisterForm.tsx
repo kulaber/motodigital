@@ -72,7 +72,7 @@ export default function RegisterForm() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <p className="text-sm font-bold text-[#F0EDE4] whitespace-nowrap">Builder / Workshop</p>
+                <p className="text-sm font-bold text-[#F0EDE4] whitespace-nowrap">Builder</p>
                 <span className="text-[9px] font-bold uppercase tracking-widest bg-[#2AABAB] text-[#141414] px-2 py-0.5 rounded-full whitespace-nowrap">
                   Beliebt
                 </span>
