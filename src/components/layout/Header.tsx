@@ -131,12 +131,6 @@ export default function Header({ activePage }: Props) {
             Events
           </Link>
 
-          <Link
-            href="/sell"
-            className="bg-[#C8A96E] text-[#141414] text-sm font-semibold px-4 py-2 rounded-full hover:bg-[#D4B87A] transition-all"
-          >
-            Inserieren
-          </Link>
         </nav>
 
         {/* Desktop auth */}
@@ -276,14 +270,6 @@ export default function Header({ activePage }: Props) {
               }`}
             >
               Events
-            </Link>
-
-            <Link
-              href="/sell"
-              onClick={() => setOpen(false)}
-              className="mt-1 py-3 px-2 text-base rounded-xl bg-[#C8A96E] text-[#141414] font-semibold text-center hover:bg-[#D4B87A] transition-colors"
-            >
-              Inserieren
             </Link>
 
             <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#F0EDE4]/8">
