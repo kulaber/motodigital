@@ -148,8 +148,13 @@ export default function Header({ activePage }: Props) {
         </nav>
 
         {/* Desktop auth */}
-        <div className="hidden md:flex items-center gap-2">
-          {!loading && user ? (
+        <div className="hidden md:flex items-center gap-2 min-w-[196px] justify-end">
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-20 rounded-full bg-[#F0EDE4]/5 animate-pulse" />
+              <div className="h-8 w-24 rounded-full bg-[#F0EDE4]/5 animate-pulse" />
+            </div>
+          ) : user ? (
             <>
               {role && ROLE_BADGE[role] && (
                 <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${ROLE_BADGE[role].color}`}>
@@ -205,7 +210,7 @@ export default function Header({ activePage }: Props) {
                 Abmelden
               </button>
             </>
-          ) : !loading ? (
+          ) : (
             <>
               <Link href="/auth/login" className="text-sm text-[#F0EDE4]/60 hover:text-[#F0EDE4] transition-colors px-4 py-2">
                 Anmelden
@@ -214,7 +219,7 @@ export default function Header({ activePage }: Props) {
                 Registrieren
               </Link>
             </>
-          ) : null}
+          )}
         </div>
 
         {/* Mobile hamburger */}
