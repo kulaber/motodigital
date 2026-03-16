@@ -7,15 +7,25 @@ import { Upload, X, Play, Image as ImageIcon, Trash2, CheckCircle } from 'lucide
 type Profile = {
   id: string
   full_name: string | null
+  slug: string | null
   bio: string | null
+  bio_long: string | null
   city: string | null
   specialty: string | null
   since_year: number | null
   tags: string[] | null
+  bases: string[] | null
+  address: string | null
+  lat: number | null
+  lng: number | null
   instagram_url: string | null
   tiktok_url: string | null
   website_url: string | null
   avatar_url: string | null
+}
+
+function slugify(name: string) {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '')
 }
 
 type MediaItem = {
@@ -37,13 +47,18 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   // Profile fields
   const [fullName, setFullName]     = useState(profile.full_name ?? '')
   const [bio, setBio]               = useState(profile.bio ?? '')
+  const [bioLong, setBioLong]       = useState(profile.bio_long ?? '')
   const [city, setCity]             = useState(profile.city ?? '')
   const [specialty, setSpecialty]   = useState(profile.specialty ?? '')
   const [sinceYear, setSinceYear]   = useState(profile.since_year?.toString() ?? '')
   const [tagsInput, setTagsInput]   = useState((profile.tags ?? []).join(', '))
+  const [basesInput, setBasesInput] = useState((profile.bases ?? []).join(', '))
+  const [address, setAddress]       = useState(profile.address ?? '')
   const [instagram, setInstagram]   = useState(profile.instagram_url ?? '')
   const [tiktok, setTiktok]         = useState(profile.tiktok_url ?? '')
   const [website, setWebsite]       = useState(profile.website_url ?? '')
+
+  const computedSlug = profile.slug ?? slugify(fullName)
 
   // Media
   const [media, setMedia]           = useState<MediaItem[]>(initialMedia)
@@ -60,16 +75,22 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setError(null)
     setSaved(false)
 
-    const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
+    const tags  = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
+    const bases = basesInput.split(',').map(t => t.trim()).filter(Boolean)
+    const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name:    fullName || null,
+      slug:         slug || null,
       bio:          bio || null,
+      bio_long:     bioLong || null,
       city:         city || null,
       specialty:    specialty || null,
       since_year:   sinceYear ? parseInt(sinceYear) : null,
       tags:         tags.length ? tags : null,
+      bases:        bases.length ? bases : null,
+      address:      address || null,
       instagram_url: instagram || null,
       tiktok_url:    tiktok || null,
       website_url:   website || null,
@@ -157,10 +178,24 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           </Field>
         </div>
 
-        <Field label="Bio" className="mb-4">
+        <Field label="Profil-URL (slug)" className="mb-4">
+          <div className={`${input} text-[#F0EDE4]/40 cursor-default`}>
+            motodigital.vercel.app/builder/<span className="text-[#2AABAB]">{computedSlug || '…'}</span>
+          </div>
+          <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
+        </Field>
+
+        <Field label="Kurz-Bio" className="mb-4">
           <textarea value={bio} onChange={e => setBio(e.target.value)}
-            placeholder="Beschreibe dich und deine Arbeit..."
-            rows={4}
+            placeholder="Beschreibe dich und deine Arbeit (1–2 Sätze)..."
+            rows={2}
+            className={`${input} resize-none`} />
+        </Field>
+
+        <Field label="Ausführliche Bio" className="mb-4">
+          <textarea value={bioLong} onChange={e => setBioLong(e.target.value)}
+            placeholder="Erzähle deine Geschichte — Hintergrund, Philosophie, was dich antreibt..."
+            rows={5}
             className={`${input} resize-none`} />
         </Field>
 
@@ -169,6 +204,19 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             placeholder="z.B. Cafe Racer, Scrambler, Restaurierung"
             className={input} />
           <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Werden auf deinem Profil als Badges angezeigt</p>
+        </Field>
+
+        <Field label="Basis-Bikes (kommagetrennt)" className="mb-4">
+          <input value={basesInput} onChange={e => setBasesInput(e.target.value)}
+            placeholder="z.B. Honda CB750, Yamaha SR500, BMW R90"
+            className={input} />
+          <p className="text-[10px] text-[#F0EDE4]/25 mt-1">Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
+        </Field>
+
+        <Field label="Adresse" className="mb-4">
+          <input value={address} onChange={e => setAddress(e.target.value)}
+            placeholder="z.B. Greifswalder Str. 212, 10405 Berlin"
+            className={input} />
         </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">

@@ -1,0 +1,100 @@
+import Link from 'next/link'
+import Image from 'next/image'
+import { Instagram, Youtube } from 'lucide-react'
+
+const NAV = [
+  {
+    heading: 'Plattform',
+    links: [
+      { label: 'Custom Bikes',  href: '/bikes' },
+      { label: 'Builder',       href: '/builder' },
+      { label: 'Magazin',       href: '/magazine' },
+      { label: 'Events',        href: '/events' },
+      { label: 'Preise',        href: '/preise' },
+    ],
+  },
+  {
+    heading: 'Builder',
+    links: [
+      { label: 'Registrieren',         href: '/auth/register' },
+      { label: 'Anmelden',             href: '/auth/login' },
+      { label: 'Builder-Verzeichnis',  href: '/builder' },
+    ],
+  },
+  {
+    heading: 'Rechtliches',
+    links: [
+      { label: 'Impressum',       href: '/impressum' },
+      { label: 'Datenschutz',     href: '/datenschutz' },
+      { label: 'Nutzungsbedingungen', href: '/nutzungsbedingungen' },
+      { label: 'Kontakt',         href: '/kontakt' },
+    ],
+  },
+]
+
+export default function Footer() {
+  return (
+    <footer className="bg-[#0E0E0E] border-t border-[#F0EDE4]/5 text-[#F0EDE4]">
+
+      {/* Main footer */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 md:gap-8">
+
+          {/* Brand column */}
+          <div>
+            <Link href="/" className="inline-block mb-4">
+              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-9 w-auto opacity-90" />
+            </Link>
+            <p className="text-sm text-[#F0EDE4]/35 leading-relaxed max-w-xs mb-6">
+              Die Plattform für Custom Motorcycle Builder in Europa — direkt, kostenlos, ohne Umwege.
+            </p>
+            {/* Social */}
+            <div className="flex items-center gap-3">
+              <a href="#" aria-label="Instagram"
+                className="w-8 h-8 rounded-lg bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 flex items-center justify-center text-[#F0EDE4]/35 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20 transition-all">
+                <Instagram size={14} />
+              </a>
+              <a href="#" aria-label="YouTube"
+                className="w-8 h-8 rounded-lg bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 flex items-center justify-center text-[#F0EDE4]/35 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20 transition-all">
+                <Youtube size={14} />
+              </a>
+            </div>
+          </div>
+
+          {/* Nav columns */}
+          {NAV.map(col => (
+            <div key={col.heading}>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F0EDE4]/25 mb-4">
+                {col.heading}
+              </p>
+              <ul className="flex flex-col gap-2.5">
+                {col.links.map(l => (
+                  <li key={l.label}>
+                    <Link
+                      href={l.href}
+                      className="text-sm text-[#F0EDE4]/45 hover:text-[#F0EDE4] transition-colors"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-[#F0EDE4]/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-[#F0EDE4]/20">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <p className="text-xs text-[#F0EDE4]/20">Alle Systeme aktiv</p>
+          </div>
+        </div>
+      </div>
+
+    </footer>
+  )
+}

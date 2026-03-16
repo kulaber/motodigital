@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
 import { BUILDERS } from '@/lib/data/builders'
 
@@ -11,12 +12,12 @@ export const metadata: Metadata = {
 }
 
 const BUILDS = [
-  { title: 'The Midnight Scrambler', style: 'Cafe Racer', base: 'Honda CB550',    builder: 'Jakob K.',    city: 'Berlin',    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75' },
-  { title: 'Iron Bastard No. 3',     style: 'Bobber',     base: 'BMW R80',        builder: 'Max S.',      city: 'München',   img: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=600&q=75' },
-  { title: 'Desert Fox Scrambler',   style: 'Scrambler',  base: 'Triumph T100',   builder: 'Anna W.',     city: 'Hamburg',   img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=600&q=75' },
-  { title: 'Flat Track Killer',      style: 'Tracker',    base: 'Yamaha SR500',   builder: 'René B.',     city: 'Köln',      img: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&q=75' },
-  { title: 'Low & Slow',             style: 'Chopper',    base: 'H-D Sportster',  builder: 'Kai F.',      city: 'Stuttgart', img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=600&q=75' },
-  { title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750',   builder: 'Studio Nord', city: 'Berlin',    img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600&q=75' },
+  { slug: 'the-midnight-scrambler', title: 'The Midnight Scrambler', style: 'Cafe Racer', base: 'Honda CB550',    builder: 'Jakob K.',    city: 'Berlin',    img: 'https://images.unsplash.com/photo-1568708167256-1f385e6485f5?w=600&q=75' },
+  { slug: 'iron-bastard-no-3',      title: 'Iron Bastard No. 3',     style: 'Bobber',     base: 'BMW R80',        builder: 'Max S.',      city: 'München',   img: 'https://images.unsplash.com/photo-1505052533681-2be9d65eade5?w=600&q=75' },
+  { slug: 'desert-fox-scrambler',   title: 'Desert Fox Scrambler',   style: 'Scrambler',  base: 'Triumph T100',   builder: 'Anna W.',     city: 'Hamburg',   img: 'https://images.unsplash.com/photo-1677435783431-4f81723d5a18?w=600&q=75' },
+  { slug: 'flat-track-killer',      title: 'Flat Track Killer',      style: 'Tracker',    base: 'Yamaha SR500',   builder: 'René B.',     city: 'Köln',      img: 'https://images.unsplash.com/photo-1603096564885-1a332df4f903?w=600&q=75' },
+  { slug: 'low-and-slow',           title: 'Low & Slow',             style: 'Chopper',    base: 'H-D Sportster',  builder: 'Kai F.',      city: 'Stuttgart', img: 'https://images.unsplash.com/photo-1567972411080-a8ad4b2fded1?w=600&q=75' },
+  { slug: 'berlin-ghost',           title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750',   builder: 'Studio Nord', city: 'Berlin',    img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=75' },
 ]
 
 const USPS = [
@@ -38,7 +39,6 @@ export default function LandingPage() {
         <video
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=80"
         >
           <source src="/hero.mp4" type="video/mp4" />
         </video>
@@ -69,7 +69,7 @@ export default function LandingPage() {
                 className="bg-[#2AABAB] text-[#141414] font-semibold px-7 py-3.5 rounded-full text-sm text-center hover:bg-[#3DBFBF] transition-colors duration-200 hover:-translate-y-0.5 transform min-h-[44px] flex items-center justify-center">
                 Jetzt kostenlos registrieren
               </Link>
-              <Link href="/map"
+              <Link href="/builder"
                 className="border border-[#F0EDE4]/20 text-[#F0EDE4] font-medium px-7 py-3.5 rounded-full text-sm text-center hover:border-[#2AABAB] hover:text-[#2AABAB] transition-colors duration-200 min-h-[44px] flex items-center justify-center">
                 Bikes entdecken
               </Link>
@@ -131,7 +131,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {BUILDS.map((build, i) => (
               <AnimateIn key={build.title} delay={i * 60}>
-                <Link href="/map"
+                <Link href={`/builds/${build.slug}`}
                   className="group block rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/15 transition-colors duration-200 h-full">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img src={build.img} alt={build.title}
@@ -249,23 +249,7 @@ export default function LandingPage() {
         </AnimateIn>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-[#141414] border-t border-[#F0EDE4]/5 py-10">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-[#2AABAB] rounded-md flex items-center justify-center text-[#141414] font-bold text-xs">M</span>
-              <span className="text-sm font-bold text-[#F0EDE4]/50">Moto<span className="text-[#2AABAB]">Digital</span></span>
-            </Link>
-            <nav className="flex items-center gap-6">
-              {['Impressum', 'Datenschutz', 'Kontakt'].map(l => (
-                <Link key={l} href="#" className="text-xs text-[#F0EDE4]/25 hover:text-[#F0EDE4]/60 transition-colors duration-200 font-medium">{l}</Link>
-              ))}
-            </nav>
-            <p className="text-xs text-[#F0EDE4]/15">© 2026 MotoDigital · motodigital.io</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
     </div>
   )

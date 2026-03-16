@@ -15,7 +15,7 @@ export default async function ProfileEditPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('id, full_name, bio, city, specialty, since_year, tags, instagram_url, tiktok_url, website_url, avatar_url')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, avatar_url')
     .eq('id', user.id)
     .single()
 
