@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Wrench } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star } from 'lucide-react'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import mapboxgl from 'mapbox-gl'
@@ -14,6 +14,96 @@ const SPECIALTIES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Ch
 const STICKY_OFFSET = 120
 
 interface Props { builders: Builder[] }
+
+/* ── Per-card photo carousel ── */
+function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
+  const images = b.media.filter(m => m.type === 'image').slice(0, 5)
+  const [idx, setIdx] = useState(0)
+  const [hovered, setHovered] = useState(false)
+
+  const prev = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIdx(i => (i - 1 + images.length) % images.length)
+  }
+  const next = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIdx(i => (i + 1) % images.length)
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="w-full aspect-[4/3] bg-[#F7F7F7] flex items-center justify-center rounded-xl overflow-hidden">
+        <span className="text-2xl font-bold text-[#B0B0B0]">{b.initials}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="relative w-full aspect-[4/3] rounded-xl overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Images */}
+      {images.map((img, i) => (
+        <img
+          key={i}
+          src={img.url}
+          alt={img.title ?? b.name}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+        />
+      ))}
+
+      {/* Gradient overlay bottom */}
+      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+
+      {/* Arrows — only if >1 image */}
+      {images.length > 1 && hovered && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
+          >
+            <ChevronLeft size={13} strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
+          >
+            <ChevronRight size={13} strokeWidth={2.5} />
+          </button>
+        </>
+      )}
+
+      {/* Dot indicators */}
+      {images.length > 1 && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={e => { e.stopPropagation(); setIdx(i) }}
+              className={`rounded-full transition-all ${i === idx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Top badge */}
+      {b.featured && (
+        <div className="absolute top-2 left-2 z-10">
+          <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-[#222222] px-2 py-0.5 rounded-full shadow-sm">
+            Top
+          </span>
+        </div>
+      )}
+
+      {/* Selected ring */}
+      {selected && (
+        <div className="absolute inset-0 ring-2 ring-[#222222] ring-inset rounded-xl pointer-events-none" />
+      )}
+    </div>
+  )
+}
 
 export default function BuilderPageClient({ builders }: Props) {
   const [activeSpecialty, setActiveSpecialty] = useState('Alle')
@@ -42,9 +132,6 @@ export default function BuilderPageClient({ builders }: Props) {
     const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
     return specOk && verifiedOk && openOk
   }), [builders, activeSpecialty, onlyVerified, onlyOpen, now])
-
-  const totalBuilds    = useMemo(() => builders.reduce((a, b) => a + b.builds, 0), [builders])
-  const verifiedCount  = useMemo(() => builders.filter(b => b.verified).length, [builders])
 
   /* ── markers ── */
   useEffect(() => {
@@ -127,7 +214,6 @@ export default function BuilderPageClient({ builders }: Props) {
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     map.once('load', () => addMarkersRef.current())
 
-    // ResizeObserver so the map fills its container as soon as it's painted
     const ro = new ResizeObserver(() => map.resize())
     ro.observe(container)
 
@@ -214,7 +300,7 @@ export default function BuilderPageClient({ builders }: Props) {
       {/* ── Split layout: List left | Map right ── */}
       <div className="flex" style={{ height: mapHeight }}>
 
-        {/* LEFT — scrollable builder list */}
+        {/* LEFT — scrollable 2-col grid */}
         <div className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-8">
@@ -227,69 +313,73 @@ export default function BuilderPageClient({ builders }: Props) {
               </button>
             </div>
           ) : (
-            <div className="p-4 space-y-2">
-              <p className="text-xs text-[#717171] mb-3 px-1">{filtered.length} Builder</p>
+            <div className="p-4">
+              <p className="text-xs text-[#717171] mb-4 px-0.5">{filtered.length} Builder</p>
 
-              {filtered.map(b => (
-                <button
-                  key={b.slug}
-                  onClick={() => handleBuilderClick(b)}
-                  className={`w-full text-left rounded-2xl p-4 border transition-all duration-200 cursor-pointer group ${
-                    selectedBuilder?.slug === b.slug
-                      ? 'bg-[#F7F7F7] border-[#222222]/15'
-                      : 'bg-white border-[#EBEBEB] hover:border-[#DDDDDD] hover:shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 transition-colors ${
-                      selectedBuilder?.slug === b.slug
-                        ? 'bg-[#222222] text-white'
-                        : 'bg-[#F7F7F7] text-[#717171] border border-[#EBEBEB]'
-                    }`}>
-                      {b.initials}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <p className="text-sm font-semibold text-[#222222] truncate">{b.name}</p>
-                        {b.verified && <BadgeCheck size={12} className="text-[#717171] flex-shrink-0" />}
+              {/* 2-column grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {filtered.map(b => (
+                  <div
+                    key={b.slug}
+                    onClick={() => handleBuilderClick(b)}
+                    className="cursor-pointer group"
+                  >
+                    {/* Photo carousel */}
+                    <BuilderCardPhoto b={b} selected={selectedBuilder?.slug === b.slug} />
+
+                    {/* Card info */}
+                    <div className="pt-2.5 pb-1">
+                      {/* Name row */}
+                      <div className="flex items-start justify-between gap-1 mb-0.5">
+                        <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1 flex-1">
+                          {b.name}
+                        </p>
+                        {b.verified && (
+                          <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />
+                        )}
                       </div>
-                      <p className="text-xs text-[#717171] flex items-center gap-1">
+
+                      {/* City + specialty */}
+                      <p className="text-xs text-[#717171] flex items-center gap-1 mb-1">
                         <MapPin size={9} className="flex-shrink-0" />
-                        {b.city}{b.since ? ` · seit ${b.since}` : ''}
+                        <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
                       </p>
+
+                      {/* Rating */}
+                      {b.rating && (
+                        <p className="text-xs text-[#222222] flex items-center gap-0.5 font-medium">
+                          <Star size={10} className="fill-[#222222] text-[#222222]" />
+                          {b.rating.toFixed(1)}
+                          {b.since && <span className="text-[#717171] font-normal ml-1">seit {b.since}</span>}
+                        </p>
+                      )}
+
+                      {/* Tags */}
+                      {b.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {b.tags.slice(0, 2).map(tag => (
+                            <span key={tag} className="text-[9px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-1.5 py-0.5 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Profile link */}
+                      <Link
+                        href={`/builder/${b.slug}`}
+                        onClick={e => e.stopPropagation()}
+                        className="mt-2 text-[10px] font-semibold text-[#086565] hover:text-[#075555] transition-colors inline-block"
+                      >
+                        Profil ansehen →
+                      </Link>
                     </div>
-                    {b.featured && (
-                      <span className="text-[9px] font-bold uppercase tracking-widest bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD] px-2 py-0.5 rounded-full flex-shrink-0">
-                        Top
-                      </span>
-                    )}
                   </div>
+                ))}
+              </div>
 
-                  {b.bio && (
-                    <p className="text-xs text-[#717171] leading-relaxed mb-2.5 line-clamp-2 pl-[52px]">{b.bio}</p>
-                  )}
-
-                  <div className="flex items-center justify-between pl-[52px]">
-                    <div className="flex flex-wrap gap-1">
-                      {b.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2 py-0.5 rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <Link
-                      href={`/builder/${b.slug}`}
-                      onClick={e => e.stopPropagation()}
-                      className="text-[10px] font-semibold text-[#086565] hover:text-[#075555] transition-colors flex-shrink-0 ml-2"
-                    >
-                      Profil →
-                    </Link>
-                  </div>
-                </button>
-              ))}
-
-              {/* CTA card at bottom of list */}
-              <div className="mt-4 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+              {/* CTA card */}
+              <div className="mt-6 bg-white border border-[#EBEBEB] rounded-2xl p-5">
                 <div className="w-9 h-9 bg-[#F7F7F7] border border-[#EBEBEB] rounded-xl flex items-center justify-center mb-3">
                   <Wrench size={16} className="text-[#717171]" />
                 </div>
