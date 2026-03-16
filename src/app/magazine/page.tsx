@@ -73,7 +73,7 @@ export default function MagazinePage() {
           </p>
           <h1
             className="font-bold text-[#F0EDE4] leading-tight mb-4"
-            style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}
+            style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)' }}
           >
             MotoDigital Magazin
           </h1>

@@ -5,6 +5,7 @@ import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, Clock,
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
+import BuilderMap from '@/components/builder/BuilderMap'
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -205,16 +206,17 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Spezialisierung */}
               <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 mb-5">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
                   <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Spezialisierung</h2>
                 </div>
-                <p className="text-sm text-[#F0EDE4]/60 mb-3">{builder.specialty}</p>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="text-sm text-[#F0EDE4]/60 leading-relaxed mb-4">{builder.specialty}</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                   {builder.tags.map(tag => (
-                    <span key={tag} className="text-[10px] font-medium text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-2.5 py-1 rounded-full">
-                      {tag}
-                    </span>
+                    <div key={tag} className="flex items-center gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2AABAB] flex-shrink-0" />
+                      <span className="text-sm text-[#F0EDE4]/70 font-medium">{tag}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -224,40 +226,51 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
                   <div className="flex items-center gap-2 mb-5">
                     <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Team · {builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</h2>
+                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Team</h2>
+                    <span className="ml-auto text-[10px] text-[#F0EDE4]/20 font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {builder.team.map(member => (
-                      <div key={member.name} className="flex gap-3 p-3 bg-[#141414] rounded-xl border border-[#F0EDE4]/5">
-                        {/* Avatar */}
-                        <div className="w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-[#2AABAB]/10 border border-[#2AABAB]/15">
-                          {member.avatar ? (
-                            <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-sm font-bold text-[#2AABAB]">
-                              {member.initials}
-                            </div>
-                          )}
+                      <div key={member.name} className="flex flex-col p-4 bg-[#141414] rounded-2xl border border-[#F0EDE4]/5 hover:border-[#2AABAB]/20 transition-all duration-200">
+                        {/* Avatar + identity */}
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#2AABAB]/20 ring-offset-2 ring-offset-[#141414]">
+                            {member.avatar ? (
+                              <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-[#2AABAB]/10 text-sm font-bold text-[#2AABAB]">
+                                {member.initials}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[#F0EDE4] leading-tight">{member.name}</p>
+                            <span className="inline-block mt-1.5 text-[10px] font-semibold text-[#2AABAB] bg-[#2AABAB]/10 border border-[#2AABAB]/15 px-2.5 py-0.5 rounded-full">
+                              {member.role}
+                            </span>
+                          </div>
                         </div>
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#F0EDE4] leading-snug">{member.name}</p>
-                          <p className="text-[10px] text-[#F0EDE4]/40 mt-0.5 mb-2">{member.role}</p>
-                          <div className="flex flex-col gap-1">
+                        {/* Contact */}
+                        {(member.email || member.phone) && (
+                          <div className="flex flex-col gap-2 pt-3 border-t border-[#F0EDE4]/5">
                             {member.email && (
-                              <a href={`mailto:${member.email}`} className="flex items-center gap-1.5 text-[10px] text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
-                                <Mail size={9} className="flex-shrink-0" />
+                              <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#F0EDE4]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                                  <Mail size={10} />
+                                </span>
                                 <span className="truncate">{member.email}</span>
                               </a>
                             )}
                             {member.phone && (
-                              <a href={`tel:${member.phone}`} className="flex items-center gap-1.5 text-[10px] text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors">
-                                <Phone size={9} className="flex-shrink-0" />
+                              <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#F0EDE4]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                                  <Phone size={10} />
+                                </span>
                                 <span>{member.phone}</span>
                               </a>
                             )}
                           </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -267,10 +280,11 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Map */}
               {builder.lat && builder.lng && (
                 <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden mb-5">
-                  <img
-                    src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/pin-l+2aabab(${builder.lng},${builder.lat})/${builder.lng},${builder.lat},13,0/900x320@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
-                    alt={`Standort ${builder.name}`}
-                    className="w-full h-52 object-cover"
+                  <BuilderMap
+                    lat={builder.lat}
+                    lng={builder.lng}
+                    name={builder.name}
+                    address={builder.address}
                   />
                   <div className="px-5 py-3 border-t border-[#F0EDE4]/5">
                     <div className="flex items-start gap-2">
@@ -358,43 +372,6 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* Links */}
-              {(builder.instagram || builder.website) && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                  <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Links</p>
-                  <div className="flex flex-col gap-2.5">
-                    {builder.instagram && (
-                      <a
-                        href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
-                      >
-                        <Instagram size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
-                        <span>{builder.instagram}</span>
-                      </a>
-                    )}
-                    {builder.website && (
-                      <a
-                        href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
-                      >
-                        <Globe size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
-                        <span>{builder.website}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* placeholder — removed from sidebar */}
-              {false && (
-                <div>
-                </div>
-              )}
-
               {/* Opening hours */}
               {builder.openingHours && builder.openingHours.length > 0 && (() => {
                 const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
@@ -442,6 +419,37 @@ export default async function BuilderProfilePage({ params }: Props) {
                         {method}
                       </span>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Links */}
+              {(builder.instagram || builder.website) && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                  <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Links</p>
+                  <div className="flex flex-col gap-2.5">
+                    {builder.instagram && (
+                      <a
+                        href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                      >
+                        <Instagram size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
+                        <span>{builder.instagram}</span>
+                      </a>
+                    )}
+                    {builder.website && (
+                      <a
+                        href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                      >
+                        <Globe size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
+                        <span>{builder.website}</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

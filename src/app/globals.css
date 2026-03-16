@@ -15,8 +15,8 @@
   --color-bg-4:        #2E2E2E;
 
   /* Typography */
-  --font-heading: 'Bodoni Moda', 'Georgia', serif;
-  --font-sans:    'Space Grotesk', system-ui, sans-serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-serif:   'Bodoni Moda', 'Georgia', serif;
   --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
 
   /* Border radius */
@@ -48,7 +48,7 @@ body {
 
 /* ─── Heading font ───────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-sans);
 }
 
 /* ─── Interactive cursor ─────────────────────────────────── */

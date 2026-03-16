@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
-import { Bodoni_Moda, Space_Grotesk } from 'next/font/google'
+import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
-  variable: '--font-heading',
+  variable: '--font-serif',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
 })
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de" className={`${bodoniModa.variable} ${spaceGrotesk.variable}`}>
+    <html lang="de" className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
         {children}
         <Analytics />

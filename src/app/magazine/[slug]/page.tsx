@@ -209,7 +209,7 @@ export default async function ArticlePage({
           </div>
           <h1
             className="font-bold text-[#F0EDE4] leading-tight mb-3 max-w-3xl"
-            style={{ fontSize: 'clamp(1.5rem,4vw,2.5rem)', letterSpacing: '-0.03em' }}
+            style={{ fontSize: 'clamp(1.5rem,4vw,2.5rem)', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)' }}
           >
             {article.title}
           </h1>
