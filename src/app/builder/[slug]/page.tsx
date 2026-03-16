@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, Play, Clock, Users, CreditCard } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
@@ -302,6 +302,85 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Spezialisierung</p>
                 <p className="text-sm text-[#F0EDE4]/60">{builder.specialty}</p>
               </div>
+
+              {/* Map */}
+              {builder.lat && builder.lng && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
+                  <img
+                    src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/pin-l+2aabab(${builder.lng},${builder.lat})/${builder.lng},${builder.lat},13,0/560x220@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+                    alt={`Standort ${builder.name}`}
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="px-4 py-3">
+                    <div className="flex items-start gap-2">
+                      <MapPin size={12} className="text-[#2AABAB] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-[#F0EDE4]/50 leading-snug">
+                        {builder.address ?? builder.city}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Team */}
+              {builder.team && builder.team.length > 0 && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users size={13} className="text-[#F0EDE4]/30" />
+                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Team</p>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {builder.team.map(member => (
+                      <div key={member.name} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#2AABAB]/10 border border-[#2AABAB]/15 flex items-center justify-center text-[10px] font-bold text-[#2AABAB] flex-shrink-0">
+                          {member.initials}
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-[#F0EDE4]">{member.name}</p>
+                          <p className="text-[10px] text-[#F0EDE4]/35">{member.role}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Opening hours */}
+              {builder.openingHours && builder.openingHours.length > 0 && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock size={13} className="text-[#F0EDE4]/30" />
+                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Öffnungszeiten</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {builder.openingHours.map(h => (
+                      <div key={h.day} className="flex items-center justify-between">
+                        <span className="text-xs text-[#F0EDE4]/40">{h.day}</span>
+                        <span className={`text-xs font-medium ${h.hours === 'Geschlossen' ? 'text-[#F0EDE4]/20' : 'text-[#F0EDE4]/70'}`}>
+                          {h.hours}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment */}
+              {builder.paymentMethods && builder.paymentMethods.length > 0 && (
+                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CreditCard size={13} className="text-[#F0EDE4]/30" />
+                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Zahlungsmöglichkeiten</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {builder.paymentMethods.map(method => (
+                      <span key={method} className="text-[10px] font-medium text-[#F0EDE4]/50 bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 px-2.5 py-1 rounded-full">
+                        {method}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>

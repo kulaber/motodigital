@@ -4,11 +4,25 @@ export type BuilderMedia = {
   title?: string
 }
 
+export type TeamMember = {
+  name: string
+  role: string
+  initials: string
+}
+
+export type OpeningHours = {
+  day: string
+  hours: string
+}
+
 export type Builder = {
   slug: string
   initials: string
   name: string
   city: string
+  address?: string
+  lat?: number
+  lng?: number
   specialty: string
   builds: number
   rating: number
@@ -18,10 +32,13 @@ export type Builder = {
   tags: string[]
   bio: string
   bioLong: string
-  bases: string[]        // preferred base bikes
+  bases: string[]
   instagram?: string
   website?: string
   media: BuilderMedia[]
+  team?: TeamMember[]
+  openingHours?: OpeningHours[]
+  paymentMethods?: string[]
   featuredBuilds: {
     title: string
     slug?: string
@@ -49,6 +66,19 @@ export const BUILDERS: Builder[] = [
     bioLong: 'Seit 2019 baut Jakob in seiner Berliner Garage Bikes, die Geschichten erzählen. Seine Leidenschaft gilt luftgekühlten Japanermodellen der 70er — CB500, CB750, SR500. Jeder Build entsteht in enger Zusammenarbeit mit dem Kunden. Keine Blaupausen, keine Massenware. Nur handgefertigte Einzelstücke mit Seele.',
     bases: ['Honda CB550', 'Honda CB750', 'Yamaha SR500'],
     instagram: '@jakob.kraft.builds',
+    address: 'Greifswalder Str. 212, 10405 Berlin',
+    lat: 52.5338,
+    lng: 13.4268,
+    team: [
+      { name: 'Jakob Kraft', role: 'Gründer & Head Builder', initials: 'JK' },
+      { name: 'Leon Müller', role: 'Mechaniker', initials: 'LM' },
+    ],
+    openingHours: [
+      { day: 'Mo – Fr', hours: '10:00 – 18:00' },
+      { day: 'Samstag', hours: '11:00 – 15:00' },
+      { day: 'Sonntag', hours: 'Geschlossen' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar', 'PayPal'],
     media: [
       { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85', type: 'image', title: 'Garage Shot' },
       { url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&q=85', type: 'image', title: 'Berlin Cafe No. 7' },
@@ -79,6 +109,20 @@ export const BUILDERS: Builder[] = [
     bases: ['BMW R80', 'BMW R100', 'H-D Sportster'],
     instagram: '@maxsteiner.custom',
     website: 'maxsteinercustom.de',
+    address: 'Thalkirchner Str. 88, 80337 München',
+    lat: 48.1256,
+    lng: 11.5653,
+    team: [
+      { name: 'Max Steiner', role: 'Gründer & Master Builder', initials: 'MS' },
+      { name: 'Tobias Renn', role: 'Lackierung & Finish', initials: 'TR' },
+      { name: 'Sara Hofer', role: 'Design & Konzept', initials: 'SH' },
+    ],
+    openingHours: [
+      { day: 'Mo – Do', hours: '09:00 – 17:00' },
+      { day: 'Freitag', hours: '09:00 – 14:00' },
+      { day: 'Sa & So', hours: 'Nur nach Vereinbarung' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar', 'Kreditkarte', 'Ratenzahlung möglich'],
     media: [
       { url: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&q=85', type: 'image', title: 'Iron Bastard No. 3' },
       { url: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=1200&q=85', type: 'image', title: 'Black Monk Detail' },
@@ -109,6 +153,19 @@ export const BUILDERS: Builder[] = [
     bioLong: 'Studio Nord wurde 2021 von zwei Freunden in einem alten Lagerhaus am Hamburger Hafen gegründet. Die Atmosphäre des Hafens spiegelt sich in jedem Build: rau, funktional, durchdacht. Spezialgebiet sind leichte Tracker und agile Street Fighter — Bikes, die in der Stadt genauso gut funktionieren wie auf der Landstraße.',
     bases: ['Kawasaki Z650', 'Suzuki GS750', 'Honda XR650'],
     instagram: '@studionord.hamburg',
+    address: 'Große Elbstraße 45, 22767 Hamburg',
+    lat: 53.5450,
+    lng: 9.9418,
+    team: [
+      { name: 'Finn Brandt', role: 'Co-Gründer & Builder', initials: 'FB' },
+      { name: 'Nils Kruse', role: 'Co-Gründer & Mechaniker', initials: 'NK' },
+    ],
+    openingHours: [
+      { day: 'Di – Fr', hours: '11:00 – 18:00' },
+      { day: 'Samstag', hours: '12:00 – 17:00' },
+      { day: 'Mo & So', hours: 'Geschlossen' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar'],
     media: [
       { url: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85', type: 'image', title: 'Hamburg Tracker' },
       { url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&q=85', type: 'image', title: 'Berlin Ghost' },
@@ -135,6 +192,17 @@ export const BUILDERS: Builder[] = [
     bioLong: 'Anna baut Bikes für alle, die nicht nur eine Straße brauchen. Scrambler und Enduro-Umbauten, die echte Geländetauglichkeit mit Stil verbinden. Besonders am Herzen liegen ihr nachhaltige Restaurierungsprojekte — alte Maschinen ein zweites Leben schenken, statt neue zu kaufen.',
     bases: ['Triumph T100', 'Honda XR600', 'Yamaha XT600'],
     instagram: '@anna.wolff.moto',
+    address: 'Bahrenfelder Str. 193, 22765 Hamburg',
+    lat: 53.5620,
+    lng: 9.9195,
+    team: [
+      { name: 'Anna Wolff', role: 'Gründerin & Builder', initials: 'AW' },
+    ],
+    openingHours: [
+      { day: 'Mo – Fr', hours: '10:00 – 17:00' },
+      { day: 'Wochenende', hours: 'Nur nach Vereinbarung' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar', 'PayPal'],
     media: [
       { url: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=1200&q=85', type: 'image', title: 'Desert Fox' },
       { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85', type: 'image', title: 'Green Enduro' },
@@ -160,6 +228,18 @@ export const BUILDERS: Builder[] = [
     bio: 'Flat Track ist eine Lebenseinstellung. Leichte, schnelle Builds ohne Schnickschnack.',
     bioLong: 'René kam vom Rennsport zum Custom-Bau. Flat-Track-Bikes sind seine Leidenschaft: leicht, schnell, kompromisslos. Keine unnötigen Extras, kein überflüssiges Gewicht. René baut Maschinen, die man auf der Oval-Strecke genauso fahren kann wie auf dem Sonntagsausflug.',
     bases: ['Yamaha SR500', 'Honda CB350', 'Kawasaki W800'],
+    address: 'Vogelsanger Str. 310, 50827 Köln',
+    lat: 50.9530,
+    lng: 6.9090,
+    team: [
+      { name: 'René Bauer', role: 'Gründer & Builder', initials: 'RB' },
+    ],
+    openingHours: [
+      { day: 'Mo – Fr', hours: '09:00 – 18:00' },
+      { day: 'Sa', hours: '10:00 – 14:00' },
+      { day: 'Sonntag', hours: 'Geschlossen' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar'],
     media: [
       { url: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85', type: 'image', title: 'Flat Track Killer' },
       { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85', type: 'image', title: 'Oval Strecke' },
@@ -185,6 +265,19 @@ export const BUILDERS: Builder[] = [
     bases: ['H-D Sportster', 'H-D FXR', 'H-D Shovelhead'],
     instagram: '@kai.fuchs.custom',
     website: 'kaifuchscustom.de',
+    address: 'Böheimstr. 31, 70199 Stuttgart',
+    lat: 48.7619,
+    lng: 9.1709,
+    team: [
+      { name: 'Kai Fuchs', role: 'Gründer & Builder', initials: 'KF' },
+      { name: 'Markus Seidel', role: 'Mechaniker & Restaurierung', initials: 'MK' },
+    ],
+    openingHours: [
+      { day: 'Mo – Fr', hours: '08:00 – 17:00' },
+      { day: 'Samstag', hours: '09:00 – 13:00' },
+      { day: 'Sonntag', hours: 'Geschlossen' },
+    ],
+    paymentMethods: ['Überweisung', 'Bar', 'Kreditkarte'],
     media: [
       { url: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=1200&q=85', type: 'image', title: 'Low & Slow' },
       { url: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&q=85', type: 'image', title: 'Shovel Devil' },
