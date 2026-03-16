@@ -230,6 +230,54 @@ export default async function BuilderProfilePage({ params }: Props) {
         </section>
       )}
 
+      {/* ── FEATURED BUILDS — full width, prominent ── */}
+      {builder.featuredBuilds.length > 0 && (
+        <section className="pb-12">
+          <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+            <div className="flex items-end justify-between mb-5">
+              <div>
+                <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-1">Custom Bikes</p>
+                <h2 className="text-xl font-bold text-[#222222] tracking-tight">
+                  Projekte von {builder.name.split(' ')[0]}
+                </h2>
+              </div>
+              <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Build' : 'Builds'}</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {builder.featuredBuilds.map(build => {
+                const card = (
+                  <div className="group">
+                    {/* Image */}
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
+                      <img
+                        src={build.img}
+                        alt={build.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                      {/* Style badge overlay */}
+                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
+                        {build.style}
+                      </span>
+                    </div>
+                    {/* Info */}
+                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#086565] transition-colors">
+                      {build.title}
+                    </p>
+                    <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
+                  </div>
+                )
+                return build.slug ? (
+                  <Link key={build.title} href={`/builds/${build.slug}`}>{card}</Link>
+                ) : (
+                  <div key={build.title}>{card}</div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── CONTENT ── */}
       <section className="pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
@@ -238,19 +286,19 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* LEFT */}
             <div>
               {/* About */}
-              <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 mb-5">
+              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Über</h2>
+                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Über</h2>
                 </div>
-                <p className="text-sm text-[#222222]/70 leading-relaxed">{builder.bioLong}</p>
+                <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>
 
                 {builder.bases.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-[#222222]/5">
-                    <p className="text-xs text-[#222222]/30 mb-2">Bevorzugte Basis-Bikes</p>
+                  <div className="mt-4 pt-4 border-t border-[#EBEBEB]">
+                    <p className="text-xs text-[#B0B0B0] mb-2">Bevorzugte Basis-Bikes</p>
                     <div className="flex flex-wrap gap-2">
                       {builder.bases.map(base => (
-                        <span key={base} className="text-xs text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-2.5 py-1 rounded-full font-medium">
+                        <span key={base} className="text-xs text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full font-medium">
                           {base}
                         </span>
                       ))}
@@ -260,17 +308,17 @@ export default async function BuilderProfilePage({ params }: Props) {
               </div>
 
               {/* Spezialisierung */}
-              <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 mb-5">
+              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Spezialisierung</h2>
+                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Spezialisierung</h2>
                 </div>
-                <p className="text-sm text-[#222222]/60 leading-relaxed mb-4">{builder.specialty}</p>
+                <p className="text-sm text-[#717171] leading-relaxed mb-4">{builder.specialty}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                   {builder.tags.map(tag => (
                     <div key={tag} className="flex items-center gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#086565] flex-shrink-0" />
-                      <span className="text-sm text-[#222222]/70 font-medium">{tag}</span>
+                      <span className="text-sm text-[#222222] font-medium">{tag}</span>
                     </div>
                   ))}
                 </div>
@@ -278,47 +326,45 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Team */}
               {builder.team && builder.team.length > 0 && (
-                <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 mb-5">
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <div className="flex items-center gap-2 mb-5">
                     <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Team</h2>
-                    <span className="ml-auto text-[10px] text-[#222222]/20 font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
+                    <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Team</h2>
+                    <span className="ml-auto text-[10px] text-[#B0B0B0] font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {builder.team.map(member => (
-                      <div key={member.name} className="flex flex-col p-4 bg-white rounded-2xl border border-[#222222]/5 hover:border-[#DDDDDD]/20 transition-all duration-200">
-                        {/* Avatar + identity */}
+                      <div key={member.name} className="flex flex-col p-4 bg-white rounded-2xl border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all duration-200">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#DDDDDD] ring-offset-2 ring-offset-white">
                             {member.avatar ? (
                               <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-[#222222]/10 text-sm font-bold text-[#717171]">
+                              <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] text-sm font-bold text-[#717171]">
                                 {member.initials}
                               </div>
                             )}
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-[#222222] leading-tight">{member.name}</p>
-                            <span className="inline-block mt-1.5 text-[10px] font-semibold text-[#717171] bg-[#222222]/10 border border-[#DDDDDD]/15 px-2.5 py-0.5 rounded-full">
+                            <span className="inline-block mt-1.5 text-[10px] font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-0.5 rounded-full">
                               {member.role}
                             </span>
                           </div>
                         </div>
-                        {/* Contact */}
                         {(member.email || member.phone) && (
-                          <div className="flex flex-col gap-2 pt-3 border-t border-[#222222]/5">
+                          <div className="flex flex-col gap-2 pt-3 border-t border-[#EBEBEB]">
                             {member.email && (
-                              <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#222222]/40 hover:text-[#717171] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#222222]/5 group-hover:bg-[#222222]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                              <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
                                   <Mail size={10} />
                                 </span>
                                 <span className="truncate">{member.email}</span>
                               </a>
                             )}
                             {member.phone && (
-                              <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#222222]/40 hover:text-[#717171] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#222222]/5 group-hover:bg-[#222222]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                              <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
                                   <Phone size={10} />
                                 </span>
                                 <span>{member.phone}</span>
@@ -334,75 +380,20 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Map */}
               {builder.lat && builder.lng && (
-                <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden mb-5">
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden mb-4">
                   <BuilderMap
                     lat={builder.lat}
                     lng={builder.lng}
                     name={builder.name}
                     address={builder.address}
                   />
-                  <div className="px-5 py-3 border-t border-[#222222]/5">
+                  <div className="px-5 py-3 border-t border-[#EBEBEB]">
                     <div className="flex items-start gap-2">
                       <MapPin size={12} className="text-[#717171] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#222222]/50 leading-snug">
+                      <p className="text-xs text-[#717171] leading-snug">
                         {builder.address ?? builder.city}
                       </p>
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Builds von diesem Builder */}
-              {builder.featuredBuilds.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">
-                      Projekte · {builder.featuredBuilds.length} Builds
-                    </h2>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {builder.featuredBuilds.map(build => {
-                      const content = (
-                        <div className="flex items-center gap-3 p-3 group-hover:bg-[#F7F7F7] transition-colors rounded-2xl">
-                          {/* Thumbnail */}
-                          <div className="w-20 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-white">
-                            <img
-                              src={build.img}
-                              alt={build.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-                            />
-                          </div>
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#222222] leading-snug">{build.title}</p>
-                            <p className="text-xs text-[#222222]/35 mt-0.5">{build.base} · {build.year}</p>
-                          </div>
-                          {/* Style badge + arrow */}
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="hidden sm:inline text-[10px] font-semibold text-[#717171] bg-[#222222]/10 border border-[#DDDDDD]/20 px-2 py-0.5 rounded-full">
-                              {build.style}
-                            </span>
-                            {build.slug && (
-                              <span className="text-[#222222]/25 group-hover:text-[#717171] transition-colors text-xs">→</span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                      return build.slug ? (
-                        <Link
-                          key={build.title}
-                          href={`/custom-bike/${build.slug}`}
-                          className="card-interactive group bg-white border border-[#222222]/6 rounded-2xl overflow-hidden hover:border-[#DDDDDD]/25"
-                        >
-                          {content}
-                        </Link>
-                      ) : (
-                        <div key={build.title} className="group bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
-                          {content}
-                        </div>
-                      )
-                    })}
                   </div>
                 </div>
               )}
@@ -425,21 +416,21 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* Opening hours — live status */}
+              {/* Opening hours */}
               {builder.openingHours && builder.openingHours.length > 0 && (
                 <OpeningHoursWidget openingHours={builder.openingHours} />
               )}
 
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (
-                <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <CreditCard size={13} className="text-[#222222]/30" />
-                    <p className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest">Zahlungsmöglichkeiten</p>
+                    <CreditCard size={13} className="text-[#717171]" />
+                    <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Zahlung</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {builder.paymentMethods.map(method => (
-                      <span key={method} className="text-[10px] font-medium text-[#222222]/50 bg-[#222222]/5 border border-[#222222]/8 px-2.5 py-1 rounded-full">
+                      <span key={method} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
                         {method}
                       </span>
                     ))}
@@ -449,28 +440,26 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Links */}
               {(builder.instagram || builder.website) && (
-                <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
-                  <p className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest mb-3">Links</p>
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
                       <a
                         href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors group"
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
                       >
-                        <Instagram size={13} className="text-[#222222]/25 group-hover:text-[#222222]/60 flex-shrink-0 transition-colors" />
+                        <Instagram size={13} className="flex-shrink-0 transition-colors" />
                         <span>{builder.instagram}</span>
                       </a>
                     )}
                     {builder.website && (
                       <a
                         href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors group"
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
                       >
-                        <Globe size={13} className="text-[#222222]/25 group-hover:text-[#222222]/60 flex-shrink-0 transition-colors" />
+                        <Globe size={13} className="flex-shrink-0 transition-colors" />
                         <span>{builder.website}</span>
                       </a>
                     )}
