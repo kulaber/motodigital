@@ -250,14 +250,11 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {videos.map((item, i) => (
                     <div key={i} className="group relative rounded-xl overflow-hidden bg-white border border-[#222222]/5">
-                      <div className="aspect-video">
-                        <video
-                          src={item.url}
-                          controls
-                          className="w-full h-full object-cover"
-                          poster=""
-                        />
-                      </div>
+                      <video
+                        src={item.url}
+                        controls
+                        className="w-full h-auto block"
+                      />
                       {item.title && (
                         <div className="px-3 py-2.5">
                           <p className="text-xs text-[#222222]/60 font-medium flex items-center gap-1.5">
