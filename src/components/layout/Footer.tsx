@@ -50,7 +50,7 @@ export default function Footer() {
             </p>
             {/* Social */}
             <div className="flex items-center gap-3">
-              <a href="#" aria-label="Instagram"
+              <a href="https://www.instagram.com/motodigital.io/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                 className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
                 <Instagram size={14} />
               </a>
