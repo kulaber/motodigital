@@ -6,10 +6,10 @@ import EditBikeForm from './EditBikeForm'
 
 export const metadata: Metadata = { title: 'Bike bearbeiten' }
 
-type Props = { params: Promise<{ id: string }> }
+type Props = { params: Promise<{ slug: string }> }
 
 export default async function EditBikePage({ params }: Props) {
-  const { id } = await params
+  const { slug } = await params
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -18,7 +18,7 @@ export default async function EditBikePage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bike } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, year, style, cc, mileage_km, price, city, lat, lng, description, status, seller_id, bike_images(id, url, is_cover, position)')
-    .eq('id', id)
+    .eq('id', slug)
     .single()
 
   if (!bike) notFound()
