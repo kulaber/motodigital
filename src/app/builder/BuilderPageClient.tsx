@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, List, Map as MapIcon, Wrench } from 'lucide-react'
+import { BadgeCheck, MapPin, Wrench } from 'lucide-react'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import mapboxgl from 'mapbox-gl'
@@ -10,19 +10,19 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 const SPECIALTIES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
 
-interface BuilderPageClientProps {
-  builders: Builder[]
-}
+// Header 64px + filter bar ~56px
+const STICKY_OFFSET = 120
 
-export default function BuilderPageClient({ builders }: BuilderPageClientProps) {
-  const [view, setView] = useState<'list' | 'map'>('list')
+interface Props { builders: Builder[] }
+
+export default function BuilderPageClient({ builders }: Props) {
   const [activeSpecialty, setActiveSpecialty] = useState('Alle')
-  const [onlyVerified, setOnlyVerified] = useState(false)
-  const [onlyOpen, setOnlyOpen] = useState(false)
-  const [now, setNow] = useState<Date | null>(null)
+  const [onlyVerified,    setOnlyVerified]    = useState(false)
+  const [onlyOpen,        setOnlyOpen]        = useState(false)
+  const [now,             setNow]             = useState<Date | null>(null)
   const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
 
-  // Hydration-safe clock — updates every minute for live "Jetzt geöffnet" filter
+  // Hydration-safe clock
   useEffect(() => {
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 60_000)
@@ -30,26 +30,23 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
   }, [])
 
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<mapboxgl.Map | null>(null)
-  const markersRef = useRef<mapboxgl.Marker[]>([])
-  const addMarkersRef = useRef<() => void>(() => {})
+  const mapRef          = useRef<mapboxgl.Map | null>(null)
+  const markersRef      = useRef<mapboxgl.Marker[]>([])
+  const addMarkersRef   = useRef<() => void>(() => {})
 
-  const filtered = useMemo(() => {
-    return builders.filter(b => {
-      const specialtyMatch =
-        activeSpecialty === 'Alle' ||
-        b.tags.some(t => t.toLowerCase() === activeSpecialty.toLowerCase()) ||
-        b.specialty.toLowerCase().includes(activeSpecialty.toLowerCase())
-      const verifiedMatch = !onlyVerified || b.verified
-      const openMatch = !onlyOpen || !now || isOpenNow(b.openingHours, now)
-      return specialtyMatch && verifiedMatch && openMatch
-    })
-  }, [builders, activeSpecialty, onlyVerified, onlyOpen, now])
+  const filtered = useMemo(() => builders.filter(b => {
+    const specOk     = activeSpecialty === 'Alle' ||
+      b.tags.some(t => t.toLowerCase() === activeSpecialty.toLowerCase()) ||
+      b.specialty.toLowerCase().includes(activeSpecialty.toLowerCase())
+    const verifiedOk = !onlyVerified || b.verified
+    const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
+    return specOk && verifiedOk && openOk
+  }), [builders, activeSpecialty, onlyVerified, onlyOpen, now])
 
-  const totalBuilds = useMemo(() => builders.reduce((a, b) => a + b.builds, 0), [builders])
-  const verifiedCount = useMemo(() => builders.filter(b => b.verified).length, [builders])
+  const totalBuilds    = useMemo(() => builders.reduce((a, b) => a + b.builds, 0), [builders])
+  const verifiedCount  = useMemo(() => builders.filter(b => b.verified).length, [builders])
 
-  // Always keep addMarkersRef up-to-date with the latest filtered/selectedBuilder
+  /* ── markers ── */
   useEffect(() => {
     addMarkersRef.current = () => {
       const map = mapRef.current
@@ -59,70 +56,69 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
       for (const b of filtered) {
         if (!b.lat || !b.lng) continue
         const isSelected = selectedBuilder?.slug === b.slug
-        // Outer el: fixed 44×44 hit-area — never scales, so mouseleave never misfires
+
         const el = document.createElement('div')
         el.style.cssText = 'width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;'
 
-        // Inner div: the visible circle — scales on hover without changing el's bounds
         const inner = document.createElement('div')
         inner.style.cssText = `
-          width:44px;height:44px;
-          background:${isSelected ? '#2AABAB' : '#1C1C1C'};
-          border:2px solid ${b.verified ? '#2AABAB' : 'rgba(240,237,228,0.3)'};
+          width:36px;height:36px;
+          background:${isSelected ? '#086565' : '#ffffff'};
+          border:2px solid ${isSelected ? '#086565' : '#DDDDDD'};
           border-radius:50%;
           display:flex;align-items:center;justify-content:center;
-          font-size:11px;font-weight:700;
-          color:${isSelected ? '#141414' : '#1A1714'};
-          box-shadow:0 2px 12px rgba(0,0,0,0.6);
+          font-size:10px;font-weight:700;
+          color:${isSelected ? '#ffffff' : '#222222'};
+          box-shadow:0 2px 8px rgba(0,0,0,0.15);
           font-family:Inter,system-ui,sans-serif;
           transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s;
           pointer-events:none;
         `
         inner.textContent = b.initials
         el.appendChild(inner)
+
         el.addEventListener('mouseenter', () => {
-          inner.style.transform = 'scale(1.18)'
-          inner.style.boxShadow = '0 4px 20px rgba(0,0,0,0.8)'
+          inner.style.transform = 'scale(1.2)'
+          inner.style.boxShadow = '0 4px 16px rgba(0,0,0,0.25)'
         })
         el.addEventListener('mouseleave', () => {
           inner.style.transform = 'scale(1)'
-          inner.style.boxShadow = '0 2px 12px rgba(0,0,0,0.6)'
+          inner.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
         })
 
-        const popup = new mapboxgl.Popup({
-          offset: 24, closeButton: false, maxWidth: '220px',
-        }).setHTML(`
-          <div style="font-family:Inter,system-ui,sans-serif;padding:2px 0;">
-            <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
-              <span style="font-weight:700;font-size:13px;color:#F0EDE4;">${b.name}</span>
-              ${b.verified ? '<span style="color:#2AABAB;font-size:10px;">✓</span>' : ''}
+        const popup = new mapboxgl.Popup({ offset: 22, closeButton: false, maxWidth: '220px' })
+          .setHTML(`
+            <div style="font-family:Inter,system-ui,sans-serif;padding:2px 0;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+                <span style="font-weight:700;font-size:13px;color:#222222;">${b.name}</span>
+                ${b.verified ? '<span style="color:#086565;font-size:10px;">✓</span>' : ''}
+              </div>
+              <p style="font-size:11px;color:#717171;margin:0 0 8px;">${b.city} · ${b.specialty}</p>
+              <a href="/builder/${b.slug}" style="font-size:11px;color:#086565;font-weight:600;text-decoration:none;">Profil ansehen →</a>
             </div>
-            <p style="font-size:11px;color:rgba(240,237,228,0.45);margin:0 0 8px;">${b.city} · ${b.specialty}</p>
-            <a href="/builder/${b.slug}" style="font-size:11px;color:#2AABAB;font-weight:600;text-decoration:none;">Profil ansehen →</a>
-          </div>
-        `)
+          `)
+
         el.addEventListener('click', () => setSelectedBuilder(b))
-        const marker = new mapboxgl.Marker({ element: el })
+        const m = new mapboxgl.Marker({ element: el })
           .setLngLat([b.lng, b.lat])
           .setPopup(popup)
           .addTo(map)
-        markersRef.current.push(marker)
+        markersRef.current.push(m)
       }
     }
   }, [filtered, selectedBuilder])
 
-  // Init map ONCE on mount — container is always in the DOM
+  /* ── init map once ── */
   useEffect(() => {
     const container = mapContainerRef.current
     if (!container) return
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-    if (!token) return
-    if (mapRef.current) return // guard against StrictMode double-invoke
+    if (!token || mapRef.current) return
 
     mapboxgl.accessToken = token.trim()
     const map = new mapboxgl.Map({
       container,
-      style: 'mapbox://styles/mapbox/dark-v11',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [10.5, 51.2],
       zoom: 5.5,
       attributionControl: false,
@@ -131,31 +127,25 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     map.once('load', () => addMarkersRef.current())
 
+    // ResizeObserver so the map fills its container as soon as it's painted
+    const ro = new ResizeObserver(() => map.resize())
+    ro.observe(container)
+
     return () => {
+      ro.disconnect()
       map.remove()
       mapRef.current = null
       markersRef.current = []
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Resize map when switching to map view — ResizeObserver fires once container gets real dimensions
-  useEffect(() => {
-    if (view !== 'map') return
-    const container = mapContainerRef.current
-    if (!container) return
-    const ro = new ResizeObserver(() => mapRef.current?.resize())
-    ro.observe(container)
-    requestAnimationFrame(() => mapRef.current?.resize())
-    return () => ro.disconnect()
-  }, [view])
-
-  // Redraw markers when filter/selection changes (if map already loaded)
+  /* ── redraw markers on filter change ── */
   useEffect(() => {
     const map = mapRef.current
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder])
 
-  // Fly to selected builder
+  /* ── fly to selected ── */
   const handleBuilderClick = useCallback((b: Builder) => {
     setSelectedBuilder(b)
     if (b.lat && b.lng && mapRef.current) {
@@ -163,219 +153,98 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
     }
   }, [])
 
+  const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
+
   return (
     <>
       <style>{`
         .mapboxgl-popup-content {
-          background: #1C1C1C !important;
-          border: 1px solid rgba(240,237,228,0.1) !important;
+          background: #ffffff !important;
+          border: 1px solid #DDDDDD !important;
           border-radius: 12px !important;
           padding: 12px 14px !important;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.10) !important;
         }
         .mapboxgl-popup-tip { display: none !important; }
+        .mapboxgl-ctrl-group { border: 1px solid #DDDDDD !important; border-radius: 10px !important; overflow: hidden; }
+        .mapboxgl-ctrl button { background: #fff !important; }
       `}</style>
 
-      {/* Sticky filter bar */}
+      {/* ── Sticky filter bar ── */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-3 flex items-center gap-3">
-          <div className="flex-1 overflow-x-auto scrollbar-hide">
+        <div className="px-4 sm:px-5 lg:px-6 py-3">
+          <div className="overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-2 min-w-max">
               {SPECIALTIES.map(spec => (
-                <button
-                  key={spec}
-                  onClick={() => setActiveSpecialty(spec)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                <button key={spec} onClick={() => setActiveSpecialty(spec)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
                     activeSpecialty === spec
-                      ? 'bg-[#086565] text-white'
-                      : 'bg-white text-[#222222]/40 border border-[#222222]/10 hover:text-[#222222] hover:border-[#222222]/20'
-                  }`}
-                >
+                      ? 'bg-[#222222] text-white'
+                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                  }`}>
                   {spec}
                 </button>
               ))}
-              <button
-                onClick={() => setOnlyVerified(v => !v)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
+
+              <button onClick={() => setOnlyVerified(v => !v)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
                   onlyVerified
-                    ? 'bg-[#222222]/15 text-[#717171] border border-[#DDDDDD]/40'
-                    : 'bg-white text-[#222222]/40 border border-[#222222]/10 hover:text-[#222222] hover:border-[#222222]/20'
-                }`}
-              >
-                <BadgeCheck size={11} />
-                Verifiziert
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                }`}>
+                <BadgeCheck size={11} /> Verifiziert
               </button>
 
-              {/* Jetzt geöffnet — only rendered once clock is available (no hydration mismatch) */}
               {now && (
-                <button
-                  onClick={() => setOnlyOpen(v => !v)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
+                <button onClick={() => setOnlyOpen(v => !v)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                     onlyOpen
-                      ? 'bg-emerald-400/12 text-emerald-400 border border-emerald-400/35'
-                      : 'bg-white text-[#222222]/40 border border-[#222222]/10 hover:text-[#222222] hover:border-[#222222]/20'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                    onlyOpen ? 'bg-emerald-400 animate-pulse' : 'bg-[#222222]/25'
-                  }`} />
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                  }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-[#717171]'}`} />
                   Jetzt geöffnet
                 </button>
               )}
-
             </div>
-          </div>
-
-          <div className="w-px h-4 bg-[#222222]/10 flex-shrink-0" />
-
-          <div className="bg-white border border-[#222222]/10 rounded-xl p-1 flex gap-0.5 flex-shrink-0">
-            <button
-              onClick={() => setView('list')}
-              aria-label="Listenansicht"
-              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] ${
-                view === 'list'
-                  ? 'bg-[#086565] text-white'
-                  : 'text-[#222222]/40 hover:text-[#222222]'
-              }`}
-            >
-              <List size={13} />
-              <span className="hidden sm:inline">Liste</span>
-            </button>
-            <button
-              onClick={() => setView('map')}
-              aria-label="Kartenansicht"
-              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] ${
-                view === 'map'
-                  ? 'bg-[#086565] text-white'
-                  : 'text-[#222222]/40 hover:text-[#222222]'
-              }`}
-            >
-              <MapIcon size={13} />
-              <span className="hidden sm:inline">Karte</span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* LIST VIEW */}
-      {view === 'list' && (
-        <section className="py-8 sm:py-10 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_268px] gap-8 items-start">
-              <div>
-                {filtered.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <p className="text-[#222222]/30 text-sm mb-4">Keine Builder für diesen Filter gefunden.</p>
-                    <button
-                      onClick={() => { setActiveSpecialty('Alle'); setOnlyVerified(false); setOnlyOpen(false) }}
-                      className="text-xs font-semibold text-[#717171] border border-[#DDDDDD]/30 px-4 py-2 rounded-full hover:bg-[#222222]/10 transition-all cursor-pointer"
-                    >
-                      Filter zurücksetzen
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {filtered.map((b, i) => (
-                        <Link
-                          key={b.slug}
-                          href={`/builder/${b.slug}`}
-                          className="bg-white border border-[#222222]/6 rounded-2xl p-4 sm:p-5 hover:border-[#DDDDDD]/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group block"
-                          style={{ animationDelay: `${i * 60}ms` }}
-                        >
-                          <div className="flex items-start gap-3 mb-3">
-                            <div className="w-11 h-11 rounded-xl bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0 group-hover:bg-[#222222]/20 transition-colors">
-                              {b.initials}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                                <p className="text-sm font-semibold text-[#222222] truncate">{b.name}</p>
-                                {b.verified && <BadgeCheck size={12} className="text-[#717171] flex-shrink-0" />}
-                              </div>
-                              <p className="text-xs text-[#222222]/35 flex items-center gap-1">
-                                <MapPin size={9} /> {b.city} · seit {b.since}
-                              </p>
-                            </div>
-                            {b.featured && (
-                              <span className="flex-shrink-0 text-[9px] font-bold uppercase tracking-widest bg-[#222222]/12 text-[#717171] border border-[#DDDDDD]/20 px-2 py-0.5 rounded-full">
-                                Top
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-[#222222]/40 leading-relaxed mb-3 line-clamp-2">{b.bio}</p>
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {b.tags.map(tag => (
-                              <span key={tag} className="text-[10px] font-medium text-[#222222]/40 bg-[#222222]/5 border border-[#222222]/8 px-2 py-0.5 rounded-full">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="flex items-center justify-between pt-3 border-t border-[#222222]/6">
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-[#222222]/30">
-                                <span className="text-[#222222]/60 font-semibold">{b.builds}</span> Builds
-                              </span>
-                              <span className="flex items-center gap-1 text-xs text-[#222222]/30">
-                                <svg width="10" height="10" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                                <span className="text-[#222222]/60 font-semibold">{b.rating}</span>
-                              </span>
-                            </div>
-                            <span className="text-xs text-[#717171] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              Profil ansehen →
-                            </span>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                    <p className="text-xs text-[#222222]/25 mt-6 text-center">{filtered.length} Builder</p>
-                  </>
-                )}
-              </div>
-              <div className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-24">
-                <SidebarContent totalBuilds={totalBuilds} verifiedCount={verifiedCount} />
-              </div>
-            </div>
-            <div className="lg:hidden mt-8 flex flex-col gap-4">
-              <SidebarContent totalBuilds={totalBuilds} verifiedCount={verifiedCount} />
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ── Split layout: List left | Map right ── */}
+      <div className="flex" style={{ height: mapHeight }}>
 
-      {/* MAP VIEW — always in DOM, hidden when list view */}
-      <div
-        className="bg-white flex-col"
-        style={{
-          height: 'calc(100dvh - 128px)',
-          display: view === 'map' ? 'flex' : 'none',
-        }}
-      >
-        {/* Main row: desktop panel + map canvas */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Desktop left panel */}
-          <div className="hidden lg:flex w-[360px] flex-shrink-0 bg-white border-r border-[#222222]/6 flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#222222]/5 flex-shrink-0">
-              <span className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">
-                {filtered.length} Builder
-              </span>
+        {/* LEFT — scrollable builder list */}
+        <div className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center px-8">
+              <p className="text-[#717171] text-sm mb-4">Keine Builder für diesen Filter.</p>
+              <button
+                onClick={() => { setActiveSpecialty('Alle'); setOnlyVerified(false); setOnlyOpen(false) }}
+                className="text-xs font-semibold text-[#222222] border border-[#DDDDDD] px-4 py-2 rounded-full hover:bg-[#F7F7F7] transition-all cursor-pointer"
+              >
+                Filter zurücksetzen
+              </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          ) : (
+            <div className="p-4 space-y-2">
+              <p className="text-xs text-[#717171] mb-3 px-1">{filtered.length} Builder</p>
+
               {filtered.map(b => (
                 <button
                   key={b.slug}
                   onClick={() => handleBuilderClick(b)}
-                  className={`w-full text-left bg-white border rounded-2xl p-4 transition-all duration-200 cursor-pointer group ${
+                  className={`w-full text-left rounded-2xl p-4 border transition-all duration-200 cursor-pointer group ${
                     selectedBuilder?.slug === b.slug
-                      ? 'border-[#DDDDDD]/50 bg-[#222222]/6'
-                      : 'border-[#222222]/6 hover:border-[#DDDDDD]/30 hover:-translate-y-0.5'
+                      ? 'bg-[#F7F7F7] border-[#222222]/15'
+                      : 'bg-white border-[#EBEBEB] hover:border-[#DDDDDD] hover:shadow-sm'
                   }`}
                 >
-                  {/* Top row */}
                   <div className="flex items-start gap-3 mb-2">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 transition-colors ${
                       selectedBuilder?.slug === b.slug
-                        ? 'bg-[#222222]/25 border border-[#DDDDDD]/40 text-[#717171]'
-                        : 'bg-[#222222]/12 border border-[#DDDDDD]/20 text-[#717171] group-hover:bg-[#222222]/20'
+                        ? 'bg-[#222222] text-white'
+                        : 'bg-[#F7F7F7] text-[#717171] border border-[#EBEBEB]'
                     }`}>
                       {b.initials}
                     </div>
@@ -384,145 +253,72 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                         <p className="text-sm font-semibold text-[#222222] truncate">{b.name}</p>
                         {b.verified && <BadgeCheck size={12} className="text-[#717171] flex-shrink-0" />}
                       </div>
-                      <p className="text-xs text-[#222222]/35 flex items-center gap-1">
-                        <MapPin size={9} /> {b.city} · seit {b.since}
+                      <p className="text-xs text-[#717171] flex items-center gap-1">
+                        <MapPin size={9} className="flex-shrink-0" />
+                        {b.city}{b.since ? ` · seit ${b.since}` : ''}
                       </p>
                     </div>
                     {b.featured && (
-                      <span className="flex-shrink-0 text-[9px] font-bold uppercase tracking-widest bg-[#222222]/12 text-[#717171] border border-[#DDDDDD]/20 px-2 py-0.5 rounded-full">
+                      <span className="text-[9px] font-bold uppercase tracking-widest bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD] px-2 py-0.5 rounded-full flex-shrink-0">
                         Top
                       </span>
                     )}
                   </div>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {b.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="text-[10px] font-medium text-[#222222]/40 bg-[#222222]/5 border border-[#222222]/8 px-2 py-0.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {b.bio && (
+                    <p className="text-xs text-[#717171] leading-relaxed mb-2.5 line-clamp-2 pl-[52px]">{b.bio}</p>
+                  )}
 
-                  {/* Bottom row */}
-                  <div className="flex items-center justify-between pt-2.5 border-t border-[#222222]/6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-[#222222]/30">
-                        <span className="text-[#222222]/60 font-semibold">{b.builds}</span> Builds
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-[#222222]/30">
-                        <svg width="9" height="9" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                        <span className="text-[#222222]/60 font-semibold">{b.rating}</span>
-                      </span>
+                  <div className="flex items-center justify-between pl-[52px]">
+                    <div className="flex flex-wrap gap-1">
+                      {b.tags.slice(0, 3).map(tag => (
+                        <span key={tag} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2 py-0.5 rounded-full">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                     <Link
                       href={`/builder/${b.slug}`}
                       onClick={e => e.stopPropagation()}
-                      className="text-[10px] font-semibold text-[#717171]/50 hover:text-[#717171] transition-colors"
+                      className="text-[10px] font-semibold text-[#086565] hover:text-[#075555] transition-colors flex-shrink-0 ml-2"
                     >
                       Profil →
                     </Link>
                   </div>
                 </button>
               ))}
-            </div>
-          </div>
 
-          {/* Map canvas container — always rendered so Mapbox can init on mount */}
-          <div className="flex-1 relative min-h-0">
-            <div ref={mapContainerRef} style={{ position: 'absolute', inset: 0 }} />
-          </div>
+              {/* CTA card at bottom of list */}
+              <div className="mt-4 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <div className="w-9 h-9 bg-[#F7F7F7] border border-[#EBEBEB] rounded-xl flex items-center justify-center mb-3">
+                  <Wrench size={16} className="text-[#717171]" />
+                </div>
+                <h3 className="text-sm font-bold text-[#222222] mb-1">Du bist Builder?</h3>
+                <p className="text-xs text-[#717171] leading-relaxed mb-4">
+                  Registriere dich kostenlos und werde direkt von Riders gefunden.
+                </p>
+                <Link href="/auth/register"
+                  className="block w-full bg-[#086565] text-white text-xs font-semibold py-2.5 rounded-full text-center hover:bg-[#075555] transition-all">
+                  Als Builder registrieren
+                </Link>
+              </div>
+
+              <p className="text-[10px] text-[#B0B0B0] text-center py-4">{filtered.length} Builder · MotoDigital</p>
+            </div>
+          )}
         </div>
 
-        {/* Mobile bottom drawer — in-flow (not fixed), so map canvas accounts for its height */}
-        <div className="lg:hidden flex-shrink-0 h-52 bg-white border-t border-[#222222]/10 overflow-hidden">
-          <div className="px-4 py-2 border-b border-[#222222]/5 flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">
-              {filtered.length} Builder
-            </span>
-            <div className="w-8 h-1 bg-[#222222]/15 rounded-full" />
-          </div>
-          <div className="overflow-x-auto scrollbar-hide h-full">
-            <div className="flex flex-row gap-2.5 px-3 py-3 min-w-max">
-              {filtered.map(b => (
-                <button
-                  key={b.slug}
-                  onClick={() => handleBuilderClick(b)}
-                  className={`flex-shrink-0 w-44 text-left bg-white border rounded-xl p-3 transition-all cursor-pointer ${
-                    selectedBuilder?.slug === b.slug
-                      ? 'border-[#DDDDDD]/50 bg-[#222222]/6'
-                      : 'border-[#222222]/8 hover:border-[#DDDDDD]/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center text-[10px] font-bold text-[#717171] flex-shrink-0">
-                      {b.initials}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <p className="text-xs font-semibold text-[#222222] truncate">{b.name}</p>
-                        {b.verified && <BadgeCheck size={10} className="text-[#717171] flex-shrink-0" />}
-                      </div>
-                      <p className="text-[10px] text-[#222222]/35 truncate">{b.city}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-[#222222]/30">
-                      <span className="text-[#222222]/50 font-semibold">{b.builds}</span> Builds
-                    </span>
-                    <Link
-                      href={`/builder/${b.slug}`}
-                      onClick={e => e.stopPropagation()}
-                      className="text-[10px] text-[#717171] font-semibold"
-                    >
-                      Profil →
-                    </Link>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* RIGHT — sticky map */}
+        <div className="hidden lg:block w-1/2 relative">
+          <div ref={mapContainerRef} style={{ position: 'absolute', inset: 0 }} />
         </div>
       </div>
-    </>
-  )
-}
 
-function SidebarContent({ totalBuilds, verifiedCount }: { totalBuilds: number; verifiedCount: number }) {
-  return (
-    <>
-      <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 relative overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-36 h-36 pointer-events-none rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.10) 0%, transparent 70%)', transform: 'translate(35%,-35%)' }}
-        />
-        <div className="w-10 h-10 bg-[#222222]/12 border border-[#DDDDDD]/20 rounded-xl flex items-center justify-center mb-4">
-          <Wrench size={18} className="text-[#717171]" />
+      {/* Mobile map — below list on small screens */}
+      <div className="lg:hidden w-full relative" style={{ height: '50vh' }}>
+        <div className="absolute inset-0 flex items-center justify-center bg-[#F7F7F7] text-xs text-[#B0B0B0]">
+          Karte nur auf Desktop verfügbar
         </div>
-        <h3 className="text-sm font-bold text-[#222222] mb-2">Du bist Builder?</h3>
-        <p className="text-xs text-[#222222]/40 leading-relaxed mb-5">
-          Registriere dich kostenlos, zeige deine Builds und werde direkt von Riders kontaktiert.
-        </p>
-        <Link
-          href="/auth/register"
-          className="block w-full bg-[#086565] text-white text-sm font-semibold py-3 rounded-full text-center hover:bg-[#075555] transition-all hover:-translate-y-0.5 cursor-pointer"
-        >
-          Als Builder registrieren
-        </Link>
-      </div>
-
-      <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
-        <p className="text-[10px] text-[#222222]/25 uppercase tracking-widest font-semibold mb-4">Plattform</p>
-        {[
-          { label: 'Aktive Builder', value: 6 },
-          { label: 'Verifiziert', value: verifiedCount },
-          { label: 'Builds gesamt', value: totalBuilds },
-        ].map(s => (
-          <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#222222]/5 last:border-0">
-            <span className="text-xs text-[#222222]/40">{s.label}</span>
-            <span className="text-sm font-bold text-[#222222]">{s.value}</span>
-          </div>
-        ))}
       </div>
     </>
   )
