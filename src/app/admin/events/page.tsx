@@ -26,7 +26,7 @@ export default async function AdminEventsPage() {
   return (
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 pt-24 pb-16 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-16 lg:px-8">
 
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors mb-8">
           <ArrowLeft size={13} /> Dashboard
@@ -67,9 +67,9 @@ export default async function AdminEventsPage() {
               <thead>
                 <tr className="border-b border-[#F0EDE4]/6">
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Name</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden sm:table-cell">Datum</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden md:table-cell">Ort</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden lg:table-cell">Tags</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Datum</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Ort</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Tags</th>
                   <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
@@ -78,21 +78,18 @@ export default async function AdminEventsPage() {
                   <tr key={event.id} className="hover:bg-[#F0EDE4]/2 transition-colors group">
                     <td className="px-5 py-3.5">
                       <p className="text-sm font-medium text-[#F0EDE4]">{event.name}</p>
-                      <p className="text-xs text-[#F0EDE4]/30 mt-0.5 sm:hidden flex items-center gap-1">
-                        <Calendar size={9} /> {event.date}
-                      </p>
                     </td>
-                    <td className="px-4 py-3.5 hidden sm:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#2AABAB]">
                         <Calendar size={11} /> {event.date}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/45">
                         <MapPin size={11} /> {event.location}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <div className="flex flex-wrap gap-1">
                         {event.tags.map(tag => (
                           <span key={tag} className="text-[9px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#F0EDE4]/5 text-[#F0EDE4]/35 border border-[#F0EDE4]/8">

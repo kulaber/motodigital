@@ -34,7 +34,7 @@ export default async function AdminMagazinePage() {
   return (
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 pt-24 pb-16 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-16 lg:px-8">
 
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors mb-8">
           <ArrowLeft size={13} /> Dashboard
@@ -76,9 +76,9 @@ export default async function AdminMagazinePage() {
               <thead>
                 <tr className="border-b border-[#F0EDE4]/6">
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Beitrag</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden sm:table-cell">Kategorie</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden md:table-cell">Autor</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden lg:table-cell">Veröffentlicht</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Kategorie</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Autor</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest table-cell">Veröffentlicht</th>
                   <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
@@ -99,15 +99,15 @@ export default async function AdminMagazinePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 hidden sm:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${CATEGORY_COLOR[a.categoryLabel] ?? ''}`}>
                         {a.categoryLabel}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <span className="text-xs text-[#F0EDE4]/45">{a.author}</span>
                     </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell">
+                    <td className="px-4 py-3.5 table-cell">
                       <span className="text-xs text-[#F0EDE4]/45">
                         {new Date(a.publishedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </span>
