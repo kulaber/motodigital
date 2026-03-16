@@ -42,7 +42,7 @@ export default function GuidePage() {
   const articles = getArticlesByCategory('guide')
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -50,7 +50,7 @@ export default function GuidePage() {
       <Header activePage="magazine" />
 
       {/* Hero */}
-      <section className="pt-28 pb-12 bg-[#141414]">
+      <section className="pt-28 pb-12 bg-[#F5F2EB]">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="mb-6">
             <Breadcrumbs
@@ -65,12 +65,12 @@ export default function GuidePage() {
             Kategorie
           </p>
           <h1
-            className="font-bold text-[#F0EDE4] leading-tight mb-4"
+            className="font-bold text-[#1A1714] leading-tight mb-4"
             style={{ fontSize: 'clamp(2rem,5vw,3rem)', letterSpacing: '-0.03em' }}
           >
             Guides & Ratgeber
           </h1>
-          <p className="text-[#F0EDE4]/40 text-base max-w-lg leading-relaxed">
+          <p className="text-[#1A1714]/40 text-base max-w-lg leading-relaxed">
             {meta.description}
           </p>
         </div>
@@ -80,13 +80,13 @@ export default function GuidePage() {
       <section className="pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           {articles.length === 0 ? (
-            <p className="text-[#F0EDE4]/40 text-sm">Noch keine Artikel in dieser Kategorie.</p>
+            <p className="text-[#1A1714]/40 text-sm">Noch keine Artikel in dieser Kategorie.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {articles.map(article => (
                 <article
                   key={article.slug}
-                  className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
+                  className="group bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
                 >
                   <div className="aspect-[16/9] overflow-hidden">
                     <img
@@ -97,18 +97,18 @@ export default function GuidePage() {
                   </div>
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#F0EDE4]/8 text-[#F0EDE4]/60 border-[#F0EDE4]/12">
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#1A1714]/8 text-[#1A1714]/60 border-[#1A1714]/12">
                         {article.categoryLabel}
                       </span>
-                      <span className="text-[10px] text-[#F0EDE4]/25">{article.readTime} Lesezeit</span>
+                      <span className="text-[10px] text-[#1A1714]/25">{article.readTime} Lesezeit</span>
                     </div>
-                    <h2 className="text-sm font-semibold text-[#F0EDE4] leading-snug mb-2 line-clamp-2">
+                    <h2 className="text-sm font-semibold text-[#1A1714] leading-snug mb-2 line-clamp-2">
                       {article.title}
                     </h2>
-                    <p className="text-xs text-[#F0EDE4]/40 leading-relaxed line-clamp-2 mb-3">
+                    <p className="text-xs text-[#1A1714]/40 leading-relaxed line-clamp-2 mb-3">
                       {article.excerpt}
                     </p>
-                    <p className="text-[10px] text-[#F0EDE4]/25 mb-4">{formatDateDE(article.publishedAt)}</p>
+                    <p className="text-[10px] text-[#1A1714]/25 mb-4">{formatDateDE(article.publishedAt)}</p>
                     <Link
                       href={`/magazine/${article.slug}`}
                       className="text-xs font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors"
@@ -122,7 +122,7 @@ export default function GuidePage() {
           )}
 
           {/* Back link */}
-          <div className="mt-12 pt-8 border-t border-[#F0EDE4]/5">
+          <div className="mt-12 pt-8 border-t border-[#1A1714]/5">
             <Link
               href="/magazine"
               className="text-sm font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors"

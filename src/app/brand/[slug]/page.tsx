@@ -60,7 +60,7 @@ export default async function BrandPage({ params }: Props) {
   const styles = Array.from(new Set(builds.map(b => b.style)))
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       <Header />
 
       {/* Hero */}
@@ -76,10 +76,10 @@ export default async function BrandPage({ params }: Props) {
             <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">
               {builds.length} {builds.length === 1 ? 'Build' : 'Builds'} verfügbar
             </p>
-            <h1 className="font-bold text-[#F0EDE4] leading-tight mb-3" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
+            <h1 className="font-bold text-[#1A1714] leading-tight mb-3" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
               {brand.name} Custom Motorcycles
             </h1>
-            <p className="text-[#F0EDE4]/40 text-sm max-w-lg leading-relaxed">
+            <p className="text-[#1A1714]/40 text-sm max-w-lg leading-relaxed">
               Handgefertigte Custom Bikes auf {brand.name}-Basis — Unikate von verifizierten Buildern.
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function BrandPage({ params }: Props) {
                   <Link
                     key={style}
                     href={`/bikes/${styleSlug}`}
-                    className="text-xs text-[#F0EDE4]/40 border border-[#F0EDE4]/10 px-3 py-1.5 rounded-full hover:border-[#2aabab]/40 hover:text-[#2aabab] transition-all"
+                    className="text-xs text-[#1A1714]/40 border border-[#1A1714]/10 px-3 py-1.5 rounded-full hover:border-[#2aabab]/40 hover:text-[#2aabab] transition-all"
                   >
                     {style}
                   </Link>
@@ -109,7 +109,7 @@ export default async function BrandPage({ params }: Props) {
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           {builds.length === 0 ? (
             <div className="text-center py-24">
-              <p className="text-[#F0EDE4]/25 text-sm mb-4">Noch keine {brand.name} Builds auf der Plattform.</p>
+              <p className="text-[#1A1714]/25 text-sm mb-4">Noch keine {brand.name} Builds auf der Plattform.</p>
               <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
                 Alle Bikes ansehen →
               </Link>
@@ -120,7 +120,7 @@ export default async function BrandPage({ params }: Props) {
                 <Link
                   key={build.slug}
                   href={`/custom-bike/${build.slug}`}
-                  className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
+                  className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img
@@ -128,10 +128,10 @@ export default async function BrandPage({ params }: Props) {
                       alt={build.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#141414]/85 via-[#141414]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                      <span className="text-[#F0EDE4] text-xs font-semibold">Ansehen →</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2EB]/85 via-[#F5F2EB]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                      <span className="text-[#1A1714] text-xs font-semibold">Ansehen →</span>
                     </div>
-                    <span className="absolute top-2 left-2 bg-[#141414]/80 backdrop-blur-sm border border-[#F0EDE4]/15 text-[#F0EDE4] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    <span className="absolute top-2 left-2 bg-[#F5F2EB]/80 backdrop-blur-sm border border-[#1A1714]/15 text-[#1A1714] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
                     {build.verified && (
@@ -142,11 +142,11 @@ export default async function BrandPage({ params }: Props) {
                   </div>
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-1 mb-1">
-                      <h3 className="text-xs sm:text-sm font-semibold text-[#F0EDE4] leading-snug line-clamp-1">{build.title}</h3>
+                      <h3 className="text-xs sm:text-sm font-semibold text-[#1A1714] leading-snug line-clamp-1">{build.title}</h3>
                       <span className="text-xs sm:text-sm font-bold text-[#2aabab] flex-shrink-0">{build.price}</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs text-[#F0EDE4]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
-                    <p className="text-[10px] text-[#F0EDE4]/25 mt-0.5 truncate">{build.builder.name}</p>
+                    <p className="text-[10px] sm:text-xs text-[#1A1714]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
+                    <p className="text-[10px] text-[#1A1714]/25 mt-0.5 truncate">{build.builder.name}</p>
                   </div>
                 </Link>
               ))}

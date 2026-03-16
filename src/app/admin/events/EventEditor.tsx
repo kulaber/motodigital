@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { ArrowLeft, Copy, Check, X } from 'lucide-react'
 import type { Event } from '@/lib/data/events'
 
-const inputCls = 'w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder-[#F0EDE4]/20 focus:outline-none focus:border-[#2AABAB]/50 transition-colors'
-const labelCls = 'block text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest mb-1.5'
+const inputCls = 'w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#2AABAB]/50 transition-colors'
+const labelCls = 'block text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest mb-1.5'
 
 function formatEventAsTs(event: Event): string {
   const tagsStr = event.tags.map(t => JSON.stringify(t)).join(', ')
@@ -56,7 +56,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
   }
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       {/* Success banner */}
       {successBanner && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-green-500/15 border-b border-green-500/25 px-6 py-3 flex items-center justify-between">
@@ -74,7 +74,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/admin/events" className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors">
+          <Link href="/admin/events" className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors">
             <ArrowLeft size={13} /> Events
           </Link>
           <button
@@ -86,7 +86,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
           </button>
         </div>
 
-        <h1 className="text-xl font-bold text-[#F0EDE4] mb-8">
+        <h1 className="text-xl font-bold text-[#1A1714] mb-8">
           {isNew ? 'Neues Event' : 'Event bearbeiten'}
         </h1>
 
@@ -94,8 +94,8 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
         <div className="flex flex-col gap-5">
 
           {/* Basic info */}
-          <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-6">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#F0EDE4]/30 mb-5">Event-Details</p>
+          <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30 mb-5">Event-Details</p>
 
             <div className="flex flex-col gap-4">
               <div>
@@ -119,7 +119,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
                     className={inputCls}
                     placeholder="September 2026"
                   />
-                  <p className="text-[10px] text-[#F0EDE4]/20 mt-1">Freitext, z.B. &quot;September 2026&quot;</p>
+                  <p className="text-[10px] text-[#1A1714]/20 mt-1">Freitext, z.B. &quot;September 2026&quot;</p>
                 </div>
 
                 <div>
@@ -148,8 +148,8 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
           </div>
 
           {/* Tags & URL */}
-          <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-6">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#F0EDE4]/30 mb-5">Zusatzinfo</p>
+          <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/30 mb-5">Zusatzinfo</p>
 
             <div className="flex flex-col gap-4">
               <div>
@@ -164,7 +164,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
                 {tags && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
-                      <span key={tag} className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#F0EDE4]/5 text-[#F0EDE4]/40 border border-[#F0EDE4]/8">
+                      <span key={tag} className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#1A1714]/5 text-[#1A1714]/40 border border-[#1A1714]/8">
                         {tag}
                       </span>
                     ))}
@@ -181,7 +181,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
                   className={inputCls}
                   placeholder="https://glemseck.de"
                 />
-                <p className="text-[10px] text-[#F0EDE4]/20 mt-1">Offizielle Event-Website für den &quot;Mehr Info&quot;-Link</p>
+                <p className="text-[10px] text-[#1A1714]/20 mt-1">Offizielle Event-Website für den &quot;Mehr Info&quot;-Link</p>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
             {copied ? 'Code kopiert!' : 'Speichern / Code kopieren'}
           </button>
 
-          <p className="text-[10px] text-[#F0EDE4]/20 text-center leading-relaxed">
+          <p className="text-[10px] text-[#1A1714]/20 text-center leading-relaxed">
             Generiert TypeScript-Code und kopiert ihn in die Zwischenablage. In{' '}
             <code className="font-mono">src/lib/data/events.ts</code> einfügen.
           </p>

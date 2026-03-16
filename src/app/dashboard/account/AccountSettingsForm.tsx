@@ -10,14 +10,14 @@ type Props = {
   currentUsername: string
 }
 
-const input = 'w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-2.5 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors'
+const input = 'w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-2.5 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors'
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">{label}</label>
+      <label className="block text-[10px] font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-1.5">{label}</label>
       {children}
-      {hint && <p className="text-[10px] text-[#F0EDE4]/25 mt-1">{hint}</p>}
+      {hint && <p className="text-[10px] text-[#1A1714]/25 mt-1">{hint}</p>}
     </div>
   )
 }
@@ -107,8 +107,8 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     <div className="flex flex-col gap-5">
 
       {/* ── Benutzername ── */}
-      <form onSubmit={handleUsername} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#F0EDE4] mb-5">Benutzername</h2>
+      <form onSubmit={handleUsername} className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#1A1714] mb-5">Benutzername</h2>
         <div className="flex flex-col gap-4">
           <Field label="Benutzername" hint="Wird auf der Plattform als dein Handle angezeigt">
             <input value={username} onChange={e => setUsername(e.target.value)}
@@ -119,8 +119,8 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       </form>
 
       {/* ── E-Mail ── */}
-      <form onSubmit={handleEmail} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#F0EDE4] mb-5">E-Mail-Adresse</h2>
+      <form onSubmit={handleEmail} className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#1A1714] mb-5">E-Mail-Adresse</h2>
         <div className="flex flex-col gap-4">
           <Field label="E-Mail" hint="Nach der Änderung erhältst du eine Bestätigungs-E-Mail">
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -131,11 +131,11 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       </form>
 
       {/* ── Passwort ── */}
-      <form onSubmit={handlePassword} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6">
+      <form onSubmit={handlePassword} className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-[#F0EDE4]">Passwort ändern</h2>
+          <h2 className="text-sm font-semibold text-[#1A1714]">Passwort ändern</h2>
           <button type="button" onClick={() => setShowPw(v => !v)}
-            className="text-xs text-[#F0EDE4]/30 hover:text-[#F0EDE4] transition-colors flex items-center gap-1">
+            className="text-xs text-[#1A1714]/30 hover:text-[#1A1714] transition-colors flex items-center gap-1">
             {showPw ? <EyeOff size={12} /> : <Eye size={12} />}
             {showPw ? 'Verstecken' : 'Anzeigen'}
           </button>

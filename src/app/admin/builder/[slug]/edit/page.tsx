@@ -218,20 +218,20 @@ export default function EditBuilderPage() {
 
   const field = (label: string, key: keyof typeof form, type: 'text' | 'textarea' | 'number' = 'text') => (
     <div>
-      <label className="block text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest mb-1.5">{label}</label>
       {type === 'textarea' ? (
         <textarea
           value={form[key] as string}
           onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
           rows={3}
-          className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder-[#F0EDE4]/20 focus:outline-none focus:border-[#2AABAB]/50 resize-none transition-colors"
+          className="w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#2AABAB]/50 resize-none transition-colors"
         />
       ) : (
         <input
           type={type}
           value={form[key] as string | number}
           onChange={e => setForm(f => ({ ...f, [key]: type === 'number' ? parseInt(e.target.value) || 0 : e.target.value }))}
-          className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder-[#F0EDE4]/20 focus:outline-none focus:border-[#2AABAB]/50 transition-colors"
+          className="w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#2AABAB]/50 transition-colors"
         />
       )}
     </div>
@@ -245,16 +245,16 @@ export default function EditBuilderPage() {
     setHours(h => h.map((r, i) => i < 5 ? { ...r, status, open, close } : r))
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       <Header />
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
 
         <div className="flex items-center justify-between mb-8">
-          <Link href="/admin/builder" className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors">
+          <Link href="/admin/builder" className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors">
             <ArrowLeft size={13} /> Builder-Liste
           </Link>
           <a href={`/builder/${slug}`} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#2AABAB] transition-colors">
+            className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#2AABAB] transition-colors">
             <ExternalLink size={12} /> Profil ansehen
           </a>
         </div>
@@ -263,20 +263,20 @@ export default function EditBuilderPage() {
           <Shield size={14} className="text-amber-400" />
           <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
         </div>
-        <h1 className="text-2xl font-bold text-[#F0EDE4] mb-1">{staticBuilder?.name ?? slug}</h1>
-        <p className="text-xs text-[#F0EDE4]/30 mb-8">@{slug}</p>
+        <h1 className="text-2xl font-bold text-[#1A1714] mb-1">{staticBuilder?.name ?? slug}</h1>
+        <p className="text-xs text-[#1A1714]/30 mb-8">@{slug}</p>
 
         {loading ? (
           <div className="space-y-3">
-            {[1,2,3,4].map(i => <div key={i} className="h-14 rounded-xl bg-[#1C1C1C] animate-pulse" />)}
+            {[1,2,3,4].map(i => <div key={i} className="h-14 rounded-xl bg-white animate-pulse" />)}
           </div>
         ) : (
           <div className="space-y-5">
 
             {/* Source indicator */}
-            <div className="flex items-center gap-2 p-4 rounded-2xl bg-[#1C1C1C] border border-[#F0EDE4]/6">
+            <div className="flex items-center gap-2 p-4 rounded-2xl bg-white border border-[#1A1714]/6">
               <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dbProfile ? 'bg-green-400' : 'bg-amber-400'}`} />
-              <p className="text-xs text-[#F0EDE4]/50">
+              <p className="text-xs text-[#1A1714]/50">
                 {dbProfile
                   ? 'Supabase-Profil gefunden — Änderungen werden in der Datenbank gespeichert'
                   : 'Kein Supabase-Konto — nur statische Profildaten verfügbar (schreibgeschützt)'}
@@ -284,8 +284,8 @@ export default function EditBuilderPage() {
             </div>
 
             {/* Basis */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 space-y-4">
-              <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Basis-Informationen</h2>
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 space-y-4">
+              <h2 className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest">Basis-Informationen</h2>
               {field('Name', 'full_name')}
               <div className="grid grid-cols-2 gap-4">
                 {field('Stadt', 'city')}
@@ -296,19 +296,19 @@ export default function EditBuilderPage() {
             </div>
 
             {/* Links */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 space-y-4">
-              <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Links & Tags</h2>
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 space-y-4">
+              <h2 className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest">Links & Tags</h2>
               {field('Instagram (@handle)', 'instagram_url')}
               {field('Website', 'website_url')}
               {field('Tags (kommagetrennt)', 'tags')}
             </div>
 
             {/* Opening hours */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Clock size={13} className="text-[#F0EDE4]/30" />
-                  <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Öffnungszeiten</h2>
+                  <Clock size={13} className="text-[#1A1714]/30" />
+                  <h2 className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest">Öffnungszeiten</h2>
                 </div>
                 {/* Quick fill */}
                 <div className="flex items-center gap-1.5">
@@ -316,16 +316,16 @@ export default function EditBuilderPage() {
                     type="button"
                     onClick={() => setWeekdays('open')}
                     disabled={!dbProfile}
-                    className="text-[10px] font-semibold text-[#F0EDE4]/30 hover:text-[#2AABAB] disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    className="text-[10px] font-semibold text-[#1A1714]/30 hover:text-[#2AABAB] disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >
                     Mo–Fr öffnen
                   </button>
-                  <span className="text-[#F0EDE4]/10">·</span>
+                  <span className="text-[#1A1714]/10">·</span>
                   <button
                     type="button"
                     onClick={() => setHours(h => h.map(r => ({ ...r, status: 'closed' })))}
                     disabled={!dbProfile}
-                    className="text-[10px] font-semibold text-[#F0EDE4]/30 hover:text-red-400 disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    className="text-[10px] font-semibold text-[#1A1714]/30 hover:text-red-400 disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >
                     Alle schließen
                   </button>
@@ -339,14 +339,14 @@ export default function EditBuilderPage() {
                     <div
                       key={row.key}
                       className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                        isWeekend ? 'bg-[#141414]/60' : 'bg-[#141414]/30'
+                        isWeekend ? 'bg-[#F5F2EB]/60' : 'bg-[#F5F2EB]/30'
                       }`}
                     >
                       {/* Day label */}
-                      <span className="w-7 text-xs font-bold text-[#F0EDE4]/50 flex-shrink-0">{row.key}</span>
+                      <span className="w-7 text-xs font-bold text-[#1A1714]/50 flex-shrink-0">{row.key}</span>
 
                       {/* Status selector */}
-                      <div className="flex items-center gap-1 bg-[#1C1C1C] rounded-lg p-0.5 flex-shrink-0">
+                      <div className="flex items-center gap-1 bg-white rounded-lg p-0.5 flex-shrink-0">
                         {(['open', 'closed', 'appointment'] as const).map(s => (
                           <button
                             key={s}
@@ -360,7 +360,7 @@ export default function EditBuilderPage() {
                                   : s === 'closed'
                                     ? 'bg-red-500/20 text-red-400'
                                     : 'bg-[#2AABAB]/20 text-[#2AABAB]'
-                                : 'text-[#F0EDE4]/25 hover:text-[#F0EDE4]/50'
+                                : 'text-[#1A1714]/25 hover:text-[#1A1714]/50'
                             }`}
                           >
                             {s === 'open' ? 'Offen' : s === 'closed' ? 'Zu' : 'Termin'}
@@ -376,20 +376,20 @@ export default function EditBuilderPage() {
                             value={row.open}
                             onChange={e => dbProfile && updateRow(i, { open: e.target.value })}
                             disabled={!dbProfile}
-                            className="flex-1 min-w-0 bg-[#141414] border border-[#F0EDE4]/10 rounded-lg px-2 py-1.5 text-xs text-[#F0EDE4] focus:outline-none focus:border-[#2AABAB]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="flex-1 min-w-0 bg-[#F5F2EB] border border-[#1A1714]/10 rounded-lg px-2 py-1.5 text-xs text-[#1A1714] focus:outline-none focus:border-[#2AABAB]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           />
-                          <span className="text-[#F0EDE4]/20 text-xs flex-shrink-0">–</span>
+                          <span className="text-[#1A1714]/20 text-xs flex-shrink-0">–</span>
                           <input
                             type="time"
                             value={row.close}
                             onChange={e => dbProfile && updateRow(i, { close: e.target.value })}
                             disabled={!dbProfile}
-                            className="flex-1 min-w-0 bg-[#141414] border border-[#F0EDE4]/10 rounded-lg px-2 py-1.5 text-xs text-[#F0EDE4] focus:outline-none focus:border-[#2AABAB]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="flex-1 min-w-0 bg-[#F5F2EB] border border-[#1A1714]/10 rounded-lg px-2 py-1.5 text-xs text-[#1A1714] focus:outline-none focus:border-[#2AABAB]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           />
                         </div>
                       ) : (
                         <span className={`flex-1 text-xs ${
-                          row.status === 'closed' ? 'text-[#F0EDE4]/20' : 'text-[#2AABAB]/60 italic'
+                          row.status === 'closed' ? 'text-[#1A1714]/20' : 'text-[#2AABAB]/60 italic'
                         }`}>
                           {row.status === 'closed' ? 'Geschlossen' : 'Nur nach Vereinbarung'}
                         </span>
@@ -401,23 +401,23 @@ export default function EditBuilderPage() {
             </div>
 
             {/* Status / Verified */}
-            <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-              <h2 className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-4">Status</h2>
+            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+              <h2 className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest mb-4">Status</h2>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   onClick={() => dbProfile && setForm(f => ({ ...f, is_verified: !f.is_verified }))}
                   className={`w-10 h-6 rounded-full border-2 transition-all relative ${
-                    form.is_verified ? 'bg-[#2AABAB] border-[#2AABAB]' : 'bg-transparent border-[#F0EDE4]/20'
+                    form.is_verified ? 'bg-[#2AABAB] border-[#2AABAB]' : 'bg-transparent border-[#1A1714]/20'
                   } ${!dbProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${form.is_verified ? 'left-4' : 'left-0.5'}`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#F0EDE4] flex items-center gap-1.5">
-                    <BadgeCheck size={14} className={form.is_verified ? 'text-[#2AABAB]' : 'text-[#F0EDE4]/20'} />
+                  <p className="text-sm font-medium text-[#1A1714] flex items-center gap-1.5">
+                    <BadgeCheck size={14} className={form.is_verified ? 'text-[#2AABAB]' : 'text-[#1A1714]/20'} />
                     Verifizierter Builder
                   </p>
-                  <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Zeigt das Verified-Badge auf dem Profil</p>
+                  <p className="text-xs text-[#1A1714]/30 mt-0.5">Zeigt das Verified-Badge auf dem Profil</p>
                 </div>
               </label>
             </div>
@@ -432,7 +432,7 @@ export default function EditBuilderPage() {
             )}
 
             <div className="flex items-center justify-between pt-2">
-              <Link href="/admin/builder" className="text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors">
+              <Link href="/admin/builder" className="text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors">
                 Abbrechen
               </Link>
               <button

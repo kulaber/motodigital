@@ -57,7 +57,7 @@ export default function RegisterForm() {
   if (step === 1) {
     return (
       <div>
-        <p className="text-xs font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-4 text-center">
+        <p className="text-xs font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-4 text-center">
           Ich bin...
         </p>
 
@@ -72,12 +72,12 @@ export default function RegisterForm() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <p className="text-sm font-bold text-[#F0EDE4] whitespace-nowrap">Builder</p>
+                <p className="text-sm font-bold text-[#1A1714] whitespace-nowrap">Builder</p>
                 <span className="text-[9px] font-bold uppercase tracking-widest bg-[#2AABAB] text-[#141414] px-2 py-0.5 rounded-full whitespace-nowrap">
                   Beliebt
                 </span>
               </div>
-              <p className="text-xs text-[#F0EDE4]/45">Ich baue Custom Bikes & möchte Kunden gewinnen</p>
+              <p className="text-xs text-[#1A1714]/45">Ich baue Custom Bikes & möchte Kunden gewinnen</p>
             </div>
             <ChevronRight size={15} className="text-[#2AABAB]/50 group-hover:text-[#2AABAB] transition-colors flex-shrink-0" />
           </button>
@@ -85,22 +85,22 @@ export default function RegisterForm() {
           {/* Rider — secondary */}
           <button
             onClick={() => handleRoleSelect('rider')}
-            className="flex items-center gap-4 p-4 bg-[#141414] border border-[#F0EDE4]/8 rounded-xl hover:border-[#F0EDE4]/20 hover:bg-[#F0EDE4]/3 transition-all text-left group"
+            className="flex items-center gap-4 p-4 bg-[#F5F2EB] border border-[#1A1714]/8 rounded-xl hover:border-[#1A1714]/20 hover:bg-[#1A1714]/3 transition-all text-left group"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#F0EDE4]/5 border border-[#F0EDE4]/10 flex items-center justify-center flex-shrink-0">
-              <Bike size={18} className="text-[#F0EDE4]/40" />
+            <div className="w-10 h-10 rounded-xl bg-[#1A1714]/5 border border-[#1A1714]/10 flex items-center justify-center flex-shrink-0">
+              <Bike size={18} className="text-[#1A1714]/40" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#F0EDE4] mb-0.5">Rider</p>
-              <p className="text-xs text-[#F0EDE4]/35">Ich suche Custom Bikes & Inspiration</p>
+              <p className="text-sm font-semibold text-[#1A1714] mb-0.5">Rider</p>
+              <p className="text-xs text-[#1A1714]/35">Ich suche Custom Bikes & Inspiration</p>
             </div>
-            <ChevronRight size={15} className="text-[#F0EDE4]/20 group-hover:text-[#F0EDE4]/50 transition-colors flex-shrink-0" />
+            <ChevronRight size={15} className="text-[#1A1714]/20 group-hover:text-[#1A1714]/50 transition-colors flex-shrink-0" />
           </button>
         </div>
 
         <div className="flex items-center gap-2 mt-5 px-1">
           <BadgeCheck size={12} className="text-[#2AABAB]/60 flex-shrink-0" />
-          <p className="text-[11px] text-[#F0EDE4]/30">Kostenlos — keine Kreditkarte — jederzeit kündbar</p>
+          <p className="text-[11px] text-[#1A1714]/30">Kostenlos — keine Kreditkarte — jederzeit kündbar</p>
         </div>
       </div>
     )
@@ -115,13 +115,13 @@ export default function RegisterForm() {
       {/* Role badge + back */}
       <div className="flex items-center justify-between mb-1">
         <button type="button" onClick={() => setStep(1)}
-          className="text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors flex items-center gap-1">
+          className="text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors flex items-center gap-1">
           ← Zurück
         </button>
         <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
             ? 'bg-[#2AABAB]/12 text-[#2AABAB] border-[#2AABAB]/25'
-            : 'bg-[#F0EDE4]/6 text-[#F0EDE4]/50 border-[#F0EDE4]/12'
+            : 'bg-[#1A1714]/6 text-[#1A1714]/50 border-[#1A1714]/12'
         }`}>
           {isBuilder ? '🔧 Builder' : '🏍️ Rider'}
         </span>
@@ -137,31 +137,31 @@ export default function RegisterForm() {
       )}
 
       <div>
-        <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">
+        <label className="block text-[10px] font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-1.5">
           {isBuilder ? 'Name / Workshop' : 'Name'}
         </label>
         <input
           type="text" required value={name} onChange={e => setName(e.target.value)}
           placeholder={isBuilder ? 'z.B. Moto Garage Berlin' : 'Dein Name'}
-          className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors"
+          className="w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">E-Mail</label>
+        <label className="block text-[10px] font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-1.5">E-Mail</label>
         <input
           type="email" required value={email} onChange={e => setEmail(e.target.value)}
           placeholder="deine@email.de"
-          className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors"
+          className="w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">Passwort</label>
+        <label className="block text-[10px] font-semibold text-[#1A1714]/35 uppercase tracking-widest mb-1.5">Passwort</label>
         <input
           type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)}
           placeholder="Mindestens 8 Zeichen"
-          className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors"
+          className="w-full bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl px-4 py-3 text-sm text-[#1A1714] placeholder:text-[#1A1714]/20 outline-none focus:border-[#2AABAB] transition-colors"
         />
       </div>
 
@@ -174,7 +174,7 @@ export default function RegisterForm() {
         {loading ? 'Wird erstellt...' : 'Account erstellen'}
       </button>
 
-      <p className="text-center text-xs text-[#F0EDE4]/25 leading-relaxed">
+      <p className="text-center text-xs text-[#1A1714]/25 leading-relaxed">
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>

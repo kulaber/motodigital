@@ -69,7 +69,7 @@ function StarRating({ rating }: { rating: number }) {
         const filled = rating >= i
         const half = !filled && rating >= i - 0.5
         return (
-          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#2AABAB]' : 'text-[#F0EDE4]/15'}>
+          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#2AABAB]' : 'text-[#1A1714]/15'}>
             {half ? (
               <>
                 <defs>
@@ -88,7 +88,7 @@ function StarRating({ rating }: { rating: number }) {
           </svg>
         )
       })}
-      <span className="ml-1 text-xs font-semibold text-[#F0EDE4]/60">{rating.toFixed(1)}</span>
+      <span className="ml-1 text-xs font-semibold text-[#1A1714]/60">{rating.toFixed(1)}</span>
     </span>
   )
 }
@@ -118,15 +118,15 @@ export default async function BuilderProfilePage({ params }: Props) {
   const videos = builder.media.filter(m => m.type === 'video')
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
       <Header activePage="builder" />
 
       {/* ── HERO ── */}
-      <section className="pt-24 pb-0 bg-[#141414]">
+      <section className="pt-24 pb-0 bg-[#F5F2EB]">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8">
 
           <Link href="/builder"
-            className="inline-flex items-center gap-1.5 text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors mb-8">
+            className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors mb-8">
             <ArrowLeft size={13} /> Alle Builder
           </Link>
 
@@ -143,7 +143,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-2xl sm:text-3xl font-bold text-[#F0EDE4] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#1A1714] tracking-tight">
                   {builder.name}
                 </h1>
                 {builder.verified && (
@@ -158,7 +158,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-[#F0EDE4]/40 mb-3">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-[#1A1714]/40 mb-3">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
                 <span className="flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>
                 <StarRating rating={builder.rating} />
@@ -166,7 +166,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               <div className="flex flex-wrap gap-1.5">
                 {builder.tags.map(tag => (
-                  <span key={tag} className="text-[10px] font-medium text-[#F0EDE4]/40 bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 px-2.5 py-1 rounded-full">
+                  <span key={tag} className="text-[10px] font-medium text-[#1A1714]/40 bg-[#1A1714]/5 border border-[#1A1714]/8 px-2.5 py-1 rounded-full">
                     {tag}
                   </span>
                 ))}
@@ -175,8 +175,8 @@ export default async function BuilderProfilePage({ params }: Props) {
 
             <div className="flex sm:flex-col gap-4 sm:gap-2 text-right flex-shrink-0">
               <div>
-                <p className="text-2xl font-bold text-[#F0EDE4] leading-none">{builder.builds}</p>
-                <p className="text-xs text-[#F0EDE4]/30 mt-0.5">Builds</p>
+                <p className="text-2xl font-bold text-[#1A1714] leading-none">{builder.builds}</p>
+                <p className="text-xs text-[#1A1714]/30 mt-0.5">Builds</p>
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                  <p className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Galerie</p>
+                  <p className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Galerie</p>
                 </div>
                 <BuilderGallery images={images} />
               </div>
@@ -202,10 +202,10 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* Videos */}
             {videos.length > 0 && (
               <div className="mb-8">
-                <p className="text-xs font-semibold text-[#F0EDE4]/25 uppercase tracking-widest mb-3">Videos</p>
+                <p className="text-xs font-semibold text-[#1A1714]/25 uppercase tracking-widest mb-3">Videos</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {videos.map((item, i) => (
-                    <div key={i} className="group relative rounded-xl overflow-hidden bg-[#1C1C1C] border border-[#F0EDE4]/5">
+                    <div key={i} className="group relative rounded-xl overflow-hidden bg-white border border-[#1A1714]/5">
                       <div className="aspect-video">
                         <video
                           src={item.url}
@@ -216,7 +216,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                       </div>
                       {item.title && (
                         <div className="px-3 py-2.5">
-                          <p className="text-xs text-[#F0EDE4]/60 font-medium flex items-center gap-1.5">
+                          <p className="text-xs text-[#1A1714]/60 font-medium flex items-center gap-1.5">
                             <Play size={10} className="text-[#2AABAB]" /> {item.title}
                           </p>
                         </div>
@@ -238,16 +238,16 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* LEFT */}
             <div>
               {/* About */}
-              <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
+              <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6 mb-5">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Über</h2>
+                  <h2 className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Über</h2>
                 </div>
-                <p className="text-sm text-[#F0EDE4]/70 leading-relaxed">{builder.bioLong}</p>
+                <p className="text-sm text-[#1A1714]/70 leading-relaxed">{builder.bioLong}</p>
 
                 {builder.bases.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-[#F0EDE4]/5">
-                    <p className="text-xs text-[#F0EDE4]/30 mb-2">Bevorzugte Basis-Bikes</p>
+                  <div className="mt-4 pt-4 border-t border-[#1A1714]/5">
+                    <p className="text-xs text-[#1A1714]/30 mb-2">Bevorzugte Basis-Bikes</p>
                     <div className="flex flex-wrap gap-2">
                       {builder.bases.map(base => (
                         <span key={base} className="text-xs text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-2.5 py-1 rounded-full font-medium">
@@ -260,17 +260,17 @@ export default async function BuilderProfilePage({ params }: Props) {
               </div>
 
               {/* Spezialisierung */}
-              <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 mb-5">
+              <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 mb-5">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Spezialisierung</h2>
+                  <h2 className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Spezialisierung</h2>
                 </div>
-                <p className="text-sm text-[#F0EDE4]/60 leading-relaxed mb-4">{builder.specialty}</p>
+                <p className="text-sm text-[#1A1714]/60 leading-relaxed mb-4">{builder.specialty}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                   {builder.tags.map(tag => (
                     <div key={tag} className="flex items-center gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#2AABAB] flex-shrink-0" />
-                      <span className="text-sm text-[#F0EDE4]/70 font-medium">{tag}</span>
+                      <span className="text-sm text-[#1A1714]/70 font-medium">{tag}</span>
                     </div>
                   ))}
                 </div>
@@ -278,15 +278,15 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Team */}
               {builder.team && builder.team.length > 0 && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 mb-5">
+                <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6 mb-5">
                   <div className="flex items-center gap-2 mb-5">
                     <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">Team</h2>
-                    <span className="ml-auto text-[10px] text-[#F0EDE4]/20 font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
+                    <h2 className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">Team</h2>
+                    <span className="ml-auto text-[10px] text-[#1A1714]/20 font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {builder.team.map(member => (
-                      <div key={member.name} className="flex flex-col p-4 bg-[#141414] rounded-2xl border border-[#F0EDE4]/5 hover:border-[#2AABAB]/20 transition-all duration-200">
+                      <div key={member.name} className="flex flex-col p-4 bg-[#F5F2EB] rounded-2xl border border-[#1A1714]/5 hover:border-[#2AABAB]/20 transition-all duration-200">
                         {/* Avatar + identity */}
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#2AABAB]/20 ring-offset-2 ring-offset-[#141414]">
@@ -299,7 +299,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[#F0EDE4] leading-tight">{member.name}</p>
+                            <p className="text-sm font-semibold text-[#1A1714] leading-tight">{member.name}</p>
                             <span className="inline-block mt-1.5 text-[10px] font-semibold text-[#2AABAB] bg-[#2AABAB]/10 border border-[#2AABAB]/15 px-2.5 py-0.5 rounded-full">
                               {member.role}
                             </span>
@@ -307,18 +307,18 @@ export default async function BuilderProfilePage({ params }: Props) {
                         </div>
                         {/* Contact */}
                         {(member.email || member.phone) && (
-                          <div className="flex flex-col gap-2 pt-3 border-t border-[#F0EDE4]/5">
+                          <div className="flex flex-col gap-2 pt-3 border-t border-[#1A1714]/5">
                             {member.email && (
-                              <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#F0EDE4]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                              <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#1A1714]/40 hover:text-[#2AABAB] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#1A1714]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
                                   <Mail size={10} />
                                 </span>
                                 <span className="truncate">{member.email}</span>
                               </a>
                             )}
                             {member.phone && (
-                              <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/40 hover:text-[#2AABAB] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#F0EDE4]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                              <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#1A1714]/40 hover:text-[#2AABAB] transition-colors group">
+                                <span className="w-6 h-6 rounded-lg bg-[#1A1714]/5 group-hover:bg-[#2AABAB]/10 flex items-center justify-center flex-shrink-0 transition-colors">
                                   <Phone size={10} />
                                 </span>
                                 <span>{member.phone}</span>
@@ -334,17 +334,17 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Map */}
               {builder.lat && builder.lng && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden mb-5">
+                <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden mb-5">
                   <BuilderMap
                     lat={builder.lat}
                     lng={builder.lng}
                     name={builder.name}
                     address={builder.address}
                   />
-                  <div className="px-5 py-3 border-t border-[#F0EDE4]/5">
+                  <div className="px-5 py-3 border-t border-[#1A1714]/5">
                     <div className="flex items-start gap-2">
                       <MapPin size={12} className="text-[#2AABAB] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#F0EDE4]/50 leading-snug">
+                      <p className="text-xs text-[#1A1714]/50 leading-snug">
                         {builder.address ?? builder.city}
                       </p>
                     </div>
@@ -357,16 +357,16 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-0.5 h-3 bg-[#2aabab] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">
+                    <h2 className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">
                       Projekte · {builder.featuredBuilds.length} Builds
                     </h2>
                   </div>
                   <div className="flex flex-col gap-2">
                     {builder.featuredBuilds.map(build => {
                       const content = (
-                        <div className="flex items-center gap-3 p-3 group-hover:bg-[#242424] transition-colors rounded-2xl">
+                        <div className="flex items-center gap-3 p-3 group-hover:bg-[#EDE9DF] transition-colors rounded-2xl">
                           {/* Thumbnail */}
-                          <div className="w-20 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-[#141414]">
+                          <div className="w-20 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-[#F5F2EB]">
                             <img
                               src={build.img}
                               alt={build.title}
@@ -375,8 +375,8 @@ export default async function BuilderProfilePage({ params }: Props) {
                           </div>
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#F0EDE4] leading-snug">{build.title}</p>
-                            <p className="text-xs text-[#F0EDE4]/35 mt-0.5">{build.base} · {build.year}</p>
+                            <p className="text-sm font-semibold text-[#1A1714] leading-snug">{build.title}</p>
+                            <p className="text-xs text-[#1A1714]/35 mt-0.5">{build.base} · {build.year}</p>
                           </div>
                           {/* Style badge + arrow */}
                           <div className="flex items-center gap-2 flex-shrink-0">
@@ -384,7 +384,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                               {build.style}
                             </span>
                             {build.slug && (
-                              <span className="text-[#F0EDE4]/25 group-hover:text-[#2AABAB] transition-colors text-xs">→</span>
+                              <span className="text-[#1A1714]/25 group-hover:text-[#2AABAB] transition-colors text-xs">→</span>
                             )}
                           </div>
                         </div>
@@ -393,12 +393,12 @@ export default async function BuilderProfilePage({ params }: Props) {
                         <Link
                           key={build.title}
                           href={`/custom-bike/${build.slug}`}
-                          className="card-interactive group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/25"
+                          className="card-interactive group bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden hover:border-[#2AABAB]/25"
                         >
                           {content}
                         </Link>
                       ) : (
-                        <div key={build.title} className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl overflow-hidden">
+                        <div key={build.title} className="group bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
                           {content}
                         </div>
                       )
@@ -412,11 +412,11 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA */}
-              <div className="bg-gradient-to-br from-[#1C1C1C] to-[#1a2626] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="bg-gradient-to-br from-white to-[#1a2626] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none rounded-full"
                   style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.12) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
-                <p className="text-sm font-bold text-[#F0EDE4] mb-1">Projekt anfragen</p>
-                <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mb-4">
+                <p className="text-sm font-bold text-[#1A1714] mb-1">Projekt anfragen</p>
+                <p className="text-xs text-[#1A1714]/40 leading-relaxed mb-4">
                   Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
                 </p>
                 <Link
@@ -434,14 +434,14 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
+                <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <CreditCard size={13} className="text-[#F0EDE4]/30" />
-                    <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Zahlungsmöglichkeiten</p>
+                    <CreditCard size={13} className="text-[#1A1714]/30" />
+                    <p className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest">Zahlungsmöglichkeiten</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {builder.paymentMethods.map(method => (
-                      <span key={method} className="text-[10px] font-medium text-[#F0EDE4]/50 bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 px-2.5 py-1 rounded-full">
+                      <span key={method} className="text-[10px] font-medium text-[#1A1714]/50 bg-[#1A1714]/5 border border-[#1A1714]/8 px-2.5 py-1 rounded-full">
                         {method}
                       </span>
                     ))}
@@ -451,17 +451,17 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Links */}
               {(builder.instagram || builder.website) && (
-                <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-                  <p className="text-xs font-semibold text-[#F0EDE4]/30 uppercase tracking-widest mb-3">Links</p>
+                <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+                  <p className="text-xs font-semibold text-[#1A1714]/30 uppercase tracking-widest mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
                       <a
                         href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                        className="flex items-center gap-2.5 text-xs text-[#1A1714]/50 hover:text-[#1A1714] transition-colors group"
                       >
-                        <Instagram size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
+                        <Instagram size={13} className="text-[#1A1714]/25 group-hover:text-[#1A1714]/60 flex-shrink-0 transition-colors" />
                         <span>{builder.instagram}</span>
                       </a>
                     )}
@@ -470,9 +470,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                         href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#F0EDE4]/50 hover:text-[#F0EDE4] transition-colors group"
+                        className="flex items-center gap-2.5 text-xs text-[#1A1714]/50 hover:text-[#1A1714] transition-colors group"
                       >
-                        <Globe size={13} className="text-[#F0EDE4]/25 group-hover:text-[#F0EDE4]/60 flex-shrink-0 transition-colors" />
+                        <Globe size={13} className="text-[#1A1714]/25 group-hover:text-[#1A1714]/60 flex-shrink-0 transition-colors" />
                         <span>{builder.website}</span>
                       </a>
                     )}

@@ -31,10 +31,10 @@ const BENEFITS = [
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-[#141414] text-[#F0EDE4] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714] flex flex-col lg:flex-row">
 
       {/* Left — Builder pitch */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#111] border-r border-[#F0EDE4]/5 px-12 py-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#111] border-r border-[#1A1714]/5 px-12 py-12 relative overflow-hidden">
 
         {/* Background glow */}
         <div className="absolute top-0 left-0 w-96 h-96 pointer-events-none"
@@ -50,12 +50,12 @@ export default function RegisterPage() {
         {/* Headline */}
         <div className="relative">
           <p className="text-xs font-semibold text-[#2AABAB] uppercase tracking-widest mb-4">Für Builder & Workshops</p>
-          <h2 className="font-bold text-[#F0EDE4] leading-tight mb-4"
+          <h2 className="font-bold text-[#1A1714] leading-tight mb-4"
             style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em' }}>
             Zeig der Welt,<br />
-            <span className="text-[#F0EDE4]/30">was du baust.</span>
+            <span className="text-[#1A1714]/30">was du baust.</span>
           </h2>
-          <p className="text-sm text-[#F0EDE4]/45 leading-relaxed mb-10 max-w-xs">
+          <p className="text-sm text-[#1A1714]/45 leading-relaxed mb-10 max-w-xs">
             MotoDigital ist die Plattform für Custom Motorcycle Builder in Europa — kostenlos, ohne Provision.
           </p>
 
@@ -67,8 +67,8 @@ export default function RegisterPage() {
                   {b.icon}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#F0EDE4]">{b.title}</p>
-                  <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mt-0.5">{b.desc}</p>
+                  <p className="text-sm font-semibold text-[#1A1714]">{b.title}</p>
+                  <p className="text-xs text-[#1A1714]/40 leading-relaxed mt-0.5">{b.desc}</p>
                 </div>
               </div>
             ))}
@@ -78,18 +78,18 @@ export default function RegisterPage() {
         {/* Social proof */}
         <div className="flex items-center gap-6 relative">
           <div>
-            <p className="text-2xl font-bold text-[#F0EDE4]">6+</p>
-            <p className="text-[10px] text-[#F0EDE4]/30 uppercase tracking-widest">Builder</p>
+            <p className="text-2xl font-bold text-[#1A1714]">6+</p>
+            <p className="text-[10px] text-[#1A1714]/30 uppercase tracking-widest">Builder</p>
           </div>
-          <div className="w-px h-8 bg-[#F0EDE4]/10" />
+          <div className="w-px h-8 bg-[#1A1714]/10" />
           <div>
-            <p className="text-2xl font-bold text-[#F0EDE4]">5</p>
-            <p className="text-[10px] text-[#F0EDE4]/30 uppercase tracking-widest">Länder</p>
+            <p className="text-2xl font-bold text-[#1A1714]">5</p>
+            <p className="text-[10px] text-[#1A1714]/30 uppercase tracking-widest">Länder</p>
           </div>
-          <div className="w-px h-8 bg-[#F0EDE4]/10" />
+          <div className="w-px h-8 bg-[#1A1714]/10" />
           <div>
-            <p className="text-2xl font-bold text-[#F0EDE4]">100%</p>
-            <p className="text-[10px] text-[#F0EDE4]/30 uppercase tracking-widest">Kostenlos</p>
+            <p className="text-2xl font-bold text-[#1A1714]">100%</p>
+            <p className="text-[10px] text-[#1A1714]/30 uppercase tracking-widest">Kostenlos</p>
           </div>
         </div>
       </div>
@@ -102,21 +102,21 @@ export default function RegisterPage() {
           <Link href="/" className="inline-flex mb-4">
             <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
           </Link>
-          <p className="text-xs text-[#F0EDE4]/35">Für Builder & Workshops</p>
+          <p className="text-xs text-[#1A1714]/35">Für Builder & Workshops</p>
         </div>
 
         <div className="w-full max-w-sm">
           <div className="mb-7">
-            <h1 className="text-2xl font-bold text-[#F0EDE4] mb-1">Account erstellen</h1>
-            <p className="text-sm text-[#F0EDE4]/40">Kostenlos registrieren — keine Kreditkarte</p>
+            <h1 className="text-2xl font-bold text-[#1A1714] mb-1">Account erstellen</h1>
+            <p className="text-sm text-[#1A1714]/40">Kostenlos registrieren — keine Kreditkarte</p>
           </div>
 
           {/* Form card */}
-          <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-6">
+          <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-6">
             <RegisterForm />
           </div>
 
-          <p className="text-center text-sm text-[#F0EDE4]/35 mt-4">
+          <p className="text-center text-sm text-[#1A1714]/35 mt-4">
             Bereits registriert?{' '}
             <Link href="/auth/login" className="text-[#2AABAB] hover:text-[#3DBFBF] transition-colors">
               Anmelden

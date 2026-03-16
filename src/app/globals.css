@@ -8,11 +8,11 @@
   --color-teal-light:  #3DBFBF;
   --color-creme:       #F0EDE4;
 
-  /* Dark mode backgrounds */
-  --color-bg:          #141414;
-  --color-bg-2:        #1C1C1C;
-  --color-bg-3:        #242424;
-  --color-bg-4:        #2E2E2E;
+  /* Light mode backgrounds */
+  --color-bg:          #F5F2EB;
+  --color-bg-2:        #FFFFFF;
+  --color-bg-3:        #EDE9DF;
+  --color-bg-4:        #D8D3C8;
 
   /* Typography */
   --font-sans:    'Inter', system-ui, sans-serif;
@@ -40,8 +40,8 @@ html {
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-creme);
+  background: #F5F2EB;
+  color: #1A1714;
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
@@ -59,8 +59,8 @@ button, [role="button"], a, label[for], summary {
 
 /* ─── Custom scrollbar ───────────────────────────────────── */
 ::-webkit-scrollbar         { width: 6px; height: 6px; }
-::-webkit-scrollbar-track   { background: var(--color-bg); }
-::-webkit-scrollbar-thumb   { background: var(--color-bg-4); border-radius: 3px; }
+::-webkit-scrollbar-track   { background: #EDE9DF; }
+::-webkit-scrollbar-thumb   { background: #D8D3C8; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-teal-dark); }
 
 /* ─── Utility: hide scrollbar ────────────────────────────── */
@@ -115,11 +115,11 @@ button, [role="button"], a, label[for], summary {
   --transition-base: 250ms var(--ease-luxury);
   --transition-slow: 400ms var(--ease-luxury);
 
-  /* Elevation / glow system */
-  --shadow-teal-sm: 0 0 12px rgba(42, 171, 171, 0.15);
-  --shadow-teal-md: 0 0 24px rgba(42, 171, 171, 0.2);
-  --shadow-card-hover: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(240,237,228,0.08);
-  --shadow-card-press: 0 2px 8px rgba(0,0,0,0.3);
+  /* Elevation / shadow system (light mode) */
+  --shadow-teal-sm: 0 0 12px rgba(42, 171, 171, 0.18);
+  --shadow-teal-md: 0 0 24px rgba(42, 171, 171, 0.25);
+  --shadow-card-hover: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(26,23,20,0.06);
+  --shadow-card-press: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 /* ─── Interactive element base transitions ────────────────── */
@@ -177,9 +177,9 @@ a, button, [role="button"] {
   width: 100%;
 }
 
-/* ─── Skeleton loading ────────────────────────────────────── */
+/* ─── Skeleton loading (light mode) ──────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg, #1C1C1C 25%, #242424 50%, #1C1C1C 75%);
+  background: linear-gradient(90deg, #EDE9DF 25%, #E3DFD5 50%, #EDE9DF 75%);
   background-size: 200% 100%;
   animation: skeleton-wave 1.5s ease-in-out infinite;
 }

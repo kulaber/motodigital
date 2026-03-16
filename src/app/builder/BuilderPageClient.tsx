@@ -72,7 +72,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
           border-radius:50%;
           display:flex;align-items:center;justify-content:center;
           font-size:11px;font-weight:700;
-          color:${isSelected ? '#141414' : '#F0EDE4'};
+          color:${isSelected ? '#141414' : '#1A1714'};
           box-shadow:0 2px 12px rgba(0,0,0,0.6);
           font-family:Inter,system-ui,sans-serif;
           transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s;
@@ -177,7 +177,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
       `}</style>
 
       {/* Sticky filter bar */}
-      <div className="sticky top-16 z-30 bg-[#141414]/95 backdrop-blur-md border-b border-[#F0EDE4]/5">
+      <div className="sticky top-16 z-30 bg-[#F5F2EB]/95 backdrop-blur-md border-b border-[#1A1714]/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-3 flex items-center gap-3">
           <div className="flex-1 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-2 min-w-max">
@@ -188,7 +188,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                   className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 ${
                     activeSpecialty === spec
                       ? 'bg-[#2AABAB] text-[#141414]'
-                      : 'bg-[#1C1C1C] text-[#F0EDE4]/40 border border-[#F0EDE4]/10 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20'
+                      : 'bg-white text-[#1A1714]/40 border border-[#1A1714]/10 hover:text-[#1A1714] hover:border-[#1A1714]/20'
                   }`}
                 >
                   {spec}
@@ -199,7 +199,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                 className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
                   onlyVerified
                     ? 'bg-[#2AABAB]/15 text-[#2AABAB] border border-[#2AABAB]/40'
-                    : 'bg-[#1C1C1C] text-[#F0EDE4]/40 border border-[#F0EDE4]/10 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20'
+                    : 'bg-white text-[#1A1714]/40 border border-[#1A1714]/10 hover:text-[#1A1714] hover:border-[#1A1714]/20'
                 }`}
               >
                 <BadgeCheck size={11} />
@@ -213,11 +213,11 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                   className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
                     onlyOpen
                       ? 'bg-emerald-400/12 text-emerald-400 border border-emerald-400/35'
-                      : 'bg-[#1C1C1C] text-[#F0EDE4]/40 border border-[#F0EDE4]/10 hover:text-[#F0EDE4] hover:border-[#F0EDE4]/20'
+                      : 'bg-white text-[#1A1714]/40 border border-[#1A1714]/10 hover:text-[#1A1714] hover:border-[#1A1714]/20'
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                    onlyOpen ? 'bg-emerald-400 animate-pulse' : 'bg-[#F0EDE4]/25'
+                    onlyOpen ? 'bg-emerald-400 animate-pulse' : 'bg-[#1A1714]/25'
                   }`} />
                   Jetzt geöffnet
                 </button>
@@ -226,16 +226,16 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
             </div>
           </div>
 
-          <div className="w-px h-4 bg-[#F0EDE4]/10 flex-shrink-0" />
+          <div className="w-px h-4 bg-[#1A1714]/10 flex-shrink-0" />
 
-          <div className="bg-[#1C1C1C] border border-[#F0EDE4]/10 rounded-xl p-1 flex gap-0.5 flex-shrink-0">
+          <div className="bg-white border border-[#1A1714]/10 rounded-xl p-1 flex gap-0.5 flex-shrink-0">
             <button
               onClick={() => setView('list')}
               aria-label="Listenansicht"
               className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] ${
                 view === 'list'
                   ? 'bg-[#2AABAB] text-[#141414]'
-                  : 'text-[#F0EDE4]/40 hover:text-[#F0EDE4]'
+                  : 'text-[#1A1714]/40 hover:text-[#1A1714]'
               }`}
             >
               <List size={13} />
@@ -247,7 +247,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
               className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] ${
                 view === 'map'
                   ? 'bg-[#2AABAB] text-[#141414]'
-                  : 'text-[#F0EDE4]/40 hover:text-[#F0EDE4]'
+                  : 'text-[#1A1714]/40 hover:text-[#1A1714]'
               }`}
             >
               <MapIcon size={13} />
@@ -259,13 +259,13 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
 
       {/* LIST VIEW */}
       {view === 'list' && (
-        <section className="py-8 sm:py-10 bg-[#141414]">
+        <section className="py-8 sm:py-10 bg-[#F5F2EB]">
           <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_268px] gap-8 items-start">
               <div>
                 {filtered.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <p className="text-[#F0EDE4]/30 text-sm mb-4">Keine Builder für diesen Filter gefunden.</p>
+                    <p className="text-[#1A1714]/30 text-sm mb-4">Keine Builder für diesen Filter gefunden.</p>
                     <button
                       onClick={() => { setActiveSpecialty('Alle'); setOnlyVerified(false); setOnlyOpen(false) }}
                       className="text-xs font-semibold text-[#2AABAB] border border-[#2AABAB]/30 px-4 py-2 rounded-full hover:bg-[#2AABAB]/10 transition-all cursor-pointer"
@@ -280,7 +280,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                         <Link
                           key={b.slug}
                           href={`/builder/${b.slug}`}
-                          className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4 sm:p-5 hover:border-[#2AABAB]/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group block"
+                          className="bg-white border border-[#1A1714]/6 rounded-2xl p-4 sm:p-5 hover:border-[#2AABAB]/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group block"
                           style={{ animationDelay: `${i * 60}ms` }}
                         >
                           <div className="flex items-start gap-3 mb-3">
@@ -289,10 +289,10 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                                <p className="text-sm font-semibold text-[#F0EDE4] truncate">{b.name}</p>
+                                <p className="text-sm font-semibold text-[#1A1714] truncate">{b.name}</p>
                                 {b.verified && <BadgeCheck size={12} className="text-[#2AABAB] flex-shrink-0" />}
                               </div>
-                              <p className="text-xs text-[#F0EDE4]/35 flex items-center gap-1">
+                              <p className="text-xs text-[#1A1714]/35 flex items-center gap-1">
                                 <MapPin size={9} /> {b.city} · seit {b.since}
                               </p>
                             </div>
@@ -302,22 +302,22 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mb-3 line-clamp-2">{b.bio}</p>
+                          <p className="text-xs text-[#1A1714]/40 leading-relaxed mb-3 line-clamp-2">{b.bio}</p>
                           <div className="flex flex-wrap gap-1.5 mb-4">
                             {b.tags.map(tag => (
-                              <span key={tag} className="text-[10px] font-medium text-[#F0EDE4]/40 bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 px-2 py-0.5 rounded-full">
+                              <span key={tag} className="text-[10px] font-medium text-[#1A1714]/40 bg-[#1A1714]/5 border border-[#1A1714]/8 px-2 py-0.5 rounded-full">
                                 {tag}
                               </span>
                             ))}
                           </div>
-                          <div className="flex items-center justify-between pt-3 border-t border-[#F0EDE4]/6">
+                          <div className="flex items-center justify-between pt-3 border-t border-[#1A1714]/6">
                             <div className="flex items-center gap-3">
-                              <span className="text-xs text-[#F0EDE4]/30">
-                                <span className="text-[#F0EDE4]/60 font-semibold">{b.builds}</span> Builds
+                              <span className="text-xs text-[#1A1714]/30">
+                                <span className="text-[#1A1714]/60 font-semibold">{b.builds}</span> Builds
                               </span>
-                              <span className="flex items-center gap-1 text-xs text-[#F0EDE4]/30">
+                              <span className="flex items-center gap-1 text-xs text-[#1A1714]/30">
                                 <svg width="10" height="10" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                                <span className="text-[#F0EDE4]/60 font-semibold">{b.rating}</span>
+                                <span className="text-[#1A1714]/60 font-semibold">{b.rating}</span>
                               </span>
                             </div>
                             <span className="text-xs text-[#2AABAB] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -327,7 +327,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                         </Link>
                       ))}
                     </div>
-                    <p className="text-xs text-[#F0EDE4]/25 mt-6 text-center">{filtered.length} Builder</p>
+                    <p className="text-xs text-[#1A1714]/25 mt-6 text-center">{filtered.length} Builder</p>
                   </>
                 )}
               </div>
@@ -344,7 +344,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
 
       {/* MAP VIEW — always in DOM, hidden when list view */}
       <div
-        className="bg-[#141414] flex-col"
+        className="bg-[#F5F2EB] flex-col"
         style={{
           height: 'calc(100dvh - 128px)',
           display: view === 'map' ? 'flex' : 'none',
@@ -353,9 +353,9 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
         {/* Main row: desktop panel + map canvas */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Desktop left panel */}
-          <div className="hidden lg:flex w-[360px] flex-shrink-0 bg-[#141414] border-r border-[#F0EDE4]/6 flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#F0EDE4]/5 flex-shrink-0">
-              <span className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">
+          <div className="hidden lg:flex w-[360px] flex-shrink-0 bg-[#F5F2EB] border-r border-[#1A1714]/6 flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#1A1714]/5 flex-shrink-0">
+              <span className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">
                 {filtered.length} Builder
               </span>
             </div>
@@ -364,10 +364,10 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                 <button
                   key={b.slug}
                   onClick={() => handleBuilderClick(b)}
-                  className={`w-full text-left bg-[#1C1C1C] border rounded-2xl p-4 transition-all duration-200 cursor-pointer group ${
+                  className={`w-full text-left bg-white border rounded-2xl p-4 transition-all duration-200 cursor-pointer group ${
                     selectedBuilder?.slug === b.slug
                       ? 'border-[#2AABAB]/50 bg-[#2AABAB]/6'
-                      : 'border-[#F0EDE4]/6 hover:border-[#2AABAB]/30 hover:-translate-y-0.5'
+                      : 'border-[#1A1714]/6 hover:border-[#2AABAB]/30 hover:-translate-y-0.5'
                   }`}
                 >
                   {/* Top row */}
@@ -381,10 +381,10 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <p className="text-sm font-semibold text-[#F0EDE4] truncate">{b.name}</p>
+                        <p className="text-sm font-semibold text-[#1A1714] truncate">{b.name}</p>
                         {b.verified && <BadgeCheck size={12} className="text-[#2AABAB] flex-shrink-0" />}
                       </div>
-                      <p className="text-xs text-[#F0EDE4]/35 flex items-center gap-1">
+                      <p className="text-xs text-[#1A1714]/35 flex items-center gap-1">
                         <MapPin size={9} /> {b.city} · seit {b.since}
                       </p>
                     </div>
@@ -398,21 +398,21 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1 mb-3">
                     {b.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="text-[10px] font-medium text-[#F0EDE4]/40 bg-[#F0EDE4]/5 border border-[#F0EDE4]/8 px-2 py-0.5 rounded-full">
+                      <span key={tag} className="text-[10px] font-medium text-[#1A1714]/40 bg-[#1A1714]/5 border border-[#1A1714]/8 px-2 py-0.5 rounded-full">
                         {tag}
                       </span>
                     ))}
                   </div>
 
                   {/* Bottom row */}
-                  <div className="flex items-center justify-between pt-2.5 border-t border-[#F0EDE4]/6">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[#1A1714]/6">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-[#F0EDE4]/30">
-                        <span className="text-[#F0EDE4]/60 font-semibold">{b.builds}</span> Builds
+                      <span className="text-xs text-[#1A1714]/30">
+                        <span className="text-[#1A1714]/60 font-semibold">{b.builds}</span> Builds
                       </span>
-                      <span className="flex items-center gap-1 text-xs text-[#F0EDE4]/30">
+                      <span className="flex items-center gap-1 text-xs text-[#1A1714]/30">
                         <svg width="9" height="9" viewBox="0 0 14 14" fill="#2AABAB"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                        <span className="text-[#F0EDE4]/60 font-semibold">{b.rating}</span>
+                        <span className="text-[#1A1714]/60 font-semibold">{b.rating}</span>
                       </span>
                     </div>
                     <Link
@@ -435,12 +435,12 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
         </div>
 
         {/* Mobile bottom drawer — in-flow (not fixed), so map canvas accounts for its height */}
-        <div className="lg:hidden flex-shrink-0 h-52 bg-[#141414] border-t border-[#F0EDE4]/10 overflow-hidden">
-          <div className="px-4 py-2 border-b border-[#F0EDE4]/5 flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#F0EDE4]/40 uppercase tracking-widest">
+        <div className="lg:hidden flex-shrink-0 h-52 bg-[#F5F2EB] border-t border-[#1A1714]/10 overflow-hidden">
+          <div className="px-4 py-2 border-b border-[#1A1714]/5 flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#1A1714]/40 uppercase tracking-widest">
               {filtered.length} Builder
             </span>
-            <div className="w-8 h-1 bg-[#F0EDE4]/15 rounded-full" />
+            <div className="w-8 h-1 bg-[#1A1714]/15 rounded-full" />
           </div>
           <div className="overflow-x-auto scrollbar-hide h-full">
             <div className="flex flex-row gap-2.5 px-3 py-3 min-w-max">
@@ -448,10 +448,10 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                 <button
                   key={b.slug}
                   onClick={() => handleBuilderClick(b)}
-                  className={`flex-shrink-0 w-44 text-left bg-[#1C1C1C] border rounded-xl p-3 transition-all cursor-pointer ${
+                  className={`flex-shrink-0 w-44 text-left bg-white border rounded-xl p-3 transition-all cursor-pointer ${
                     selectedBuilder?.slug === b.slug
                       ? 'border-[#2AABAB]/50 bg-[#2AABAB]/6'
-                      : 'border-[#F0EDE4]/8 hover:border-[#2AABAB]/30'
+                      : 'border-[#1A1714]/8 hover:border-[#2AABAB]/30'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
@@ -460,15 +460,15 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1">
-                        <p className="text-xs font-semibold text-[#F0EDE4] truncate">{b.name}</p>
+                        <p className="text-xs font-semibold text-[#1A1714] truncate">{b.name}</p>
                         {b.verified && <BadgeCheck size={10} className="text-[#2AABAB] flex-shrink-0" />}
                       </div>
-                      <p className="text-[10px] text-[#F0EDE4]/35 truncate">{b.city}</p>
+                      <p className="text-[10px] text-[#1A1714]/35 truncate">{b.city}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-[#F0EDE4]/30">
-                      <span className="text-[#F0EDE4]/50 font-semibold">{b.builds}</span> Builds
+                    <span className="text-[10px] text-[#1A1714]/30">
+                      <span className="text-[#1A1714]/50 font-semibold">{b.builds}</span> Builds
                     </span>
                     <Link
                       href={`/builder/${b.slug}`}
@@ -491,7 +491,7 @@ export default function BuilderPageClient({ builders }: BuilderPageClientProps) 
 function SidebarContent({ totalBuilds, verifiedCount }: { totalBuilds: number; verifiedCount: number }) {
   return (
     <>
-      <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5 sm:p-6 relative overflow-hidden">
+      <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5 sm:p-6 relative overflow-hidden">
         <div
           className="absolute top-0 right-0 w-36 h-36 pointer-events-none rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.10) 0%, transparent 70%)', transform: 'translate(35%,-35%)' }}
@@ -499,8 +499,8 @@ function SidebarContent({ totalBuilds, verifiedCount }: { totalBuilds: number; v
         <div className="w-10 h-10 bg-[#2AABAB]/12 border border-[#2AABAB]/20 rounded-xl flex items-center justify-center mb-4">
           <Wrench size={18} className="text-[#2AABAB]" />
         </div>
-        <h3 className="text-sm font-bold text-[#F0EDE4] mb-2">Du bist Builder?</h3>
-        <p className="text-xs text-[#F0EDE4]/40 leading-relaxed mb-5">
+        <h3 className="text-sm font-bold text-[#1A1714] mb-2">Du bist Builder?</h3>
+        <p className="text-xs text-[#1A1714]/40 leading-relaxed mb-5">
           Registriere dich kostenlos, zeige deine Builds und werde direkt von Riders kontaktiert.
         </p>
         <Link
@@ -511,16 +511,16 @@ function SidebarContent({ totalBuilds, verifiedCount }: { totalBuilds: number; v
         </Link>
       </div>
 
-      <div className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-5">
-        <p className="text-[10px] text-[#F0EDE4]/25 uppercase tracking-widest font-semibold mb-4">Plattform</p>
+      <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+        <p className="text-[10px] text-[#1A1714]/25 uppercase tracking-widest font-semibold mb-4">Plattform</p>
         {[
           { label: 'Aktive Builder', value: 6 },
           { label: 'Verifiziert', value: verifiedCount },
           { label: 'Builds gesamt', value: totalBuilds },
         ].map(s => (
-          <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#F0EDE4]/5 last:border-0">
-            <span className="text-xs text-[#F0EDE4]/40">{s.label}</span>
-            <span className="text-sm font-bold text-[#F0EDE4]">{s.value}</span>
+          <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#1A1714]/5 last:border-0">
+            <span className="text-xs text-[#1A1714]/40">{s.label}</span>
+            <span className="text-sm font-bold text-[#1A1714]">{s.value}</span>
           </div>
         ))}
       </div>
