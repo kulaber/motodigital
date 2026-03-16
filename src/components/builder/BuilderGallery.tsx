@@ -91,7 +91,7 @@ export default function BuilderGallery({ images }: Props) {
         {/* "Alle Bilder ansehen" button */}
         <button
           onClick={() => setLightbox(0)}
-          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-[#222222] text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg hover:bg-white transition-colors"
+          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white text-[#222222] border border-[#DDDDDD] text-xs font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md hover:border-[#222222]/20 transition-all"
         >
           <Grid2x2 size={13} />
           Alle Bilder ansehen
