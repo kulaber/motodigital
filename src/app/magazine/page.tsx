@@ -152,44 +152,44 @@ export default function MagazinePage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {restArticles.map(article => (
-              <article
+              <Link
                 key={article.slug}
-                className="group bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
+                href={`/magazine/${article.slug}`}
+                className="group block bg-[#1C1C1C] border border-[#F0EDE4]/6 hover:border-[#F0EDE4]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
               >
-                <div className="aspect-[16/9] overflow-hidden">
-                  <img
-                    src={article.coverImage}
-                    alt={article.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${
-                        CATEGORY_COLORS[article.categoryLabel] ?? ''
-                      }`}
-                    >
-                      {article.categoryLabel}
-                    </span>
-                    <span className="text-[10px] text-[#F0EDE4]/25">
-                      {article.readTime} Lesezeit
+                <article>
+                  <div className="aspect-[16/9] overflow-hidden">
+                    <img
+                      src={article.coverImage}
+                      alt={article.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${
+                          CATEGORY_COLORS[article.categoryLabel] ?? ''
+                        }`}
+                      >
+                        {article.categoryLabel}
+                      </span>
+                      <span className="text-[10px] text-[#F0EDE4]/25">
+                        {article.readTime} Lesezeit
+                      </span>
+                    </div>
+                    <h2 className="text-sm font-semibold text-[#F0EDE4] leading-snug mb-2 line-clamp-2">
+                      {article.title}
+                    </h2>
+                    <p className="text-xs text-[#F0EDE4]/40 leading-relaxed line-clamp-2 mb-4">
+                      {article.excerpt}
+                    </p>
+                    <span className="text-xs font-semibold text-[#2aabab] group-hover:text-[#1f9999] transition-colors">
+                      Lesen →
                     </span>
                   </div>
-                  <h2 className="text-sm font-semibold text-[#F0EDE4] leading-snug mb-2 line-clamp-2">
-                    {article.title}
-                  </h2>
-                  <p className="text-xs text-[#F0EDE4]/40 leading-relaxed line-clamp-2 mb-4">
-                    {article.excerpt}
-                  </p>
-                  <Link
-                    href={`/magazine/${article.slug}`}
-                    className="text-xs font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors"
-                  >
-                    Lesen →
-                  </Link>
-                </div>
-              </article>
+                </article>
+              </Link>
             ))}
           </div>
         </div>
