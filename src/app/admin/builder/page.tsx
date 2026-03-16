@@ -3,8 +3,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
-import { BadgeCheck, ArrowLeft, Mail, MailX, Shield, ExternalLink, Pencil, Database, FileText } from 'lucide-react'
+import { BadgeCheck, ArrowLeft, Mail, MailX, Shield, ExternalLink, Pencil, Database, FileText, Bike } from 'lucide-react'
 import { BUILDERS } from '@/lib/data/builders'
+import { BUILDS } from '@/lib/data/builds'
 
 export const metadata: Metadata = { title: 'Admin — Builder' }
 
@@ -33,6 +34,8 @@ type MergedRow = {
   email_confirmed: boolean
   is_verified: boolean
   created_at: string | null
+  staticBikeCount: number
+  dbBikeCount: number
 }
 
 export default async function AdminBuilderPage() {
@@ -68,6 +71,23 @@ export default async function AdminBuilderPage() {
     }
   })
 
+  // Fetch bike counts per seller from Supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: bikeCounts } = await (supabase.from('bikes') as any)
+    .select('seller_id') as { data: { seller_id: string }[] | null }
+
+  const bikeCountById = new Map<string, number>()
+  for (const row of bikeCounts ?? []) {
+    bikeCountById.set(row.seller_id, (bikeCountById.get(row.seller_id) ?? 0) + 1)
+  }
+
+  // Precompute static build counts per builder slug
+  const staticBuildCountBySlug = new Map<string, number>()
+  for (const build of BUILDS) {
+    const slug = build.builder.slug
+    staticBuildCountBySlug.set(slug, (staticBuildCountBySlug.get(slug) ?? 0) + 1)
+  }
+
   // Build a map of Supabase builders keyed by username/slug
   const dbBySlug = new Map(dbRows.map(r => [r.username, r]))
 
@@ -89,6 +109,8 @@ export default async function AdminBuilderPage() {
       email_confirmed: db?.email_confirmed ?? false,
       is_verified: db?.is_verified ?? sb.verified,
       created_at: db?.created_at ?? null,
+      staticBikeCount: staticBuildCountBySlug.get(sb.slug) ?? 0,
+      dbBikeCount: db?.id ? (bikeCountById.get(db.id) ?? 0) : 0,
     })
   }
 
@@ -107,6 +129,8 @@ export default async function AdminBuilderPage() {
         email_confirmed: db.email_confirmed,
         is_verified: db.is_verified,
         created_at: db.created_at,
+        staticBikeCount: 0,
+        dbBikeCount: bikeCountById.get(db.id) ?? 0,
       })
     }
   }
@@ -159,6 +183,7 @@ export default async function AdminBuilderPage() {
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Name</th>
                   <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden sm:table-cell">Stadt</th>
                   <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden lg:table-cell">Spezialisierung</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden sm:table-cell">Bikes</th>
                   <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
                   <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Quelle</th>
                   <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Verif.</th>
@@ -179,6 +204,23 @@ export default async function AdminBuilderPage() {
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <span className="text-xs text-[#F0EDE4]/50">{b.specialty ?? '—'}</span>
+                    </td>
+                    <td className="px-4 py-3.5 hidden sm:table-cell text-center">
+                      <div className="flex flex-col items-center gap-0.5">
+                        {b.staticBikeCount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#F0EDE4]/50 bg-[#F0EDE4]/6 border border-[#F0EDE4]/10 px-2 py-0.5 rounded-full">
+                            <Bike size={8} /> {b.staticBikeCount} statisch
+                          </span>
+                        )}
+                        {b.dbBikeCount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-2 py-0.5 rounded-full">
+                            <Bike size={8} /> {b.dbBikeCount} DB
+                          </span>
+                        )}
+                        {b.staticBikeCount === 0 && b.dbBikeCount === 0 && (
+                          <span className="text-xs text-[#F0EDE4]/20">—</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell">
                       {b.email ? (
@@ -237,7 +279,7 @@ export default async function AdminBuilderPage() {
                 ))}
                 {merged.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#F0EDE4]/25">
+                    <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#F0EDE4]/25">
                       Keine Builder gefunden
                     </td>
                   </tr>
