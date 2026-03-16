@@ -3,13 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Wrench, Bike, BadgeCheck, ChevronRight } from 'lucide-react'
 
 type Role = 'rider' | 'builder'
-
-const ROLES: { value: Role; emoji: string; label: string; desc: string }[] = [
-  { value: 'rider',   emoji: '🏍️', label: 'Rider',            desc: 'Ich suche Bikes & Inspiration' },
-  { value: 'builder', emoji: '🔧', label: 'Builder / Workshop', desc: 'Ich baue Custom Bikes' },
-]
 
 export default function RegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
@@ -39,11 +35,7 @@ export default function RegisterForm() {
       email,
       password,
       options: {
-        data: {
-          full_name: name,
-          username,
-          role,
-        },
+        data: { full_name: name, username, role },
         emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
       },
     })
@@ -54,8 +46,6 @@ export default function RegisterForm() {
       return
     }
 
-    // Update waitlist entry if exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('waitlist') as any)
       .update({ invited_at: new Date().toISOString() })
       .eq('email', email)
@@ -63,52 +53,96 @@ export default function RegisterForm() {
     router.push('/auth/verify?email=' + encodeURIComponent(email))
   }
 
-  // Step 1 — Role selection
+  // ── Step 1 — Role selection ─────────────────────────────────────────────
   if (step === 1) {
     return (
       <div>
         <p className="text-xs font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-4 text-center">
           Ich bin...
         </p>
-        <div className="flex flex-col gap-2">
-          {ROLES.map(r => (
-            <button
-              key={r.value}
-              onClick={() => handleRoleSelect(r.value)}
-              className="flex items-center gap-4 p-4 bg-[#141414] border border-[#F0EDE4]/8 rounded-xl hover:border-[#2AABAB]/40 hover:bg-[#2AABAB]/05 transition-all text-left group"
-            >
-              <span className="text-2xl">{r.emoji}</span>
-              <div>
-                <p className="text-sm font-semibold text-[#F0EDE4] group-hover:text-[#2AABAB] transition-colors">{r.label}</p>
-                <p className="text-xs text-[#F0EDE4]/35">{r.desc}</p>
+
+        <div className="flex flex-col gap-2.5">
+          {/* Builder — primary / recommended */}
+          <button
+            onClick={() => handleRoleSelect('builder')}
+            className="relative flex items-center gap-4 p-4 bg-[#2AABAB]/6 border border-[#2AABAB]/30 rounded-xl hover:border-[#2AABAB]/60 hover:bg-[#2AABAB]/10 transition-all text-left group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#2AABAB]/15 border border-[#2AABAB]/25 flex items-center justify-center flex-shrink-0">
+              <Wrench size={18} className="text-[#2AABAB]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <p className="text-sm font-bold text-[#F0EDE4]">Builder / Workshop</p>
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#2AABAB] text-[#141414] px-2 py-0.5 rounded-full">
+                  Empfohlen
+                </span>
               </div>
-              <span className="ml-auto text-[#F0EDE4]/20 group-hover:text-[#2AABAB] transition-colors">→</span>
-            </button>
-          ))}
+              <p className="text-xs text-[#F0EDE4]/45">Ich baue Custom Bikes & möchte Kunden gewinnen</p>
+            </div>
+            <ChevronRight size={15} className="text-[#2AABAB]/50 group-hover:text-[#2AABAB] transition-colors flex-shrink-0" />
+          </button>
+
+          {/* Rider — secondary */}
+          <button
+            onClick={() => handleRoleSelect('rider')}
+            className="flex items-center gap-4 p-4 bg-[#141414] border border-[#F0EDE4]/8 rounded-xl hover:border-[#F0EDE4]/20 hover:bg-[#F0EDE4]/3 transition-all text-left group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#F0EDE4]/5 border border-[#F0EDE4]/10 flex items-center justify-center flex-shrink-0">
+              <Bike size={18} className="text-[#F0EDE4]/40" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#F0EDE4] mb-0.5">Rider</p>
+              <p className="text-xs text-[#F0EDE4]/35">Ich suche Custom Bikes & Inspiration</p>
+            </div>
+            <ChevronRight size={15} className="text-[#F0EDE4]/20 group-hover:text-[#F0EDE4]/50 transition-colors flex-shrink-0" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 mt-5 px-1">
+          <BadgeCheck size={12} className="text-[#2AABAB]/60 flex-shrink-0" />
+          <p className="text-[11px] text-[#F0EDE4]/30">Kostenlos — keine Kreditkarte — jederzeit kündbar</p>
         </div>
       </div>
     )
   }
 
-  // Step 2 — Details
+  // ── Step 2 — Details ────────────────────────────────────────────────────
+  const isBuilder = role === 'builder'
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
       {/* Role badge + back */}
       <div className="flex items-center justify-between mb-1">
-        <button type="button" onClick={() => setStep(1)} className="text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors">
+        <button type="button" onClick={() => setStep(1)}
+          className="text-xs text-[#F0EDE4]/35 hover:text-[#F0EDE4] transition-colors flex items-center gap-1">
           ← Zurück
         </button>
-        <span className="text-xs bg-[#2AABAB]/12 text-[#2AABAB] border border-[#2AABAB]/20 px-2.5 py-1 rounded-full font-medium capitalize">
-          {ROLES.find(r => r.value === role)?.emoji} {role}
+        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+          isBuilder
+            ? 'bg-[#2AABAB]/12 text-[#2AABAB] border-[#2AABAB]/25'
+            : 'bg-[#F0EDE4]/6 text-[#F0EDE4]/50 border-[#F0EDE4]/12'
+        }`}>
+          {isBuilder ? '🔧 Builder' : '🏍️ Rider'}
         </span>
       </div>
 
+      {isBuilder && (
+        <div className="flex items-start gap-2.5 bg-[#2AABAB]/6 border border-[#2AABAB]/20 rounded-xl px-3.5 py-3 -mt-1">
+          <BadgeCheck size={13} className="text-[#2AABAB] flex-shrink-0 mt-0.5" />
+          <p className="text-[11px] text-[#2AABAB]/80 leading-relaxed">
+            Nach der Registrierung kannst du dein Builder-Profil mit Builds, Öffnungszeiten und Fotos befüllen.
+          </p>
+        </div>
+      )}
+
       <div>
-        <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">Name</label>
+        <label className="block text-[10px] font-semibold text-[#F0EDE4]/35 uppercase tracking-widest mb-1.5">
+          {isBuilder ? 'Name / Workshop' : 'Name'}
+        </label>
         <input
           type="text" required value={name} onChange={e => setName(e.target.value)}
-          placeholder="Dein Name"
+          placeholder={isBuilder ? 'z.B. Moto Garage Berlin' : 'Dein Name'}
           className="w-full bg-[#141414] border border-[#F0EDE4]/10 rounded-xl px-4 py-3 text-sm text-[#F0EDE4] placeholder:text-[#F0EDE4]/20 outline-none focus:border-[#2AABAB] transition-colors"
         />
       </div>
@@ -136,11 +170,11 @@ export default function RegisterForm() {
       )}
 
       <button type="submit" disabled={loading}
-        className="w-full bg-[#2AABAB] text-[#141414] font-semibold py-3 rounded-full text-sm hover:bg-[#3DBFBF] disabled:opacity-50 transition-all mt-1">
+        className="w-full bg-[#2AABAB] text-[#141414] font-semibold py-3 rounded-full text-sm hover:bg-[#3DBFBF] disabled:opacity-50 transition-all mt-1 cursor-pointer">
         {loading ? 'Wird erstellt...' : 'Account erstellen'}
       </button>
 
-      <p className="text-center text-xs text-[#F0EDE4]/30 leading-relaxed">
+      <p className="text-center text-xs text-[#F0EDE4]/25 leading-relaxed">
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>
