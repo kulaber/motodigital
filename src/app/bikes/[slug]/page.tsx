@@ -10,6 +10,7 @@ import type { Database } from '@/types/database'
 import { BUILDS } from '@/lib/data/builds'
 import { BUILDERS } from '@/lib/data/builders'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import Header from '@/components/layout/Header'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
@@ -92,6 +93,7 @@ export default async function BikeSlugPage({ params }: Props) {
 
     return (
       <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
+        <Header activePage="bikes" />
         {/* Hero */}
         <div className="relative border-b border-[#F0EDE4]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#2aabab]/5 via-transparent to-transparent pointer-events-none" />
