@@ -1,5 +1,4 @@
 import Image from 'next/image'
-
 export default function ComingSoonPage() {
   return (
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4] flex flex-col items-center justify-center px-5 relative overflow-hidden">
@@ -37,7 +36,7 @@ export default function ComingSoonPage() {
         {/* Stats */}
         <div className="flex items-center justify-center gap-8 mt-4 pt-8 border-t border-[#F0EDE4]/6">
           {[
-            { value: '6+', label: 'Builder' },
+            { value: '+124', label: 'Builder' },
             { value: '5', label: 'Länder' },
             { value: '100%', label: 'Kostenlos' },
           ].map(s => (
