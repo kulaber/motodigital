@@ -30,9 +30,15 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Coming soon — rewrite all requests on motodigital.io to /coming-soon
+  const host = request.headers.get('host') ?? ''
+  const path = request.nextUrl.pathname
+  if (host.includes('motodigital.io') && !path.startsWith('/coming-soon')) {
+    return NextResponse.rewrite(new URL('/coming-soon', request.url))
+  }
+
   // Refresh session — IMPORTANT: do not add logic between createServerClient and getUser
   const { data: { user } } = await supabase.auth.getUser()
-  const path = request.nextUrl.pathname
 
   // Redirect unauthenticated users away from protected routes
   if (!user && PROTECTED_ROUTES.some(r => path.startsWith(r))) {
