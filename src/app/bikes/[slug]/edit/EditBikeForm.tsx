@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronDown, Trash2 } from 'lucide-react'
+import { Upload, X, ChevronDown, Play } from 'lucide-react'
 import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
 
 const STYLES = [
@@ -18,7 +18,7 @@ const STYLES = [
   { value: 'other',      label: 'Sonstiges'  },
 ]
 
-type ExistingImage = { id: string; url: string; is_cover: boolean; position: number }
+type ExistingMedia = { id: string; url: string; is_cover: boolean; position: number }
 
 type BikeData = {
   id: string
@@ -36,12 +36,16 @@ type BikeData = {
   description: string | null
   status: 'active' | 'draft'
   seller_id: string
-  bike_images: ExistingImage[]
+  bike_images: ExistingMedia[]
 }
 
 const labelClass  = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-2'
 const inputClass  = 'w-full bg-white border border-[#EBEBEB] rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#B0B0B0] outline-none focus:border-[#DDDDDD] transition-colors'
 const selectClass = 'w-full bg-white border border-[#EBEBEB] rounded-xl px-4 py-3 pr-10 text-sm text-[#222222] outline-none focus:border-[#DDDDDD] transition-colors appearance-none cursor-pointer'
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|mov|webm|avi)(\?|$)/i.test(url)
+}
 
 export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const router = useRouter()
@@ -61,36 +65,66 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const [description, setDescription] = useState(bike.description ?? '')
   const [status, setStatus]         = useState<'active' | 'draft'>(bike.status)
 
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>(
-    [...bike.bike_images].sort((a, b) => a.position - b.position)
+  const sorted = [...bike.bike_images].sort((a, b) => a.position - b.position)
+
+  // Split existing media into images and videos
+  const [existingImages, setExistingImages] = useState<ExistingMedia[]>(
+    sorted.filter(m => !isVideoUrl(m.url))
   )
-  const [newFiles, setNewFiles]     = useState<File[]>([])
-  const [newPreviews, setNewPreviews] = useState<string[]>([])
-  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([])
+  const [existingVideos, setExistingVideos] = useState<ExistingMedia[]>(
+    sorted.filter(m => isVideoUrl(m.url))
+  )
+
+  const [newImageFiles, setNewImageFiles]       = useState<File[]>([])
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
+  const [newVideoFiles, setNewVideoFiles]       = useState<File[]>([])
+  const [newVideoPreviews, setNewVideoPreviews] = useState<string[]>([])
+  const [deletedMediaIds, setDeletedMediaIds]   = useState<string[]>([])
 
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
 
   function handleNewImages(files: FileList | null) {
     if (!files) return
-    const total = existingImages.length + newFiles.length
+    const total = existingImages.length + newImageFiles.length
     const add = Array.from(files).slice(0, 8 - total)
-    setNewFiles(prev => [...prev, ...add])
+    setNewImageFiles(prev => [...prev, ...add])
     add.forEach(file => {
       const reader = new FileReader()
-      reader.onload = e => setNewPreviews(prev => [...prev, e.target?.result as string])
+      reader.onload = e => setNewImagePreviews(prev => [...prev, e.target?.result as string])
       reader.readAsDataURL(file)
     })
   }
 
-  function removeExisting(id: string) {
-    setExistingImages(prev => prev.filter(i => i.id !== id))
-    setDeletedImageIds(prev => [...prev, id])
+  function handleNewVideos(files: FileList | null) {
+    if (!files) return
+    const add = Array.from(files).slice(0, 3 - existingVideos.length - newVideoFiles.length)
+    setNewVideoFiles(prev => [...prev, ...add])
+    add.forEach(file => {
+      const url = URL.createObjectURL(file)
+      setNewVideoPreviews(prev => [...prev, url])
+    })
   }
 
-  function removeNew(i: number) {
-    setNewFiles(prev => prev.filter((_, idx) => idx !== i))
-    setNewPreviews(prev => prev.filter((_, idx) => idx !== i))
+  function removeExistingImage(id: string) {
+    setExistingImages(prev => prev.filter(i => i.id !== id))
+    setDeletedMediaIds(prev => [...prev, id])
+  }
+
+  function removeExistingVideo(id: string) {
+    setExistingVideos(prev => prev.filter(v => v.id !== id))
+    setDeletedMediaIds(prev => [...prev, id])
+  }
+
+  function removeNewImage(i: number) {
+    setNewImageFiles(prev => prev.filter((_, idx) => idx !== i))
+    setNewImagePreviews(prev => prev.filter((_, idx) => idx !== i))
+  }
+
+  function removeNewVideo(i: number) {
+    URL.revokeObjectURL(newVideoPreviews[i])
+    setNewVideoFiles(prev => prev.filter((_, idx) => idx !== i))
+    setNewVideoPreviews(prev => prev.filter((_, idx) => idx !== i))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -125,41 +159,62 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
       return
     }
 
-    // Delete removed images
-    for (const imgId of deletedImageIds) {
+    // Delete removed media
+    for (const id of deletedMediaIds) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('bike_images') as any).delete().eq('id', imgId)
+      await (supabase.from('bike_images') as any).delete().eq('id', id)
     }
 
     // Upload new images
-    const offset = existingImages.length
-    for (let i = 0; i < newFiles.length; i++) {
-      const file = newFiles[i]
+    const imgOffset = existingImages.length
+    for (let i = 0; i < newImageFiles.length; i++) {
+      const file = newImageFiles[i]
       const ext = file.name.split('.').pop()
-      const path = `${user.id}/${bike.id}/${Date.now()}-${i}.${ext}`
+      const path = `${user.id}/${bike.id}/${Date.now()}-img-${i}.${ext}`
       const { data: upload } = await supabase.storage
-        .from('bike-images')
-        .upload(path, file, { upsert: true })
+        .from('bike-images').upload(path, file, { upsert: true })
       if (upload) {
         const { data: urlData } = supabase.storage.from('bike-images').getPublicUrl(path)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('bike_images') as any).insert({
           bike_id:  bike.id,
           url:      urlData.publicUrl,
-          position: offset + i,
-          is_cover: offset === 0 && i === 0,
+          position: imgOffset + i,
+          is_cover: imgOffset === 0 && i === 0,
         })
       }
     }
 
-    // If first existing was removed, set new cover
-    if (existingImages.length > 0) {
+    // Upload new videos
+    const vidOffset = 1000 // keep videos after images in position ordering
+    for (let i = 0; i < newVideoFiles.length; i++) {
+      const file = newVideoFiles[i]
+      const ext = file.name.split('.').pop()
+      const path = `${user.id}/${bike.id}/${Date.now()}-vid-${i}.${ext}`
+      const { data: upload } = await supabase.storage
+        .from('bike-images').upload(path, file, { upsert: true })
+      if (upload) {
+        const { data: urlData } = supabase.storage.from('bike-images').getPublicUrl(path)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('bike_images') as any).insert({
+          bike_id:  bike.id,
+          url:      urlData.publicUrl,
+          position: vidOffset + existingVideos.length + i,
+          is_cover: false,
+        })
+      }
+    }
+
+    // Reassign cover to first remaining image
+    if (existingImages.length > 0 || newImageFiles.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('bike_images') as any)
         .update({ is_cover: false }).eq('bike_id', bike.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('bike_images') as any)
-        .update({ is_cover: true }).eq('id', existingImages[0].id)
+      if (existingImages.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('bike_images') as any)
+          .update({ is_cover: true }).eq('id', existingImages[0].id)
+      }
     }
 
     router.push('/dashboard')
@@ -258,12 +313,11 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           className={`${inputClass} resize-none leading-relaxed`} />
       </div>
 
-      {/* Fotos */}
+      {/* ── FOTOS ── */}
       <div>
         <label className={labelClass}>Fotos</label>
 
-        {/* Existing images */}
-        {existingImages.length > 0 && (
+        {(existingImages.length > 0 || newImagePreviews.length > 0) && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {existingImages.map((img, i) => (
               <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
@@ -273,23 +327,17 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                     Cover
                   </span>
                 )}
-                <button type="button" onClick={() => removeExisting(img.id)}
+                <button type="button" onClick={() => removeExistingImage(img.id)}
                   className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X size={11} className="text-[#717171]" />
                 </button>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* New images */}
-        {newPreviews.length > 0 && (
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-            {newPreviews.map((src, i) => (
-              <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
+            {newImagePreviews.map((src, i) => (
+              <div key={`new-${i}`} className="relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
                 <img src={src} alt="" className="w-full h-full object-cover" />
                 <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#717171] text-white px-1.5 py-0.5 rounded-full">Neu</span>
-                <button type="button" onClick={() => removeNew(i)}
+                <button type="button" onClick={() => removeNewImage(i)}
                   className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X size={11} className="text-[#717171]" />
                 </button>
@@ -298,12 +346,64 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           </div>
         )}
 
-        {existingImages.length + newFiles.length < 8 && (
+        {existingImages.length + newImageFiles.length < 8 && (
           <label className="flex items-center gap-3 border border-dashed border-[#DDDDDD] hover:border-[#B0B0B0] rounded-xl px-4 py-3 cursor-pointer transition-colors">
             <Upload size={16} className="text-[#B0B0B0]" />
-            <span className="text-sm text-[#B0B0B0]">Weitere Fotos hinzufügen</span>
+            <span className="text-sm text-[#B0B0B0]">Fotos hinzufügen</span>
             <input type="file" accept="image/*" multiple className="sr-only"
               onChange={e => handleNewImages(e.target.files)} />
+          </label>
+        )}
+      </div>
+
+      {/* ── VIDEOS ── */}
+      <div>
+        <label className={labelClass}>Videos</label>
+
+        {(existingVideos.length > 0 || newVideoPreviews.length > 0) && (
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            {existingVideos.map(vid => (
+              <div key={vid.id} className="relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
+                <div className="aspect-video relative">
+                  <video src={vid.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center">
+                      <Play size={13} className="text-[#222222] ml-0.5" fill="currentColor" />
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onClick={() => removeExistingVideo(vid.id)}
+                  className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X size={11} className="text-[#717171]" />
+                </button>
+              </div>
+            ))}
+            {newVideoPreviews.map((src, i) => (
+              <div key={`new-vid-${i}`} className="relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
+                <div className="aspect-video relative">
+                  <video src={src} className="w-full h-full object-cover" muted playsInline />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center">
+                      <Play size={13} className="text-[#222222] ml-0.5" fill="currentColor" />
+                    </div>
+                  </div>
+                  <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#717171] text-white px-1.5 py-0.5 rounded-full">Neu</span>
+                </div>
+                <button type="button" onClick={() => removeNewVideo(i)}
+                  className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X size={11} className="text-[#717171]" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {existingVideos.length + newVideoFiles.length < 3 && (
+          <label className="flex items-center gap-3 border border-dashed border-[#DDDDDD] hover:border-[#B0B0B0] rounded-xl px-4 py-3 cursor-pointer transition-colors">
+            <Upload size={16} className="text-[#B0B0B0]" />
+            <span className="text-sm text-[#B0B0B0]">Video hinzufügen</span>
+            <input type="file" accept="video/*" multiple className="sr-only"
+              onChange={e => handleNewVideos(e.target.files)} />
           </label>
         )}
       </div>
