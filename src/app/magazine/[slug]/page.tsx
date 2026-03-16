@@ -66,14 +66,14 @@ function RenderSection({ section }: { section: ArticleSection }) {
   switch (section.type) {
     case 'intro':
       return (
-        <p className="text-lg text-[#1A1714]/70 leading-relaxed mb-6 font-light">
+        <p className="text-lg text-[#222222]/70 leading-relaxed mb-6 font-light">
           {section.text}
         </p>
       )
     case 'h2':
       return (
         <h2
-          className="text-xl font-bold text-[#1A1714] mt-8 mb-3"
+          className="text-xl font-bold text-[#222222] mt-8 mb-3"
           style={{ letterSpacing: '-0.03em' }}
         >
           {section.text}
@@ -81,16 +81,16 @@ function RenderSection({ section }: { section: ArticleSection }) {
       )
     case 'p':
       return (
-        <p className="text-sm text-[#1A1714]/60 leading-relaxed mb-4">{section.text}</p>
+        <p className="text-sm text-[#222222]/60 leading-relaxed mb-4">{section.text}</p>
       )
     case 'quote':
       return (
-        <blockquote className="my-8 pl-5 border-l-2 border-[#2aabab]">
-          <p className="text-base text-[#1A1714]/80 italic leading-relaxed">
+        <blockquote className="my-8 pl-5 border-l-2 border-[#DDDDDD]">
+          <p className="text-base text-[#222222]/80 italic leading-relaxed">
             &ldquo;{section.text}&rdquo;
           </p>
           {section.author && (
-            <p className="mt-2 text-xs text-[#2aabab] font-semibold uppercase tracking-widest">
+            <p className="mt-2 text-xs text-[#717171] font-semibold uppercase tracking-widest">
               — {section.author}
             </p>
           )}
@@ -105,7 +105,7 @@ function RenderSection({ section }: { section: ArticleSection }) {
             className="w-full rounded-xl object-cover max-h-[480px]"
           />
           {section.caption && (
-            <figcaption className="mt-2 text-xs text-[#1A1714]/35 text-center">
+            <figcaption className="mt-2 text-xs text-[#222222]/35 text-center">
               {section.caption}
             </figcaption>
           )}
@@ -115,8 +115,8 @@ function RenderSection({ section }: { section: ArticleSection }) {
       return (
         <ul className="my-4 space-y-2">
           {section.items.map((item, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-[#1A1714]/60 leading-relaxed">
-              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#2aabab]" />
+            <li key={i} className="flex items-start gap-3 text-sm text-[#222222]/60 leading-relaxed">
+              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#086565]" />
               {item}
             </li>
           ))}
@@ -124,11 +124,11 @@ function RenderSection({ section }: { section: ArticleSection }) {
       )
     case 'cta':
       return (
-        <div className="my-8 p-6 bg-white border border-[#1A1714]/6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-[#1A1714]">{section.text}</p>
+        <div className="my-8 p-6 bg-white border border-[#222222]/6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-[#222222]">{section.text}</p>
           <Link
             href={section.href}
-            className="flex-shrink-0 px-5 py-2.5 bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] text-sm font-bold rounded-xl transition-colors"
+            className="flex-shrink-0 px-5 py-2.5 bg-[#086565] hover:bg-[#064f4f] text-white text-sm font-bold rounded-xl transition-colors"
           >
             {section.label}
           </Link>
@@ -184,7 +184,7 @@ export default async function ArticlePage({
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -199,26 +199,26 @@ export default async function ArticlePage({
           className="absolute inset-0 w-full h-full object-cover"
         />
         {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2EB] via-[#F5F2EB]/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
 
         {/* overlay content */}
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 lg:px-8 pb-10 max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#2aabab]/15 text-[#2aabab] border-[#2aabab]/20">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#222222]/15 text-[#717171] border-[#DDDDDD]/20">
               {article.categoryLabel}
             </span>
           </div>
           <h1
-            className="font-bold text-[#1A1714] leading-tight mb-3 max-w-3xl"
+            className="font-bold text-[#222222] leading-tight mb-3 max-w-3xl"
             style={{ fontSize: 'clamp(1.5rem,4vw,2.5rem)', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)' }}
           >
             {article.title}
           </h1>
-          <div className="flex items-center gap-4 text-xs text-[#1A1714]/50">
+          <div className="flex items-center gap-4 text-xs text-[#222222]/50">
             <span>{article.author}</span>
-            <span className="h-3 w-px bg-[#1A1714]/20" />
+            <span className="h-3 w-px bg-[#222222]/20" />
             <span>{formatDateDE(article.publishedAt)}</span>
-            <span className="h-3 w-px bg-[#1A1714]/20" />
+            <span className="h-3 w-px bg-[#222222]/20" />
             <span>{article.readTime} Lesezeit</span>
           </div>
         </div>
@@ -250,15 +250,15 @@ export default async function ArticlePage({
           <aside className="lg:col-span-1 space-y-6">
             <div className="lg:sticky lg:top-24 space-y-6">
               {/* Tags */}
-              <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/40 mb-3">
+              <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#222222]/40 mb-3">
                   Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {article.tags.map(tag => (
                     <span
                       key={tag}
-                      className="text-[11px] px-2.5 py-1 rounded-full bg-[#1A1714]/5 border border-[#1A1714]/8 text-[#1A1714]/50"
+                      className="text-[11px] px-2.5 py-1 rounded-full bg-[#222222]/5 border border-[#222222]/8 text-[#222222]/50"
                     >
                       {tag}
                     </span>
@@ -268,25 +268,25 @@ export default async function ArticlePage({
 
               {/* Related builder */}
               {relatedBuilder && (
-                <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/40 mb-4">
+                <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#222222]/40 mb-4">
                     Der Builder
                   </h3>
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 flex-shrink-0 rounded-full bg-[#2aabab]/15 border border-[#2aabab]/20 flex items-center justify-center text-[#2aabab] text-xs font-bold">
+                    <div className="h-10 w-10 flex-shrink-0 rounded-full bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-[#717171] text-xs font-bold">
                       {relatedBuilder.initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#1A1714] leading-snug">
+                      <p className="text-sm font-semibold text-[#222222] leading-snug">
                         {relatedBuilder.name}
                       </p>
-                      <p className="text-xs text-[#1A1714]/40">{relatedBuilder.city}</p>
-                      <p className="text-xs text-[#1A1714]/30 mt-0.5">{relatedBuilder.specialty}</p>
+                      <p className="text-xs text-[#222222]/40">{relatedBuilder.city}</p>
+                      <p className="text-xs text-[#222222]/30 mt-0.5">{relatedBuilder.specialty}</p>
                     </div>
                   </div>
                   <Link
                     href={`/builder/${relatedBuilder.slug}`}
-                    className="mt-4 block text-center text-xs font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors py-2 border border-[#2aabab]/20 rounded-xl hover:border-[#2aabab]/40"
+                    className="mt-4 block text-center text-xs font-semibold text-[#717171] hover:text-[#1f9999] transition-colors py-2 border border-[#DDDDDD]/20 rounded-xl hover:border-[#DDDDDD]/40"
                   >
                     Builder-Profil ansehen →
                   </Link>
@@ -295,7 +295,7 @@ export default async function ArticlePage({
 
               {/* Related build */}
               {relatedBuild && (
-                <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
+                <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
                   <div className="aspect-[16/9] overflow-hidden">
                     <img
                       src={relatedBuild.coverImg}
@@ -304,16 +304,16 @@ export default async function ArticlePage({
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#2aabab] mb-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#717171] mb-1">
                       Zum Build
                     </p>
-                    <p className="text-sm font-semibold text-[#1A1714] leading-snug mb-1">
+                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-1">
                       {relatedBuild.title}
                     </p>
-                    <p className="text-xs text-[#1A1714]/40">{relatedBuild.base} · {relatedBuild.style}</p>
+                    <p className="text-xs text-[#222222]/40">{relatedBuild.base} · {relatedBuild.style}</p>
                     <Link
                       href={`/custom-bike/${relatedBuild.slug}`}
-                      className="mt-3 block text-xs font-semibold text-[#2aabab] hover:text-[#1f9999] transition-colors"
+                      className="mt-3 block text-xs font-semibold text-[#717171] hover:text-[#1f9999] transition-colors"
                     >
                       Build ansehen →
                     </Link>
@@ -323,8 +323,8 @@ export default async function ArticlePage({
 
               {/* More articles */}
               {moreArticles.length > 0 && (
-                <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/40 mb-4">
+                <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#222222]/40 mb-4">
                     Weitere Artikel
                   </h3>
                   <div className="space-y-4">
@@ -340,10 +340,10 @@ export default async function ArticlePage({
                           className="h-12 w-16 flex-shrink-0 rounded-lg object-cover"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#1A1714] leading-snug line-clamp-2 group-hover:text-[#2aabab] transition-colors">
+                          <p className="text-xs font-semibold text-[#222222] leading-snug line-clamp-2 group-hover:text-[#717171] transition-colors">
                             {a.title}
                           </p>
-                          <p className="mt-0.5 text-[10px] text-[#1A1714]/30">{a.readTime} Lesezeit</p>
+                          <p className="mt-0.5 text-[10px] text-[#222222]/30">{a.readTime} Lesezeit</p>
                         </div>
                       </Link>
                     ))}
@@ -352,22 +352,22 @@ export default async function ArticlePage({
               )}
 
               {/* Newsletter */}
-              <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+              <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
                 <h3
-                  className="text-sm font-bold text-[#1A1714] mb-1"
+                  className="text-sm font-bold text-[#222222] mb-1"
                   style={{ letterSpacing: '-0.03em' }}
                 >
                   Kein Artikel verpassen
                 </h3>
-                <p className="text-xs text-[#1A1714]/40 mb-4 leading-relaxed">
+                <p className="text-xs text-[#222222]/40 mb-4 leading-relaxed">
                   Build Stories, Interviews und Guides — direkt in dein Postfach.
                 </p>
                 <input
                   type="email"
                   placeholder="deine@email.de"
-                  className="w-full px-3.5 py-2.5 bg-[#F5F2EB] border border-[#1A1714]/10 rounded-xl text-sm text-[#1A1714] placeholder-[#1A1714]/25 focus:outline-none focus:border-[#2aabab]/40 mb-3"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#222222]/10 rounded-xl text-sm text-[#222222] placeholder-[#1A1714]/25 focus:outline-none focus:border-[#DDDDDD]/40 mb-3"
                 />
-                <button className="w-full py-2.5 bg-[#2aabab] hover:bg-[#1f9999] text-[#141414] text-sm font-bold rounded-xl transition-colors">
+                <button className="w-full py-2.5 bg-[#086565] hover:bg-[#064f4f] text-white text-sm font-bold rounded-xl transition-colors">
                   Abonnieren
                 </button>
               </div>

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 export default function ComingSoonPage() {
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714] flex flex-col items-center justify-center px-5 relative overflow-hidden">
+    <div className="min-h-screen bg-white text-[#222222] flex flex-col items-center justify-center px-5 relative overflow-hidden">
 
       {/* Background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
@@ -17,32 +17,32 @@ export default function ComingSoonPage() {
         </div>
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#2AABAB]/10 border border-[#2AABAB]/25 text-[#2AABAB] text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#2AABAB] animate-pulse" />
+        <div className="inline-flex items-center gap-2 bg-[#222222]/10 border border-[#DDDDDD]/25 text-[#717171] text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#086565] animate-pulse" />
           Demnächst verfügbar
         </div>
 
         {/* Headline */}
-        <h1 className="font-bold text-[#1A1714] leading-tight mb-5"
+        <h1 className="font-bold text-[#222222] leading-tight mb-5"
           style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', letterSpacing: '-0.03em' }}>
           Die Plattform für<br />
-          <span className="text-[#1A1714]/25">Custom Motorcycle Builder.</span>
+          <span className="text-[#222222]/25">Custom Motorcycle Builder.</span>
         </h1>
 
-        <p className="text-[#1A1714]/45 text-base leading-relaxed mb-10 max-w-sm mx-auto">
+        <p className="text-[#222222]/45 text-base leading-relaxed mb-10 max-w-sm mx-auto">
           Verifizierte Builder, direkt kontaktierbar — ohne Umwege, ohne Provision. Wir starten bald.
         </p>
 
         {/* Stats */}
-        <div className="flex items-center justify-center gap-8 mt-4 pt-8 border-t border-[#1A1714]/6">
+        <div className="flex items-center justify-center gap-8 mt-4 pt-8 border-t border-[#222222]/6">
           {[
             { value: '+124', label: 'Builder' },
             { value: '5', label: 'Länder' },
             { value: '100%', label: 'Kostenlos' },
           ].map(s => (
             <div key={s.label}>
-              <p className="text-xl font-bold text-[#1A1714]">{s.value}</p>
-              <p className="text-[10px] text-[#1A1714]/30 uppercase tracking-widest mt-0.5">{s.label}</p>
+              <p className="text-xl font-bold text-[#222222]">{s.value}</p>
+              <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>

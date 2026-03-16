@@ -92,10 +92,10 @@ export default async function BikeSlugPage({ params }: Props) {
     ).slice(0, 4)
 
     return (
-      <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+      <div className="min-h-screen bg-white text-[#222222]">
         <Header activePage="bikes" />
         {/* Hero */}
-        <div className="relative border-b border-[#1A1714]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
+        <div className="relative border-b border-[#222222]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#2aabab]/5 via-transparent to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto relative">
             <Breadcrumbs crumbs={[
@@ -104,11 +104,11 @@ export default async function BikeSlugPage({ params }: Props) {
               { label: styleInfo.name },
             ]} />
             <div className="mt-5">
-              <span className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest">Custom Style</span>
-              <h1 className="font-bold text-[#1A1714] mt-2 mb-3" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
+              <span className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Custom Style</span>
+              <h1 className="font-bold text-[#222222] mt-2 mb-3" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
                 {styleInfo.name} Motorcycles
               </h1>
-              <p className="text-[#1A1714]/45 text-sm max-w-xl">
+              <p className="text-[#222222]/45 text-sm max-w-xl">
                 {styleInfo.description} — kuratierte Custom Builds von verifizierten Buildern weltweit.
               </p>
             </div>
@@ -119,10 +119,10 @@ export default async function BikeSlugPage({ params }: Props) {
 
           {/* Results count */}
           <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-[#1A1714]/40">
-              <span className="text-[#1A1714] font-semibold">{filtered.length}</span> {styleInfo.name} Bikes
+            <p className="text-sm text-[#222222]/40">
+              <span className="text-[#222222] font-semibold">{filtered.length}</span> {styleInfo.name} Bikes
             </p>
-            <Link href="/bikes" className="text-xs text-[#2aabab] hover:text-[#1f9999] transition-colors">
+            <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#1f9999] transition-colors">
               ← Alle Stile
             </Link>
           </div>
@@ -133,7 +133,7 @@ export default async function BikeSlugPage({ params }: Props) {
                 <Link
                   key={build.slug}
                   href={`/custom-bike/${build.slug}`}
-                  className="group rounded-2xl overflow-hidden bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 transition-all hover:-translate-y-0.5"
+                  className="group rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all hover:-translate-y-0.5"
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
                     <img
@@ -142,23 +142,23 @@ export default async function BikeSlugPage({ params }: Props) {
                       className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                     />
                     {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-1 bg-[#2aabab]/90 text-[#141414] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+                      <span className="absolute top-2 right-2 flex items-center gap-1 bg-[#222222]/90 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
                         <BadgeCheck size={9} /> Verified
                       </span>
                     )}
                   </div>
                   <div className="p-4">
-                    <p className="text-xs text-[#2aabab] font-semibold mb-1">{build.base}</p>
-                    <p className="text-sm font-semibold text-[#1A1714] line-clamp-1 mb-1">{build.title}</p>
-                    <p className="text-xs text-[#1A1714]/35">{build.city} · {build.buildYear}</p>
+                    <p className="text-xs text-[#717171] font-semibold mb-1">{build.base}</p>
+                    <p className="text-sm font-semibold text-[#222222] line-clamp-1 mb-1">{build.title}</p>
+                    <p className="text-xs text-[#222222]/35">{build.city} · {build.buildYear}</p>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 text-[#1A1714]/30">
+            <div className="text-center py-20 text-[#222222]/30">
               <p className="text-base">Noch keine {styleInfo.name} Bikes verfügbar.</p>
-              <Link href="/bikes" className="mt-4 inline-block text-sm text-[#2aabab] hover:text-[#1f9999]">
+              <Link href="/bikes" className="mt-4 inline-block text-sm text-[#717171] hover:text-[#1f9999]">
                 Alle Bikes ansehen →
               </Link>
             </div>
@@ -166,8 +166,8 @@ export default async function BikeSlugPage({ params }: Props) {
 
           {/* Related builders */}
           {relatedBuilders.length > 0 && (
-            <div className="border-t border-[#1A1714]/5 pt-10">
-              <h2 className="text-base font-semibold text-[#1A1714] mb-5">
+            <div className="border-t border-[#222222]/5 pt-10">
+              <h2 className="text-base font-semibold text-[#222222] mb-5">
                 {styleInfo.name} Builder
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -175,14 +175,14 @@ export default async function BikeSlugPage({ params }: Props) {
                   <Link
                     key={b.slug}
                     href={`/builder/${b.slug}`}
-                    className="group bg-white border border-[#1A1714]/6 hover:border-[#2aabab]/30 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
+                    className="group bg-white border border-[#222222]/6 hover:border-[#DDDDDD]/30 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
                   >
-                    <div className="w-11 h-11 rounded-xl bg-[#2aabab]/10 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab]">
+                    <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171]">
                       {b.initials}
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#1A1714]">{b.name}</p>
-                      <p className="text-[10px] text-[#1A1714]/35 mt-0.5">{b.city}</p>
+                      <p className="text-xs font-semibold text-[#222222]">{b.name}</p>
+                      <p className="text-[10px] text-[#222222]/35 mt-0.5">{b.city}</p>
                     </div>
                   </Link>
                 ))}
@@ -231,10 +231,10 @@ export default async function BikeSlugPage({ params }: Props) {
   ].filter(Boolean) as { label: string; value: string | number }[]
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8">
 
-        <Link href="/bikes" className="inline-flex items-center gap-1.5 text-sm text-[#1A1714]/40 hover:text-[#1A1714] mb-6 transition-colors">
+        <Link href="/bikes" className="inline-flex items-center gap-1.5 text-sm text-[#222222]/40 hover:text-[#222222] mb-6 transition-colors">
           <ChevronLeft size={14} />
           Zurück zur Suche
         </Link>
@@ -245,7 +245,7 @@ export default async function BikeSlugPage({ params }: Props) {
           <div className="flex flex-col gap-4">
 
             {/* Gallery */}
-            <div className="rounded-2xl overflow-hidden bg-white border border-[#1A1714]/6">
+            <div className="rounded-2xl overflow-hidden bg-white border border-[#222222]/6">
               <div className="relative aspect-[4/3] bg-white">
                 {images[0] ? (
                   <Image src={images[0].url} alt={bike.title} fill className="object-cover" priority sizes="(max-width:1024px) 100vw, 700px"/>
@@ -258,14 +258,14 @@ export default async function BikeSlugPage({ params }: Props) {
                     </svg>
                   </div>
                 )}
-                <span className="absolute top-3 left-3 bg-[#F5F2EB]/75 backdrop-blur-sm border border-[#1A1714]/15 text-[#1A1714] text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
+                <span className="absolute top-3 left-3 bg-white/75 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
                   {STYLE_LABELS[bike.style]}
                 </span>
               </div>
               {images.length > 1 && (
                 <div className="flex gap-2 p-3 overflow-x-auto">
                   {images.slice(1).map((img) => (
-                    <div key={img.id} className="relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border border-[#1A1714]/10">
+                    <div key={img.id} className="relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border border-[#222222]/10">
                       <Image src={img.url} alt="" fill className="object-cover" sizes="64px"/>
                     </div>
                   ))}
@@ -274,35 +274,35 @@ export default async function BikeSlugPage({ params }: Props) {
             </div>
 
             {/* Title + price */}
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h1 className="text-xl font-bold text-[#1A1714]">{bike.title}</h1>
+                    <h1 className="text-xl font-bold text-[#222222]">{bike.title}</h1>
                     {bike.is_verified && (
                       <span className="inline-flex items-center gap-1 text-xs bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5">
                         <BadgeCheck size={11} /> Verifiziert
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-[#1A1714]/40">
+                  <p className="text-sm text-[#222222]/40">
                     {bike.year} · {STYLE_LABELS[bike.style]} · {bike.city}
                   </p>
                 </div>
-                <p className="text-2xl font-bold text-[#1A1714] flex-shrink-0">{formatPrice(bike.price)}</p>
+                <p className="text-2xl font-bold text-[#222222] flex-shrink-0">{formatPrice(bike.price)}</p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                 {specs.map(s => (
-                  <div key={s.label} className="bg-[#F5F2EB] rounded-xl px-3 py-2.5">
-                    <p className="text-[10px] text-[#1A1714]/35 uppercase tracking-widest mb-0.5">{s.label}</p>
-                    <p className="text-sm font-medium text-[#1A1714]">{s.value}</p>
+                  <div key={s.label} className="bg-white rounded-xl px-3 py-2.5">
+                    <p className="text-[10px] text-[#222222]/35 uppercase tracking-widest mb-0.5">{s.label}</p>
+                    <p className="text-sm font-medium text-[#222222]">{s.value}</p>
                   </div>
                 ))}
               </div>
 
               {bike.description && (
-                <p className="text-sm text-[#1A1714]/55 leading-relaxed">{bike.description}</p>
+                <p className="text-sm text-[#222222]/55 leading-relaxed">{bike.description}</p>
               )}
             </div>
 
@@ -311,47 +311,47 @@ export default async function BikeSlugPage({ params }: Props) {
           {/* Right sidebar */}
           <div className="flex flex-col gap-3">
 
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-              <p className="text-2xl font-bold text-[#1A1714] mb-0.5">{formatPrice(bike.price)}</p>
-              <p className="text-xs text-[#1A1714]/35 mb-4">
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+              <p className="text-2xl font-bold text-[#222222] mb-0.5">{formatPrice(bike.price)}</p>
+              <p className="text-xs text-[#222222]/35 mb-4">
                 {workshop ? 'Builder-Inserat' : 'Privates Inserat'} · {formatRelativeTime(bike.created_at)}
               </p>
               <div className="flex flex-col gap-2">
                 <ContactButton bikeId={bike.id} sellerId={seller?.id ?? ''} />
-                <button className="w-full py-2.5 text-sm border border-[#1A1714]/15 rounded-full text-[#1A1714]/70 hover:text-[#1A1714] hover:border-[#1A1714]/30 transition-all">
+                <button className="w-full py-2.5 text-sm border border-[#222222]/15 rounded-full text-[#222222]/70 hover:text-[#222222] hover:border-[#222222]/30 transition-all">
                   Speichern
                 </button>
               </div>
-              <p className="text-xs text-[#1A1714]/20 text-center mt-3">Kontaktdaten werden nur dem Verkäufer gezeigt</p>
+              <p className="text-xs text-[#222222]/20 text-center mt-3">Kontaktdaten werden nur dem Verkäufer gezeigt</p>
             </div>
 
-            <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
               {workshop ? (
                 <>
-                  <p className="text-xs text-[#1A1714]/35 uppercase tracking-widest mb-3">Builder</p>
+                  <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-3">Builder</p>
                   <Link href={`/builder/${workshop.slug}`} className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-xl bg-[#2aabab]/15 border border-[#2aabab]/20 flex items-center justify-center text-sm font-bold text-[#2aabab] flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
                       {workshop.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#1A1714] group-hover:text-[#2aabab] transition-colors">{workshop.name}</p>
-                      <p className="text-xs text-[#1A1714]/35">{workshop.city}</p>
+                      <p className="text-sm font-semibold text-[#222222] group-hover:text-[#717171] transition-colors">{workshop.name}</p>
+                      <p className="text-xs text-[#222222]/35">{workshop.city}</p>
                     </div>
                   </Link>
                 </>
               ) : seller && (
                 <>
-                  <p className="text-xs text-[#1A1714]/35 uppercase tracking-widest mb-3">Verkäufer</p>
+                  <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-3">Verkäufer</p>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white border border-[#1A1714]/10 flex items-center justify-center text-sm font-bold text-[#1A1714]/60 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-white border border-[#222222]/10 flex items-center justify-center text-sm font-bold text-[#222222]/60 flex-shrink-0">
                       {(seller.full_name ?? seller.username ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-semibold text-[#1A1714]">{seller.full_name ?? seller.username}</p>
-                        {seller.is_verified && <BadgeCheck size={13} className="text-[#2aabab]" />}
+                        <p className="text-sm font-semibold text-[#222222]">{seller.full_name ?? seller.username}</p>
+                        {seller.is_verified && <BadgeCheck size={13} className="text-[#717171]" />}
                       </div>
-                      <p className="text-xs text-[#1A1714]/35">Privater Verkäufer</p>
+                      <p className="text-xs text-[#222222]/35">Privater Verkäufer</p>
                     </div>
                   </div>
                 </>
@@ -359,10 +359,10 @@ export default async function BikeSlugPage({ params }: Props) {
             </div>
 
             {bike.city && (
-              <div className="bg-white border border-[#1A1714]/6 rounded-2xl p-5">
-                <p className="text-xs text-[#1A1714]/35 uppercase tracking-widest mb-2">Standort</p>
-                <p className="text-sm text-[#1A1714] flex items-center gap-1.5">
-                  <MapPin size={12} className="text-[#1A1714]/40" />
+              <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+                <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-2">Standort</p>
+                <p className="text-sm text-[#222222] flex items-center gap-1.5">
+                  <MapPin size={12} className="text-[#222222]/40" />
                   {bike.city}
                 </p>
               </div>

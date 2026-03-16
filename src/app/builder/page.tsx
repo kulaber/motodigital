@@ -54,7 +54,7 @@ export default async function BuilderPage() {
   const merged = [...dbBuilders, ...staticOnly]
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="builder" />
 
       <BuilderPageClient builders={merged} />

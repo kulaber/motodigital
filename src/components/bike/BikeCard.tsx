@@ -27,16 +27,16 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
     <Link
       href={`/bikes/${bike.id}`}
       className={`
-        group block rounded-2xl overflow-hidden bg-bg-2
+        group block rounded-2xl overflow-hidden bg-white
         border transition-all duration-200
         ${highlighted
-          ? 'border-teal/40 shadow-lg shadow-teal/10'
-          : 'border-creme/6 hover:border-creme/15'
+          ? 'border-[#222222]/40 shadow-lg shadow-[#086565]/10'
+          : 'border-[#222222]/6 hover:border-[#222222]/15'
         }
       `}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-bg-3">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
         {cover ? (
           <Image
             src={cover.url}
@@ -56,11 +56,11 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
           </div>
         )}
         {/* Style tag */}
-        <span className="absolute top-2.5 left-2.5 bg-bg/75 backdrop-blur-sm border border-creme/15 text-creme text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+        <span className="absolute top-2.5 left-2.5 bg-white/75 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
           {STYLE_LABELS[bike.style] ?? bike.style}
         </span>
         {bike.is_verified && (
-          <span className="absolute top-2.5 right-2.5 bg-teal/90 text-bg rounded-full p-0.5">
+          <span className="absolute top-2.5 right-2.5 bg-[#222222]/90 text-[#222222] rounded-full p-0.5">
             <BadgeCheck size={14} />
           </span>
         )}
@@ -69,14 +69,14 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
       {/* Content */}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="text-sm font-semibold text-creme leading-snug line-clamp-1">
+          <h3 className="text-sm font-semibold text-[#222222] leading-snug line-clamp-1">
             {bike.title}
           </h3>
-          <span className="text-sm font-semibold text-creme flex-shrink-0">
+          <span className="text-sm font-semibold text-[#222222] flex-shrink-0">
             {formatPrice(bike.price)}
           </span>
         </div>
-        <div className="flex items-center gap-3 text-xs text-creme/40">
+        <div className="flex items-center gap-3 text-xs text-[#222222]/40">
           <span>{bike.year}</span>
           {bike.mileage_km && <span>{bike.mileage_km.toLocaleString('de-DE')} km</span>}
           {bike.city && (

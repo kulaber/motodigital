@@ -35,9 +35,9 @@ const jsonLd = {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Build Story': 'bg-[#2aabab]/15 text-[#2aabab] border-[#2aabab]/20',
-  Interview: 'bg-[#2aabab]/12 text-[#2aabab] border-[#2aabab]/20',
-  Guide: 'bg-[#1A1714]/8 text-[#1A1714]/60 border-[#1A1714]/12',
+  'Build Story': 'bg-[#222222]/15 text-[#717171] border-[#DDDDDD]/20',
+  Interview: 'bg-[#222222]/12 text-[#717171] border-[#DDDDDD]/20',
+  Guide: 'bg-[#222222]/8 text-[#222222]/60 border-[#222222]/12',
 }
 
 const CATEGORY_TABS = [
@@ -59,7 +59,7 @@ export default function MagazinePage() {
   const [heroArticle, ...restArticles] = ARTICLES
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -67,18 +67,18 @@ export default function MagazinePage() {
       <Header activePage="magazine" />
 
       {/* ── Header section ── */}
-      <section className="pt-28 pb-10 bg-[#F5F2EB]">
+      <section className="pt-28 pb-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <p className="text-xs font-semibold text-[#2aabab] uppercase tracking-widest mb-3">
+          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">
             Magazin
           </p>
           <h1
-            className="font-bold text-[#1A1714] leading-tight mb-4"
+            className="font-bold text-[#222222] leading-tight mb-4"
             style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)' }}
           >
             MotoDigital Magazin
           </h1>
-          <p className="text-[#1A1714]/40 text-base max-w-lg leading-relaxed mb-8">
+          <p className="text-[#222222]/40 text-base max-w-lg leading-relaxed mb-8">
             Stories, Builds, Culture — Einblicke in die Custom-Motorcycle-Welt aus erster Hand.
           </p>
 
@@ -90,8 +90,8 @@ export default function MagazinePage() {
                 href={tab.href}
                 className={`text-xs font-semibold px-4 py-2 rounded-xl border transition-colors ${
                   tab.href === '/magazine'
-                    ? 'bg-[#2aabab] text-[#141414] border-[#2aabab]'
-                    : 'bg-transparent text-[#1A1714]/50 border-[#1A1714]/10 hover:border-[#1A1714]/20 hover:text-[#1A1714]/70'
+                    ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                    : 'bg-transparent text-[#222222]/50 border-[#222222]/10 hover:border-[#222222]/20 hover:text-[#222222]/70'
                 }`}
               >
                 {tab.label}
@@ -106,33 +106,33 @@ export default function MagazinePage() {
         <section className="pb-10">
           <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
             <Link href={`/magazine/${heroArticle.slug}`} className="group block">
-              <div className="relative rounded-2xl overflow-hidden bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 transition-all duration-300 hover:shadow-2xl hover:shadow-black/40">
+              <div className="relative rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-300 hover:shadow-2xl hover:shadow-black/40">
                 <div className="relative h-[420px] sm:h-[480px] overflow-hidden">
                   <img
                     src={heroArticle.coverImage}
                     alt={heroArticle.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2EB] via-[#F5F2EB]/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-8">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#2aabab]/15 text-[#2aabab] border-[#2aabab]/20">
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#222222]/15 text-[#717171] border-[#DDDDDD]/20">
                         {heroArticle.categoryLabel}
                       </span>
-                      <span className="text-[10px] text-[#1A1714]/40">{heroArticle.readTime} Lesezeit</span>
+                      <span className="text-[10px] text-[#222222]/40">{heroArticle.readTime} Lesezeit</span>
                     </div>
                     <h2
-                      className="font-bold text-[#1A1714] leading-tight mb-3 max-w-2xl group-hover:text-[#2aabab] transition-colors"
+                      className="font-bold text-[#222222] leading-tight mb-3 max-w-2xl group-hover:text-[#717171] transition-colors"
                       style={{ fontSize: 'clamp(1.25rem,3vw,2rem)', letterSpacing: '-0.03em' }}
                     >
                       {heroArticle.title}
                     </h2>
-                    <p className="text-sm text-[#1A1714]/50 max-w-xl leading-relaxed mb-3">
+                    <p className="text-sm text-[#222222]/50 max-w-xl leading-relaxed mb-3">
                       {heroArticle.excerpt}
                     </p>
-                    <div className="flex items-center gap-3 text-[10px] text-[#1A1714]/35">
+                    <div className="flex items-center gap-3 text-[10px] text-[#222222]/35">
                       <span>{heroArticle.author}</span>
-                      <span className="h-2.5 w-px bg-[#1A1714]/20" />
+                      <span className="h-2.5 w-px bg-[#222222]/20" />
                       <span>{formatDateDE(heroArticle.publishedAt)}</span>
                     </div>
                   </div>
@@ -147,7 +147,7 @@ export default function MagazinePage() {
       <section className="pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <h2
-            className="text-sm font-bold text-[#1A1714]/40 uppercase tracking-widest mb-6"
+            className="text-sm font-bold text-[#222222]/40 uppercase tracking-widest mb-6"
           >
             Alle Artikel
           </h2>
@@ -156,7 +156,7 @@ export default function MagazinePage() {
               <Link
                 key={article.slug}
                 href={`/magazine/${article.slug}`}
-                className="card-interactive group block bg-white border border-[#1A1714]/6 hover:border-[#1A1714]/20 rounded-2xl overflow-hidden"
+                className="card-interactive group block bg-white border border-[#222222]/6 hover:border-[#222222]/20 rounded-2xl overflow-hidden"
               >
                 <article>
                   <div className="aspect-[16/9] overflow-hidden">
@@ -175,17 +175,17 @@ export default function MagazinePage() {
                       >
                         {article.categoryLabel}
                       </span>
-                      <span className="text-[10px] text-[#1A1714]/25">
+                      <span className="text-[10px] text-[#222222]/25">
                         {article.readTime} Lesezeit
                       </span>
                     </div>
-                    <h2 className="text-sm font-semibold text-[#1A1714] leading-snug mb-2 line-clamp-2">
+                    <h2 className="text-sm font-semibold text-[#222222] leading-snug mb-2 line-clamp-2">
                       {article.title}
                     </h2>
-                    <p className="text-xs text-[#1A1714]/40 leading-relaxed line-clamp-2 mb-4">
+                    <p className="text-xs text-[#222222]/40 leading-relaxed line-clamp-2 mb-4">
                       {article.excerpt}
                     </p>
-                    <span className="text-xs font-semibold text-[#2aabab] group-hover:text-[#1f9999] transition-colors">
+                    <span className="text-xs font-semibold text-[#717171] group-hover:text-[#1f9999] transition-colors">
                       Lesen →
                     </span>
                   </div>
@@ -197,10 +197,10 @@ export default function MagazinePage() {
       </section>
 
       {/* ── Themen section ── */}
-      <section className="pb-16 border-t border-[#1A1714]/5 pt-12">
+      <section className="pb-16 border-t border-[#222222]/5 pt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
           <h2
-            className="text-xs font-bold uppercase tracking-widest text-[#1A1714]/40 mb-6"
+            className="text-xs font-bold uppercase tracking-widest text-[#222222]/40 mb-6"
           >
             Themen & Stile
           </h2>
@@ -214,7 +214,7 @@ export default function MagazinePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm px-4 py-2 rounded-xl bg-white border border-[#1A1714]/8 text-[#1A1714]/50 hover:border-[#2aabab]/30 hover:text-[#2aabab] transition-colors"
+                className="text-sm px-4 py-2 rounded-xl bg-white border border-[#222222]/8 text-[#222222]/50 hover:border-[#DDDDDD]/30 hover:text-[#717171] transition-colors"
               >
                 {link.label}
               </Link>

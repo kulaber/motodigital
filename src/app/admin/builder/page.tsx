@@ -140,11 +140,11 @@ export default async function AdminBuilderPage() {
   const staticOnlyCount = merged.filter(r => r.hasStaticProfile && !r.hasDbProfile).length
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1714]">
+    <div className="min-h-screen bg-white text-[#222222]">
       <Header />
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-16 lg:px-8">
 
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#1A1714]/35 hover:text-[#1A1714] transition-colors mb-8">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
           <ArrowLeft size={13} /> Dashboard
         </Link>
 
@@ -154,9 +154,9 @@ export default async function AdminBuilderPage() {
               <Shield size={14} className="text-amber-400" />
               <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
             </div>
-            <h1 className="text-2xl font-bold text-[#1A1714]">Builder</h1>
+            <h1 className="text-2xl font-bold text-[#222222]">Builder</h1>
           </div>
-          <span className="text-sm text-[#1A1714]/30">{merged.length} gesamt</span>
+          <span className="text-sm text-[#222222]/30">{merged.length} gesamt</span>
         </div>
 
         {/* Stats */}
@@ -167,58 +167,58 @@ export default async function AdminBuilderPage() {
             { label: 'Nur statisch',    value: staticOnlyCount },
             { label: 'Verifiziert',     value: verifiedCount },
           ].map(s => (
-            <div key={s.label} className="bg-white border border-[#1A1714]/6 rounded-2xl p-4">
-              <p className="text-2xl font-bold text-[#1A1714]">{s.value}</p>
-              <p className="text-xs text-[#1A1714]/35 mt-0.5">{s.label}</p>
+            <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+              <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
+              <p className="text-xs text-[#222222]/35 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-[#1A1714]/6 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#1A1714]/6">
-                  <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest">Name</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest table-cell">Stadt</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest table-cell">Spezialisierung</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest table-cell">Bikes</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest table-cell">E-Mail</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest">Quelle</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest">Verif.</th>
-                  <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#1A1714]/30 uppercase tracking-widest">Aktionen</th>
+                <tr className="border-b border-[#222222]/6">
+                  <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Name</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Stadt</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Spezialisierung</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Bikes</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">E-Mail</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Quelle</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Verif.</th>
+                  <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1A1714]/5">
+              <tbody className="divide-y divide-[#222222]/5">
                 {merged.map(b => (
-                  <tr key={b.slug} className="hover:bg-[#1A1714]/2 transition-colors group">
+                  <tr key={b.slug} className="hover:bg-[#222222]/2 transition-colors group">
                     <td className="px-5 py-3.5">
                       <div>
-                        <p className="text-sm font-medium text-[#1A1714]">{b.name}</p>
-                        <p className="text-xs text-[#1A1714]/30">@{b.slug}</p>
+                        <p className="text-sm font-medium text-[#222222]">{b.name}</p>
+                        <p className="text-xs text-[#222222]/30">@{b.slug}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 table-cell">
-                      <span className="text-xs text-[#1A1714]/50">{b.city ?? '—'}</span>
+                      <span className="text-xs text-[#222222]/50">{b.city ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5 table-cell">
-                      <span className="text-xs text-[#1A1714]/50">{b.specialty ?? '—'}</span>
+                      <span className="text-xs text-[#222222]/50">{b.specialty ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5 table-cell text-center">
                       <div className="flex flex-col items-center gap-0.5">
                         {b.staticBikeCount > 0 && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#1A1714]/50 bg-[#1A1714]/6 border border-[#1A1714]/10 px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#222222]/50 bg-[#222222]/6 border border-[#222222]/10 px-2 py-0.5 rounded-full">
                             <Bike size={8} /> {b.staticBikeCount} statisch
                           </span>
                         )}
                         {b.dbBikeCount > 0 && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-2 py-0.5 rounded-full">
                             <Bike size={8} /> {b.dbBikeCount} DB
                           </span>
                         )}
                         {b.staticBikeCount === 0 && b.dbBikeCount === 0 && (
-                          <span className="text-xs text-[#1A1714]/20">—</span>
+                          <span className="text-xs text-[#222222]/20">—</span>
                         )}
                       </div>
                     </td>
@@ -227,23 +227,23 @@ export default async function AdminBuilderPage() {
                         <div className="flex items-center gap-1.5">
                           {b.email_confirmed
                             ? <Mail size={11} className="text-green-400 flex-shrink-0" />
-                            : <MailX size={11} className="text-[#1A1714]/20 flex-shrink-0" />
+                            : <MailX size={11} className="text-[#222222]/20 flex-shrink-0" />
                           }
-                          <span className="text-xs text-[#1A1714]/50 truncate max-w-[160px]">{b.email}</span>
+                          <span className="text-xs text-[#222222]/50 truncate max-w-[160px]">{b.email}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-[#1A1714]/20">—</span>
+                        <span className="text-xs text-[#222222]/20">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       <div className="flex items-center justify-center gap-1">
                         {b.hasStaticProfile && (
-                          <span title="Statisches Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#1A1714]/40 bg-[#1A1714]/6 border border-[#1A1714]/10 px-1.5 py-0.5 rounded-full">
+                          <span title="Statisches Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#222222]/40 bg-[#222222]/6 border border-[#222222]/10 px-1.5 py-0.5 rounded-full">
                             <FileText size={8} /> Statisch
                           </span>
                         )}
                         {b.hasDbProfile && (
-                          <span title="Supabase Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-1.5 py-0.5 rounded-full">
+                          <span title="Supabase Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-1.5 py-0.5 rounded-full">
                             <Database size={8} /> DB
                           </span>
                         )}
@@ -251,8 +251,8 @@ export default async function AdminBuilderPage() {
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       {b.is_verified
-                        ? <BadgeCheck size={14} className="text-[#2AABAB] mx-auto" />
-                        : <span className="text-xs text-[#1A1714]/20">—</span>
+                        ? <BadgeCheck size={14} className="text-[#717171] mx-auto" />
+                        : <span className="text-xs text-[#222222]/20">—</span>
                       }
                     </td>
                     <td className="px-5 py-3.5">
@@ -262,14 +262,14 @@ export default async function AdminBuilderPage() {
                           href={`/builder/${b.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-[#1A1714]/40 hover:text-[#1A1714] border border-[#1A1714]/10 hover:border-[#1A1714]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
+                          className="inline-flex items-center gap-1 text-xs text-[#222222]/40 hover:text-[#222222] border border-[#222222]/10 hover:border-[#222222]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
                         >
                           <ExternalLink size={10} /> Profil
                         </a>
                         {/* Bearbeiten */}
                         <Link
                           href={`/admin/builder/${b.slug}/edit`}
-                          className="inline-flex items-center gap-1 text-xs text-[#141414] bg-[#2AABAB] hover:bg-[#3DBFBF] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
+                          className="inline-flex items-center gap-1 text-xs text-white bg-[#086565] hover:bg-[#075555] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
                         >
                           <Pencil size={10} /> Bearbeiten
                         </Link>
@@ -279,7 +279,7 @@ export default async function AdminBuilderPage() {
                 ))}
                 {merged.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#1A1714]/25">
+                    <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#222222]/25">
                       Keine Builder gefunden
                     </td>
                   </tr>

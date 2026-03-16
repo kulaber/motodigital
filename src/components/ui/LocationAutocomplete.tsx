@@ -104,7 +104,7 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'B
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <MapPin size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1A1714]/25 pointer-events-none" />
+        <MapPin size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#222222]/25 pointer-events-none" />
         <input
           value={query}
           onChange={onInputChange}
@@ -114,28 +114,28 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'B
           autoComplete="off"
         />
         {loading && (
-          <Loader2 size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/30 animate-spin" />
+          <Loader2 size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 animate-spin" />
         )}
         {!loading && query && (
-          <button onClick={onClear} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1A1714]/25 hover:text-[#1A1714] transition-colors">
+          <button onClick={onClear} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/25 hover:text-[#222222] transition-colors">
             <X size={14} />
           </button>
         )}
       </div>
 
       {open && suggestions.length > 0 && (
-        <ul className="absolute z-50 top-full mt-1.5 w-full bg-white border border-[#1A1714]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+        <ul className="absolute z-50 top-full mt-1.5 w-full bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
           {suggestions.map(f => (
             <li key={f.id}>
               <button
                 type="button"
                 onClick={() => onSelect(f)}
-                className="w-full text-left px-4 py-3 text-sm text-[#1A1714]/70 hover:bg-[#1A1714]/5 hover:text-[#1A1714] transition-colors flex items-center gap-2.5 border-b border-[#1A1714]/5 last:border-0"
+                className="w-full text-left px-4 py-3 text-sm text-[#222222]/70 hover:bg-[#222222]/5 hover:text-[#222222] transition-colors flex items-center gap-2.5 border-b border-[#222222]/5 last:border-0"
               >
-                <MapPin size={12} className="text-[#2AABAB] flex-shrink-0" />
+                <MapPin size={12} className="text-[#717171] flex-shrink-0" />
                 <span>
-                  <span className="font-medium text-[#1A1714]">{f.text}</span>
-                  <span className="text-[#1A1714]/35 text-xs ml-1.5">
+                  <span className="font-medium text-[#222222]">{f.text}</span>
+                  <span className="text-[#222222]/35 text-xs ml-1.5">
                     {f.place_name.split(',').slice(1).join(',').trim()}
                   </span>
                 </span>
