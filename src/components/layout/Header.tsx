@@ -137,13 +137,12 @@ export default function Header({ activePage }: Props) {
                 </span>
               )}
 
-              {/* Dashboard dropdown — all authenticated roles */}
+              {/* Dashboard dropdown — icon only */}
               <div className="relative" ref={dropdownRef}>
                 <button onClick={() => setDashDropdown(d => !d)}
-                  className="flex items-center gap-1.5 text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
-                  <LayoutDashboard size={15} />
-                  Dashboard
-                  <ChevronDown size={13} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
+                  className="flex items-center gap-1 text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
+                  <LayoutDashboard size={17} />
+                  <ChevronDown size={12} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {dashDropdown && (
                   <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
@@ -182,14 +181,14 @@ export default function Header({ activePage }: Props) {
                       className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                       <Settings size={14} /> Konto-Einstellungen
                     </Link>
+                    <div className="h-px bg-[#222222]/6 mx-3 my-1" />
+                    <button onClick={handleLogout}
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-400/80 hover:text-red-500 hover:bg-red-50 transition-colors">
+                      <LogOut size={14} /> Abmelden
+                    </button>
                   </div>
                 )}
               </div>
-
-              <button onClick={handleLogout}
-                className="flex items-center gap-2 text-sm text-[#222222]/50 hover:text-[#222222] border border-[#222222]/12 hover:border-[#222222]/25 px-4 py-2 rounded-full transition-all">
-                <LogOut size={14} /> Abmelden
-              </button>
             </>
           ) : (
             <>
@@ -318,17 +317,13 @@ export default function Header({ activePage }: Props) {
                       <Link href="/dashboard/account" onClick={close} className={mobileDashLink}>
                         <Settings size={15} className="text-[#222222]/25 flex-shrink-0" /> Konto-Einstellungen
                       </Link>
+                      <div className="h-px bg-[#222222]/6 mx-1 my-1" />
+                      <button onClick={handleLogout}
+                        className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-red-400/80 transition-colors active:bg-red-500/8 active:text-red-500">
+                        <LogOut size={15} className="flex-shrink-0" /> Abmelden
+                      </button>
                     </div>
                   )}
-
-                  {/* Abmelden — always visible */}
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2.5 w-full px-3 py-3.5 rounded-xl text-base font-medium text-[#222222]/60 transition-colors active:bg-red-500/8 active:text-red-400 mt-1"
-                  >
-                    <LogOut size={17} className="text-[#222222]/30 flex-shrink-0" />
-                    Abmelden
-                  </button>
                 </>
               ) : !loading ? (
                 <div className="flex flex-col gap-2 pt-1">
