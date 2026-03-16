@@ -3,11 +3,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
-import { BadgeCheck, ArrowLeft, Mail, MailX, Shield } from 'lucide-react'
+import { BadgeCheck, ArrowLeft, Mail, MailX, Shield, ExternalLink, Pencil, Database, FileText } from 'lucide-react'
+import { BUILDERS } from '@/lib/data/builders'
 
 export const metadata: Metadata = { title: 'Admin — Builder' }
 
-type BuilderRow = {
+type SupabaseBuilder = {
   id: string
   username: string
   full_name: string | null
@@ -20,12 +21,25 @@ type BuilderRow = {
   email_confirmed: boolean
 }
 
+type MergedRow = {
+  slug: string
+  name: string
+  city: string | null
+  specialty: string | null
+  hasStaticProfile: boolean
+  hasDbProfile: boolean
+  dbId: string | null
+  email: string | null
+  email_confirmed: boolean
+  is_verified: boolean
+  created_at: string | null
+}
+
 export default async function AdminBuilderPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Check superadmin
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
@@ -34,18 +48,18 @@ export default async function AdminBuilderPage() {
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  // Fetch all builders with auth user data
+  // Fetch all builder profiles from Supabase
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: builders } = await (supabase.from('profiles') as any)
+  const { data: dbBuilders } = await (supabase.from('profiles') as any)
     .select('id, username, full_name, city, specialty, since_year, is_verified, created_at')
     .eq('role', 'builder')
-    .order('created_at', { ascending: false }) as { data: Omit<BuilderRow, 'email' | 'email_confirmed'>[] | null }
+    .order('created_at', { ascending: false }) as { data: Omit<SupabaseBuilder, 'email' | 'email_confirmed'>[] | null }
 
-  // Fetch auth users to get email + confirmation status via service role
+  // Enrich with auth data (email + confirmed)
   const { data: authData } = await supabase.auth.admin.listUsers()
   const authMap = new Map(authData?.users?.map(u => [u.id, u]) ?? [])
 
-  const rows: BuilderRow[] = (builders ?? []).map(b => {
+  const dbRows: SupabaseBuilder[] = (dbBuilders ?? []).map(b => {
     const auth = authMap.get(b.id)
     return {
       ...b,
@@ -54,8 +68,52 @@ export default async function AdminBuilderPage() {
     }
   })
 
-  const verifiedCount    = rows.filter(r => r.is_verified).length
-  const confirmedCount   = rows.filter(r => r.email_confirmed).length
+  // Build a map of Supabase builders keyed by username/slug
+  const dbBySlug = new Map(dbRows.map(r => [r.username, r]))
+
+  // Merge: start with static BUILDERS, then append DB-only builders
+  const staticSlugs = new Set(BUILDERS.map(b => b.slug))
+  const merged: MergedRow[] = []
+
+  for (const sb of BUILDERS) {
+    const db = dbBySlug.get(sb.slug)
+    merged.push({
+      slug: sb.slug,
+      name: db?.full_name ?? sb.name,
+      city: db?.city ?? sb.city,
+      specialty: db?.specialty ?? sb.specialty,
+      hasStaticProfile: true,
+      hasDbProfile: !!db,
+      dbId: db?.id ?? null,
+      email: db?.email ?? null,
+      email_confirmed: db?.email_confirmed ?? false,
+      is_verified: db?.is_verified ?? sb.verified,
+      created_at: db?.created_at ?? null,
+    })
+  }
+
+  // Append DB-only builders (not in static data)
+  for (const db of dbRows) {
+    if (!staticSlugs.has(db.username)) {
+      merged.push({
+        slug: db.username,
+        name: db.full_name ?? db.username,
+        city: db.city,
+        specialty: db.specialty,
+        hasStaticProfile: false,
+        hasDbProfile: true,
+        dbId: db.id,
+        email: db.email,
+        email_confirmed: db.email_confirmed,
+        is_verified: db.is_verified,
+        created_at: db.created_at,
+      })
+    }
+  }
+
+  const verifiedCount  = merged.filter(r => r.is_verified).length
+  const dbCount        = merged.filter(r => r.hasDbProfile).length
+  const staticOnlyCount = merged.filter(r => r.hasStaticProfile && !r.hasDbProfile).length
 
   return (
     <div className="min-h-screen bg-[#141414] text-[#F0EDE4]">
@@ -74,15 +132,16 @@ export default async function AdminBuilderPage() {
             </div>
             <h1 className="text-2xl font-bold text-[#F0EDE4]">Builder</h1>
           </div>
-          <span className="text-sm text-[#F0EDE4]/30">{rows.length} gesamt</span>
+          <span className="text-sm text-[#F0EDE4]/30">{merged.length} gesamt</span>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Builder gesamt', value: rows.length },
-            { label: 'E-Mail bestätigt', value: confirmedCount },
-            { label: 'Verifiziert', value: verifiedCount },
+            { label: 'Builder gesamt',  value: merged.length },
+            { label: 'In Datenbank',    value: dbCount },
+            { label: 'Nur statisch',    value: staticOnlyCount },
+            { label: 'Verifiziert',     value: verifiedCount },
           ].map(s => (
             <div key={s.label} className="bg-[#1C1C1C] border border-[#F0EDE4]/6 rounded-2xl p-4">
               <p className="text-2xl font-bold text-[#F0EDE4]">{s.value}</p>
@@ -98,27 +157,22 @@ export default async function AdminBuilderPage() {
               <thead>
                 <tr className="border-b border-[#F0EDE4]/6">
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Name</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">E-Mail</th>
                   <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden sm:table-cell">Stadt</th>
                   <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden lg:table-cell">Spezialisierung</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Mail</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Verifiziert</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden md:table-cell">Registriert</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Quelle</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Verif.</th>
+                  <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#F0EDE4]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0EDE4]/5">
-                {rows.map(b => (
-                  <tr key={b.id} className="hover:bg-[#F0EDE4]/2 transition-colors">
+                {merged.map(b => (
+                  <tr key={b.slug} className="hover:bg-[#F0EDE4]/2 transition-colors group">
                     <td className="px-5 py-3.5">
                       <div>
-                        <Link href={`/builder/${b.username}`} className="text-sm font-medium text-[#F0EDE4] hover:text-[#2AABAB] transition-colors">
-                          {b.full_name ?? b.username}
-                        </Link>
-                        <p className="text-xs text-[#F0EDE4]/30">@{b.username}</p>
+                        <p className="text-sm font-medium text-[#F0EDE4]">{b.name}</p>
+                        <p className="text-xs text-[#F0EDE4]/30">@{b.slug}</p>
                       </div>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-xs text-[#F0EDE4]/50">{b.email ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell">
                       <span className="text-xs text-[#F0EDE4]/50">{b.city ?? '—'}</span>
@@ -126,11 +180,32 @@ export default async function AdminBuilderPage() {
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <span className="text-xs text-[#F0EDE4]/50">{b.specialty ?? '—'}</span>
                     </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell">
+                      {b.email ? (
+                        <div className="flex items-center gap-1.5">
+                          {b.email_confirmed
+                            ? <Mail size={11} className="text-green-400 flex-shrink-0" />
+                            : <MailX size={11} className="text-[#F0EDE4]/20 flex-shrink-0" />
+                          }
+                          <span className="text-xs text-[#F0EDE4]/50 truncate max-w-[160px]">{b.email}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#F0EDE4]/20">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 text-center">
-                      {b.email_confirmed
-                        ? <Mail size={14} className="text-green-400 mx-auto" />
-                        : <MailX size={14} className="text-[#F0EDE4]/20 mx-auto" />
-                      }
+                      <div className="flex items-center justify-center gap-1">
+                        {b.hasStaticProfile && (
+                          <span title="Statisches Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#F0EDE4]/40 bg-[#F0EDE4]/6 border border-[#F0EDE4]/10 px-1.5 py-0.5 rounded-full">
+                            <FileText size={8} /> Statisch
+                          </span>
+                        )}
+                        {b.hasDbProfile && (
+                          <span title="Supabase Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#2AABAB] bg-[#2AABAB]/8 border border-[#2AABAB]/15 px-1.5 py-0.5 rounded-full">
+                            <Database size={8} /> DB
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       {b.is_verified
@@ -138,17 +213,32 @@ export default async function AdminBuilderPage() {
                         : <span className="text-xs text-[#F0EDE4]/20">—</span>
                       }
                     </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell">
-                      <span className="text-xs text-[#F0EDE4]/35">
-                        {new Date(b.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                      </span>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Profil ansehen */}
+                        <a
+                          href={`/builder/${b.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-[#F0EDE4]/40 hover:text-[#F0EDE4] border border-[#F0EDE4]/10 hover:border-[#F0EDE4]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
+                        >
+                          <ExternalLink size={10} /> Profil
+                        </a>
+                        {/* Bearbeiten */}
+                        <Link
+                          href={`/admin/builder/${b.slug}/edit`}
+                          className="inline-flex items-center gap-1 text-xs text-[#141414] bg-[#2AABAB] hover:bg-[#3DBFBF] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
+                        >
+                          <Pencil size={10} /> Bearbeiten
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
-                {rows.length === 0 && (
+                {merged.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#F0EDE4]/25">
-                      Noch keine Builder registriert
+                      Keine Builder gefunden
                     </td>
                   </tr>
                 )}

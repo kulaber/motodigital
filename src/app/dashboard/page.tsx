@@ -243,8 +243,8 @@ export default async function DashboardPage() {
           {/* LEFT */}
           <div className="flex flex-col gap-5">
 
-            {/* Builder profile card — only for builder/superadmin */}
-            {isBuilder && (
+            {/* Builder profile card — only for builders, not superadmin (uses /admin/builder) */}
+            {isBuilder && !isSuperAdmin && (
               <div className="bg-[#1C1C1C] border border-[#2AABAB]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
                   style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.08) 0%, transparent 65%)', transform: 'translate(30%,-30%)' }} />
