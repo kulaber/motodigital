@@ -596,7 +596,7 @@ export default function BuilderPageClient({ builders }: Props) {
         {/* LEFT — scrollable 2-col grid */}
         <div className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
           {!mapReady ? (
-            <div className="p-4 grid grid-cols-2 gap-4">
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="w-full aspect-[4/3] bg-[#F0F0F0] rounded-xl mb-2" />
@@ -631,7 +631,7 @@ export default function BuilderPageClient({ builders }: Props) {
               <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} Builder</p>
 
               {/* 2-column grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {visible.map(b => (
                   <Link
                     key={b.slug}
