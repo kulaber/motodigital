@@ -49,9 +49,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [fullName, setFullName]     = useState(profile.full_name ?? '')
   const [bio, setBio]               = useState(profile.bio ?? '')
   const [bioLong, setBioLong]       = useState(profile.bio_long ?? '')
-  const [city, setCity]             = useState(profile.city ?? '')
   const [specialty, setSpecialty]   = useState(profile.specialty ?? '')
-  const [sinceYear, setSinceYear]   = useState(profile.since_year?.toString() ?? '')
   const [tagsInput, setTagsInput]   = useState((profile.tags ?? []).join(', '))
   const [basesInput, setBasesInput] = useState((profile.bases ?? []).join(', '))
   const [address, setAddress]       = useState(profile.address ?? '')
@@ -86,9 +84,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       slug:         slug || null,
       bio:          bio || null,
       bio_long:     bioLong || null,
-      city:         city || null,
       specialty:    specialty || null,
-      since_year:   sinceYear ? parseInt(sinceYear) : null,
       tags:         tags.length ? tags : null,
       bases:        bases.length ? bases : null,
       address:      address || null,
@@ -163,19 +159,9 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
               placeholder="Dein Name oder Studio-Name"
               className={input} />
           </Field>
-          <Field label="Stadt">
-            <input value={city} onChange={e => setCity(e.target.value)}
-              placeholder="z.B. Berlin"
-              className={input} />
-          </Field>
           <Field label="Spezialisierung">
             <input value={specialty} onChange={e => setSpecialty(e.target.value)}
               placeholder="z.B. Cafe Racer · Scrambler"
-              className={input} />
-          </Field>
-          <Field label="Dabei seit (Jahr)">
-            <input value={sinceYear} onChange={e => setSinceYear(e.target.value)}
-              placeholder="z.B. 2019" type="number" min="1980" max="2030"
               className={input} />
           </Field>
         </div>

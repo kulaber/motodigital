@@ -36,7 +36,7 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
       .single()
 
     if (!error && data) {
-      router.push('/dashboard/messages')
+      router.push(`/dashboard/messages?conv=${data.id}`)
     }
 
     setLoading(false)

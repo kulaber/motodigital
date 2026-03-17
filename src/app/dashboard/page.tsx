@@ -371,7 +371,7 @@ export default async function DashboardPage() {
                       <User size={20} className="text-[#717171]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#222222] mb-0.5">Builder Profil</p>
+                      <p className="text-sm font-semibold text-[#222222] mb-0.5">Custom Werkstatt Profil</p>
                       {profile?.bio ? (
                         <p className="text-xs text-[#222222]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
                       ) : (

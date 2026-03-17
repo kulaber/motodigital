@@ -50,14 +50,14 @@ export default function BuilderContactButton({ builderId, builderFirstName, bike
       .maybeSingle()
 
     if (existing?.id) {
-      router.push('/dashboard/messages')
+      router.push(`/dashboard/messages?conv=${existing.id}`)
       setLoading(false)
       return
     }
 
     // Neue Konversation anlegen
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: insertError } = await (supabase.from('conversations') as any)
+    const { data: created, error: insertError } = await (supabase.from('conversations') as any)
       .insert({ seller_id: builderId, buyer_id: user.id, bike_id: bikeId })
       .select('id')
       .single()
@@ -68,7 +68,7 @@ export default function BuilderContactButton({ builderId, builderFirstName, bike
       return
     }
 
-    router.push('/dashboard/messages')
+    router.push(`/dashboard/messages${created?.id ? `?conv=${created.id}` : ''}`)
     setLoading(false)
   }
 

@@ -27,11 +27,13 @@ export default async function MessagesPage() {
         last_message_at,
         seller_id,
         buyer_id,
+        deleted_for,
         bikes ( id, title ),
         seller:profiles!conversations_seller_id_fkey ( id, full_name, username, avatar_url ),
         buyer:profiles!conversations_buyer_id_fkey  ( id, full_name, username, avatar_url )
       `)
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+      .not('deleted_for', 'cs', `{${user.id}}`)
       .order('last_message_at', { ascending: false }),
     // unread counts per conversation
     (supabase.from('messages') as any)
