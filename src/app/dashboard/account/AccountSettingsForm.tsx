@@ -118,8 +118,8 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
   }
 
   // ── Adresse ──
-  const [selectedPlace, setSelectedPlace] = useState<{ address: string; lat: number; lng: number } | null>(
-    currentAddress ? { address: currentAddress, lat: 0, lng: 0 } : null
+  const [selectedPlace, setSelectedPlace] = useState<{ address: string; lat: number; lng: number; city: string | null } | null>(
+    currentAddress ? { address: currentAddress, lat: 0, lng: 0, city: null } : null
   )
   const [addressSaving, setAddressSaving] = useState(false)
   const [addressSaved,  setAddressSaved]  = useState(false)
