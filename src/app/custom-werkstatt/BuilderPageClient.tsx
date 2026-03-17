@@ -253,10 +253,10 @@ export default function BuilderPageClient({ builders }: Props) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       setUserId(user.id)
-      const { data } = await supabase
-        .from('saved_builders')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from('saved_builders') as any)
         .select('builder_id')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) as { data: { builder_id: string }[] | null }
       if (data) setSavedIds(new Set(data.map(r => r.builder_id)))
     }
     loadSaved()
