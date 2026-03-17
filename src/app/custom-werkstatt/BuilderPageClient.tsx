@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, Bookmark, X } from 'lucide-react'
+import SwipeableImages from '@/components/ui/SwipeableImages'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import { createClient } from '@/lib/supabase/client'
@@ -36,20 +37,7 @@ function SaveButton({ builderId, saved, onToggle }: { builderId: string | null; 
 
 /* ── Per-card photo carousel ── */
 function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
-  const images = b.media.filter(m => m.type === 'image').slice(0, 5)
-  const [idx, setIdx] = useState(0)
-  const [hovered, setHovered] = useState(false)
-
-  const prev = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIdx(i => (i - 1 + images.length) % images.length)
-  }
-  const next = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIdx(i => (i + 1) % images.length)
-  }
+  const images = b.media.filter(m => m.type === 'image').slice(0, 5).map(m => ({ url: m.url, alt: m.title ?? b.name }))
 
   if (images.length === 0) {
     return (
@@ -60,65 +48,13 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
   }
 
   return (
-    <div
-      className="relative w-full aspect-[4/3] rounded-xl overflow-hidden"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Images */}
-      {images.map((img, i) => (
-        <img
-          key={i}
-          src={img.url}
-          alt={img.title ?? b.name}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
-        />
-      ))}
-
-      {/* Gradient overlay bottom */}
-      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-
-      {/* Arrows — only if >1 image */}
-      {images.length > 1 && hovered && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
-          >
-            <ChevronLeft size={13} strokeWidth={2.5} />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
-          >
-            <ChevronRight size={13} strokeWidth={2.5} />
-          </button>
-        </>
-      )}
-
-      {/* Dot indicators */}
-      {images.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={e => { e.preventDefault(); e.stopPropagation(); setIdx(i) }}
-              className={`rounded-full transition-all ${i === idx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Top badge */}
+    <div className="relative">
+      <SwipeableImages images={images} aspectClass="aspect-[4/3]" />
       {b.featured && (
-        <div className="absolute top-2 left-2 z-10">
-          <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-[#222222] px-2 py-0.5 rounded-full shadow-sm">
-            Top
-          </span>
+        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+          <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-[#222222] px-2 py-0.5 rounded-full shadow-sm">Top</span>
         </div>
       )}
-
-      {/* Selected ring */}
       {selected && (
         <div className="absolute inset-0 ring-2 ring-[#222222] ring-inset rounded-xl pointer-events-none" />
       )}
