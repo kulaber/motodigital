@@ -26,6 +26,7 @@ export type Build = {
   coverImg: string
   images: string[]
   videoUrl?: string
+  publishedAt?: string   // ISO date string, e.g. '2026-03-16'
 }
 
 export const BUILDS: Build[] = [
@@ -162,6 +163,7 @@ export const BUILDS: Build[] = [
       'https://images.unsplash.com/photo-1603096564885-1a332df4f903?w=1200&q=85',
       'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=1200&q=85',
     ],
+    publishedAt: '2026-03-16',
   },
   {
     slug: 'flat-track-killer',
@@ -291,6 +293,7 @@ export const BUILDS: Build[] = [
       'https://images.unsplash.com/photo-1576183154519-0b780c80f869?w=1200&q=85',
       'https://images.unsplash.com/photo-1567972411080-a8ad4b2fded1?w=1200&q=85',
     ],
+    publishedAt: '2026-03-17',
   },
   // ── Jakob Kraft ─────────────────────────────────
   {

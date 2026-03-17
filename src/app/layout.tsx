@@ -7,8 +7,7 @@ const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  weight: ['400', '700'], // nur tatsächlich genutzte Gewichte
 })
 
 const inter = Inter({

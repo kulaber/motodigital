@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Wrench, Bike, BadgeCheck, ChevronRight } from 'lucide-react'
 
-type Role = 'rider' | 'builder'
+type Role = 'rider' | 'custom-werkstatt'
 
 export default function RegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
@@ -64,7 +64,7 @@ export default function RegisterForm() {
         <div className="flex flex-col gap-2.5">
           {/* Builder — primary / recommended */}
           <button
-            onClick={() => handleRoleSelect('builder')}
+            onClick={() => handleRoleSelect('custom-werkstatt')}
             className="relative flex items-center gap-4 p-4 bg-[#222222]/6 border border-[#DDDDDD]/30 rounded-xl hover:border-[#DDDDDD]/60 hover:bg-[#222222]/10 transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-[#222222]/15 border border-[#DDDDDD]/25 flex items-center justify-center flex-shrink-0">
@@ -72,8 +72,8 @@ export default function RegisterForm() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <p className="text-sm font-bold text-[#222222] whitespace-nowrap">Builder</p>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#086565] text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                <p className="text-sm font-bold text-[#222222] whitespace-nowrap">Custom-Werkstatt</p>
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full whitespace-nowrap">
                   Beliebt
                 </span>
               </div>
@@ -100,14 +100,14 @@ export default function RegisterForm() {
 
         <div className="flex items-center gap-2 mt-5 px-1">
           <BadgeCheck size={12} className="text-[#717171]/60 flex-shrink-0" />
-          <p className="text-[11px] text-[#222222]/30">Kostenlos — keine Kreditkarte — jederzeit kündbar</p>
+          <p className="text-[11px] text-[#222222]/30">Kostenlos — keine Kreditkarte erforderlich</p>
         </div>
       </div>
     )
   }
 
   // ── Step 2 — Details ────────────────────────────────────────────────────
-  const isBuilder = role === 'builder'
+  const isBuilder = role === 'custom-werkstatt'
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -123,7 +123,7 @@ export default function RegisterForm() {
             ? 'bg-[#222222]/12 text-[#717171] border-[#DDDDDD]/25'
             : 'bg-[#222222]/6 text-[#222222]/50 border-[#222222]/12'
         }`}>
-          {isBuilder ? '🔧 Builder' : '🏍️ Rider'}
+          {isBuilder ? '🔧 Custom-Werkstatt' : '🏍️ Rider'}
         </span>
       </div>
 
@@ -131,7 +131,7 @@ export default function RegisterForm() {
         <div className="flex items-start gap-2.5 bg-[#222222]/6 border border-[#DDDDDD]/20 rounded-xl px-3.5 py-3 -mt-1">
           <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />
           <p className="text-[11px] text-[#717171]/80 leading-relaxed">
-            Nach der Registrierung kannst du dein Builder-Profil mit Builds, Öffnungszeiten und Fotos befüllen.
+            Nach der Registrierung kannst du dein Werkstatt-Profil mit Builds, Öffnungszeiten und Fotos befüllen.
           </p>
         </div>
       )}
@@ -170,7 +170,7 @@ export default function RegisterForm() {
       )}
 
       <button type="submit" disabled={loading}
-        className="w-full bg-[#086565] text-white font-semibold py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-50 transition-all mt-1 cursor-pointer">
+        className="w-full bg-[#06a5a5] text-white font-semibold py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 transition-all mt-1 cursor-pointer">
         {loading ? 'Wird erstellt...' : 'Account erstellen'}
       </button>
 

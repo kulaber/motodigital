@@ -36,7 +36,7 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
       .single()
 
     if (!error && data) {
-      router.push(`/dashboard?conversation=${data.id}`)
+      router.push('/dashboard/messages')
     }
 
     setLoading(false)
@@ -46,7 +46,7 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
     <button
       onClick={handleContact}
       disabled={loading || user?.id === sellerId}
-      className="w-full py-3 bg-[#086565] text-[#222222] text-sm font-semibold rounded-full hover:bg-[#086565]-light disabled:opacity-50 transition-all"
+      className="w-full py-3 bg-[#06a5a5] text-[#222222] text-sm font-semibold rounded-full hover:bg-[#06a5a5]-light disabled:opacity-50 transition-all"
     >
       {loading ? 'Wird geöffnet...' : 'Verkäufer kontaktieren'}
     </button>

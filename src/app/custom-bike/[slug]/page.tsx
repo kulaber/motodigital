@@ -168,13 +168,13 @@ export default async function CustomBikePage({ params }: Props) {
               <p className="text-xs text-[#222222]/35 mb-4">{build.builder.specialty}</p>
               <div className="flex flex-col gap-2">
                 <Link
-                  href={`/builder/${build.builder.slug}#kontakt`}
-                  className="btn-press w-full text-center text-sm font-bold bg-[#086565] hover:bg-[#064f4f] text-white rounded-xl px-4 py-2.5 transition-colors"
+                  href={`/custom-werkstatt/${build.builder.slug}#kontakt`}
+                  className="btn-press w-full text-center text-sm font-bold bg-[#06a5a5] hover:bg-[#064f4f] text-white rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Builder kontaktieren
                 </Link>
                 <Link
-                  href={`/builder/${build.builder.slug}`}
+                  href={`/custom-werkstatt/${build.builder.slug}`}
                   className="w-full text-center text-sm font-semibold text-[#222222]/70 hover:text-[#222222] border border-[#222222]/15 hover:border-[#222222]/30 rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Profil ansehen →
@@ -210,7 +210,7 @@ export default async function CustomBikePage({ params }: Props) {
         <div className="border-t border-[#222222]/5 pt-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-semibold text-[#222222]">Weitere Bikes</h2>
-            <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#1f9999] transition-colors">
+            <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#06a5a5] transition-colors">
               Alle ansehen →
             </Link>
           </div>
@@ -239,8 +239,8 @@ export default async function CustomBikePage({ params }: Props) {
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-semibold text-[#222222] truncate">{build.builder.name}</p>
           <Link
-            href={`/builder/${build.builder.slug}#kontakt`}
-            className="flex-shrink-0 text-sm font-bold bg-[#086565] hover:bg-[#064f4f] text-white rounded-xl px-5 py-2.5 transition-colors"
+            href={`/custom-werkstatt/${build.builder.slug}#kontakt`}
+            className="flex-shrink-0 text-sm font-bold bg-[#06a5a5] hover:bg-[#064f4f] text-white rounded-xl px-5 py-2.5 transition-colors"
           >
             Kontaktieren
           </Link>

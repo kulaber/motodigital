@@ -110,7 +110,7 @@ export default async function BrandPage({ params }: Props) {
           {builds.length === 0 ? (
             <div className="text-center py-24">
               <p className="text-[#222222]/25 text-sm mb-4">Noch keine {brand.name} Builds auf der Plattform.</p>
-              <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#1f9999] transition-colors">
+              <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#06a5a5] transition-colors">
                 Alle Bikes ansehen →
               </Link>
             </div>

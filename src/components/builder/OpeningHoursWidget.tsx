@@ -65,7 +65,7 @@ export default function OpeningHoursWidget({ openingHours }: { openingHours: Ope
           return (
             <div key={i} className={`flex items-center justify-between px-2 py-2 rounded-lg ${isToday ? 'bg-[#222222]/4' : ''}`}>
               <div className="flex items-center gap-2">
-                <span className={`w-0.5 h-3 rounded-full flex-shrink-0 ${isToday ? 'bg-[#086565]' : 'bg-transparent'}`} />
+                <span className={`w-0.5 h-3 rounded-full flex-shrink-0 ${isToday ? 'bg-[#06a5a5]' : 'bg-transparent'}`} />
                 <span className={`text-xs ${isToday ? 'text-[#222222]/80 font-semibold' : 'text-[#222222]/40'}`}>
                   {h.day}
                 </span>

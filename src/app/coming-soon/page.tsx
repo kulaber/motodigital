@@ -18,7 +18,7 @@ export default function ComingSoonPage() {
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-[#222222]/10 border border-[#DDDDDD]/25 text-[#717171] text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#086565] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#06a5a5] animate-pulse" />
           Demnächst verfügbar
         </div>
 

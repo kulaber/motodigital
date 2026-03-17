@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Play, Image as ImageIcon, Trash2, CheckCircle } from 'lucide-react'
+import { compressImage } from '@/lib/utils/compressImage'
 
 type Profile = {
   id: string
@@ -106,7 +107,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setUploading(true)
     setError(null)
 
-    for (const file of Array.from(files)) {
+    for (const rawFile of Array.from(files)) {
+      const file = type === 'image' ? await compressImage(rawFile) : rawFile
       const ext = file.name.split('.').pop()
       const path = `${profile.id}/${Date.now()}.${ext}`
 
@@ -180,7 +182,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
         <Field label="Profil-URL (slug)" className="mb-4">
           <div className={`${input} text-[#222222]/40 cursor-default`}>
-            motodigital.vercel.app/builder/<span className="text-[#717171]">{computedSlug || '…'}</span>
+            motodigital.vercel.app/custom-werkstatt/<span className="text-[#717171]">{computedSlug || '…'}</span>
           </div>
           <p className="text-[10px] text-[#222222]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
         </Field>
@@ -243,7 +245,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
         <div className="flex items-center gap-3">
           <button type="submit" disabled={saving}
-            className="bg-[#086565] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#075555] disabled:opacity-50 transition-all">
+            className="bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-50 transition-all">
             {saving ? 'Wird gespeichert...' : 'Änderungen speichern'}
           </button>
           {saved && (

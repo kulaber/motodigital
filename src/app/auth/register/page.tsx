@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: 'Registrieren — MotoDigital' }
 const BENEFITS = [
   {
     icon: <Wrench size={14} className="text-[#717171]" />,
-    title: 'Dein Builder-Profil',
-    desc: 'Zeige deine Builds, Spezialiserung und Kontaktdaten — direkt auffindbar für Rider.',
+    title: 'Dein Werkstatt-Profil',
+    desc: 'Zeige deine Builds, Spezialisierung und Kontaktdaten — direkt auffindbar für Rider.',
   },
   {
     icon: <Users size={14} className="text-[#717171]" />,
@@ -20,7 +20,7 @@ const BENEFITS = [
   {
     icon: <BadgeCheck size={14} className="text-[#717171]" />,
     title: 'Verifiziertes Profil',
-    desc: 'Verifizierte Builder werden in der Suche bevorzugt und gewinnen mehr Vertrauen.',
+    desc: 'Verifizierte Werkstätten werden in der Suche bevorzugt und gewinnen mehr Vertrauen.',
   },
   {
     icon: <Star size={14} className="text-[#717171]" />,
@@ -33,8 +33,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-white text-[#222222] flex flex-col lg:flex-row">
 
-      {/* Left — Builder pitch */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#F7F7F7] border-r border-[#EBEBEB] px-12 py-12 relative overflow-hidden">
+      {/* Left — pitch */}
+      <div className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 bg-[#F7F7F7] border-r border-[#EBEBEB] px-8 py-12 relative overflow-hidden">
 
         {/* Subtle accent glow */}
         <div className="absolute top-0 left-0 w-96 h-96 pointer-events-none"
@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
         {/* Headline */}
         <div className="relative">
-          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-4">Für Builder & Workshops</p>
+          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-4">Für Custom-Werkstätten & Rider</p>
           <h2 className="font-bold text-[#222222] leading-tight mb-4"
             style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em' }}>
             Zeig der Welt,<br />
@@ -77,7 +77,7 @@ export default function RegisterPage() {
         <div className="flex items-center gap-6 relative">
           <div>
             <p className="text-2xl font-bold text-[#222222]">6+</p>
-            <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest">Builder</p>
+            <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest">Werkstätten</p>
           </div>
           <div className="w-px h-8 bg-[#DDDDDD]" />
           <div>
@@ -100,7 +100,7 @@ export default function RegisterPage() {
           <Link href="/" className="inline-flex mb-4">
             <Image src="/logo-dark.svg" alt="MotoDigital" width={180} height={68} className="h-10 w-auto" priority />
           </Link>
-          <p className="text-xs text-[#717171]">Für Builder & Workshops</p>
+          <p className="text-xs text-[#717171]">Für Custom-Werkstätten & Rider</p>
         </div>
 
         <div className="w-full max-w-sm">
@@ -116,7 +116,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-[#222222]/35 mt-4">
             Bereits registriert?{' '}
-            <Link href="/auth/login" className="text-[#717171] hover:text-[#086565] transition-colors">
+            <Link href="/auth/login" className="text-[#717171] hover:text-[#06a5a5] transition-colors">
               Anmelden
             </Link>
           </p>

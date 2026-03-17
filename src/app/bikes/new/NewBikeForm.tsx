@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
 import { MAKES, MODELS, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
+import BaseBikeAutocomplete from '@/components/ui/BaseBikeAutocomplete'
+import { compressImage } from '@/lib/utils/compressImage'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -37,6 +39,9 @@ export default function NewBikeForm() {
   const [variantIdx, setVariantIdx] = useState(0)
   const [customMake, setCustomMake] = useState('')
   const [customModel, setCustomModel] = useState('')
+
+  // ── Base bike ─────────────────────────────────────
+  const [baseBike, setBaseBike] = useState<{ id: string; label: string } | null>(null)
 
   // ── Form fields ──────────────────────────────────
   const [title, setTitle]           = useState('')
@@ -103,11 +108,12 @@ export default function NewBikeForm() {
     }
   }
 
-  function handleImages(files: FileList | null) {
+  async function handleImages(files: FileList | null) {
     if (!files) return
     const newFiles = Array.from(files).slice(0, 8 - imageFiles.length)
-    setImageFiles(prev => [...prev, ...newFiles])
-    newFiles.forEach(file => {
+    const compressed = await Promise.all(newFiles.map(f => compressImage(f)))
+    setImageFiles(prev => [...prev, ...compressed])
+    compressed.forEach(file => {
       const reader = new FileReader()
       reader.onload = e => setImagePreviews(prev => [...prev, e.target?.result as string])
       reader.readAsDataURL(file)
@@ -128,21 +134,22 @@ export default function NewBikeForm() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bike, error: bikeError } = await (supabase.from('bikes') as any).insert({
-      seller_id:   user.id,
-      title:       title.trim(),
-      make:        submitMake,
-      model:       submitModel,
-      year:        parseInt(year),
+      seller_id:    user.id,
+      base_bike_id: baseBike?.id ?? null,
+      title:        title.trim(),
+      make:         submitMake,
+      model:        submitModel,
+      year:         parseInt(year),
       style,
-      cc:          cc ? parseInt(cc) : null,
-      mileage_km:  mileage ? parseInt(mileage) : null,
-      price:       parseFloat(price.replace(/[^0-9.]/g, '')),
-      city:        city.trim() || null,
-      lat:         locationLat,
-      lng:         locationLng,
-      description: description.trim() || null,
+      cc:           cc ? parseInt(cc) : null,
+      mileage_km:   mileage ? parseInt(mileage) : null,
+      price:        parseFloat(price.replace(/[^0-9.]/g, '')),
+      city:         city.trim() || null,
+      lat:          locationLat,
+      lng:          locationLng,
+      description:  description.trim() || null,
       status,
-      is_verified: false,
+      is_verified:  false,
     }).select('id').single()
 
     if (bikeError || !bike) {
@@ -189,7 +196,7 @@ export default function NewBikeForm() {
               step === i + 1 ? 'text-[#717171]' : step > i + 1 ? 'text-[#222222]/50' : 'text-[#222222]/20'
             }`}>
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition-all ${
-                step === i + 1 ? 'bg-[#086565] text-white' :
+                step === i + 1 ? 'bg-[#06a5a5] text-white' :
                 step > i + 1  ? 'bg-[#222222]/15 text-[#222222]/50' :
                                  'bg-[#222222]/6 text-[#222222]/20'
               }`}>{i + 1}</span>
@@ -218,6 +225,17 @@ export default function NewBikeForm() {
               placeholder="z.B. Honda CB550 Cafe Racer — The Midnight Scrambler"
               className={inputClass} />
             <p className="text-xs text-[#222222]/25 mt-1">Ein prägnanter Titel erhöht die Aufmerksamkeit.</p>
+          </div>
+
+          {/* Basisbike */}
+          <div>
+            <label className={labelClass}>Basisbike <span className="normal-case font-normal text-[#222222]/25">(Spendermodell)</span></label>
+            <BaseBikeAutocomplete
+              value={baseBike}
+              onChange={setBaseBike}
+              className={inputClass}
+            />
+            <p className="text-xs text-[#222222]/25 mt-1">Das originale Motorrad, das als Grundlage für den Custom Build diente.</p>
           </div>
 
           {/* Marke */}
@@ -363,7 +381,7 @@ export default function NewBikeForm() {
             <button
               onClick={() => step1Valid && setStep(2)}
               disabled={!step1Valid}
-              className="flex items-center gap-2 bg-[#086565] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Weiter <ChevronRight size={16} />
             </button>
@@ -423,7 +441,7 @@ export default function NewBikeForm() {
             </button>
             <button
               onClick={() => setStep(3)}
-              className="flex items-center gap-2 bg-[#086565] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#075555] transition-all"
+              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] transition-all"
             >
               Weiter <ChevronRight size={16} />
             </button>
@@ -453,7 +471,7 @@ export default function NewBikeForm() {
                   <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-white border border-[#222222]/8 group">
                     <img src={src} alt="" className="w-full h-full object-cover" />
                     {i === 0 && (
-                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#086565] text-white px-1.5 py-0.5 rounded-full">
+                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                         Cover
                       </span>
                     )}
@@ -477,6 +495,12 @@ export default function NewBikeForm() {
                 <span className="text-[#222222]/40">Titel</span>
                 <span className="text-[#222222] font-medium text-right max-w-[60%] truncate">{title}</span>
               </div>
+              {baseBike && (
+                <div className="flex justify-between">
+                  <span className="text-[#222222]/40">Basisbike</span>
+                  <span className="text-[#222222]">{baseBike.label}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Bike</span>
                 <span className="text-[#222222]">{submitMake} {submitModel} · {year}</span>
@@ -532,7 +556,7 @@ export default function NewBikeForm() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-[#086565] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+              className="bg-[#06a5a5] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
             >
               {loading ? 'Wird gespeichert…' : status === 'active' ? 'Jetzt veröffentlichen' : 'Entwurf speichern'}
             </button>

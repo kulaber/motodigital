@@ -55,7 +55,7 @@ export default async function AdminBuilderPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbBuilders } = await (supabase.from('profiles') as any)
     .select('id, username, full_name, city, specialty, since_year, is_verified, created_at')
-    .eq('role', 'builder')
+    .eq('role', 'custom-werkstatt')
     .order('created_at', { ascending: false }) as { data: Omit<SupabaseBuilder, 'email' | 'email_confirmed'>[] | null }
 
   // Enrich with auth data (email + confirmed)
@@ -259,7 +259,7 @@ export default async function AdminBuilderPage() {
                       <div className="flex items-center justify-end gap-2">
                         {/* Profil ansehen */}
                         <a
-                          href={`/builder/${b.slug}`}
+                          href={`/custom-werkstatt/${b.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-[#222222]/40 hover:text-[#222222] border border-[#222222]/10 hover:border-[#222222]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
@@ -268,8 +268,8 @@ export default async function AdminBuilderPage() {
                         </a>
                         {/* Bearbeiten */}
                         <Link
-                          href={`/admin/builder/${b.slug}/edit`}
-                          className="inline-flex items-center gap-1 text-xs text-white bg-[#086565] hover:bg-[#075555] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
+                          href={`/admin/custom-werkstatt/${b.slug}/edit`}
+                          className="inline-flex items-center gap-1 text-xs text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
                         >
                           <Pencil size={10} /> Bearbeiten
                         </Link>

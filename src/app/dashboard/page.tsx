@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Bookmark, Bike, Search } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
@@ -31,11 +31,11 @@ export default async function DashboardPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('full_name, role, city, specialty, bio, is_verified')
+    .select('full_name, role, city, specialty, bio, is_verified, avatar_url')
     .eq('id', user.id)
-    .single() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean } | null }
+    .single() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null } | null }
 
-  const [{ data: bikes }, { data: conversations }] = await Promise.all([
+  const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }] = await Promise.all([
     supabase
       .from('bikes')
       .select('id, title, status, price, view_count, created_at, bike_images(url,is_cover)')
@@ -47,11 +47,14 @@ export default async function DashboardPage() {
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false })
       .limit(10) as unknown as Promise<{ data: DashboardConversation[] | null, error: unknown }>,
+    supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
+    supabase.from('saved_builders').select('builder_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
   ])
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
-  const isBuilder = profile?.role === 'builder' || profile?.role === 'superadmin'
+  const isRider = profile?.role === 'rider'
+  const isBuilder = profile?.role === 'custom-werkstatt' || profile?.role === 'superadmin'
   const isSuperAdmin = profile?.role === 'superadmin'
 
   // Superadmin platform stats
@@ -65,8 +68,8 @@ export default async function DashboardPage() {
 
   if (isSuperAdmin) {
     const [buildersTotal, buildersLive, ridersTotal, authResult] = await Promise.all([
-      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'builder') as Promise<{ count: number | null }>,
-      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'builder').eq('is_verified', true) as Promise<{ count: number | null }>,
+      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt') as Promise<{ count: number | null }>,
+      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt').eq('is_verified', true) as Promise<{ count: number | null }>,
       (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'rider').eq('is_verified', true) as Promise<{ count: number | null }>,
       supabase.auth.admin.listUsers({ perPage: 1000 }),
     ])
@@ -101,19 +104,30 @@ export default async function DashboardPage() {
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-[#222222]">Dashboard</h1>
-            {profile?.full_name && (
-              <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
+          <div className="flex items-center gap-3">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-14 h-14 rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center flex-shrink-0">
+                <User size={22} className="text-[#222222]/20" />
+              </div>
             )}
+            <div>
+              <h1 className="text-2xl font-bold text-[#222222]">Dashboard</h1>
+              {profile?.full_name && (
+                <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
+              )}
+            </div>
           </div>
-          <Link
-            href="/bikes/new"
-            className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all"
-          >
-            <Plus size={14} />
-            Neues Custom-Bike hinzufügen
-          </Link>
+          {!isRider && (
+            <Link
+              href="/bikes/new"
+              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
+            >
+              <Plus size={14} />
+              Neues Custom-Bike hinzufügen
+            </Link>
+          )}
         </div>
 
         {/* Superadmin Platform Stats */}
@@ -232,7 +246,7 @@ export default async function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: 'Builder', desc: 'Profile verwalten & verifizieren', href: '/admin/builder', count: adminStats?.buildersTotal },
+                { label: 'Custom-Werkstatt', desc: 'Profile verwalten & verifizieren', href: '/admin/custom-werkstatt', count: adminStats?.buildersTotal },
                 { label: 'Magazin', desc: 'Beiträge erstellen & bearbeiten', href: '/admin/magazine', count: null },
                 { label: 'Events', desc: 'Events verwalten', href: '/admin/events', count: null },
               ].map(item => (
@@ -249,27 +263,104 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: 'Aktive Inserate', value: activeCount,                   icon: <TrendingUp size={16}/> },
-            { label: 'Gesamte Aufrufe', value: totalViews,                    icon: <Eye size={16}/> },
-            { label: 'Nachrichten',     value: conversations?.length ?? 0,    icon: <MessageCircle size={16}/> },
-            { label: 'Inserate gesamt', value: bikes?.length ?? 0,            icon: <Plus size={16}/> },
-          ].map(s => (
-            <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
-              <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
-            </div>
-          ))}
-        </div>
+        {/* ── RIDER DASHBOARD ── */}
+        {isRider ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
+            {/* Mein Bike */}
+            <Link href="/dashboard/mein-bike" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 overflow-hidden">
+                {bikes?.[0]?.bike_images?.[0]?.url ? (
+                  <img src={bikes[0].bike_images[0].url} alt={bikes[0].title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Bike size={18} className="text-[#222222]/15" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Mein Bike</p>
+                <p className="text-sm font-semibold text-[#222222] truncate">
+                  {bikes?.[0]?.title ?? 'Noch kein Bike'}
+                </p>
+              </div>
+              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
+            </Link>
+
+            {/* Nachrichten */}
+            <Link href="/dashboard/messages" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 flex items-center justify-center relative">
+                <MessageCircle size={18} className="text-[#222222]/25" />
+                {(conversations?.length ?? 0) > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {conversations!.length > 9 ? '9+' : conversations!.length}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Nachrichten</p>
+                <p className="text-sm font-semibold text-[#222222]">
+                  {conversations?.length ?? 0} Konversationen
+                </p>
+              </div>
+              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
+            </Link>
+
+            {/* Merkliste */}
+            <Link href="/dashboard/merkliste" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 flex items-center justify-center">
+                <Bookmark size={18} className="text-[#222222]/25" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Merkliste</p>
+                <p className="text-sm font-semibold text-[#222222]">
+                  {(savedBikesCount ?? 0) + (savedBuildersCount ?? 0)} gespeichert
+                </p>
+              </div>
+              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
+            </Link>
+
+            {/* Schnellzugriff */}
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+              <p className="text-[10px] text-[#222222]/25 uppercase tracking-widest font-semibold mb-2">Entdecken</p>
+              {[
+                { label: 'Custom-Werkstatt', href: '/custom-werkstatt', icon: <Search size={12}/> },
+                { label: 'Custom Bikes',     href: '/bikes',            icon: <Bike size={12}/> },
+                { label: 'Konto',            href: '/dashboard/account', icon: <Settings size={12}/> },
+              ].map(l => (
+                <Link key={l.href} href={l.href}
+                  className="flex items-center gap-2 py-2 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors border-b border-[#222222]/5 last:border-0">
+                  <span className="text-[#222222]/25">{l.icon}</span>
+                  {l.label}
+                  <ChevronRight size={10} className="ml-auto text-[#222222]/20" />
+                </Link>
+              ))}
+            </div>
+
+          </div>
+
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            {[
+              { label: 'Aktive Inserate', value: activeCount,                   icon: <TrendingUp size={16}/> },
+              { label: 'Gesamte Aufrufe', value: totalViews,                    icon: <Eye size={16}/> },
+              { label: 'Nachrichten',     value: conversations?.length ?? 0,    icon: <MessageCircle size={16}/> },
+              { label: 'Inserate gesamt', value: bikes?.length ?? 0,            icon: <Plus size={16}/> },
+            ].map(s => (
+              <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+                <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
+                <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isRider && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
 
           {/* LEFT */}
           <div className="flex flex-col gap-5">
 
-            {/* Builder profile card — only for builders, not superadmin (uses /admin/builder) */}
+            {/* Builder profile card — only for builders, not superadmin (uses /admin/custom-werkstatt) */}
             {isBuilder && !isSuperAdmin && (
               <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
@@ -296,12 +387,12 @@ export default async function DashboardPage() {
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     <Link
                       href="/dashboard/profile"
-                      className="flex items-center gap-1.5 text-xs bg-[#086565] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#075555] transition-all whitespace-nowrap"
+                      className="flex items-center gap-1.5 text-xs bg-[#06a5a5] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all whitespace-nowrap"
                     >
                       Profil bearbeiten
                     </Link>
                     <Link
-                      href={profile?.full_name ? `/builder/${profile.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '/builder'}
+                      href={profile?.full_name ? `/custom-werkstatt/${profile.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '/custom-werkstatt'}
                       className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
                     >
                       <ExternalLink size={11} /> Vorschau
@@ -319,7 +410,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#086565] rounded-full transition-all"
+                      className="h-full bg-[#06a5a5] rounded-full transition-all"
                       style={{ width: `${[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%` }}
                     />
                   </div>
@@ -344,7 +435,7 @@ export default async function DashboardPage() {
             )}
 
             {/* Listings */}
-            {!isSuperAdmin && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
+            {!isSuperAdmin && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#222222]/5">
                 <h2 className="text-sm font-semibold text-[#222222]">Meine Custom-Bikes</h2>
                 <span className="text-xs text-[#222222]/35">{bikes?.length ?? 0} total</span>
@@ -384,7 +475,7 @@ export default async function DashboardPage() {
                 {!bikes?.length && (
                   <div className="px-5 py-10 text-center">
                     <p className="text-sm text-[#222222]/30 mb-3">Noch keine Custom-Bikes</p>
-                    <Link href="/bikes/new" className="text-sm text-[#717171] hover:text-[#086565] transition-colors">
+                    <Link href="/bikes/new" className="text-sm text-[#717171] hover:text-[#06a5a5] transition-colors">
                       Custom-Bike erstellen →
                     </Link>
                   </div>
@@ -429,9 +520,10 @@ export default async function DashboardPage() {
             {!isSuperAdmin && <div className="bg-white border border-[#222222]/6 rounded-2xl p-4">
               <p className="text-xs text-[#222222]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
-                { label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',          icon: <Plus size={13}/> },
-                { label: 'Builder entdecken',           href: '/builder',              icon: <Eye size={13}/> },
-                ...(isBuilder ? [{ label: 'Profil bearbeiten',     href: '/dashboard/profile',  icon: <User size={13}/> }] : []),
+                ...(!isRider ? [{ label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',              icon: <Plus size={13}/> }] : []),
+                { label: 'Merkliste',                   href: '/dashboard/merkliste',  icon: <Bookmark size={13}/> },
+                { label: 'Werkstätten entdecken',       href: '/custom-werkstatt',     icon: <Eye size={13}/> },
+                ...(isBuilder ? [{ label: 'Profil bearbeiten',           href: '/dashboard/profile',      icon: <User size={13}/> }] : []),
                 { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
               ].map(l => (
                 <Link key={l.href} href={l.href}
@@ -444,7 +536,7 @@ export default async function DashboardPage() {
             </div>}
           </div>
 
-        </div>
+        </div>}
       </div>
     </div>
   )

@@ -17,8 +17,8 @@ export default async function VerifyPage({ searchParams }: Props) {
         {/* Icon */}
         <div className="w-16 h-16 rounded-full bg-[#222222]/15 border border-[#DDDDDD]/25 flex items-center justify-center mx-auto mb-6">
           <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-            <rect x="2" y="6" width="28" height="20" rx="4" stroke="#2AABAB" strokeWidth="1.5"/>
-            <path d="M6 11 L16 18 L26 11" stroke="#2AABAB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="2" y="6" width="28" height="20" rx="4" stroke="#06a5a5" strokeWidth="1.5"/>
+            <path d="M6 11 L16 18 L26 11" stroke="#06a5a5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
 

@@ -56,6 +56,8 @@ export default function BuilderGallery({ images }: Props) {
               <img
                 src={main.url}
                 alt={main.title ?? ''}
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </button>
@@ -71,6 +73,8 @@ export default function BuilderGallery({ images }: Props) {
               <img
                 src={item.url}
                 alt={item.title ?? ''}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
               />
               {/* Overlay on last visible thumb if more images */}
@@ -153,7 +157,7 @@ export default function BuilderGallery({ images }: Props) {
                   i === lightbox ? 'border-white opacity-100' : 'border-transparent opacity-40 hover:opacity-70'
                 }`}
               >
-                <img src={img.url} alt="" className="w-full h-full object-cover" />
+                <img src={img.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

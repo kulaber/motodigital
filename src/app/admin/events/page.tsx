@@ -41,7 +41,7 @@ export default async function AdminEventsPage() {
             <h1 className="text-2xl font-bold text-[#222222]">Events</h1>
           </div>
           <Link href="/admin/events/new"
-            className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all">
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
             <Plus size={14} /> Neues Event
           </Link>
         </div>
@@ -105,7 +105,7 @@ export default async function AdminEventsPage() {
                           <ExternalLink size={10} /> Live ansehen
                         </a>
                         <Link href={`/admin/events/${event.id}/edit`}
-                          className="inline-flex items-center gap-1 text-xs text-white bg-[#086565] hover:bg-[#075555] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap">
+                          className="inline-flex items-center gap-1 text-xs text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap">
                           <Pencil size={10} /> Bearbeiten
                         </Link>
                       </div>

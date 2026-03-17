@@ -9,7 +9,9 @@ function LoginFormInner() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [magicSent, setMagicSent] = useState(false)
+  const [magicSent,  setMagicSent]  = useState(false)
+  const [resetSent,  setResetSent]  = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard'
@@ -28,6 +30,16 @@ function LoginFormInner() {
       router.push(redirectTo)
       router.refresh()
     }
+  }
+
+  async function handleReset() {
+    if (!email) { setError('Bitte zuerst E-Mail eingeben'); return }
+    setResetLoading(true); setError(null)
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard/account`,
+    })
+    setResetSent(true)
+    setResetLoading(false)
   }
 
   async function handleMagicLink() {
@@ -60,7 +72,21 @@ function LoginFormInner() {
         />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-1.5">Passwort</label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Passwort</label>
+          {resetSent ? (
+            <span className="text-[11px] text-green-500">Reset-Link gesendet ✓</span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={resetLoading}
+              className="text-[11px] text-[#222222]/35 hover:text-[#06a5a5] transition-colors disabled:opacity-50"
+            >
+              {resetLoading ? 'Wird gesendet…' : 'Passwort vergessen?'}
+            </button>
+          )}
+        </div>
         <input
           type="password" required value={password} onChange={e => setPassword(e.target.value)}
           placeholder="••••••••"
@@ -71,7 +97,7 @@ function LoginFormInner() {
       {error && <p className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{error}</p>}
 
       <button type="submit" disabled={loading}
-        className="w-full bg-[#086565] text-[#222222] font-semibold py-3 rounded-full text-sm hover:bg-[#086565]-light disabled:opacity-50 transition-all">
+        className="w-full bg-[#06a5a5] text-[#222222] font-semibold py-3 rounded-full text-sm hover:bg-[#06a5a5]-light disabled:opacity-50 transition-all">
         {loading ? 'Wird geladen...' : 'Anmelden'}
       </button>
 

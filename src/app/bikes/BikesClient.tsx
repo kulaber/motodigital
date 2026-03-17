@@ -2,7 +2,13 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
+
+function isNew(publishedAt?: string): boolean {
+  if (!publishedAt) return false
+  const diff = Date.now() - new Date(publishedAt).getTime()
+  return diff < 3 * 24 * 60 * 60 * 1000
+}
 import type { Build } from '@/lib/data/builds'
 
 const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
@@ -32,7 +38,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     <>
       {/* FILTER BAR */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
 
             {/* Style chips */}
@@ -41,9 +47,9 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                 <button
                   key={s}
                   onClick={() => setActiveStyle(s)}
-                  className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
+                  className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 ${
                     activeStyle === s
-                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
                       : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
@@ -60,9 +66,9 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <div className="relative">
                 <button
                   onClick={() => setCountryOpen(v => !v)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
                     activeCountry !== 'Alle'
-                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
                       : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
@@ -107,20 +113,20 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
       {/* GRID */}
       <section className="py-8 sm:py-10 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
 
           {filtered.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
                 onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                className="mt-4 text-xs text-[#717171] hover:text-[#1f9999] transition-colors"
+                className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {filtered.map((build, i) => (
                 <Link
                   key={build.slug}
@@ -140,9 +146,9 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
-                    {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#222222]/90 text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
-                        <BadgeCheck size={8} /> Verified
+                    {isNew(build.publishedAt) && (
+                      <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                        Neu
                       </span>
                     )}
                   </div>

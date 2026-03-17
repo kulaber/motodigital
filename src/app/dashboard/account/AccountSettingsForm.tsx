@@ -1,13 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
+import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 
 type Props = {
   userId: string
   currentEmail: string
   currentUsername: string
+  currentFullName: string
+  currentAvatarUrl: string | null
+  currentBio: string | null
+  currentAddress: string | null
+  role: string | null
 }
 
 const input = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors'
@@ -26,7 +32,7 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
   return (
     <div className="flex items-center gap-3 pt-1">
       <button type="submit" disabled={saving}
-        className="bg-[#086565] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#075555] disabled:opacity-50 transition-all">
+        className="bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-50 transition-all">
         {saving ? 'Wird gespeichert…' : label}
       </button>
       {saved && (
@@ -39,8 +45,121 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
   )
 }
 
-export default function AccountSettingsForm({ userId, currentEmail, currentUsername }: Props) {
+export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentFullName, currentAvatarUrl, currentBio, currentAddress, role }: Props) {
+  const isWerkstatt = role === 'custom-werkstatt'
   const supabase = createClient()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // ── Avatar ──
+  const [avatarUrl,       setAvatarUrl]       = useState(currentAvatarUrl ?? '')
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [avatarDeleting,  setAvatarDeleting]  = useState(false)
+  const [avatarError,     setAvatarError]     = useState<string | null>(null)
+  const [avatarSaved,     setAvatarSaved]     = useState(false)
+
+  async function handleAvatarDelete() {
+    if (!avatarUrl) return
+    setAvatarDeleting(true); setAvatarError(null); setAvatarSaved(false)
+    // Remove all avatar files for this user in storage
+    const { data: files } = await supabase.storage.from('avatars').list(userId)
+    if (files?.length) {
+      await supabase.storage.from('avatars').remove(files.map(f => `${userId}/${f.name}`))
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from('profiles') as any).update({ avatar_url: null }).eq('id', userId)
+    setAvatarUrl('')
+    setAvatarDeleting(false)
+    setAvatarSaved(true)
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { setAvatarError('Maximale Dateigröße: 5 MB'); return }
+    setAvatarUploading(true); setAvatarError(null); setAvatarSaved(false)
+
+    const ext  = file.name.split('.').pop()
+    const path = `${userId}/avatar.${ext}`
+
+    const { error: upErr } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type })
+
+    if (upErr) {
+      setAvatarError(upErr.message)
+      setAvatarUploading(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', userId)
+    setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
+    setAvatarSaved(true)
+    setAvatarUploading(false)
+  }
+
+  // ── Bio ──
+  const [bio,      setBio]      = useState(currentBio ?? '')
+  const [bioSaving, setBioSaving] = useState(false)
+  const [bioSaved,  setBioSaved]  = useState(false)
+  const [bioError,  setBioError]  = useState<string | null>(null)
+
+  async function handleBio(e: React.FormEvent) {
+    e.preventDefault()
+    setBioSaving(true); setBioError(null); setBioSaved(false)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('profiles') as any)
+      .update({ bio: bio.trim() || null })
+      .eq('id', userId)
+    if (error) setBioError(error.message)
+    else setBioSaved(true)
+    setBioSaving(false)
+  }
+
+  // ── Adresse ──
+  const [selectedPlace, setSelectedPlace] = useState<{ address: string; lat: number; lng: number } | null>(
+    currentAddress ? { address: currentAddress, lat: 0, lng: 0 } : null
+  )
+  const [addressSaving, setAddressSaving] = useState(false)
+  const [addressSaved,  setAddressSaved]  = useState(false)
+  const [addressError,  setAddressError]  = useState<string | null>(null)
+
+  async function handleAddress(e: React.FormEvent) {
+    e.preventDefault()
+    if (!selectedPlace) { setAddressError('Bitte einen Standort aus den Vorschlägen auswählen'); return }
+    setAddressSaving(true); setAddressError(null); setAddressSaved(false)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('profiles') as any)
+      .update({
+        address: selectedPlace.address,
+        lat:     selectedPlace.lat || null,
+        lng:     selectedPlace.lng || null,
+        city:    selectedPlace.city || null,
+      })
+      .eq('id', userId)
+    if (error) setAddressError(error.message)
+    else setAddressSaved(true)
+    setAddressSaving(false)
+  }
+
+  // ── Full Name ──
+  const [fullName, setFullName] = useState(currentFullName)
+  const [nameSaving, setNameSaving] = useState(false)
+  const [nameSaved, setNameSaved] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+
+  async function handleName(e: React.FormEvent) {
+    e.preventDefault()
+    setNameSaving(true); setNameError(null); setNameSaved(false)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('profiles') as any)
+      .update({ full_name: fullName.trim() || null })
+      .eq('id', userId)
+    if (error) setNameError(error.message)
+    else setNameSaved(true)
+    setNameSaving(false)
+  }
 
   // ── Username ──
   const [username, setUsername] = useState(currentUsername)
@@ -105,6 +224,106 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
 
   return (
     <div className="flex flex-col gap-5">
+
+      {/* ── Profilbild ── */}
+      {!isWerkstatt && <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#222222] mb-5">Profilbild</h2>
+        <div className="flex items-center gap-5">
+          <div className="relative flex-shrink-0">
+            <div className="w-20 h-20 rounded-full bg-[#F7F7F7] border border-[#222222]/10 overflow-hidden flex items-center justify-center">
+              {avatarUrl
+                ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                : <User size={28} className="text-[#222222]/20" />
+              }
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#222222] rounded-full flex items-center justify-center shadow-md hover:bg-[#444] transition-colors disabled:opacity-50"
+            >
+              <Camera size={13} className="text-white" />
+            </button>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarUploading || avatarDeleting}
+                className="text-sm font-semibold text-[#222222] border border-[#222222]/12 px-4 py-2 rounded-full hover:border-[#222222]/30 transition-colors disabled:opacity-50"
+              >
+                {avatarUploading ? 'Wird hochgeladen…' : avatarUrl ? 'Foto ändern' : 'Foto hochladen'}
+              </button>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={handleAvatarDelete}
+                  disabled={avatarDeleting || avatarUploading}
+                  className="flex items-center gap-1.5 text-sm text-red-400 border border-red-400/20 px-3 py-2 rounded-full hover:bg-red-50 hover:border-red-400/40 transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={13} />
+                  {avatarDeleting ? 'Wird gelöscht…' : 'Entfernen'}
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-[#222222]/30">JPG, PNG oder WebP · max. 5 MB</p>
+            {avatarSaved && <span className="flex items-center gap-1 text-xs text-green-400"><CheckCircle size={12} /> Gespeichert</span>}
+            {avatarError && <p className="text-[11px] text-red-400">{avatarError}</p>}
+          </div>
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
+      </div>}
+
+      {/* ── Name ── */}
+      <form onSubmit={handleName} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#222222] mb-5">Name</h2>
+        <div className="flex flex-col gap-4">
+          <Field label="Vollständiger Name" hint="Wird auf deinem Profil angezeigt">
+            <input value={fullName} onChange={e => setFullName(e.target.value)}
+              placeholder="Dein Name" className={input} />
+          </Field>
+          <SaveRow saving={nameSaving} saved={nameSaved} error={nameError} />
+        </div>
+      </form>
+
+      {/* ── Bio ── */}
+      {!isWerkstatt && (
+        <form onSubmit={handleBio} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+          <h2 className="text-sm font-semibold text-[#222222] mb-5">Kurze Bio</h2>
+          <div className="flex flex-col gap-4">
+            <Field label="Bio" hint="Wird auf deinem öffentlichen Profil angezeigt">
+              <textarea
+                value={bio}
+                onChange={e => setBio(e.target.value)}
+                maxLength={160}
+                rows={3}
+                placeholder="Beschreibe dich in ein paar Worten…"
+                className={`${input} resize-none`}
+              />
+              <p className="text-[10px] text-[#222222]/25 mt-1 text-right">{bio.length}/160</p>
+            </Field>
+            <SaveRow saving={bioSaving} saved={bioSaved} error={bioError} />
+          </div>
+        </form>
+      )}
+
+      {/* ── Adresse ── */}
+      <form onSubmit={handleAddress} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#222222] mb-1">Standort</h2>
+        <p className="text-xs text-[#222222]/35 mb-5">Wird für die Kartenansicht der Rider-Community verwendet</p>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-1.5">Adresse</label>
+            <MapboxAddressInput
+              initialValue={currentAddress ?? ''}
+              onSelect={place => { setSelectedPlace(place); setAddressSaved(false) }}
+              placeholder="Straße, Stadt suchen…"
+            />
+          </div>
+          <SaveRow saving={addressSaving} saved={addressSaved} error={addressError} />
+        </div>
+      </form>
 
       {/* ── Benutzername ── */}
       <form onSubmit={handleUsername} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">

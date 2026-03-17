@@ -152,7 +152,7 @@ export default function MapView({ initialBikes }: Props) {
     filteredBuilders.forEach(builder => {
       const el = document.createElement('div')
       el.style.cssText = `
-        background: #2AABAB; color: #141414;
+        background: #06a5a5; color: #141414;
         border: 2.5px solid #141414;
         border-radius: 50%; width: 38px; height: 38px;
         display: flex; align-items: center; justify-content: center;
@@ -171,7 +171,7 @@ export default function MapView({ initialBikes }: Props) {
         el.style.borderColor = '#fff'
       })
       el.addEventListener('mouseleave', () => {
-        el.style.background = '#2AABAB'
+        el.style.background = '#06a5a5'
         el.style.boxShadow = '0 2px 16px rgba(42,171,171,0.4)'
         el.style.borderColor = '#141414'
       })
@@ -256,7 +256,7 @@ export default function MapView({ initialBikes }: Props) {
                     {list.map(b => (
                   <Link
                     key={b.id}
-                    href={`/builder/${b.slug}`}
+                    href={`/custom-werkstatt/${b.slug}`}
                     className={`flex items-center gap-3 p-4 rounded-2xl border transition-all hover:-translate-y-0.5 ${
                       selectedBuilder?.id === b.id
                         ? 'bg-[#222222]/8 border-[#222222]/30'
@@ -341,7 +341,7 @@ export default function MapView({ initialBikes }: Props) {
               <p className="text-xs text-[#222222]/40 truncate">{selectedBuilder.city} · {selectedBuilder.specialty}</p>
             </div>
             <Link
-              href={`/builder/${selectedBuilder.slug}`}
+              href={`/custom-werkstatt/${selectedBuilder.slug}`}
               className="text-xs text-[#717171] font-semibold hover:text-[#717171]-light transition-colors whitespace-nowrap flex-shrink-0"
             >
               Profil →

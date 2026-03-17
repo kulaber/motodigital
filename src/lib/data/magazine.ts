@@ -444,7 +444,7 @@ export const CATEGORY_META = {
     label: 'Interview',
     title: 'Builder-Interviews — Custom Motorcycle Kultur | MotoDigital',
     description:
-      'Exklusive Interviews mit den bekanntesten Custom-Motorcycle-Buildern Deutschlands. Ihre Philosophie, ihre Projekte, ihre Haltung.',
+      'Gespräche mit Custom-Buildern über Philosophie, Projekte und die Leidenschaft hinters Lenker.',
   },
   guide: {
     label: 'Guide',

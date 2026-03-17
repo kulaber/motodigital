@@ -21,7 +21,7 @@ export default function EventsPage() {
           <h1 className="font-bold text-[#222222] leading-tight mb-4" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
             Custom Motorcycle Events
           </h1>
-          <p className="text-[#222222]/40 text-base max-w-lg leading-relaxed">
+          <p className="text-[#222222]/40 text-base max-w-[55ch] leading-relaxed">
             Die besten Custom-Moto-Events in Europa — festivals, shows und races für die Community.
           </p>
         </div>

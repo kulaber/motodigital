@@ -177,7 +177,7 @@ export default function PreisePage() {
             Kein Risiko, keine Kreditkarte. Registriere dich in unter 2 Minuten und zeige deine Builds der Community.
           </p>
           <a href="/auth/register"
-            className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-8 py-3 rounded-full hover:bg-[#075555] transition-all">
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-8 py-3 rounded-full hover:bg-[#058f8f] transition-all">
             Als Builder registrieren →
           </a>
         </div>

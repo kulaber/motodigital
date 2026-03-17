@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronDown, Play } from 'lucide-react'
 import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
+import BaseBikeAutocomplete from '@/components/ui/BaseBikeAutocomplete'
+import { compressImage } from '@/lib/utils/compressImage'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -36,6 +38,8 @@ type BikeData = {
   description: string | null
   status: 'active' | 'draft'
   seller_id: string
+  base_bike_id: string | null
+  base_bike?: { id: string; make: string; model: string } | null
   bike_images: ExistingMedia[]
 }
 
@@ -50,6 +54,10 @@ function isVideoUrl(url: string) {
 export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const router = useRouter()
   const supabase = createClient()
+
+  const [baseBike, setBaseBike] = useState<{ id: string; label: string } | null>(
+    bike.base_bike ? { id: bike.base_bike.id, label: `${bike.base_bike.make} ${bike.base_bike.model}` } : null
+  )
 
   const [title, setTitle]           = useState(bike.title)
   const [make, setMake]             = useState(bike.make)
@@ -84,12 +92,13 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
 
-  function handleNewImages(files: FileList | null) {
+  async function handleNewImages(files: FileList | null) {
     if (!files) return
     const total = existingImages.length + newImageFiles.length
     const add = Array.from(files).slice(0, 8 - total)
-    setNewImageFiles(prev => [...prev, ...add])
-    add.forEach(file => {
+    const compressed = await Promise.all(add.map(f => compressImage(f)))
+    setNewImageFiles(prev => [...prev, ...compressed])
+    compressed.forEach(file => {
       const reader = new FileReader()
       reader.onload = e => setNewImagePreviews(prev => [...prev, e.target?.result as string])
       reader.readAsDataURL(file)
@@ -138,6 +147,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     // Update bike row
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('bikes') as any).update({
+      base_bike_id: baseBike?.id ?? null,
       title:       title.trim(),
       make:        make.trim(),
       model:       model.trim(),
@@ -235,6 +245,13 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           placeholder="z.B. Honda CB750 Cafe Racer" className={inputClass} />
       </div>
 
+      {/* Basisbike */}
+      <div>
+        <label className={labelClass}>Basisbike <span className="normal-case font-normal text-[#222222]/25">(Spendermodell)</span></label>
+        <BaseBikeAutocomplete value={baseBike} onChange={setBaseBike} className={inputClass} />
+        <p className="text-xs text-[#B0B0B0] mt-1">Das originale Motorrad, das als Grundlage für den Custom Build diente.</p>
+      </div>
+
       {/* Marke / Modell */}
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -323,7 +340,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
                 <img src={img.url} alt="" className="w-full h-full object-cover" />
                 {i === 0 && (
-                  <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#086565] text-white px-1.5 py-0.5 rounded-full">
+                  <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                     Cover
                   </span>
                 )}
@@ -432,7 +449,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           Abbrechen
         </button>
         <button type="submit" disabled={loading}
-          className="bg-[#086565] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#075555] disabled:opacity-50 transition-all">
+          className="bg-[#06a5a5] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 transition-all">
           {loading ? 'Wird gespeichert…' : 'Änderungen speichern'}
         </button>
       </div>

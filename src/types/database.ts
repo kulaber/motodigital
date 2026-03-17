@@ -12,7 +12,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type UserRole = 'rider' | 'builder' | 'superadmin'
+export type UserRole = 'rider' | 'custom-werkstatt' | 'superadmin'
 export type BikeStatus = 'draft' | 'active' | 'sold'
 export type BikeStyle =
   | 'naked'
@@ -85,11 +85,27 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['workshops']['Insert']>
       }
+      base_bikes: {
+        Row: {
+          id: string
+          make: string
+          model: string
+          cc: number | null
+          year_from: number | null
+          year_to: number | null
+          typical_styles: string[]
+          notes: string | null
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['base_bikes']['Row'], 'id' | 'created_at'> & { id?: string }
+        Update: Partial<Database['public']['Tables']['base_bikes']['Insert']>
+      }
       bikes: {
         Row: {
           id: string
           seller_id: string
           workshop_id: string | null
+          base_bike_id: string | null
           title: string
           make: string
           model: string
@@ -156,6 +172,15 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['saved_bikes']['Row'], 'created_at'>
         Update: never
       }
+      saved_builders: {
+        Row: {
+          user_id: string
+          builder_id: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['saved_builders']['Row'], 'created_at'>
+        Update: never
+      }
       reviews: {
         Row: {
           id: string
@@ -174,7 +199,7 @@ export interface Database {
           id: string
           email: string
           name: string | null
-          role: 'builder' | 'rider'
+          role: 'custom-werkstatt' | 'rider'
           invited_at: string | null
           created_at: string
         }

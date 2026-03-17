@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Play, X } from 'lucide-react'
 
 type VideoItem = { url: string; title?: string }
 
 export default function VideoGallery({ videos }: { videos: VideoItem[] }) {
   const [open, setOpen] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (open === null) return
+    document.body.style.overflow = 'hidden'
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(null) }
+    window.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
+  }, [open])
 
   return (
     <>
@@ -47,28 +55,34 @@ export default function VideoGallery({ videos }: { videos: VideoItem[] }) {
       {/* Modal */}
       {open !== null && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/88 backdrop-blur-md p-4"
           onClick={() => setOpen(null)}
         >
+          {/* Close button — fixed top-right, always visible */}
+          <button
+            onClick={() => setOpen(null)}
+            className="fixed top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all hover:scale-105"
+          >
+            <X size={16} className="text-white" />
+          </button>
+
+          {/* Wrapper shrinks to video size → controls align with video edges */}
           <div
-            className="relative w-full max-w-4xl"
+            className="relative flex flex-col items-center w-fit max-w-[92vw]"
             onClick={e => e.stopPropagation()}
           >
-            <button
-              onClick={() => setOpen(null)}
-              className="absolute -top-10 right-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-            >
-              <X size={16} className="text-white" />
-            </button>
             <video
               key={open}
               src={videos[open].url}
               controls
               autoPlay
-              className="w-full rounded-xl max-h-[80vh]"
+              playsInline
+              className="block max-h-[85vh] max-w-[92vw] w-auto h-auto rounded-2xl shadow-2xl"
             />
             {videos[open].title && (
-              <p className="mt-3 text-sm text-white/60 text-center">{videos[open].title}</p>
+              <p className="mt-3 text-xs font-medium text-white/40 tracking-widest uppercase text-center">
+                {videos[open].title}
+              </p>
             )}
           </div>
         </div>

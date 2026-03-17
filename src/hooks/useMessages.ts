@@ -25,7 +25,7 @@ export function useMessages(conversationId: string) {
         setLoading(false)
       })
 
-    // Subscribe to new messages via Realtime
+    // Subscribe to new messages via Realtime (dedupliziert gegen optimistische Updates)
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -37,7 +37,11 @@ export function useMessages(conversationId: string) {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message])
+          setMessages((prev) => {
+            const incoming = payload.new as Message
+            if (prev.some(m => m.id === incoming.id)) return prev
+            return [...prev, incoming]
+          })
         }
       )
       .subscribe()
@@ -49,11 +53,16 @@ export function useMessages(conversationId: string) {
 
   async function sendMessage(body: string, senderId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('messages') as any).insert({
-      conversation_id: conversationId,
-      sender_id: senderId,
-      body,
-    })
+    const { data, error } = await (supabase.from('messages') as any)
+      .insert({ conversation_id: conversationId, sender_id: senderId, body })
+      .select()
+      .single()
+
+    // Optimistisch sofort anzeigen — Realtime dedupliziert via ID-Check
+    if (!error && data) {
+      setMessages(prev => [...prev, data as Message])
+    }
+
     return { error }
   }
 

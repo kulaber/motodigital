@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BUILDS } from '@/lib/data/builds'
@@ -24,7 +23,7 @@ export default function BikesPage() {
               <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
                 Handgefertigte Unikate.
               </h1>
-              <p className="text-[#222222]/40 text-sm mt-2 max-w-md leading-relaxed">
+              <p className="text-[#222222]/40 text-sm mt-2 max-w-[55ch] leading-relaxed">
                 Durchstöbere alle Custom Bikes — von Cafe Racern bis zum Chopper.
               </p>
             </div>
@@ -33,24 +32,6 @@ export default function BikesPage() {
             </p>
           </div>
 
-          {/* Style category links */}
-          <div className="flex flex-wrap gap-2 mt-6">
-            {[
-              { href: '/bikes/cafe-racer', label: 'Cafe Racer' },
-              { href: '/bikes/bobber',     label: 'Bobber' },
-              { href: '/bikes/scrambler',  label: 'Scrambler' },
-              { href: '/bikes/tracker',    label: 'Tracker' },
-              { href: '/bikes/chopper',    label: 'Chopper' },
-            ].map(s => (
-              <Link
-                key={s.href}
-                href={s.href}
-                className="text-xs text-[#222222]/40 border border-[#222222]/10 px-3 py-1.5 rounded-full hover:border-[#DDDDDD]/40 hover:text-[#717171] transition-all"
-              >
-                {s.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 

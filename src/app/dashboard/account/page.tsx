@@ -15,25 +15,34 @@ export default async function AccountSettingsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('username')
+    .select('username, full_name, avatar_url, bio, address, role')
     .eq('id', user.id)
-    .single() as { data: { username: string | null } | null }
+    .single() as { data: { username: string | null; full_name: string | null; avatar_url: string | null; bio: string | null; address: string | null; role: string | null } | null }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F7F7F7]">
       <Header />
-      <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
-          <ArrowLeft size={13} /> Dashboard
-        </Link>
-        <div className="mb-8">
+      <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 lg:px-8">
+        <div className="flex items-center gap-3 mb-6">
+          <Link href="/dashboard" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
+            Dashboard
+          </Link>
+          <span className="text-[#222222]/15">/</span>
+          <span className="text-xs text-[#222222]/60 font-medium">Konto-Einstellungen</span>
+        </div>
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#222222]">Konto-Einstellungen</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">Benutzername, E-Mail und Passwort verwalten</p>
+          <p className="text-sm text-[#222222]/40 mt-1">Profil, E-Mail und Passwort verwalten</p>
         </div>
         <AccountSettingsForm
           userId={user.id}
           currentEmail={user.email ?? ''}
           currentUsername={profile?.username ?? ''}
+          currentFullName={profile?.full_name ?? ''}
+          currentAvatarUrl={profile?.avatar_url ?? null}
+          currentBio={profile?.bio ?? null}
+          currentAddress={profile?.address ?? null}
+          role={profile?.role ?? null}
         />
       </div>
     </div>

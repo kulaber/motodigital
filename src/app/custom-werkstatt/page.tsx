@@ -6,18 +6,35 @@ import BuilderPageClient from './BuilderPageClient'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
-  title: 'Builder Directory — Custom Motorcycle Builder finden',
-  description: 'Finde verifizierte Custom Motorcycle Builder in ganz Europa auf MotoDigital.',
+  title: 'Custom Werkstatt finden — Verzeichnis | MotoDigital',
+  description: 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt — kostenlos auf MotoDigital.',
+}
+
+/** Extract city from a Mapbox address string, e.g. "Frankfurter Straße 20, 03185 Peitz, Deutschland" → "Peitz" */
+function cityFromAddress(address: string): string {
+  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
+  if (parts.length >= 2) {
+    // Second-to-last part before country, strip leading postal code
+    const segment = parts[parts.length - 2]
+    const match = segment.match(/^\d+\s+(.+)$/)
+    return match ? match[1] : segment
+  }
+  return address
 }
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {
-  const name = (row.full_name as string | null) ?? 'Unbekannt'
+  const name    = (row.full_name as string | null) ?? 'Unbekannt'
+  const address = (row.address   as string | null) ?? undefined
+  const rawCity = (row.city as string | null)
+  // If address is set, extract city from it (always up-to-date); fall back to DB city field
+  const city    = address ? cityFromAddress(address) : (rawCity ?? '')
   return {
+    id:          row.id as string,
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
-    city:        (row.city as string | null) ?? '',
-    address:     (row.address as string | null) ?? undefined,
+    city,
+    address,
     lat:         (row.lat as number | null) ?? undefined,
     lng:         (row.lng as number | null) ?? undefined,
     specialty:   (row.specialty as string | null) ?? '',
@@ -60,7 +77,7 @@ export default async function BuilderPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRows } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
-    .eq('role', 'builder')
+    .eq('role', 'custom-werkstatt')
     .not('slug', 'is', null)
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
@@ -89,7 +106,7 @@ export default async function BuilderPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
-      <Header activePage="builder" />
+      <Header activePage="custom-werkstatt" />
 
       <BuilderPageClient builders={merged} />
 

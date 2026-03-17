@@ -19,6 +19,7 @@ export type OpeningHours = {
 }
 
 export type Builder = {
+  id?: string        // Supabase profile UUID (nur für DB-Builder vorhanden)
   slug: string
   initials: string
   name: string

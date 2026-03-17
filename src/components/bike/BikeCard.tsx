@@ -30,7 +30,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
         group block rounded-2xl overflow-hidden bg-white
         border transition-all duration-200
         ${highlighted
-          ? 'border-[#222222]/40 shadow-lg shadow-[#086565]/10'
+          ? 'border-[#222222]/40 shadow-lg shadow-[#06a5a5]/10'
           : 'border-[#222222]/6 hover:border-[#222222]/15'
         }
       `}
@@ -60,7 +60,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
           {STYLE_LABELS[bike.style] ?? bike.style}
         </span>
         {bike.is_verified && (
-          <span className="absolute top-2.5 right-2.5 bg-[#222222]/90 text-[#222222] rounded-full p-0.5">
+          <span className="absolute top-2.5 right-2.5 bg-[#222222]/90 text-white rounded-full p-0.5">
             <BadgeCheck size={14} />
           </span>
         )}

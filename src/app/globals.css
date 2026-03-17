@@ -3,8 +3,8 @@
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
 @theme {
   /* Brand / Accent — used ONLY on primary CTA buttons */
-  --color-accent:      #086565;
-  --color-accent-dark: #075555;
+  --color-accent:      #06a5a5;
+  --color-accent-dark: #058f8f;
   --color-accent-light:#0a7a7a;
 
   /* Airbnb-style neutral palette */
@@ -162,10 +162,10 @@ a, button, [role="button"] {
 
 /* ─── Ambient glow ────────────────────────────────────────── */
 .glow-teal {
-  box-shadow: var(--shadow-teal-sm);
+  box-shadow: 0 0 12px rgba(8, 101, 101, 0.25);
 }
 .glow-teal-md {
-  box-shadow: var(--shadow-teal-md);
+  box-shadow: 0 0 24px rgba(8, 101, 101, 0.35);
 }
 
 /* ─── Underline link animation ────────────────────────────── */
@@ -199,7 +199,7 @@ a, button, [role="button"] {
 
 /* ─── Focus ring ──────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #086565;
+  outline: 2px solid #06a5a5;
   outline-offset: 3px;
   border-radius: 4px;
 }

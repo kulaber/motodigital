@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
 import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone } from 'lucide-react'
+import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
 import BuilderGallery from '@/components/builder/BuilderGallery'
@@ -35,7 +36,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   const { data: row } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url')
     .eq('slug', slug)
-    .eq('role', 'builder')
+    .eq('role', 'custom-werkstatt')
     .single()
 
   if (!row) return null
@@ -83,6 +84,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   }
 
   return {
+    id:          row.id as string,
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
@@ -164,13 +166,13 @@ export default async function BuilderProfilePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
-      <Header activePage="builder" />
+      <Header activePage="custom-werkstatt" />
 
       {/* ── HERO ── */}
       <section className="pt-24 pb-0 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
 
-          <Link href="/builder"
+          <Link href="/custom-werkstatt"
             className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
             <ArrowLeft size={13} /> Alle Builder
           </Link>
@@ -181,8 +183,8 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Ambient glow ring */}
               <div className="absolute inset-0 rounded-2xl bg-[#222222]/20 blur-xl scale-110 animate-pulse" style={{ animationDuration: '3s' }} />
               {/* Avatar */}
-              <div className="relative w-full h-full rounded-2xl bg-[#222222]/12 border border-[#DDDDDD]/25 flex items-center justify-center text-2xl font-bold text-[#717171]">
-                {builder.initials}
+              <div className="relative w-full h-full rounded-2xl bg-[#06a5a5] border border-[#06a5a5]/30 flex items-center justify-center">
+                <img src="/pin-logo.svg" alt="Logo" className="w-10 h-10 opacity-90" />
               </div>
             </div>
 
@@ -237,7 +239,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             {images.length > 0 && (
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
+                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
                   <p className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Galerie</p>
                 </div>
                 <BuilderGallery images={images} />
@@ -292,7 +294,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                       </span>
                     </div>
                     {/* Info */}
-                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#086565] transition-colors">
+                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">
                       {build.title}
                     </p>
                     <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
@@ -319,7 +321,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* About */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
+                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
                   <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Über</h2>
                 </div>
                 <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>
@@ -341,14 +343,14 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Spezialisierung */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
+                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
                   <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Spezialisierung</h2>
                 </div>
                 <p className="text-sm text-[#717171] leading-relaxed mb-4">{builder.specialty}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                   {builder.tags.map(tag => (
                     <div key={tag} className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#086565] flex-shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#06a5a5] flex-shrink-0" />
                       <span className="text-sm text-[#222222] font-medium">{tag}</span>
                     </div>
                   ))}
@@ -359,7 +361,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.team && builder.team.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <div className="flex items-center gap-2 mb-5">
-                    <span className="w-0.5 h-3 bg-[#086565] rounded-full" />
+                    <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
                     <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Team</h2>
                     <span className="ml-auto text-[10px] text-[#B0B0B0] font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
@@ -371,8 +373,8 @@ export default async function BuilderProfilePage({ params }: Props) {
                             {member.avatar ? (
                               <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] text-sm font-bold text-[#717171]">
-                                {member.initials}
+                              <div className="w-full h-full flex items-center justify-center bg-[#06a5a5]">
+                                <img src="/pin-logo.svg" alt="Logo" className="w-7 h-7 opacity-90" />
                               </div>
                             )}
                           </div>
@@ -439,12 +441,18 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <p className="text-xs text-[#717171] leading-relaxed mb-4">
                   Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
                 </p>
-                <Link
-                  href="/auth/register"
-                  className="block w-full bg-[#086565] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#075555] transition-all"
-                >
-                  Nachricht senden
-                </Link>
+                {builder.id ? (
+                  <BuilderContactButton
+                    builderId={builder.id}
+                    builderFirstName={builder.name.split(' ')[0]}
+                    bikeId={builder.featuredBuilds[0]?.slug}
+                  />
+                ) : (
+                  <a href="/auth/login"
+                    className="block w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all">
+                    Anmelden um zu schreiben
+                  </a>
+                )}
               </div>
 
               {/* Opening hours */}

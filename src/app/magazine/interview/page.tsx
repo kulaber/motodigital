@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { getArticlesByCategory, CATEGORY_META } from '@/lib/data/magazine'
 
 const meta = CATEGORY_META['interview']
@@ -10,123 +9,119 @@ const meta = CATEGORY_META['interview']
 export const metadata: Metadata = {
   title: meta.title,
   description: meta.description,
-  alternates: {
-    canonical: 'https://motodigital.vercel.app/magazine/interview',
-  },
-  openGraph: {
-    title: meta.title,
-    description: meta.description,
-    type: 'website',
-  },
+  alternates: { canonical: 'https://motodigital.io/magazine/interview' },
+  openGraph: { title: meta.title, description: meta.description, type: 'website' },
 }
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://motodigital.vercel.app' },
-    { '@type': 'ListItem', position: 2, name: 'Magazin', item: 'https://motodigital.vercel.app/magazine' },
-    { '@type': 'ListItem', position: 3, name: 'Interviews', item: 'https://motodigital.vercel.app/magazine/interview' },
-  ],
-}
+const CATEGORY_TABS = [
+  { label: 'Alle',          href: '/magazine' },
+  { label: 'Build Stories', href: '/magazine/build-story' },
+  { label: 'Interviews',    href: '/magazine/interview' },
+  { label: 'Guides',        href: '/magazine/guide' },
+]
 
 function formatDateDE(iso: string): string {
-  return new Date(iso).toLocaleDateString('de-DE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  return new Date(iso).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export default function InterviewPage() {
   const articles = getArticlesByCategory('interview')
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
       <Header activePage="magazine" />
 
-      {/* Hero */}
-      <section className="pt-28 pb-12 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="mb-6">
-            <Breadcrumbs
-              crumbs={[
-                { label: 'Home', href: '/' },
-                { label: 'Magazin', href: '/magazine' },
-                { label: 'Interviews' },
-              ]}
-            />
-          </div>
-          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">
-            Kategorie
-          </p>
+      {/* Page header — zentriert */}
+      <section className="pt-28 pb-10 bg-white border-b border-[#222222]/6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 text-center">
+          <p className="text-[10px] font-bold text-[#717171] uppercase tracking-[0.2em] mb-3">Magazin</p>
           <h1
             className="font-bold text-[#222222] leading-tight mb-4"
-            style={{ fontSize: 'clamp(2rem,5vw,3rem)', letterSpacing: '-0.03em' }}
+            style={{ fontSize: 'clamp(2rem,5vw,3.75rem)', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)' }}
           >
             Interviews
           </h1>
-          <p className="text-[#222222]/40 text-base max-w-lg leading-relaxed">
+          <p className="text-[#222222]/45 text-base max-w-[55ch] mx-auto leading-relaxed mb-8">
             {meta.description}
           </p>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {CATEGORY_TABS.map(tab => (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors ${
+                  tab.href === '/magazine/interview'
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'bg-transparent text-[#222222]/50 border-[#222222]/12 hover:border-[#222222]/30 hover:text-[#222222]/80'
+                }`}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Articles grid */}
-      <section className="pb-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+      {/* Grid */}
+      <section className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xs font-bold text-[#222222]/40 uppercase tracking-widest">Interviews</h2>
+            <span className="text-xs text-[#222222]/25">{articles.length} Beiträge</span>
+          </div>
+
           {articles.length === 0 ? (
-            <p className="text-[#222222]/40 text-sm">Noch keine Artikel in dieser Kategorie.</p>
+            <p className="text-[#222222]/40 text-sm py-20 text-center">Noch keine Artikel in dieser Kategorie.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {articles.map(article => (
-                <article
+                <Link
                   key={article.slug}
-                  className="group bg-white border border-[#222222]/6 hover:border-[#222222]/20 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
+                  href={`/magazine/${article.slug}`}
+                  className="card-interactive group block bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/6"
                 >
-                  <div className="aspect-[16/9] overflow-hidden">
-                    <img
-                      src={article.coverImage}
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border bg-[#222222]/15 text-[#717171] border-[#DDDDDD]/20">
-                        {article.categoryLabel}
-                      </span>
-                      <span className="text-[10px] text-[#222222]/25">{article.readTime} Lesezeit</span>
+                  <article>
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      <img
+                        src={article.coverImage}
+                        alt={article.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute top-3 left-3">
+                        <span className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#222222]/10 border border-[#222222]/12 text-[#222222]/60">
+                          {article.categoryLabel}
+                        </span>
+                      </div>
                     </div>
-                    <h2 className="text-sm font-semibold text-[#222222] leading-snug mb-2 line-clamp-2">
-                      {article.title}
-                    </h2>
-                    <p className="text-xs text-[#222222]/40 leading-relaxed line-clamp-2 mb-3">
-                      {article.excerpt}
-                    </p>
-                    <p className="text-[10px] text-[#222222]/25 mb-4">{formatDateDE(article.publishedAt)}</p>
-                    <Link
-                      href={`/magazine/${article.slug}`}
-                      className="text-xs font-semibold text-[#717171] hover:text-[#1f9999] transition-colors"
-                    >
-                      Lesen →
-                    </Link>
-                  </div>
-                </article>
+                    <div className="p-5">
+                      <h2 className="text-sm font-semibold text-[#222222] leading-snug mb-2 line-clamp-2 group-hover:text-[#06a5a5] transition-colors">
+                        {article.title}
+                      </h2>
+                      <p className="text-xs text-[#222222]/45 leading-relaxed line-clamp-2 mb-4">
+                        {article.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[10px] text-[#222222]/30">
+                          <span>{article.author}</span>
+                          <span className="h-2 w-px bg-[#222222]/15" />
+                          <span>{article.readTime}</span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#06a5a5] opacity-0 group-hover:opacity-100 transition-opacity">
+                          Lesen →
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </div>
           )}
 
-          {/* Back link */}
-          <div className="mt-12 pt-8 border-t border-[#222222]/5">
-            <Link
-              href="/magazine"
-              className="text-sm font-semibold text-[#717171] hover:text-[#1f9999] transition-colors"
-            >
+          <div className="mt-10 pt-8 border-t border-[#222222]/6">
+            <Link href="/magazine" className="text-xs font-semibold text-[#222222]/40 hover:text-[#222222] transition-colors">
               ← Zurück zum Magazin
             </Link>
           </div>

@@ -95,7 +95,7 @@ export default function SearchBar({
                   className={cn(
                     'flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-all',
                     active
-                      ? 'bg-[#086565] text-[#222222] border-[#DDDDDD]'
+                      ? 'bg-[#06a5a5] text-[#222222] border-[#DDDDDD]'
                       : 'bg-white border-[#222222]/10 text-[#222222]/50 hover:text-[#222222] hover:border-[#222222]/25'
                   )}
                 >

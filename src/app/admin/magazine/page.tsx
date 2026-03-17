@@ -49,7 +49,7 @@ export default async function AdminMagazinePage() {
             <h1 className="text-2xl font-bold text-[#222222]">Magazin</h1>
           </div>
           <Link href="/admin/magazine/new"
-            className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all">
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
             <Plus size={14} /> Neuer Beitrag
           </Link>
         </div>
@@ -119,7 +119,7 @@ export default async function AdminMagazinePage() {
                           <ExternalLink size={10} /> Live
                         </a>
                         <Link href={`/admin/magazine/${a.slug}/edit`}
-                          className="inline-flex items-center gap-1 text-xs text-white bg-[#086565] hover:bg-[#075555] px-3 py-1.5 rounded-full transition-all font-semibold">
+                          className="inline-flex items-center gap-1 text-xs text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-all font-semibold">
                           <Pencil size={10} /> Bearbeiten
                         </Link>
                       </div>

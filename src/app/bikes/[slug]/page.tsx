@@ -91,105 +91,139 @@ export default async function BikeSlugPage({ params }: Props) {
                         t.toLowerCase() === styleDisplay.toLowerCase())
     ).slice(0, 4)
 
+    const ALL_STYLES = ['cafe-racer','bobber','scrambler','tracker','chopper','street','enduro'] as const
+
     return (
       <div className="min-h-screen bg-white text-[#222222]">
         <Header activePage="bikes" />
-        {/* Hero */}
-        <div className="relative border-b border-[#222222]/5 pt-16 pb-14 px-5 lg:px-12 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2aabab]/5 via-transparent to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto relative">
-            <Breadcrumbs crumbs={[
-              { label: 'Home', href: '/' },
-              { label: 'Custom Bikes', href: '/bikes' },
-              { label: styleInfo.name },
-            ]} />
-            <div className="mt-5">
-              <span className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Custom Style</span>
-              <h1 className="font-bold text-[#222222] mt-2 mb-3" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
-                {styleInfo.name} Motorcycles
-              </h1>
-              <p className="text-[#222222]/45 text-sm max-w-xl">
-                {styleInfo.description} — kuratierte Custom Builds von verifizierten Buildern weltweit.
+
+        {/* PAGE HEADER — wie /bikes */}
+        <section className="pt-28 pb-10 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
+              <div>
+                <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Motorcycles</p>
+                <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
+                  {styleInfo.name}
+                </h1>
+                <p className="text-[#222222]/40 text-sm mt-2 max-w-[55ch] leading-relaxed">
+                  {styleInfo.description} — kuratierte Custom Builds von verifizierten Buildern.
+                </p>
+              </div>
+              <p className="text-xs text-[#222222]/30 flex-shrink-0">
+                <span className="text-[#222222]/60 font-semibold">{filtered.length} Bikes</span>
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FILTER BAR — wie /bikes */}
+        <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
+            <div className="flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <Link
+                href="/bikes"
+                className="flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]"
+              >
+                Alle
+              </Link>
+              {ALL_STYLES.map(s => {
+                const label = STYLES[s]?.name ?? s
+                const isActive = s === slug
+                return (
+                  <Link
+                    key={s}
+                    href={`/bikes/${s}`}
+                    className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 ${
+                      isActive
+                        ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
+                        : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-
-          {/* Results count */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-[#222222]/40">
-              <span className="text-[#222222] font-semibold">{filtered.length}</span> {styleInfo.name} Bikes
-            </p>
-            <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#1f9999] transition-colors">
-              ← Alle Stile
-            </Link>
-          </div>
-
-          {filtered.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-              {filtered.map(build => (
-                <Link
-                  key={build.slug}
-                  href={`/custom-bike/${build.slug}`}
-                  className="group rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all hover:-translate-y-0.5"
-                >
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                    <img
-                      src={build.coverImg}
-                      alt={build.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                    />
-                    {build.verified && (
-                      <span className="absolute top-2 right-2 flex items-center gap-1 bg-[#222222]/90 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
-                        <BadgeCheck size={9} /> Verified
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <p className="text-xs text-[#717171] font-semibold mb-1">{build.base}</p>
-                    <p className="text-sm font-semibold text-[#222222] line-clamp-1 mb-1">{build.title}</p>
-                    <p className="text-xs text-[#222222]/35">{build.city} · {build.buildYear}</p>
-                  </div>
+        {/* GRID — 4 Spalten wie /bikes */}
+        <section className="py-8 sm:py-10 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+            {filtered.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-[#222222]/25 text-sm">Noch keine {styleInfo.name} Bikes verfügbar.</p>
+                <Link href="/bikes" className="mt-4 inline-block text-xs text-[#717171] hover:text-[#06a5a5] transition-colors">
+                  Alle Bikes ansehen →
                 </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 text-[#222222]/30">
-              <p className="text-base">Noch keine {styleInfo.name} Bikes verfügbar.</p>
-              <Link href="/bikes" className="mt-4 inline-block text-sm text-[#717171] hover:text-[#1f9999]">
-                Alle Bikes ansehen →
-              </Link>
-            </div>
-          )}
-
-          {/* Related builders */}
-          {relatedBuilders.length > 0 && (
-            <div className="border-t border-[#222222]/5 pt-10">
-              <h2 className="text-base font-semibold text-[#222222] mb-5">
-                {styleInfo.name} Builder
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {relatedBuilders.map(b => (
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {filtered.map((build, i) => (
                   <Link
-                    key={b.slug}
-                    href={`/builder/${b.slug}`}
-                    className="group bg-white border border-[#222222]/6 hover:border-[#DDDDDD]/30 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
+                    key={build.slug}
+                    href={`/custom-bike/${build.slug}`}
+                    className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 opacity-0 animate-slide-up-sm"
+                    style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171]">
-                      {b.initials}
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img
+                        src={build.coverImg}
+                        alt={build.title}
+                        loading={i < 8 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                        <span className="text-[#222222] text-xs font-semibold">Ansehen →</span>
+                      </div>
+                      <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        {build.style}
+                      </span>
+                      {build.verified && (
+                        <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#222222]/90 text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                          <BadgeCheck size={8} /> Verified
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold text-[#222222]">{b.name}</p>
-                      <p className="text-[10px] text-[#222222]/35 mt-0.5">{b.city}</p>
+                    <div className="p-3 sm:p-4">
+                      <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
+                      <p className="text-[10px] sm:text-xs text-[#222222]/35 mt-1 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
+                      <p className="text-[10px] text-[#222222]/25 mt-0.5 truncate">{build.builder.name}</p>
                     </div>
                   </Link>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {/* Related builders */}
+            {relatedBuilders.length > 0 && (
+              <div className="mt-14 pt-10 border-t border-[#222222]/5">
+                <h2 className="text-xs font-bold text-[#222222]/40 uppercase tracking-widest mb-5">
+                  {styleInfo.name} Custom-Werkstätten
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {relatedBuilders.map(b => (
+                    <Link
+                      key={b.slug}
+                      href={`/custom-werkstatt/${b.slug}`}
+                      className="group bg-white border border-[#222222]/6 hover:border-[#222222]/20 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-[#222222]/10 border border-[#222222]/8 flex items-center justify-center text-xs font-bold text-[#717171]">
+                        {b.initials}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-[#222222]">{b.name}</p>
+                        <p className="text-[10px] text-[#222222]/35 mt-0.5">{b.city}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     )
   }
@@ -329,7 +363,7 @@ export default async function BikeSlugPage({ params }: Props) {
               {workshop ? (
                 <>
                   <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-3">Builder</p>
-                  <Link href={`/builder/${workshop.slug}`} className="flex items-center gap-3 group">
+                  <Link href={`/custom-werkstatt/${workshop.slug}`} className="flex items-center gap-3 group">
                     <div className="w-10 h-10 rounded-xl bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
                       {workshop.name.charAt(0)}
                     </div>

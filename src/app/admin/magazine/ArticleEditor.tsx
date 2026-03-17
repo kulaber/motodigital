@@ -375,7 +375,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
             )}
             <button
               onClick={handleSave}
-              className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#075555] transition-all"
+              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Kopiert!' : 'Speichern / Code kopieren'}
@@ -718,7 +718,7 @@ export default function ArticleEditor({ initialArticle }: { initialArticle?: Art
             {/* Save button */}
             <button
               onClick={handleSave}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#086565] text-white text-sm font-semibold px-5 py-3.5 rounded-full hover:bg-[#075555] transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3.5 rounded-full hover:bg-[#058f8f] transition-all"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Code kopiert!' : 'Speichern / Code kopieren'}

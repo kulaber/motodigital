@@ -250,10 +250,10 @@ export default function EditBuilderPage() {
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
 
         <div className="flex items-center justify-between mb-8">
-          <Link href="/admin/builder" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
+          <Link href="/admin/custom-werkstatt" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
             <ArrowLeft size={13} /> Builder-Liste
           </Link>
-          <a href={`/builder/${slug}`} target="_blank" rel="noopener noreferrer"
+          <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#717171] transition-colors">
             <ExternalLink size={12} /> Profil ansehen
           </a>
@@ -407,7 +407,7 @@ export default function EditBuilderPage() {
                 <div
                   onClick={() => dbProfile && setForm(f => ({ ...f, is_verified: !f.is_verified }))}
                   className={`w-10 h-6 rounded-full border-2 transition-all relative ${
-                    form.is_verified ? 'bg-[#086565] border-[#DDDDDD]' : 'bg-transparent border-[#222222]/20'
+                    form.is_verified ? 'bg-[#06a5a5] border-[#DDDDDD]' : 'bg-transparent border-[#222222]/20'
                   } ${!dbProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${form.is_verified ? 'left-4' : 'left-0.5'}`} />
@@ -432,13 +432,13 @@ export default function EditBuilderPage() {
             )}
 
             <div className="flex items-center justify-between pt-2">
-              <Link href="/admin/builder" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
+              <Link href="/admin/custom-werkstatt" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
                 Abbrechen
               </Link>
               <button
                 onClick={handleSave}
                 disabled={saving || !dbProfile}
-                className="inline-flex items-center gap-2 bg-[#086565] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#075555] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Save size={14} />
                 {saving ? 'Wird gespeichert…' : 'Speichern'}

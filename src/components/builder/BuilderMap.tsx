@@ -40,7 +40,7 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
     const el = document.createElement('div')
     el.style.cssText = `
       width: 36px; height: 36px;
-      background: #086565;
+      background: #06a5a5;
       border: 3px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 0 4px rgba(8,101,101,0.15), 0 4px 12px rgba(0,0,0,0.15);

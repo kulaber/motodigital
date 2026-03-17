@@ -40,12 +40,12 @@ export default function SellPage() {
             Dein Custom Bike.<br />
             <span className="text-[#717171]">Weltweit sichtbar.</span>
           </h1>
-          <p className="text-[#222222]/45 text-base max-w-xl mx-auto leading-relaxed mb-10">
-            Zeig der Welt, was du gebaut hast. MotoDigital bringt dein Unikat zu den richtigen Käufern — schnell, einfach, ohne Kompromisse.
+          <p className="text-[#222222]/45 text-base max-w-[55ch] mx-auto leading-relaxed mb-10">
+            Zeig der Welt, was du gebaut hast — MotoDigital bringt dein Unikat zu den richtigen Käufern.
           </p>
           <Link
             href="/bikes/new"
-            className="inline-flex items-center gap-2 bg-[#086565] text-white text-base font-bold px-8 py-4 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#086565]/20"
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-base font-bold px-8 py-4 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#06a5a5]/20"
           >
             Jetzt inserieren
           </Link>
@@ -86,7 +86,7 @@ export default function SellPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/bikes/new"
-              className="inline-flex items-center justify-center gap-2 bg-[#086565] text-white text-sm font-bold px-8 py-3.5 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 bg-[#06a5a5] text-white text-sm font-bold px-8 py-3.5 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5"
             >
               Jetzt inserieren
             </Link>

@@ -43,7 +43,7 @@ export default function BuildsClient({ builds }: Props) {
                   onClick={() => setActiveStyle(s)}
                   className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5 ${
                     activeStyle === s
-                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
                       : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
@@ -63,7 +63,7 @@ export default function BuildsClient({ builds }: Props) {
                   onClick={() => setCountryOpen(v => !v)}
                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
                     activeCountry !== 'Alle'
-                      ? 'bg-[#086565] text-white border-[#DDDDDD]'
+                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
                       : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
@@ -115,7 +115,7 @@ export default function BuildsClient({ builds }: Props) {
               <p className="text-[#222222]/25 text-sm">Keine Builds für diese Filter gefunden.</p>
               <button
                 onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                className="mt-4 text-xs text-[#717171] hover:text-[#086565] transition-colors"
+                className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen
               </button>
