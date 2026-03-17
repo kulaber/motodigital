@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, Clock, Wrench } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, Wrench, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import BuildGallery from '@/components/build/BuildGallery'
 
 interface Props {
@@ -13,11 +12,6 @@ interface Props {
 
 export async function generateStaticParams() {
   return BUILDS.map(b => ({ slug: b.slug }))
-}
-
-// Map style display name to URL slug
-function styleToSlug(style: string): string {
-  return style.toLowerCase().replace(/\s+/g, '-')
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -35,126 +29,102 @@ export default async function CustomBikePage({ params }: Props) {
   const build = getBuildBySlug(slug)
   if (!build) notFound()
 
-  const [cover, ...gallery] = build.images
-  const styleSlug = styleToSlug(build.style)
-
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="bikes" />
 
-      {/* Hero */}
-      <div className="relative h-[55vh] min-h-[360px] overflow-hidden">
-        <img src={cover} alt={build.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
 
-        {/* Badges */}
-        <div className="absolute top-5 right-5 flex items-center gap-2">
-          <span className="bg-white/70 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
-            {build.style}
-          </span>
-          {build.verified && (
-            <span className="flex items-center gap-1 bg-[#222222]/90 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
-              <BadgeCheck size={10} /> Verified
-            </span>
-          )}
-        </div>
+        {/* Back */}
+        <Link href="/builds" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+          <ArrowLeft size={13} /> Custom Bikes
+        </Link>
 
-        {/* Title overlay */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 pb-8 lg:px-12">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">{build.base} · {build.year}</p>
-            <h1 className="font-bold text-[#222222] leading-tight mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
+        {/* Gallery — hero focus */}
+        <BuildGallery images={build.images} title={build.title} />
+
+        {/* Title block */}
+        <div className="mt-8 mb-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
+                {build.style}
+              </span>
+              {build.verified && (
+                <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest bg-[#222222] text-white px-2.5 py-1 rounded-full">
+                  <BadgeCheck size={10} /> Verified
+                </span>
+              )}
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight mb-2">
               {build.title}
             </h1>
-            <p className="text-[#222222]/50 text-sm">{build.tagline}</p>
+            <p className="text-[#717171] text-sm">{build.tagline}</p>
+          </div>
+
+          {/* Meta pills */}
+          <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
+            {[
+              { icon: <MapPin size={11} />, label: build.city },
+              { icon: <Calendar size={11} />, label: `Build ${build.buildYear}` },
+              { icon: <Wrench size={11} />, label: build.displacement },
+            ].map(m => (
+              <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
+                {m.icon} {m.label}
+              </span>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Breadcrumbs */}
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 pt-6">
-        <Breadcrumbs crumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Custom Bikes', href: '/bikes' },
-          { label: build.style, href: `/bikes/${styleSlug}` },
-          { label: build.title },
-        ]} />
-      </div>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10 items-start">
+        {/* Main content grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12 items-start">
 
           {/* LEFT */}
           <div className="flex flex-col gap-10">
 
-            {/* Meta pills */}
-            <div className="flex flex-wrap gap-2">
-              {[
-                { icon: <MapPin size={12} />, label: build.city },
-                { icon: <Calendar size={12} />, label: `Build ${build.buildYear}` },
-                { icon: <Clock size={12} />, label: build.buildDuration },
-                { icon: <Wrench size={12} />, label: build.displacement },
-              ].map(m => (
-                <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#222222]/50 bg-white border border-[#222222]/8 px-3 py-1.5 rounded-full">
-                  <span className="text-[#717171]">{m.icon}</span>
-                  {m.label}
-                </span>
-              ))}
-            </div>
-
             {/* Story */}
             <div>
-              <h2 className="text-base font-semibold text-[#222222] mb-3">Der Build</h2>
-              <p className="text-sm text-[#222222]/55 leading-relaxed">{build.description}</p>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Der Build</h2>
+              <p className="text-[15px] text-[#444] leading-relaxed">{build.description}</p>
             </div>
-
-            {/* Gallery */}
-            {build.images.length > 0 && (
-              <div>
-                <h2 className="text-base font-semibold text-[#222222] mb-4">Galerie</h2>
-                <BuildGallery images={build.images} title={build.title} />
-              </div>
-            )}
-
-            {/* Video */}
-            {build.videoUrl && (
-              <div>
-                <h2 className="text-base font-semibold text-[#222222] mb-4">Video</h2>
-                <video
-                  src={build.videoUrl}
-                  controls
-                  poster={cover}
-                  className="w-full rounded-2xl aspect-video object-cover bg-white"
-                />
-              </div>
-            )}
 
             {/* Modifications */}
             <div>
-              <h2 className="text-base font-semibold text-[#222222] mb-4">Umbauten & Modifikationen</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Umbauten & Modifikationen</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {build.modifications.map((mod, i) => (
-                  <div key={i} className="flex items-start gap-2.5 bg-white border border-[#222222]/6 rounded-xl px-4 py-3">
+                  <div key={i} className="flex items-start gap-2.5 bg-[#F7F7F7] rounded-xl px-4 py-3">
                     <span className="text-[#717171] mt-0.5 flex-shrink-0">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M10 3L5 8.5 2 5.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </span>
-                    <span className="text-xs text-[#222222]/65 leading-snug">{mod}</span>
+                    <span className="text-xs text-[#444] leading-snug">{mod}</span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Video */}
+            {build.videoUrl && (
+              <div>
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Video</h2>
+                <video
+                  src={build.videoUrl}
+                  controls
+                  poster={build.images[0]}
+                  className="w-full rounded-2xl aspect-video object-cover bg-[#F7F7F7]"
+                />
+              </div>
+            )}
           </div>
 
-          {/* RIGHT — Sidebar */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-24">
+          {/* RIGHT — Sticky Sidebar */}
+          <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 
             {/* Builder card */}
-            <div className="card-interactive bg-white border border-[#DDDDDD]/15 rounded-2xl p-5">
-              <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-3">Builder</p>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
+            <div className="bg-[#F7F7F7] rounded-2xl p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Gebaut von der Custom Werkstatt:</p>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-11 h-11 rounded-xl bg-[#E0E0E0] flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
                   {build.builder.initials}
                 </div>
                 <div>
@@ -162,20 +132,22 @@ export default async function CustomBikePage({ params }: Props) {
                     <p className="text-sm font-semibold text-[#222222]">{build.builder.name}</p>
                     {build.builder.verified && <BadgeCheck size={13} className="text-[#717171]" />}
                   </div>
-                  <p className="text-xs text-[#222222]/40">{build.builder.city}</p>
+                  <p className="text-xs text-[#717171]">{build.builder.city}</p>
                 </div>
               </div>
-              <p className="text-xs text-[#222222]/35 mb-4">{build.builder.specialty}</p>
+              {build.builder.specialty && (
+                <p className="text-xs text-[#717171] mb-4">{build.builder.specialty}</p>
+              )}
               <div className="flex flex-col gap-2">
                 <Link
-                  href={`/custom-werkstatt/${build.builder.slug}#kontakt`}
-                  className="btn-press w-full text-center text-sm font-bold bg-[#06a5a5] hover:bg-[#064f4f] text-white rounded-xl px-4 py-2.5 transition-colors"
+                  href={`/custom-werkstatt/${build.builder.slug}`}
+                  className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Builder kontaktieren
                 </Link>
                 <Link
                   href={`/custom-werkstatt/${build.builder.slug}`}
-                  className="w-full text-center text-sm font-semibold text-[#222222]/70 hover:text-[#222222] border border-[#222222]/15 hover:border-[#222222]/30 rounded-xl px-4 py-2.5 transition-colors"
+                  className="w-full text-center text-sm font-medium text-[#717171] hover:text-[#222222] transition-colors py-2"
                 >
                   Profil ansehen →
                 </Link>
@@ -183,34 +155,33 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
 
             {/* Specs */}
-            <div className="bg-white border border-[#222222]/8 rounded-2xl p-5">
-              <p className="text-xs text-[#222222]/35 uppercase tracking-widest mb-4">Technische Daten</p>
-              {[
-                { label: 'Basis', value: build.base },
-                { label: 'Baujahr', value: `${build.year}` },
-                { label: 'Motor', value: build.engine },
-                { label: 'Hubraum', value: build.displacement },
-                { label: 'Standort', value: build.city },
-                { label: 'Umbau-Jahr', value: `${build.buildYear}` },
-                { label: 'Bauzeit', value: build.buildDuration },
-              ].map(s => (
-                <div key={s.label} className="flex items-center justify-between py-2 border-b border-[#222222]/5 last:border-0">
-                  <span className="text-xs text-[#222222]/35">{s.label}</span>
-                  <span className="text-xs font-medium text-[#222222]/75">{s.value}</span>
-                </div>
-              ))}
+            <div className="border border-[#EBEBEB] rounded-2xl p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Technische Daten</p>
+              <div className="flex flex-col">
+                {[
+                  { label: 'Basis', value: build.base },
+                  { label: 'Baujahr', value: `${build.year}` },
+                  { label: 'Motor', value: build.engine },
+                  { label: 'Hubraum', value: build.displacement },
+                  { label: 'Standort', value: build.city },
+                  { label: 'Umbau-Jahr', value: `${build.buildYear}` },
+                  { label: 'Bauzeit', value: build.buildDuration },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#F7F7F7] last:border-0">
+                    <span className="text-xs text-[#AAAAAA]">{s.label}</span>
+                    <span className="text-xs font-medium text-[#222222]">{s.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-
           </div>
         </div>
-      </div>
 
-      {/* More bikes */}
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 pb-16">
-        <div className="border-t border-[#222222]/5 pt-10">
+        {/* Related builds */}
+        <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-semibold text-[#222222]">Weitere Bikes</h2>
-            <Link href="/bikes" className="text-xs text-[#717171] hover:text-[#06a5a5] transition-colors">
+            <h2 className="text-sm font-semibold text-[#222222]">Weitere Builds</h2>
+            <Link href="/builds" className="text-xs text-[#717171] hover:text-[#222222] transition-colors">
               Alle ansehen →
             </Link>
           </div>
@@ -219,14 +190,14 @@ export default async function CustomBikePage({ params }: Props) {
               <Link
                 key={b.slug}
                 href={`/custom-bike/${b.slug}`}
-                className="group rounded-xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all hover:-translate-y-0.5"
+                className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
               >
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-500" />
+                <div className="aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                  <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
-                  <p className="text-[10px] text-[#222222]/35 mt-0.5">{b.base} · {b.city}</p>
+                  <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
                 </div>
               </Link>
             ))}
@@ -234,19 +205,15 @@ export default async function CustomBikePage({ params }: Props) {
         </div>
       </div>
 
-      {/* Mobile floating CTA bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-white/95 backdrop-blur-md border-t border-[#222222]/8">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-[#222222] truncate">{build.builder.name}</p>
-          <Link
-            href={`/custom-werkstatt/${build.builder.slug}#kontakt`}
-            className="flex-shrink-0 text-sm font-bold bg-[#06a5a5] hover:bg-[#064f4f] text-white rounded-xl px-5 py-2.5 transition-colors"
-          >
-            Kontaktieren
-          </Link>
-        </div>
+      {/* Mobile floating CTA */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
+        <Link
+          href={`/custom-werkstatt/${build.builder.slug}`}
+          className="flex items-center justify-center w-full text-sm font-semibold bg-[#222222] text-white rounded-xl py-3 transition-colors"
+        >
+          {build.builder.name} kontaktieren
+        </Link>
       </div>
-
     </div>
   )
 }

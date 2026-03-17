@@ -6,9 +6,8 @@ import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, 
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
-import BuilderGallery from '@/components/builder/BuilderGallery'
-import VideoGallery from '@/components/builder/VideoGallery'
 import BuilderMap from '@/components/builder/BuilderMap'
+import HeroActions from './HeroActions'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
 
@@ -161,101 +160,75 @@ export default async function BuilderProfilePage({ params }: Props) {
   const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
   if (!builder) notFound()
 
-  const images = builder.media.filter(m => m.type === 'image')
-  const videos = builder.media.filter(m => m.type === 'video')
+  const coverImage = builder.media.find(m => m.type === 'image')
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
-      {/* ── HERO ── */}
-      <section className="pt-24 pb-0 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+      {/* ── HERO mit Titelbild + Overlay-Content ── */}
+      <div className="relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
+        {/* Hintergrundbild */}
+        {coverImage ? (
+          <img src={coverImage.url} alt={builder.name} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-[#1a1a1a]" />
+        )}
 
-          <Link href="/custom-werkstatt"
-            className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
-            <ArrowLeft size={13} /> Alle Builder
-          </Link>
+        {/* Dunkler Gradient unten für Lesbarkeit */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
 
-          <div className="flex flex-col sm:flex-row items-start gap-6 mb-10 animate-slide-up">
-            {/* Avatar */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-              {/* Ambient glow ring */}
-              <div className="absolute inset-0 rounded-2xl bg-[#222222]/20 blur-xl scale-110 animate-pulse" style={{ animationDuration: '3s' }} />
-              {/* Avatar */}
-              <div className="relative w-full h-full rounded-2xl bg-[#06a5a5] border border-[#06a5a5]/30 flex items-center justify-center">
-                <img src="/pin-logo.svg" alt="Logo" className="w-10 h-10 opacity-90" />
-              </div>
+        {/* Back-Link oben */}
+        <div className="absolute top-0 left-0 right-0 pt-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <Link href="/custom-werkstatt"
+              className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
+              <ArrowLeft size={13} /> Alle Builder
+            </Link>
+          </div>
+        </div>
+
+        {/* Content unten */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="max-w-6xl mx-auto flex items-end gap-5">
+
+            {/* Logo / Avatar */}
+            <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 flex items-center justify-center shadow-lg">
+              <img src="/pin-logo.svg" alt="Logo" className="w-9 h-9 sm:w-11 sm:h-11 opacity-90" />
             </div>
 
-            <div className="flex-1 min-w-0">
+            {/* Text */}
+            <div className="flex-1 min-w-0 pb-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-2xl sm:text-3xl font-bold text-[#222222] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                   {builder.name}
                 </h1>
                 {builder.verified && (
-                  <span className="inline-flex items-center gap-1 bg-[#222222]/10 border border-[#DDDDDD]/25 text-[#717171] text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
                     <BadgeCheck size={11} /> Verifiziert
                   </span>
                 )}
                 {builder.featured && (
-                  <span className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span className="inline-flex items-center bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-semibold px-2.5 py-1 rounded-full">
                     Top Builder
                   </span>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-[#222222]/40 mb-3">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-white/60">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
-                <span className="flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>
+                {builder.since && <span className="flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>}
                 <StarRating rating={builder.rating} />
               </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                {builder.tags.map(tag => (
-                  <span key={tag} className="text-[10px] font-medium text-[#222222]/40 bg-[#222222]/5 border border-[#222222]/8 px-2.5 py-1 rounded-full">
-                    {tag}
-                  </span>
-                ))}
-              </div>
             </div>
 
-            <div className="flex sm:flex-col gap-4 sm:gap-2 text-right flex-shrink-0">
-              <div>
-                <p className="text-2xl font-bold text-[#222222] leading-none">{builder.builds}</p>
-                <p className="text-xs text-[#222222]/30 mt-0.5">Builds</p>
-              </div>
-            </div>
+            {/* Aktionen rechts */}
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── MEDIA GALLERY ── */}
-      {builder.media.length > 0 && (
-        <section className="mb-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 pb-0">
-
-            {/* Photo grid */}
-            {images.length > 0 && (
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
-                  <p className="text-xs font-semibold text-[#222222]/40 uppercase tracking-widest">Galerie</p>
-                </div>
-                <BuilderGallery images={images} />
-              </div>
-            )}
-
-            {/* Videos */}
-            {videos.length > 0 && (
-              <div className="mb-8">
-                <p className="text-xs font-semibold text-[#222222]/25 uppercase tracking-widest mb-3">Videos</p>
-                <VideoGallery videos={videos} />
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+      <div className="h-8" />
 
       {/* ── FEATURED BUILDS — full width, prominent ── */}
       {builder.featuredBuilds.length > 0 && (
@@ -340,20 +313,30 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
 
-              {/* Spezialisierung */}
+              {/* Leistungen */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-5">
                   <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Spezialisierung</h2>
+                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Leistungen</h2>
                 </div>
-                <p className="text-sm text-[#717171] leading-relaxed mb-4">{builder.specialty}</p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  {builder.tags.map(tag => (
-                    <div key={tag} className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#06a5a5] flex-shrink-0" />
-                      <span className="text-sm text-[#222222] font-medium">{tag}</span>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {builder.tags.map(tag => {
+                    const iconMap: Record<string, string> = {
+                      'Komplettumbau': '🔧', 'Teilumbau': '⚙️', 'TÜV-Einzelabnahme': '🛡️',
+                      'Elektrikarbeiten': '⚡', 'Lackierung': '🎨', 'Karosseriearbeiten': '🔩',
+                      'Konzeption & Design': '✏️', 'Lieferung': '🚚', 'Basis-Bike Beschaffung': '🏍️',
+                      'Restaurierung': '🔄', 'Cafe Racer': '🏁', 'Bobber': '🏍️',
+                      'Scrambler': '🏔️', 'Chopper': '🤙', 'Custom Paint': '🎨',
+                      'Tracker': '🏁', 'Street': '🛣️', 'Enduro': '🌲',
+                    }
+                    const emoji = iconMap[tag] ?? '✓'
+                    return (
+                      <div key={tag} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
+                        <span className="text-base leading-none flex-shrink-0">{emoji}</span>
+                        <span className="text-xs font-semibold text-[#222222] leading-snug">{tag}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
