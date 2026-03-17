@@ -32,7 +32,6 @@ const ROLE_BADGE: Record<string, { label: string; color: string }> = {
 
 export default function Header({ activePage }: Props) {
   const [open, setOpen]               = useState(false)
-  const [navOpen, setNavOpen]         = useState(false)
   const [dashDropdown, setDashDropdown] = useState(false)
   const [mobileBikesOpen, setMobileBikesOpen] = useState(false)
   const [mobileDashOpen,  setMobileDashOpen]  = useState(false)
@@ -295,32 +294,7 @@ export default function Header({ activePage }: Props) {
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
 
-        {/* ── Global nav burger (all screen sizes) ── */}
-        <button
-          onClick={() => setNavOpen(o => !o)}
-          className="ml-2 flex-shrink-0 w-10 h-10 flex items-center justify-center text-[#222222]/60 hover:text-[#222222] transition-colors rounded-xl hover:bg-[#222222]/5"
-          aria-label="Navigation"
-        >
-          {navOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
-
-      {/* ── navOpen panel (all screen sizes) ── */}
-      {navOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setNavOpen(false)} />
-          <div className="absolute top-full right-0 z-50 w-56 bg-white border border-[#222222]/10 rounded-2xl shadow-xl overflow-hidden mt-1 mr-4 py-1 animate-in fade-in slide-in-from-top-2 duration-150">
-            <Link href="/magazine" onClick={() => setNavOpen(false)}
-              className={`flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors ${activePage === 'magazine' ? 'text-[#222222] bg-[#F7F7F7]' : 'text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7]'}`}>
-              <BookOpen size={14} className="flex-shrink-0" /> Magazin
-            </Link>
-            <Link href="/events" onClick={() => setNavOpen(false)}
-              className={`flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors ${activePage === 'events' ? 'text-[#222222] bg-[#F7F7F7]' : 'text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7]'}`}>
-              <CalendarDays size={14} className="flex-shrink-0" /> Events
-            </Link>
-          </div>
-        </>
-      )}
 
       {/* ── Mobile menu ── */}
       {open && (
