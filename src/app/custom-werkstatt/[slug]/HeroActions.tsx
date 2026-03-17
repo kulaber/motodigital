@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
+import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
@@ -110,7 +110,7 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug }:
             : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
         }`}
       >
-        <Bookmark size={13} className={saved ? 'fill-white' : ''} />
+        <Star size={13} className={saved ? 'fill-white' : ''} />
         {saved ? 'Gespeichert' : 'Speichern'}
       </button>
 

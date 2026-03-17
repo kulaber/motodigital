@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
-import { Bookmark, Bike, Wrench, ChevronRight } from 'lucide-react'
+import { Star, Bike, Wrench, ChevronRight } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Merkliste — MotoDigital' }
@@ -127,7 +127,7 @@ export default async function MerklistePage({
           <>
             {savedBikes.length === 0 ? (
               <div className="bg-white border border-[#222222]/6 rounded-2xl p-12 text-center">
-                <Bookmark size={28} className="mx-auto text-[#222222]/15 mb-3" />
+                <Star size={28} className="mx-auto text-[#222222]/15 mb-3" />
                 <p className="text-sm font-semibold text-[#222222]/40 mb-1">Noch keine Bikes gespeichert</p>
                 <p className="text-xs text-[#222222]/25 mb-5">Entdecke Custom Bikes und speichere sie für später.</p>
                 <Link
@@ -193,7 +193,7 @@ export default async function MerklistePage({
           <>
             {savedBuilders.length === 0 ? (
               <div className="bg-white border border-[#222222]/6 rounded-2xl p-12 text-center">
-                <Bookmark size={28} className="mx-auto text-[#222222]/15 mb-3" />
+                <Star size={28} className="mx-auto text-[#222222]/15 mb-3" />
                 <p className="text-sm font-semibold text-[#222222]/40 mb-1">Noch keine Werkstätten gespeichert</p>
                 <p className="text-xs text-[#222222]/25 mb-5">Entdecke Custom-Werkstätten und speichere sie für später.</p>
                 <Link

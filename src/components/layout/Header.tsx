@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Bookmark, PlusCircle,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star, PlusCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
@@ -229,7 +229,7 @@ export default function Header({ activePage }: Props) {
                         </Link>
                         <Link href="/dashboard/merkliste" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Bookmark size={14} /> Merkliste
+                          <Star size={14} /> Merkliste
                         </Link>
                       </>
                     )}
@@ -350,7 +350,7 @@ export default function Header({ activePage }: Props) {
                           <Bike size={15} className="text-[#222222]/25 flex-shrink-0" /> Mein Bike
                         </Link>
                         <Link href="/dashboard/merkliste" onClick={close} className={mobileDashLink}>
-                          <Bookmark size={15} className="text-[#222222]/25 flex-shrink-0" /> Merkliste
+                          <Star size={15} className="text-[#222222]/25 flex-shrink-0" /> Merkliste
                         </Link>
                       </>
                     )}

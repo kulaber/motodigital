@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, Bookmark, X } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
@@ -26,7 +26,7 @@ function SaveButton({ builderId, saved, onToggle }: { builderId: string | null; 
       className="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-transform"
       aria-label={saved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
     >
-      <Bookmark
+      <Star
         size={14}
         className={saved ? 'text-[#06a5a5] fill-[#06a5a5]' : 'text-[#222222]/60'}
         strokeWidth={2}

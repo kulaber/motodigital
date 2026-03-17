@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Bookmark, Bike, Search } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, Search } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import type { Database } from '@/types/database'
 
@@ -309,7 +309,7 @@ export default async function DashboardPage() {
             {/* Merkliste */}
             <Link href="/dashboard/merkliste" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
               <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 flex items-center justify-center">
-                <Bookmark size={18} className="text-[#222222]/25" />
+                <Star size={18} className="text-[#222222]/25" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Merkliste</p>
@@ -521,7 +521,7 @@ export default async function DashboardPage() {
               <p className="text-xs text-[#222222]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
               {[
                 ...(!isRider ? [{ label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',              icon: <Plus size={13}/> }] : []),
-                { label: 'Merkliste',                   href: '/dashboard/merkliste',  icon: <Bookmark size={13}/> },
+                { label: 'Merkliste',                   href: '/dashboard/merkliste',  icon: <Star size={13}/> },
                 { label: 'Werkstätten entdecken',       href: '/custom-werkstatt',     icon: <Eye size={13}/> },
                 ...(isBuilder ? [{ label: 'Profil bearbeiten',           href: '/dashboard/profile',      icon: <User size={13}/> }] : []),
                 { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
