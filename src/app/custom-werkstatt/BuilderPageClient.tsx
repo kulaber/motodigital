@@ -273,10 +273,12 @@ export default function BuilderPageClient({ builders }: Props) {
       return next
     })
     if (isSaved) {
-      await supabase.from('saved_builders').delete()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('saved_builders') as any).delete()
         .eq('user_id', userId).eq('builder_id', builderId)
     } else {
-      await supabase.from('saved_builders').insert({ user_id: userId, builder_id: builderId })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('saved_builders') as any).insert({ user_id: userId, builder_id: builderId })
     }
   }
 
