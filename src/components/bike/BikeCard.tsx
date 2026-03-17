@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, MapPin, BadgeCheck } from 'lucide-react'
+import { MapPin, BadgeCheck } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
@@ -21,7 +21,11 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 export default function BikeCard({ bike, highlighted = false }: Props) {
-  const cover = bike.bike_images?.find(i => i.is_cover) ?? bike.bike_images?.[0]
+  const images = bike.bike_images ?? []
+  const sorted = [
+    ...images.filter(i => i.is_cover),
+    ...images.filter(i => !i.is_cover),
+  ]
 
   return (
     <Link
@@ -35,16 +39,42 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
         }
       `}
     >
-      {/* Image */}
+      {/* Swipeable image gallery */}
       <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-        {cover ? (
-          <Image
-            src={cover.url}
-            alt={bike.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            sizes="(max-width: 768px) 100vw, 400px"
-          />
+        {sorted.length > 0 ? (
+          <>
+            {/* Scroll container */}
+            <div
+              className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-none"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onClick={e => e.preventDefault()}
+            >
+              {sorted.map((img, idx) => (
+                <div key={idx} className="relative flex-shrink-0 w-full h-full snap-center">
+                  <Image
+                    src={img.url}
+                    alt={`${bike.title} ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 400px"
+                    priority={idx === 0}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Dot indicators — only if multiple images */}
+            {sorted.length > 1 && (
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1 pointer-events-none">
+                {sorted.map((_, idx) => (
+                  <span
+                    key={idx}
+                    className="w-1.5 h-1.5 rounded-full bg-white/60"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <svg width="48" height="34" viewBox="0 0 48 34" fill="none">
@@ -55,12 +85,13 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
             </svg>
           </div>
         )}
+
         {/* Style tag */}
-        <span className="absolute top-2.5 left-2.5 bg-white/75 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+        <span className="absolute top-2.5 left-2.5 bg-white/75 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full pointer-events-none">
           {STYLE_LABELS[bike.style] ?? bike.style}
         </span>
         {bike.is_verified && (
-          <span className="absolute top-2.5 right-2.5 bg-[#222222]/90 text-white rounded-full p-0.5">
+          <span className="absolute top-2.5 right-2.5 bg-[#222222]/90 text-white rounded-full p-0.5 pointer-events-none">
             <BadgeCheck size={14} />
           </span>
         )}

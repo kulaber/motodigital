@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
 @theme {
   /* Brand / Accent — used ONLY on primary CTA buttons */
