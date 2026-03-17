@@ -74,7 +74,7 @@ export default function BuilderMarquee({ builders }: Props) {
 
                 <div className="flex items-center justify-between pt-3 border-t border-[#222222]/6">
                   <span className="text-xs text-[#222222]/30 font-medium">{b.builds} Builds</span>
-                  <span className="text-xs text-[#06a5a5] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">Profil →</span>
+                  <span className="text-xs text-[#06a5a5] font-semibold opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">Profil →</span>
                 </div>
               </div>
             </Link>

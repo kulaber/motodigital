@@ -64,12 +64,12 @@ export default function Footer() {
             {/* Social */}
             <div className="flex items-center gap-3">
               <a href="https://www.instagram.com/motodigital.io/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
-                <Instagram size={14} />
+                className="w-11 h-11 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
+                <Instagram size={16} />
               </a>
               <a href="#" aria-label="YouTube"
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
-                <Youtube size={14} />
+                className="w-11 h-11 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
+                <Youtube size={16} />
               </a>
             </div>
           </div>

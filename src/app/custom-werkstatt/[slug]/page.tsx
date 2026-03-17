@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import type React from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
@@ -321,18 +322,30 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {builder.tags.map(tag => {
-                    const iconMap: Record<string, string> = {
-                      'Komplettumbau': '🔧', 'Teilumbau': '⚙️', 'TÜV-Einzelabnahme': '🛡️',
-                      'Elektrikarbeiten': '⚡', 'Lackierung': '🎨', 'Karosseriearbeiten': '🔩',
-                      'Konzeption & Design': '✏️', 'Lieferung': '🚚', 'Basis-Bike Beschaffung': '🏍️',
-                      'Restaurierung': '🔄', 'Cafe Racer': '🏁', 'Bobber': '🏍️',
-                      'Scrambler': '🏔️', 'Chopper': '🤙', 'Custom Paint': '🎨',
-                      'Tracker': '🏁', 'Street': '🛣️', 'Enduro': '🌲',
+                    const iconMap: Record<string, React.ReactNode> = {
+                      'Komplettumbau':        <Wrench size={14} />,
+                      'Teilumbau':            <Settings size={14} />,
+                      'TÜV-Einzelabnahme':    <ShieldCheck size={14} />,
+                      'Elektrikarbeiten':     <Zap size={14} />,
+                      'Lackierung':           <Palette size={14} />,
+                      'Karosseriearbeiten':   <Wrench size={14} />,
+                      'Konzeption & Design':  <Pencil size={14} />,
+                      'Lieferung':            <Truck size={14} />,
+                      'Basis-Bike Beschaffung': <Bike size={14} />,
+                      'Restaurierung':        <RefreshCw size={14} />,
+                      'Cafe Racer':           <Flag size={14} />,
+                      'Bobber':               <Bike size={14} />,
+                      'Scrambler':            <Mountain size={14} />,
+                      'Chopper':              <Wrench size={14} />,
+                      'Custom Paint':         <Palette size={14} />,
+                      'Tracker':              <Flag size={14} />,
+                      'Street':               <Navigation size={14} />,
+                      'Enduro':               <Leaf size={14} />,
                     }
-                    const emoji = iconMap[tag] ?? '✓'
+                    const icon = iconMap[tag] ?? <Check size={14} />
                     return (
                       <div key={tag} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
-                        <span className="text-base leading-none flex-shrink-0">{emoji}</span>
+                        <span className="text-[#06a5a5] flex-shrink-0">{icon}</span>
                         <span className="text-xs font-semibold text-[#222222] leading-snug">{tag}</span>
                       </div>
                     )
@@ -372,16 +385,16 @@ export default async function BuilderProfilePage({ params }: Props) {
                           <div className="flex flex-col gap-2 pt-3 border-t border-[#EBEBEB]">
                             {member.email && (
                               <a href={`mailto:${member.email}`} className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
-                                  <Mail size={10} />
+                                <span className="w-8 h-8 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
+                                  <Mail size={13} />
                                 </span>
                                 <span className="truncate">{member.email}</span>
                               </a>
                             )}
                             {member.phone && (
                               <a href={`tel:${member.phone}`} className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group">
-                                <span className="w-6 h-6 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
-                                  <Phone size={10} />
+                                <span className="w-8 h-8 rounded-lg bg-[#F7F7F7] group-hover:bg-[#EBEBEB] flex items-center justify-center flex-shrink-0 transition-colors">
+                                  <Phone size={13} />
                                 </span>
                                 <span>{member.phone}</span>
                               </a>

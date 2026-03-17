@@ -130,7 +130,7 @@ export default function BuildGallery({ images, title }: Props) {
             </span>
             <button
               onClick={closeLightbox}
-              className="w-8 h-8 flex items-center justify-center rounded-full border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-all"
+              className="w-11 h-11 flex items-center justify-center rounded-full border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-all"
               aria-label="Schließen"
             >
               <X size={15} />
@@ -141,7 +141,7 @@ export default function BuildGallery({ images, title }: Props) {
           <div className="flex flex-1 min-h-0 items-center overflow-hidden" onClick={e => e.stopPropagation()}>
             <button
               onClick={e => { e.stopPropagation(); prev() }}
-              className="flex-shrink-0 mx-3 sm:mx-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+              className="flex-shrink-0 mx-3 sm:mx-6 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
             >
               <ChevronLeft size={22} />
             </button>
@@ -156,7 +156,7 @@ export default function BuildGallery({ images, title }: Props) {
             </div>
             <button
               onClick={e => { e.stopPropagation(); next() }}
-              className="flex-shrink-0 mx-3 sm:mx-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+              className="flex-shrink-0 mx-3 sm:mx-6 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
             >
               <ChevronRight size={22} />
             </button>

@@ -182,20 +182,26 @@ export default function Header({ activePage }: Props) {
                 </span>
               )}
 
+              {/* Messages button */}
+              <Link href="/dashboard/messages"
+                className="relative flex items-center text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
+                <MessageCircle size={19} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Dashboard dropdown — icon only */}
               <div className="relative" ref={dropdownRef}>
                 <button onClick={() => setDashDropdown(d => !d)}
                   className="flex items-center gap-1 text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
                   <span className="relative">
                     {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-[26px] h-[26px] rounded-full object-cover border border-[#222222]/10" />
+                      <img src={avatarUrl} alt="Avatar" className="w-[34px] h-[34px] rounded-full object-cover border border-[#222222]/10" />
                     ) : (
                       <CircleUserRound size={19} />
-                    )}
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </span>
                     )}
                   </span>
                   <ChevronDown size={12} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
@@ -287,7 +293,7 @@ export default function Header({ activePage }: Props) {
 
         {/* ── Mobile hamburger ── */}
         <button
-          className="md:hidden ml-3 flex-shrink-0 w-10 h-10 flex items-center justify-center text-[#222222]/60 hover:text-[#222222] transition-colors rounded-xl"
+          className="md:hidden ml-3 flex-shrink-0 w-11 h-11 flex items-center justify-center text-[#222222]/60 hover:text-[#222222] transition-colors rounded-xl"
           onClick={() => setOpen(o => !o)}
           aria-label="Menü"
         >

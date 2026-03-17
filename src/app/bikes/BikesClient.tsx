@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -101,9 +101,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               {(activeStyle !== 'Alle' || activeCountry !== 'Alle') && (
                 <button
                   onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                  className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors px-1"
+                  aria-label="Filter zurücksetzen"
+                  className="w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               )}
             </div>
@@ -126,7 +127,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filtered.map((build, i) => (
                 <Link
                   key={build.slug}
@@ -140,9 +141,6 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                       alt={build.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                      <span className="text-[#222222] text-xs font-semibold">Ansehen →</span>
-                    </div>
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
