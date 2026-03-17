@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: '%s | MotoDigital',
   },
   description: 'Die erste Plattform für Custom Motorrad Kultur. Finde Builder, kaufe Builds, starte dein Projekt.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.vercel.app'),
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',

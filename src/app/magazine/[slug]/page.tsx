@@ -32,7 +32,7 @@ export async function generateMetadata({
     title: article.metaTitle,
     description: article.metaDescription,
     keywords: article.tags.join(', '),
-    alternates: { canonical: `https://motodigital.io/magazine/${article.slug}` },
+    alternates: { canonical: `https://motodigital.vercel.app/magazine/${article.slug}` },
     openGraph: {
       title: article.metaTitle,
       description: article.metaDescription,
@@ -165,7 +165,7 @@ export default async function ArticlePage({
     image: article.coverImage,
     datePublished: article.publishedAt,
     author: { '@type': 'Person', name: article.author },
-    publisher: { '@type': 'Organization', name: 'MotoDigital', url: 'https://motodigital.io' },
+    publisher: { '@type': 'Organization', name: 'MotoDigital', url: 'https://motodigital.vercel.app' },
     keywords: article.tags.join(', '),
   }
 

@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ARTICLES } from '@/lib/data/magazine'
 
-const BASE = 'https://motodigital.io'
+const BASE = 'https://motodigital.vercel.app'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()

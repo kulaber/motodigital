@@ -6,4 +6,4 @@ Disallow: /admin/
 Disallow: /auth/
 Disallow: /api/
 
-Sitemap: https://motodigital.io/sitemap.xml
+Sitemap: https://motodigital.vercel.app/sitemap.xml
