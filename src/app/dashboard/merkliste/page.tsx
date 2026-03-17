@@ -48,7 +48,7 @@ export default async function MerklistePage({
   if (!user) redirect('/auth/login')
 
   const params = await searchParams
-  const activeTab = params.tab === 'werkstatt' ? 'werkstatt' : 'bikes'
+  const activeTab = params.tab === 'bikes' ? 'bikes' : 'werkstatt'
 
   const [savedBikesResult, savedBuildersResult] = await Promise.all([
     (supabase
@@ -89,6 +89,22 @@ export default async function MerklistePage({
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
           <Link
+            href="/dashboard/merkliste?tab=werkstatt"
+            className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition-colors ${
+              activeTab === 'werkstatt'
+                ? 'bg-[#222222] text-white border-[#222222]'
+                : 'bg-white text-[#222222]/50 border-[#222222]/12 hover:border-[#222222]/30 hover:text-[#222222]/80'
+            }`}
+          >
+            <Wrench size={13} />
+            Custom Werkstatt
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+              activeTab === 'werkstatt' ? 'bg-white/20 text-white' : 'bg-[#222222]/8 text-[#222222]/40'
+            }`}>
+              {savedBuilders.length}
+            </span>
+          </Link>
+          <Link
             href="/dashboard/merkliste?tab=bikes"
             className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition-colors ${
               activeTab === 'bikes'
@@ -102,22 +118,6 @@ export default async function MerklistePage({
               activeTab === 'bikes' ? 'bg-white/20 text-white' : 'bg-[#222222]/8 text-[#222222]/40'
             }`}>
               {savedBikes.length}
-            </span>
-          </Link>
-          <Link
-            href="/dashboard/merkliste?tab=werkstatt"
-            className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition-colors ${
-              activeTab === 'werkstatt'
-                ? 'bg-[#222222] text-white border-[#222222]'
-                : 'bg-white text-[#222222]/50 border-[#222222]/12 hover:border-[#222222]/30 hover:text-[#222222]/80'
-            }`}
-          >
-            <Wrench size={13} />
-            Custom-Werkstatt
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-              activeTab === 'werkstatt' ? 'bg-white/20 text-white' : 'bg-[#222222]/8 text-[#222222]/40'
-            }`}>
-              {savedBuilders.length}
             </span>
           </Link>
         </div>
