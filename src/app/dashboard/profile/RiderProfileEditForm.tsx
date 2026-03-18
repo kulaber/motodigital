@@ -98,7 +98,7 @@ export default function RiderProfileEditForm({ profile }: Props) {
   }
 
   return (
-    <form onSubmit={handleSave} className="flex flex-col gap-8">
+    <form onSubmit={handleSave} className="flex flex-col gap-8 pb-28">
 
       {/* Avatar */}
       <div className="flex flex-col gap-3">
@@ -228,20 +228,28 @@ export default function RiderProfileEditForm({ profile }: Props) {
         <p className="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      {/* Save */}
-      <div className="flex items-center gap-4 pt-2">
+      {/* Floating Save */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <button
           type="submit"
           disabled={saving || uploading}
-          className="bg-[#222222] text-white text-sm font-semibold px-8 py-3 rounded-full hover:bg-[#333333] transition-all disabled:opacity-40"
+          className="inline-flex items-center gap-2.5 bg-[#06a5a5] text-white text-sm font-semibold px-7 py-3.5 rounded-full shadow-2xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
+          style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
         >
-          {saving ? 'Wird gespeichert…' : 'Profil speichern'}
+          {saving ? (
+            <>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              Wird gespeichert…
+            </>
+          ) : saved ? (
+            <>
+              <CheckCircle size={14} className="text-[#06a5a5]" />
+              Gespeichert
+            </>
+          ) : (
+            'Änderungen speichern'
+          )}
         </button>
-        {saved && (
-          <span className="flex items-center gap-1.5 text-sm text-[#06a5a5] font-medium">
-            <CheckCircle size={15} /> Gespeichert
-          </span>
-        )}
       </div>
 
     </form>

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star, Wrench,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
@@ -229,7 +229,7 @@ export default function Header({ activePage }: Props) {
                     </Link>
                     {role === 'rider' && (
                       <>
-                        <Link href="/dashboard/mein-bike" onClick={() => setDashDropdown(false)}
+                        <Link href="/dashboard/meine-custom-bikes" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                           <Bike size={14} /> Mein Bike
                         </Link>
@@ -240,15 +240,21 @@ export default function Header({ activePage }: Props) {
                       </>
                     )}
                     {role === 'custom-werkstatt' && (
-                      <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
-                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                        <User size={14} /> Profil bearbeiten
-                      </Link>
+                      <>
+                        <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <User size={14} /> Profil bearbeiten
+                        </Link>
+                        <Link href="/dashboard/meine-custom-bikes" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <Wrench size={14} /> Custom Bikes
+                        </Link>
+                      </>
                     )}
                     {role === 'custom-werkstatt' && slug && (
                       <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
                         className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                        <ExternalLink size={14} /> Profilansicht
+                        <ExternalLink size={14} /> Werkstatt-Ansicht
                       </a>
                     )}
                     {role === 'superadmin' && (
@@ -356,7 +362,7 @@ export default function Header({ activePage }: Props) {
                     </Link>
                     {role === 'rider' && (
                       <>
-                        <Link href="/dashboard/mein-bike" onClick={close} className={mobileDashLink}>
+                        <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
                           <Bike size={15} className="text-[#222222]/25 flex-shrink-0" /> Mein Bike
                         </Link>
                         <Link href="/dashboard/merkliste" onClick={close} className={mobileDashLink}>
@@ -365,13 +371,18 @@ export default function Header({ activePage }: Props) {
                       </>
                     )}
                     {role === 'custom-werkstatt' && (
-                      <Link href="/dashboard/profile" onClick={close} className={mobileDashLink}>
-                        <User size={15} className="text-[#222222]/25 flex-shrink-0" /> Profil bearbeiten
-                      </Link>
+                      <>
+                        <Link href="/dashboard/profile" onClick={close} className={mobileDashLink}>
+                          <User size={15} className="text-[#222222]/25 flex-shrink-0" /> Profil bearbeiten
+                        </Link>
+                        <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
+                          <Wrench size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Bikes
+                        </Link>
+                      </>
                     )}
                     {role === 'custom-werkstatt' && slug && (
                       <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={close} className={mobileDashLink}>
-                        <ExternalLink size={15} className="text-[#222222]/25 flex-shrink-0" /> Profilansicht
+                        <ExternalLink size={15} className="text-[#222222]/25 flex-shrink-0" /> Werkstatt-Ansicht
                       </a>
                     )}
                     {role === 'superadmin' && (

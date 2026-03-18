@@ -17,7 +17,7 @@ export default async function NeuBikePage() {
     .select('make, model, year_from, year_to')
     .order('make', { ascending: true }) as { data: { make: string; model: string; year_from: number; year_to: number | null }[] | null, error: unknown }
 
-  if (baseBikesError) console.error('[mein-bike/neu] base_bikes query error:', baseBikesError)
+  if (baseBikesError) console.error('[meine-custom-bikes/neu] base_bikes query error:', baseBikesError)
 
   const makes = [...new Set((baseBikes ?? []).map(b => b.make))].sort()
 
@@ -27,7 +27,7 @@ export default async function NeuBikePage() {
       <div className="max-w-lg mx-auto px-4 pt-8 pb-16 lg:px-8">
 
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/dashboard/mein-bike" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
+          <Link href="/dashboard/meine-custom-bikes" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
             Mein Bike
           </Link>
           <span className="text-[#222222]/15">/</span>

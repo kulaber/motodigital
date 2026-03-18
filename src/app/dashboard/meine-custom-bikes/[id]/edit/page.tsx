@@ -28,7 +28,7 @@ export default async function BikeEditPage({ params }: { params: Promise<{ id: s
       <div className="max-w-lg mx-auto px-4 pt-8 pb-16 lg:px-8">
 
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/dashboard/mein-bike" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
+          <Link href="/dashboard/meine-custom-bikes" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
             Mein Bike
           </Link>
           <span className="text-[#222222]/15">/</span>

@@ -7,18 +7,28 @@ import { Plus, Bike } from 'lucide-react'
 import type { Database } from '@/types/database'
 import BikeCardActions from './DeleteBikeButton'
 
-export const metadata: Metadata = { title: 'Mein Bike — MotoDigital' }
-
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
 type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at'> & {
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Custom Bikes — MotoDigital' }
+}
+
 export default async function MeinBikePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: profile } = await (supabase.from('profiles') as any)
+    .select('role').eq('id', user.id).maybeSingle()
+  const role = profile?.role as string | null
+  if (role !== 'custom-werkstatt' && role !== 'rider') redirect('/dashboard')
+
+  const isWerkstatt = role === 'custom-werkstatt'
 
   const { data: bikes } = await supabase
     .from('bikes')
@@ -27,6 +37,12 @@ export default async function MeinBikePage() {
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 
   const myBikes = bikes ?? []
+
+  const pageTitle    = isWerkstatt ? 'Custom Bikes' : 'Mein Bike'
+  const pageSubtitle = isWerkstatt ? 'Deine Projekte — werden auf MotoDigital gelistet' : 'Dein persönliches Custom Bike'
+  const addHref      = isWerkstatt ? '/bikes/new' : '/dashboard/meine-custom-bikes/neu'
+  const emptyText    = isWerkstatt ? 'Noch kein Projekt eingetragen' : 'Noch kein Bike eingetragen'
+  const emptyHint    = isWerkstatt ? 'Füge deine Custom Bike Projekte hinzu.' : 'Zeig der Community dein Custom Bike.'
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
@@ -40,21 +56,21 @@ export default async function MeinBikePage() {
             Dashboard
           </Link>
           <span className="text-[#222222]/15">/</span>
-          <span className="text-xs text-[#222222]/60 font-medium">Mein Bike</span>
+          <span className="text-xs text-[#222222]/60 font-medium">{pageTitle}</span>
         </div>
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#222222]">Mein Bike</h1>
-            <p className="text-sm text-[#222222]/35 mt-0.5">Deine Custom Bikes auf MotoDigital</p>
+            <h1 className="text-2xl font-bold text-[#222222]">{pageTitle}</h1>
+            <p className="text-sm text-[#222222]/35 mt-0.5">{pageSubtitle}</p>
           </div>
           <Link
-            href="/dashboard/mein-bike/neu"
+            href={addHref}
             className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
           >
             <Plus size={14} />
-            Bike hinzufügen
+            {isWerkstatt ? 'Projekt hinzufügen' : 'Bike hinzufügen'}
           </Link>
         </div>
 
@@ -64,24 +80,26 @@ export default async function MeinBikePage() {
             <div className="w-14 h-14 rounded-2xl bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center mx-auto mb-4">
               <Bike size={24} className="text-[#222222]/20" />
             </div>
-            <p className="text-sm font-semibold text-[#222222]/40 mb-1">Noch kein Bike eingetragen</p>
-            <p className="text-xs text-[#222222]/25 mb-6 max-w-[30ch] mx-auto">Zeig der Community dein Custom Bike.</p>
+            <p className="text-sm font-semibold text-[#222222]/40 mb-1">{emptyText}</p>
+            <p className="text-xs text-[#222222]/25 mb-6 max-w-[30ch] mx-auto">{emptyHint}</p>
             <Link
-              href="/dashboard/mein-bike/neu"
+              href={addHref}
               className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
             >
               <Plus size={14} />
-              Bike hinzufügen
+              {isWerkstatt ? 'Projekt hinzufügen' : 'Bike hinzufügen'}
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-4 max-w-lg">
+          <div className={isWerkstatt
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+            : 'flex flex-col gap-4 max-w-lg'
+          }>
             {myBikes.map(bike => {
               const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
 
               return (
                 <div key={bike.id} className="group bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/6">
-                  {/* Image */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
                     {coverImg ? (
                       <img
@@ -96,8 +114,6 @@ export default async function MeinBikePage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="p-4">
                     <p className="text-sm font-semibold text-[#222222] leading-snug mb-1 line-clamp-1">
                       {bike.title}
@@ -105,8 +121,11 @@ export default async function MeinBikePage() {
                     <p className="text-xs text-[#222222]/40 mb-4">
                       {bike.make} {bike.model} · {bike.year}
                     </p>
-
-                    <BikeCardActions bikeId={bike.id} editHref={`/dashboard/mein-bike/${bike.id}/edit`} />
+                    <BikeCardActions
+                      bikeId={bike.id}
+                      editHref={isWerkstatt ? `/bikes/${bike.id}/edit` : `/dashboard/meine-custom-bikes/${bike.id}/edit`}
+                      viewHref={isWerkstatt ? `/custom-bike/${bike.id}` : undefined}
+                    />
                   </div>
                 </div>
               )

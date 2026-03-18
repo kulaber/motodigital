@@ -3,8 +3,9 @@
 import NextImage from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin, AlertCircle } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, MapPin } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
+import { useToast, ToastContainer } from '@/components/ui/Toast'
 
 type MapboxFeature = {
   id: string
@@ -87,37 +88,101 @@ function AddressAutocomplete({
   )
 }
 
-/* ── Toast ─────────────────────────────────────────────────────── */
-type ToastType = 'success' | 'error'
-type Toast = { id: number; type: ToastType; message: string }
+/* ── BaseBike Autocomplete ──────────────────────────────────────── */
+type SuggestionItem =
+  | { type: 'make'; label: string }
+  | { type: 'model'; make: string; model: string; label: string }
 
-function useToast() {
-  const [toasts, setToasts] = useState<Toast[]>([])
-  function show(type: ToastType, message: string) {
-    const id = Date.now()
-    setToasts(t => [...t, { id, type, message }])
-    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4000)
+function BaseBikeAutocomplete({
+  value,
+  onChange,
+}: {
+  value: string[]
+  onChange: (v: string[]) => void
+}) {
+  const supabase = createClient()
+  const [query, setQuery] = useState('')
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
+  const [open, setOpen] = useState(false)
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function handleInput(val: string) {
+    setQuery(val)
+    if (debounce.current) clearTimeout(debounce.current)
+    if (!val.trim()) { setSuggestions([]); setOpen(false); return }
+    debounce.current = setTimeout(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from('base_bikes') as any)
+        .select('make')
+        .ilike('make', `%${val}%`)
+        .order('make')
+        .limit(20)
+
+      const rows: { make: string }[] = data ?? []
+      const seenMakes = new Set<string>()
+      const makeItems: SuggestionItem[] = []
+      for (const r of rows) {
+        if (!seenMakes.has(r.make)) {
+          seenMakes.add(r.make)
+          makeItems.push({ type: 'make', label: r.make })
+        }
+      }
+
+      setSuggestions(makeItems)
+      setOpen(true)
+    }, 250)
   }
-  return { toasts, success: (m: string) => show('success', m), error: (m: string) => show('error', m) }
-}
 
-function ToastContainer({ toasts }: { toasts: Toast[] }) {
-  if (!toasts.length) return null
+  function select(label: string) {
+    if (!value.includes(label)) onChange([...value, label])
+    setQuery('')
+    setSuggestions([])
+    setOpen(false)
+  }
+
+  function remove(item: string) {
+    onChange(value.filter(v => v !== item))
+  }
+
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-2 pointer-events-none">
-      {toasts.map(t => (
-        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-sm font-medium pointer-events-auto animate-in slide-in-from-bottom-4 fade-in duration-300 ${
-          t.type === 'success'
-            ? 'bg-[#222222] text-white'
-            : 'bg-red-500 text-white'
-        }`}>
-          {t.type === 'success'
-            ? <CheckCircle size={15} className="flex-shrink-0 text-[#06a5a5]" />
-            : <AlertCircle size={15} className="flex-shrink-0 text-white" />
-          }
-          {t.message}
+    <div>
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2.5">
+          {value.map(v => (
+            <span key={v} className="inline-flex items-center gap-1.5 text-xs font-medium bg-[#F7F7F7] border border-[#222222]/10 px-3 py-1.5 rounded-full text-[#222222]/70">
+              {v}
+              <button type="button" onClick={() => remove(v)} className="text-[#222222]/30 hover:text-[#222222] leading-none text-base">×</button>
+            </span>
+          ))}
         </div>
-      ))}
+      )}
+      <div className="relative">
+        <input
+          value={query}
+          onChange={e => handleInput(e.target.value)}
+          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onKeyDown={e => { if (e.key === 'Enter') e.preventDefault() }}
+          placeholder="Marke suchen, z. B. Honda, BMW, Yamaha…"
+          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors"
+        />
+        {open && suggestions.length > 0 && (
+          <ul className="absolute z-50 top-full mt-1 w-full bg-white border border-[#222222]/10 rounded-xl shadow-lg overflow-hidden">
+            {suggestions.map((s, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  onMouseDown={() => select(s.label)}
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
+                >
+                  <span className="font-medium text-[#222222]">{s.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <p className="text-[10px] text-[#222222]/25 mt-1">Mehrere Bikes möglich</p>
     </div>
   )
 }
@@ -171,12 +236,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
   // Profile fields
   const [fullName, setFullName]     = useState(profile.full_name ?? '')
-  const [bio, setBio]               = useState(profile.bio ?? '')
   const [bioLong, setBioLong]       = useState(profile.bio_long ?? '')
   const [leistungen, setLeistungen] = useState<string[]>(
     (profile.tags ?? []).filter(t => LEISTUNGEN.includes(t))
   )
-  const [basesInput, setBasesInput] = useState((profile.bases ?? []).join(', '))
+  const [bases, setBases] = useState<string[]>(profile.bases ?? [])
   const [addressData, setAddressData] = useState({
     address: profile.address ?? '',
     lat: profile.lat ?? null,
@@ -194,6 +258,27 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [media, setMedia]           = useState<MediaItem[]>(initialMedia)
   const [uploading, setUploading]   = useState(false)
   const [saving, setSaving]         = useState(false)
+  const dragId = useRef<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+
+  async function handleDrop(targetId: string) {
+    if (!dragId.current || dragId.current === targetId) { setDragOverId(null); return }
+    const from = media.findIndex(m => m.id === dragId.current)
+    const to   = media.findIndex(m => m.id === targetId)
+    if (from === -1 || to === -1) { setDragOverId(null); return }
+    const reordered = [...media]
+    const [moved] = reordered.splice(from, 1)
+    reordered.splice(to, 0, moved)
+    const updated = reordered.map((m, i) => ({ ...m, position: i }))
+    setMedia(updated)
+    setDragOverId(null)
+    dragId.current = null
+    // persist positions
+    await Promise.all(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updated.map(m => (supabase.from('builder_media') as any).update({ position: m.position }).eq('id', m.id))
+    )
+  }
   const fileInput = useRef<HTMLInputElement>(null)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
   const videoInput = useRef<HTMLInputElement>(null)
@@ -231,14 +316,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     e.preventDefault()
     setSaving(true)
 
-    const bases = basesInput.split(',').map(t => t.trim()).filter(Boolean)
     const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name:    fullName || null,
       slug:         slug || null,
-      bio:          bio || null,
       bio_long:     bioLong || null,
       avatar_url:   avatarUrl || null,
       tags:         leistungen.length ? leistungen : null,
@@ -305,11 +388,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-28">
       <ToastContainer toasts={toasts} />
 
       {/* ── PROFILE FORM ── */}
-      <form onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      <form id="profile-form" onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profil-Informationen</h2>
 
         {/* Logo */}
@@ -361,14 +444,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           <p className="text-[10px] text-[#222222]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
         </Field>
 
-        <Field label="Kurz-Bio" className="mb-4">
-          <textarea value={bio} onChange={e => setBio(e.target.value)}
-            placeholder="Beschreibe dich und deine Arbeit (1–2 Sätze)..."
-            rows={2}
-            className={`${input} resize-none`} />
-        </Field>
-
-        <Field label="Ausführliche Bio" className="mb-4">
+        <Field label="Über die Werkstatt" className="mb-4">
           <textarea value={bioLong} onChange={e => setBioLong(e.target.value)}
             placeholder="Erzähle deine Geschichte — Hintergrund, Philosophie, was dich antreibt..."
             rows={5}
@@ -387,7 +463,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                   onClick={() => toggleLeistung(item)}
                   className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
                     checked
-                      ? 'bg-[#06a5a5] border-[#06a5a5] text-white'
+                      ? 'bg-[#222222] border-[#222222] text-white'
                       : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
                   }`}
                 >
@@ -404,40 +480,28 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         </Field>
 
         <Field label="Bevorzugte Basis-Bikes für Umbauten" className="mb-4">
-          <input value={basesInput} onChange={e => setBasesInput(e.target.value)}
-            placeholder="z.B. Honda CB750, Yamaha SR500, BMW R90"
-            className={input} />
-          <p className="text-[10px] text-[#222222]/25 mt-1">Kommagetrennt · Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
+          <BaseBikeAutocomplete value={bases} onChange={setBases} />
         </Field>
 
         <Field label="Vollständige Anschrift" className="mb-4">
           <AddressAutocomplete value={addressData} onChange={setAddressData} />
         </Field>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-          <Field label="Instagram">
+        <div className="mb-5">
+          <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-3">Weiterführende Links</label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <input value={instagram} onChange={e => setInstagram(e.target.value)}
-              placeholder="@dein_handle"
+              placeholder="Instagram @handle"
               className={input} />
-          </Field>
-          <Field label="TikTok">
             <input value={tiktok} onChange={e => setTiktok(e.target.value)}
-              placeholder="@dein_handle"
+              placeholder="TikTok @handle"
               className={input} />
-          </Field>
-          <Field label="Website">
             <input value={website} onChange={e => setWebsite(e.target.value)}
-              placeholder="deine-seite.de"
+              placeholder="Website"
               className={input} />
-          </Field>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button type="submit" disabled={saving}
-            className="bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-50 transition-all">
-            {saving ? 'Wird gespeichert...' : 'Änderungen speichern'}
-          </button>
-        </div>
       </form>
 
       {/* ── MEDIA ── */}
@@ -475,7 +539,18 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {media.map(item => (
-              <div key={item.id} className="group relative rounded-xl overflow-hidden bg-white border border-[#222222]/6">
+              <div
+                key={item.id}
+                draggable
+                onDragStart={() => { dragId.current = item.id }}
+                onDragOver={e => { e.preventDefault(); setDragOverId(item.id) }}
+                onDragLeave={() => setDragOverId(null)}
+                onDrop={() => handleDrop(item.id)}
+                onDragEnd={() => { dragId.current = null; setDragOverId(null) }}
+                className={`group relative rounded-xl overflow-hidden bg-white border transition-all cursor-grab active:cursor-grabbing ${
+                  dragOverId === item.id ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/6'
+                }`}
+              >
                 {item.type === 'video' ? (
                   <div className="relative aspect-[4/3]">
                     <video src={item.url} className="w-full h-full object-cover" />
@@ -489,20 +564,13 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                   </div>
                 )}
                 {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
                   <button
                     onClick={() => handleDeleteMedia(item)}
-                    className="self-end w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                    className="w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
                   >
                     <Trash2 size={12} className="text-white" />
                   </button>
-                  <input
-                    defaultValue={item.title ?? ''}
-                    onBlur={e => handleUpdateTitle(item.id, e.target.value)}
-                    placeholder="Titel..."
-                    onClick={e => e.stopPropagation()}
-                    className="w-full text-xs bg-white/80 border border-[#222222]/15 rounded-lg px-2 py-1 text-[#222222] placeholder:text-[#222222]/30 outline-none"
-                  />
                 </div>
                 {item.type === 'video' && (
                   <span className="absolute top-2 left-2 bg-[#222222]/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase">
@@ -522,6 +590,26 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             </button>
           </div>
         )}
+      </div>
+
+      {/* ── FLOATING SAVE BUTTON ── */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <button
+          type="submit"
+          form="profile-form"
+          disabled={saving}
+          className="inline-flex items-center gap-2.5 bg-[#06a5a5] text-white text-sm font-semibold px-7 py-3.5 rounded-full shadow-2xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
+          style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
+        >
+          {saving ? (
+            <>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              Wird gespeichert…
+            </>
+          ) : (
+            'Änderungen speichern'
+          )}
+        </button>
       </div>
 
     </div>

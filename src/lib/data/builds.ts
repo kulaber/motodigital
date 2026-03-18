@@ -27,6 +27,7 @@ export type Build = {
   images: string[]
   videoUrl?: string
   publishedAt?: string   // ISO date string, e.g. '2026-03-16'
+  href?: string          // override link (for Supabase bikes)
 }
 
 export const BUILDS: Build[] = [

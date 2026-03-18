@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import BuildGallery from '@/components/build/BuildGallery'
+import { createClient } from '@/lib/supabase/server'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -29,7 +30,169 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CustomBikePage({ params }: Props) {
   const { slug } = await params
   const build = getBuildBySlug(slug)
-  if (!build) notFound()
+
+  if (!build) {
+    // Try loading from Supabase (slug = UUID for DB bikes)
+    const supabase = await createClient()
+    const { data: bike } = await (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, price, description, seller_id, profiles:seller_id(full_name), bike_images(url, is_cover, position)')
+      .eq('id', slug)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!bike) notFound()
+
+    const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
+    const imageUrls = rawImages
+      .sort((a: any, b: any) => {
+        if (a.is_cover) return -1
+        if (b.is_cover) return 1
+        return a.position - b.position
+      })
+      .map((i: any) => i.url)
+      .filter(Boolean)
+
+    const sellerName: string = bike.profiles?.full_name ?? ''
+    const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
+    const price = bike.price ? `€ ${Number(bike.price).toLocaleString('de-DE')}` : null
+    const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
+
+    return (
+      <div className="min-h-screen bg-white text-[#222222]">
+        <Header activePage="bikes" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+          <Link href="/bikes" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+            <ArrowLeft size={13} /> Custom Bikes
+          </Link>
+
+          {imageUrls.length > 0 ? (
+            <BuildGallery images={imageUrls} title={bike.title} />
+          ) : (
+            <div className="rounded-2xl bg-[#F7F7F7] aspect-video flex items-center justify-center text-[#AAAAAA] text-sm">
+              Keine Fotos vorhanden
+            </div>
+          )}
+
+          <div className="mt-8 mb-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
+                  {styleLabel}
+                </span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight mb-2">
+                {bike.title}
+              </h1>
+              <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
+              {bike.city && (
+                <span className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
+                  <MapPin size={11} /> {bike.city}
+                </span>
+              )}
+              {bike.year && (
+                <span className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
+                  <Calendar size={11} /> {bike.year}
+                </span>
+              )}
+              {price && (
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-[#222222] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
+                  {price}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+            <div className="flex flex-col gap-8">
+              {bike.description && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Über dieses Bike</h2>
+                  <p className="text-sm text-[#717171] leading-relaxed whitespace-pre-line">{bike.description}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+              <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Custom Werkstatt</p>
+                {sellerName && (
+                  <div className="flex items-center gap-3 mb-4 p-3 bg-[#F7F7F7] rounded-xl">
+                    <div className="w-10 h-10 rounded-xl bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                      {sellerInitials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#222222]">{sellerName}</p>
+                      {bike.city && <p className="text-xs text-[#717171]">{bike.city}</p>}
+                    </div>
+                  </div>
+                )}
+                {price && (
+                  <div className="mb-4 text-center py-3 bg-[#F7F7F7] rounded-xl">
+                    <p className="text-2xl font-bold text-[#222222] tracking-tight">{price}</p>
+                  </div>
+                )}
+                <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
+                  Werkstatt kontaktieren
+                </button>
+              </div>
+
+              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Technische Daten</h2>
+                <div className="flex flex-col">
+                  {[
+                    { label: 'Marke', value: bike.make },
+                    { label: 'Modell', value: bike.model },
+                    { label: 'Baujahr', value: bike.year ? `${bike.year}` : null },
+                    { label: 'Stil', value: styleLabel },
+                    { label: 'Standort', value: bike.city },
+                  ].filter((s): s is { label: string; value: string } => !!s.value).map(s => (
+                    <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#F7F7F7] last:border-0">
+                      <span className="text-xs text-[#AAAAAA]">{s.label}</span>
+                      <span className="text-xs font-medium text-[#222222]">{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
+              <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
+                Alle Custom Bikes ansehen →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {BUILDS.slice(0, 3).map(b => (
+                <Link key={b.slug} href={`/custom-bike/${b.slug}`} className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                    <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
+                    <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {price && (
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
+            <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#222222] text-white rounded-xl py-3">
+              {price} · Werkstatt kontaktieren
+            </button>
+          </div>
+        )}
+
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">

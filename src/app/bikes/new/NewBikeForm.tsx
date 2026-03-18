@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
+import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
-import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
-import BaseBikeAutocomplete from '@/components/ui/BaseBikeAutocomplete'
 import { compressImage } from '@/lib/utils/compressImage'
 
 const STYLES = [
@@ -29,9 +28,11 @@ export default function NewBikeForm() {
 
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toasts, success: toastSuccess, error: toastError } = useToast()
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const dragIdx = useRef<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
   // ── Bike selection state ─────────────────────────
   const [makeId, setMakeId]       = useState('')
@@ -40,9 +41,6 @@ export default function NewBikeForm() {
   const [customMake, setCustomMake] = useState('')
   const [customModel, setCustomModel] = useState('')
 
-  // ── Base bike ─────────────────────────────────────
-  const [baseBike, setBaseBike] = useState<{ id: string; label: string } | null>(null)
-
   // ── Form fields ──────────────────────────────────
   const [title, setTitle]           = useState('')
   const [year, setYear]             = useState('')
@@ -50,9 +48,6 @@ export default function NewBikeForm() {
   const [cc, setCc]                 = useState('')
   const [mileage, setMileage]       = useState('')
   const [price, setPrice]           = useState('')
-  const [city, setCity]             = useState('')
-  const [locationLat, setLocationLat] = useState<number | null>(null)
-  const [locationLng, setLocationLng] = useState<number | null>(null)
   const [description, setDescription] = useState('')
   const [status, setStatus]         = useState<'active' | 'draft'>('active')
 
@@ -125,17 +120,30 @@ export default function NewBikeForm() {
     setImagePreviews(prev => prev.filter((_, idx) => idx !== i))
   }
 
+  function handleImageDrop(toIdx: number) {
+    if (dragIdx.current === null || dragIdx.current === toIdx) { setDragOverIdx(null); return }
+    const from = dragIdx.current
+    const reorderFiles = [...imageFiles]
+    const reorderPreviews = [...imagePreviews]
+    const [movedFile] = reorderFiles.splice(from, 1)
+    const [movedPreview] = reorderPreviews.splice(from, 1)
+    reorderFiles.splice(toIdx, 0, movedFile)
+    reorderPreviews.splice(toIdx, 0, movedPreview)
+    setImageFiles(reorderFiles)
+    setImagePreviews(reorderPreviews)
+    setDragOverIdx(null)
+    dragIdx.current = null
+  }
+
   async function handleSubmit() {
     setLoading(true)
-    setError(null)
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Nicht eingeloggt.'); setLoading(false); return }
+    if (!user) { toastError('Nicht eingeloggt.'); setLoading(false); return }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bike, error: bikeError } = await (supabase.from('bikes') as any).insert({
       seller_id:    user.id,
-      base_bike_id: baseBike?.id ?? null,
       title:        title.trim(),
       make:         submitMake,
       model:        submitModel,
@@ -144,16 +152,17 @@ export default function NewBikeForm() {
       cc:           cc ? parseInt(cc) : null,
       mileage_km:   mileage ? parseInt(mileage) : null,
       price:        parseFloat(price.replace(/[^0-9.]/g, '')),
-      city:         city.trim() || null,
-      lat:          locationLat,
-      lng:          locationLng,
+      city:         null,
+      lat:          null,
+      lng:          null,
       description:  description.trim() || null,
       status,
       is_verified:  false,
     }).select('id').maybeSingle()
 
     if (bikeError || !bike) {
-      setError('Fehler beim Speichern. Bitte versuche es erneut.')
+      toastError(bikeError?.message ?? 'Fehler beim Speichern.')
+      console.error('[bikes/new] insert error:', bikeError)
       setLoading(false)
       return
     }
@@ -177,7 +186,8 @@ export default function NewBikeForm() {
       }
     }
 
-    router.push('/dashboard')
+    toastSuccess('Bike erfolgreich gespeichert')
+    router.push(`/custom-bike/${bike.id}`)
     router.refresh()
   }
 
@@ -209,11 +219,7 @@ export default function NewBikeForm() {
         ))}
       </div>
 
-      {error && (
-        <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
-          {error}
-        </div>
-      )}
+      <ToastContainer toasts={toasts} />
 
       {/* ── STEP 1: Basis ── */}
       {step === 1 && (
@@ -225,17 +231,6 @@ export default function NewBikeForm() {
               placeholder="z.B. Honda CB550 Cafe Racer — The Midnight Scrambler"
               className={inputClass} />
             <p className="text-xs text-[#222222]/25 mt-1">Ein prägnanter Titel erhöht die Aufmerksamkeit.</p>
-          </div>
-
-          {/* Basisbike */}
-          <div>
-            <label className={labelClass}>Basisbike <span className="normal-case font-normal text-[#222222]/25">(Spendermodell)</span></label>
-            <BaseBikeAutocomplete
-              value={baseBike}
-              onChange={setBaseBike}
-              className={inputClass}
-            />
-            <p className="text-xs text-[#222222]/25 mt-1">Das originale Motorrad, das als Grundlage für den Custom Build diente.</p>
           </div>
 
           {/* Marke */}
@@ -392,38 +387,10 @@ export default function NewBikeForm() {
       {/* ── STEP 2: Details ── */}
       {step === 2 && (
         <div className="flex flex-col gap-5 animate-fade-in">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Hubraum (cc)</label>
-              <input value={cc} onChange={e => setCc(e.target.value)}
-                type="number" min="0" placeholder="550" className={inputClass} />
-              {selectedVariant && (
-                <p className="text-xs text-[#222222]/25 mt-1">Auto-befüllt · anpassbar</p>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>Kilometerstand</label>
-              <input value={mileage} onChange={e => setMileage(e.target.value)}
-                type="number" min="0" placeholder="12000" className={inputClass} />
-            </div>
-          </div>
-
           <div>
-            <label className={labelClass}>Standort / Stadt</label>
-            <LocationAutocomplete
-              value={city}
-              onChange={(result: LocationResult | null) => {
-                setCity(result?.city ?? '')
-                setLocationLat(result?.lat ?? null)
-                setLocationLng(result?.lng ?? null)
-              }}
-              className={inputClass}
-            />
-            {locationLat && (
-              <p className="text-xs text-[#717171]/60 mt-1 flex items-center gap-1">
-                ✓ Koordinaten gespeichert · {locationLat.toFixed(4)}, {locationLng?.toFixed(4)}
-              </p>
-            )}
+            <label className={labelClass}>Kilometerstand</label>
+            <input value={mileage} onChange={e => setMileage(e.target.value)}
+              type="number" min="0" placeholder="12000" className={inputClass} />
           </div>
 
           <div>
@@ -468,7 +435,18 @@ export default function NewBikeForm() {
             {imagePreviews.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3">
                 {imagePreviews.map((src, i) => (
-                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-white border border-[#222222]/8 group">
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={() => { dragIdx.current = i }}
+                    onDragOver={e => { e.preventDefault(); setDragOverIdx(i) }}
+                    onDragLeave={() => setDragOverIdx(null)}
+                    onDrop={() => handleImageDrop(i)}
+                    onDragEnd={() => { dragIdx.current = null; setDragOverIdx(null) }}
+                    className={`relative aspect-square rounded-xl overflow-hidden bg-white border transition-all cursor-grab active:cursor-grabbing group ${
+                      dragOverIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
+                    }`}
+                  >
                     <img src={src} alt="" className="w-full h-full object-cover" />
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
@@ -495,12 +473,6 @@ export default function NewBikeForm() {
                 <span className="text-[#222222]/40">Titel</span>
                 <span className="text-[#222222] font-medium text-right max-w-[60%] truncate">{title}</span>
               </div>
-              {baseBike && (
-                <div className="flex justify-between">
-                  <span className="text-[#222222]/40">Basisbike</span>
-                  <span className="text-[#222222]">{baseBike.label}</span>
-                </div>
-              )}
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Bike</span>
                 <span className="text-[#222222]">{submitMake} {submitModel} · {year}</span>
@@ -519,12 +491,6 @@ export default function NewBikeForm() {
                 <span className="text-[#222222]/40">Preis</span>
                 <span className="text-[#717171] font-semibold">€ {parseFloat(price || '0').toLocaleString('de-DE')}</span>
               </div>
-              {city && (
-                <div className="flex justify-between">
-                  <span className="text-[#222222]/40">Standort</span>
-                  <span className="text-[#222222]">{city}</span>
-                </div>
-              )}
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Fotos</span>
                 <span className="text-[#222222]">{imageFiles.length} hochgeladen</span>

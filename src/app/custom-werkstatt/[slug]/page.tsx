@@ -185,7 +185,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!builder) return {}
   return {
     title: `${builder.name} — Builder auf MotoDigital`,
-    description: builder.bio,
+    description: builder.bioLong || builder.bio,
   }
 }
 

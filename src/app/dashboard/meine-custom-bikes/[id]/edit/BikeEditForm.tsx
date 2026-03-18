@@ -63,7 +63,7 @@ export default function BikeEditForm({ bikeId, initialTitle, initialCoverUrl }: 
 
       if (updateErr) throw new Error(updateErr.message)
 
-      router.push('/dashboard/mein-bike')
+      router.push('/dashboard/meine-custom-bikes')
       router.refresh()
     } catch (e: any) {
       setError(e.message)

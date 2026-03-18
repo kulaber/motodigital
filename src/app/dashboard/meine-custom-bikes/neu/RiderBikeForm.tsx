@@ -86,7 +86,7 @@ export default function RiderBikeForm({ userId, makes, baseBikes }: Props) {
         }
       }
 
-      router.push('/dashboard/mein-bike')
+      router.push('/dashboard/meine-custom-bikes')
       router.refresh()
     } catch (e: any) {
       setError(e.message)
