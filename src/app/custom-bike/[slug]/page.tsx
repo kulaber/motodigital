@@ -13,12 +13,8 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-// Allow dynamic routes (DB bikes by slug) beyond static BUILDS
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  return BUILDS.map(b => ({ slug: b.slug }))
-}
+// Force dynamic rendering — DB bikes need cookies() for Supabase auth
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
