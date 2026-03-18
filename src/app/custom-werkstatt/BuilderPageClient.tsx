@@ -22,6 +22,56 @@ const LEISTUNGEN = [
 // Header 64px + filter bar ~56px
 const STICKY_OFFSET = 120
 
+const MAP_THEMES = {
+  hell: {
+    background: '#f0fafa', water: '#9fd8d8', landuse: '#d8f0f0',
+    building: '#e4f5f5', buildingOutline: '#cceaea', landStructure: '#e8fafa',
+    waterway: '#9fd8d8', admin: '#7bc5c5',
+  },
+  creme: {
+    background: '#F0EDE4', water: '#9fd8d8', landuse: '#e8e4d4',
+    building: '#e2ded2', buildingOutline: '#d4d0c4', landStructure: '#ece8da',
+    waterway: '#9fd8d8', admin: '#7bc5c5',
+  },
+  nacht: {
+    background: '#0e1c1c', water: '#145555', landuse: '#163030',
+    building: '#183535', buildingOutline: '#1c3c3c', landStructure: '#122828',
+    waterway: '#145555', admin: '#1e6060',
+  },
+}
+
+function applyMapTheme(map: mapboxgl.Map, theme: keyof typeof MAP_THEMES) {
+  const t = MAP_THEMES[theme]
+  const layers = map.getStyle().layers ?? []
+  layers.forEach(layer => {
+    try {
+      const id = layer.id
+      if (layer.type === 'background') {
+        map.setPaintProperty(id, 'background-color', t.background)
+      } else if (layer.type === 'fill') {
+        if (id === 'water' || id === 'water-shadow' || id.startsWith('water-')) {
+          map.setPaintProperty(id, 'fill-color', t.water)
+        } else if (id === 'national-park' || id.startsWith('landuse')) {
+          map.setPaintProperty(id, 'fill-color', t.landuse)
+        } else if (id.startsWith('building')) {
+          map.setPaintProperty(id, 'fill-color', t.building)
+          if (id === 'building-outline') {
+            map.setPaintProperty(id, 'fill-outline-color', t.buildingOutline)
+          }
+        } else if (id.startsWith('land-structure')) {
+          map.setPaintProperty(id, 'fill-color', t.landStructure)
+        }
+      } else if (layer.type === 'line') {
+        if (id.startsWith('waterway')) {
+          map.setPaintProperty(id, 'line-color', t.waterway)
+        } else if (id.startsWith('admin')) {
+          map.setPaintProperty(id, 'line-color', t.admin)
+        }
+      }
+    } catch { /* layer may not support property */ }
+  })
+}
+
 interface Props { builders: Builder[] }
 
 /* ── Save button ── */
@@ -181,6 +231,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [mapBounds,       setMapBounds]       = useState<mapboxgl.LngLatBounds | null>(null)
   const [mapReady,        setMapReady]        = useState(false)
   const [markerEpoch,     setMarkerEpoch]     = useState(0)  // increments on moveend to trigger cluster redraw
+  const [mapTheme,        setMapTheme]        = useState<'hell' | 'creme' | 'nacht'>('hell')
   const router = useRouter()
   const supabase = createClient()
 
@@ -436,37 +487,7 @@ export default function BuilderPageClient({ builders }: Props) {
     mapRef.current = map
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     map.once('load', () => {
-      // Apply teal accent theme to map layers
-      const layers = map.getStyle().layers ?? []
-      layers.forEach(layer => {
-        try {
-          const id = layer.id
-          if (layer.type === 'background') {
-            map.setPaintProperty(id, 'background-color', '#f0fafa')
-          } else if (layer.type === 'fill') {
-            if (id === 'water' || id === 'water-shadow' || id.startsWith('water-')) {
-              map.setPaintProperty(id, 'fill-color', '#9fd8d8')
-            } else if (id === 'national-park' || id.startsWith('landuse')) {
-              map.setPaintProperty(id, 'fill-color', '#d8f0f0')
-            } else if (id.startsWith('building')) {
-              map.setPaintProperty(id, 'fill-color', '#e4f5f5')
-              if (id === 'building-outline') {
-                map.setPaintProperty(id, 'fill-outline-color', '#cceaea')
-              }
-            } else if (id.startsWith('land-structure')) {
-              map.setPaintProperty(id, 'fill-color', '#e8fafa')
-            }
-          } else if (layer.type === 'line') {
-            if (id.startsWith('waterway')) {
-              map.setPaintProperty(id, 'line-color', '#9fd8d8')
-            } else if (id.startsWith('road') || id.startsWith('bridge') || id.startsWith('tunnel')) {
-              // keep roads as-is (white/light gray) for readability
-            } else if (id.startsWith('admin')) {
-              map.setPaintProperty(id, 'line-color', '#7bc5c5')
-            }
-          }
-        } catch { /* layer may not support property */ }
-      })
+      applyMapTheme(map, mapTheme)
       addMarkersRef.current()
       setMapBounds(map.getBounds())
       setMapReady(true)
@@ -485,6 +506,13 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current = []
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── re-apply theme when user switches ── */
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map?.loaded()) return
+    applyMapTheme(map, mapTheme)
+  }, [mapTheme]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── scroll list to top on filter change ── */
   useEffect(() => {
@@ -769,6 +797,22 @@ export default function BuilderPageClient({ builders }: Props) {
         {/* RIGHT — sticky map */}
         <div className="hidden lg:block w-1/2 relative p-3">
           <div ref={mapContainerRef} style={{ position: 'absolute', inset: '12px', borderRadius: '16px', overflow: 'hidden' }} />
+          {/* Map theme switcher */}
+          <div className="absolute bottom-6 left-6 z-10 flex gap-1 bg-white/90 backdrop-blur-sm border border-[#222222]/8 rounded-full px-1.5 py-1 shadow-sm">
+            {(['hell', 'creme', 'nacht'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setMapTheme(t)}
+                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all capitalize ${
+                  mapTheme === t
+                    ? 'bg-[#06a5a5] text-white'
+                    : 'text-[#222222]/40 hover:text-[#222222] hover:bg-[#222222]/5'
+                }`}
+              >
+                {t === 'hell' ? 'Hell' : t === 'creme' ? 'Creme' : 'Nacht'}
+              </button>
+            ))}
+          </div>
           {selectedBuilder && (
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}
