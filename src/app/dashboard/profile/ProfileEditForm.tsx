@@ -6,6 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, User } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
+const LEISTUNGEN = [
+  'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
+  'Pulverbeschichtung', 'Schweißen', 'Fräsen', 'Sandstrahlen', 'Verzinken',
+  'Vergaser', 'TÜV-Einzelabnahme', 'TÜV-Untersuchung', 'Motorinstandsetzung',
+  'Motorrevision', 'Motordiagnose', 'Sattlerarbeiten',
+]
+
 type Profile = {
   id: string
   full_name: string | null
@@ -48,11 +55,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
   // Profile fields
   const [fullName, setFullName]     = useState(profile.full_name ?? '')
-  const [city, setCity]             = useState(profile.city ?? '')
   const [bio, setBio]               = useState(profile.bio ?? '')
   const [bioLong, setBioLong]       = useState(profile.bio_long ?? '')
-  const [specialty, setSpecialty]   = useState(profile.specialty ?? '')
-  const [tagsInput, setTagsInput]   = useState((profile.tags ?? []).join(', '))
+  const [leistungen, setLeistungen] = useState<string[]>(
+    (profile.tags ?? []).filter(t => LEISTUNGEN.includes(t))
+  )
   const [basesInput, setBasesInput] = useState((profile.bases ?? []).join(', '))
   const [address, setAddress]       = useState(profile.address ?? '')
   const [instagram, setInstagram]   = useState(profile.instagram_url ?? '')
@@ -71,6 +78,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const fileInput = useRef<HTMLInputElement>(null)
   const videoInput = useRef<HTMLInputElement>(null)
   const avatarInput = useRef<HTMLInputElement>(null)
+
+  function toggleLeistung(item: string) {
+    setLeistungen(prev =>
+      prev.includes(item) ? prev.filter(l => l !== item) : [...prev, item]
+    )
+  }
 
   async function handleAvatarUpload(file: File) {
     setUploading(true)
@@ -100,7 +113,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setError(null)
     setSaved(false)
 
-    const tags  = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
     const bases = basesInput.split(',').map(t => t.trim()).filter(Boolean)
     const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
 
@@ -108,12 +120,10 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name:    fullName || null,
       slug:         slug || null,
-      city:         city || null,
       bio:          bio || null,
       bio_long:     bioLong || null,
-      specialty:    specialty || null,
       avatar_url:   avatarUrl || null,
-      tags:         tags.length ? tags : null,
+      tags:         leistungen.length ? leistungen : null,
       bases:        bases.length ? bases : null,
       address:      address || null,
       instagram_url: instagram || null,
@@ -214,22 +224,10 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           </div>
         </Field>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <Field label="Name">
-            <input value={fullName} onChange={e => setFullName(e.target.value)}
-              placeholder="Dein Name oder Studio-Name"
-              className={input} />
-          </Field>
-          <Field label="Stadt">
-            <input value={city} onChange={e => setCity(e.target.value)}
-              placeholder="z. B. Berlin"
-              className={input} />
-          </Field>
-        </div>
-
-        <Field label="Spezialisierung" className="mb-4">
-          <input value={specialty} onChange={e => setSpecialty(e.target.value)}
-            placeholder="z.B. Cafe Racer · Scrambler"
+        {/* Name */}
+        <Field label="Name" className="mb-4">
+          <input value={fullName} onChange={e => setFullName(e.target.value)}
+            placeholder="Dein Name oder Studio-Name"
             className={input} />
         </Field>
 
@@ -254,21 +252,42 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             className={`${input} resize-none`} />
         </Field>
 
-        <Field label="Tags (kommagetrennt)" className="mb-4">
-          <input value={tagsInput} onChange={e => setTagsInput(e.target.value)}
-            placeholder="z.B. Cafe Racer, Scrambler, Restaurierung"
-            className={input} />
-          <p className="text-[10px] text-[#222222]/25 mt-1">Werden auf deinem Profil als Badges angezeigt</p>
+        {/* Leistungen checkboxes */}
+        <Field label="Leistungen" className="mb-4">
+          <div className="flex flex-wrap gap-2 mt-1">
+            {LEISTUNGEN.map(item => {
+              const checked = leistungen.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleLeistung(item)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                    checked
+                      ? 'bg-[#06a5a5] border-[#06a5a5] text-white'
+                      : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            })}
+          </div>
+          <p className="text-[10px] text-[#222222]/25 mt-2">
+            {leistungen.length > 0
+              ? `${leistungen.length} ausgewählt`
+              : 'Wähle die Leistungen, die du anbietest'}
+          </p>
         </Field>
 
-        <Field label="Basis-Bikes (kommagetrennt)" className="mb-4">
+        <Field label="Bevorzugte Basis-Bikes für Umbauten" className="mb-4">
           <input value={basesInput} onChange={e => setBasesInput(e.target.value)}
             placeholder="z.B. Honda CB750, Yamaha SR500, BMW R90"
             className={input} />
-          <p className="text-[10px] text-[#222222]/25 mt-1">Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
+          <p className="text-[10px] text-[#222222]/25 mt-1">Kommagetrennt · Motorrad-Modelle, auf denen du am häufigsten aufbaust</p>
         </Field>
 
-        <Field label="Adresse" className="mb-4">
+        <Field label="Vollständige Anschrift" className="mb-4">
           <input value={address} onChange={e => setAddress(e.target.value)}
             placeholder="z.B. Greifswalder Str. 212, 10405 Berlin"
             className={input} />
