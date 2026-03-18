@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BUILDS, type Build } from '@/lib/data/builds'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from './BikesClient'
 import { createClient } from '@/lib/supabase/server'
 
@@ -29,7 +30,7 @@ export default async function BikesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = werkstattIds.length > 0
     ? await (supabase.from('bikes') as any)
-        .select('id, title, make, model, year, style, city, price, created_at, seller_id, bike_images(url, is_cover, position)')
+        .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, bike_images(url, is_cover, position)')
         .eq('status', 'active')
         .in('seller_id', werkstattIds)
         .order('created_at', { ascending: false })
@@ -40,7 +41,7 @@ export default async function BikesPage() {
     const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
     return {
       slug:          r.id,
-      href:          `/custom-bike/${r.id}`,
+      href:          `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
       title:         r.title,
       tagline:       '',
       style:         r.style,

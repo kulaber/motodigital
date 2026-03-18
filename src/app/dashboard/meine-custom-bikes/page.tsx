@@ -6,10 +6,12 @@ import Header from '@/components/layout/Header'
 import { Plus, Bike } from 'lucide-react'
 import type { Database } from '@/types/database'
 import BikeCardActions from './DeleteBikeButton'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
 type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at'> & {
+  slug?: string | null
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
 
@@ -32,7 +34,7 @@ export default async function MeinBikePage() {
 
   const { data: bikes } = await supabase
     .from('bikes')
-    .select('id, title, make, model, year, created_at, bike_images(url, is_cover)')
+    .select('id, slug, title, make, model, year, created_at, bike_images(url, is_cover)')
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 
@@ -124,7 +126,7 @@ export default async function MeinBikePage() {
                     <BikeCardActions
                       bikeId={bike.id}
                       editHref={isWerkstatt ? `/bikes/${bike.id}/edit` : `/dashboard/meine-custom-bikes/${bike.id}/edit`}
-                      viewHref={isWerkstatt ? `/custom-bike/${bike.id}` : undefined}
+                      viewHref={isWerkstatt ? `/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}` : undefined}
                     />
                   </div>
                 </div>

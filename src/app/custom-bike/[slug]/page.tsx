@@ -13,6 +13,9 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+// Allow dynamic routes (DB bikes by slug) beyond static BUILDS
+export const dynamicParams = true
+
 export async function generateStaticParams() {
   return BUILDS.map(b => ({ slug: b.slug }))
 }
@@ -20,10 +23,22 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const build = getBuildBySlug(slug)
-  if (!build) return {}
+  if (build) {
+    return {
+      title: `${build.title} — ${build.style} Custom Build`,
+      description: build.tagline,
+    }
+  }
+  // Try DB lookup for metadata
+  const supabase = await createClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase.from('bikes') as any)
+    .select('title, style')
+    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .maybeSingle()
+  if (!data) return {}
   return {
-    title: `${build.title} — ${build.style} Custom Build`,
-    description: build.tagline,
+    title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
   }
 }
 
@@ -32,11 +47,11 @@ export default async function CustomBikePage({ params }: Props) {
   const build = getBuildBySlug(slug)
 
   if (!build) {
-    // Try loading from Supabase (slug = UUID for DB bikes)
+    // Try loading from Supabase — first by slug column, fallback to UUID (legacy)
     const supabase = await createClient()
     const { data: bike } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, price, description, seller_id, profiles:seller_id(full_name), bike_images(url, is_cover, position)')
-      .eq('id', slug)
+      .select('id, title, make, model, year, style, city, price, description, seller_id, slug, profiles:seller_id(full_name), bike_images(url, is_cover, position)')
+      .or(`slug.eq.${slug},id.eq.${slug}`)
       .eq('status', 'active')
       .maybeSingle()
 

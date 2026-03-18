@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -23,6 +24,7 @@ type ExistingImage = { id: string; url: string; is_cover: boolean; position: num
 
 type BikeData = {
   id: string
+  slug: string | null
   title: string
   make: string
   model: string
@@ -202,7 +204,8 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     }
 
     toastSuccess('Änderungen gespeichert')
-    router.push(`/custom-bike/${bike.id}`)
+    const slug = bike.slug ?? generateBikeSlug(title.trim(), bike.id)
+    router.push(`/custom-bike/${slug}`)
     router.refresh()
   }
 

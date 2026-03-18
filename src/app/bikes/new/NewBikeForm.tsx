@@ -7,6 +7,7 @@ import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 import { compressImage } from '@/lib/utils/compressImage'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -160,6 +161,13 @@ export default function NewBikeForm() {
       is_verified:  false,
     }).select('id').maybeSingle()
 
+    // Generate and save slug after insert (needs the ID)
+    if (bike?.id) {
+      const slug = generateBikeSlug(title.trim(), bike.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('bikes') as any).update({ slug }).eq('id', bike.id)
+    }
+
     if (bikeError || !bike) {
       toastError(bikeError?.message ?? 'Fehler beim Speichern.')
       console.error('[bikes/new] insert error:', bikeError)
@@ -187,7 +195,8 @@ export default function NewBikeForm() {
     }
 
     toastSuccess('Bike erfolgreich gespeichert')
-    router.push(`/custom-bike/${bike.id}`)
+    const slug = generateBikeSlug(title.trim(), bike.id)
+    router.push(`/custom-bike/${slug}`)
     router.refresh()
   }
 
