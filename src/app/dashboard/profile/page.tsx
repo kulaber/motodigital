@@ -5,8 +5,9 @@ import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import ProfileEditForm from './ProfileEditForm'
+import RiderProfileEditForm from './RiderProfileEditForm'
 
-export const metadata: Metadata = { title: 'Builder Profil bearbeiten' }
+export const metadata: Metadata = { title: 'Profil bearbeiten' }
 
 export default async function ProfileEditPage() {
   const supabase = await createClient()
@@ -15,9 +16,29 @@ export default async function ProfileEditPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, avatar_url')
+    .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, avatar_url')
     .eq('id', user.id)
     .maybeSingle()
+
+  const isRider = profile?.role === 'rider'
+
+  if (isRider) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-3xl mx-auto px-4 pt-24 pb-16 lg:px-8">
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
+            <ArrowLeft size={13} /> Dashboard
+          </Link>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-[#222222]">Rider Profil</h1>
+            <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
+          </div>
+          <RiderProfileEditForm profile={profile} />
+        </div>
+      </div>
+    )
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: media } = await (supabase.from('builder_media') as any)

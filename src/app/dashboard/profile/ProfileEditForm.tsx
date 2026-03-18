@@ -3,7 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, User } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
 type Profile = {
@@ -48,6 +48,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
   // Profile fields
   const [fullName, setFullName]     = useState(profile.full_name ?? '')
+  const [city, setCity]             = useState(profile.city ?? '')
   const [bio, setBio]               = useState(profile.bio ?? '')
   const [bioLong, setBioLong]       = useState(profile.bio_long ?? '')
   const [specialty, setSpecialty]   = useState(profile.specialty ?? '')
@@ -57,6 +58,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [instagram, setInstagram]   = useState(profile.instagram_url ?? '')
   const [tiktok, setTiktok]         = useState(profile.tiktok_url ?? '')
   const [website, setWebsite]       = useState(profile.website_url ?? '')
+  const [avatarUrl, setAvatarUrl]   = useState(profile.avatar_url ?? '')
 
   const computedSlug = profile.slug ?? slugify(fullName)
 
@@ -68,6 +70,29 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [error, setError]           = useState<string | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
   const videoInput = useRef<HTMLInputElement>(null)
+  const avatarInput = useRef<HTMLInputElement>(null)
+
+  async function handleAvatarUpload(file: File) {
+    setUploading(true)
+    setError(null)
+    try {
+      const compressed = await compressImage(file, 800, 0.85)
+      const ext  = file.name.split('.').pop()
+      const path = `avatars/${profile.id}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('builder-media')
+        .upload(path, compressed, { upsert: true })
+      if (upErr) throw upErr
+      const { data: { publicUrl } } = supabase.storage
+        .from('builder-media')
+        .getPublicUrl(path)
+      setAvatarUrl(publicUrl)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
@@ -83,9 +108,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name:    fullName || null,
       slug:         slug || null,
+      city:         city || null,
       bio:          bio || null,
       bio_long:     bioLong || null,
       specialty:    specialty || null,
+      avatar_url:   avatarUrl || null,
       tags:         tags.length ? tags : null,
       bases:        bases.length ? bases : null,
       address:      address || null,
@@ -155,18 +182,56 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       <form onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profil-Informationen</h2>
 
+        {/* Avatar */}
+        <Field label="Profilbild" className="mb-5">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#F7F7F7] border border-[#222222]/8 overflow-hidden flex items-center justify-center flex-shrink-0">
+              {avatarUrl ? (
+                <NextImage src={avatarUrl} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
+              ) : (
+                <User size={22} className="text-[#222222]/20" />
+              )}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => avatarInput.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-40"
+              >
+                <Upload size={11} />
+                {uploading ? 'Wird hochgeladen…' : 'Foto hochladen'}
+              </button>
+              <p className="text-[10px] text-[#222222]/25 mt-1">JPG oder PNG, max. 5 MB</p>
+            </div>
+            <input
+              ref={avatarInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f) }}
+            />
+          </div>
+        </Field>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <Field label="Name">
             <input value={fullName} onChange={e => setFullName(e.target.value)}
               placeholder="Dein Name oder Studio-Name"
               className={input} />
           </Field>
-          <Field label="Spezialisierung">
-            <input value={specialty} onChange={e => setSpecialty(e.target.value)}
-              placeholder="z.B. Cafe Racer · Scrambler"
+          <Field label="Stadt">
+            <input value={city} onChange={e => setCity(e.target.value)}
+              placeholder="z. B. Berlin"
               className={input} />
           </Field>
         </div>
+
+        <Field label="Spezialisierung" className="mb-4">
+          <input value={specialty} onChange={e => setSpecialty(e.target.value)}
+            placeholder="z.B. Cafe Racer · Scrambler"
+            className={input} />
+        </Field>
 
         <Field label="Profil-URL (slug)" className="mb-4">
           <div className={`${input} text-[#222222]/40 cursor-default`}>
