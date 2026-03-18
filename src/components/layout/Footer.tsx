@@ -11,7 +11,7 @@ const NAV = [
       { label: 'Magazin',                   href: '/magazine' },
       { label: 'Events',                    href: '/events' },
       { label: 'Preise',                    href: '/preise' },
-      { label: 'Wie es funktioniert',       href: '/wie-es-funktioniert' },
+      { label: 'Über MotoDigital',           href: '/ueber-motodigital' },
     ],
   },
   {
@@ -32,7 +32,7 @@ const NAV = [
     links: [
       { label: 'Registrieren',                    href: '/auth/register' },
       { label: 'Anmelden',                        href: '/auth/login' },
-      { label: 'Custom Werkstatt-Verzeichnis',    href: '/custom-werkstatt' },
+      { label: 'Custom Werkstatt finden',         href: '/custom-werkstatt' },
     ],
   },
   {
