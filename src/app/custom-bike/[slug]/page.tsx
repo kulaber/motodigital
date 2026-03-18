@@ -80,7 +80,7 @@ export default async function CustomBikePage({ params }: Props) {
     // Fetch seller name separately to avoid join issues
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: sellerProfile } = await (supabase.from('profiles') as any)
-      .select('full_name, city')
+      .select('full_name, city, username')
       .eq('id', bike.seller_id)
       .maybeSingle()
 
@@ -96,6 +96,7 @@ export default async function CustomBikePage({ params }: Props) {
 
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
+    const sellerProfileHref = sellerProfile?.username ? `/custom-werkstatt/${sellerProfile.username}` : null
     const price = bike.price ? `€ ${Number(bike.price).toLocaleString('de-DE')}` : null
     const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
@@ -188,12 +189,20 @@ export default async function CustomBikePage({ params }: Props) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
-                    Werkstatt kontaktieren
-                  </button>
-                  <button className="w-full text-center text-sm font-medium text-[#717171] hover:text-[#222222] transition-colors py-2">
-                    Profil ansehen →
-                  </button>
+                  {sellerProfileHref ? (
+                    <Link href={sellerProfileHref} className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
+                      Werkstatt kontaktieren
+                    </Link>
+                  ) : (
+                    <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
+                      Werkstatt kontaktieren
+                    </button>
+                  )}
+                  {sellerProfileHref && (
+                    <Link href={sellerProfileHref} className="w-full text-center text-sm font-medium text-[#717171] hover:text-[#222222] transition-colors py-2">
+                      Profil ansehen →
+                    </Link>
+                  )}
                 </div>
               </div>
 
@@ -241,9 +250,15 @@ export default async function CustomBikePage({ params }: Props) {
         </div>
 
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
-          <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
-            Werkstatt kontaktieren
-          </button>
+          {sellerProfileHref ? (
+            <Link href={sellerProfileHref} className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
+              Werkstatt kontaktieren
+            </Link>
+          ) : (
+            <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
+              Werkstatt kontaktieren
+            </button>
+          )}
         </div>
 
         <Footer />
