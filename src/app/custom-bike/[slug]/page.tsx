@@ -29,13 +29,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: build.tagline,
     }
   }
-  // Try DB lookup for metadata
+  // Try DB lookup for metadata — by slug first, then by UUID
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.from('bikes') as any)
+  let { data } = await (supabase.from('bikes') as any)
     .select('title, style')
-    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .eq('slug', slug)
     .maybeSingle()
+  if (!data) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: byId } = await (supabase.from('bikes') as any)
+      .select('title, style')
+      .eq('id', slug)
+      .maybeSingle()
+    data = byId
+  }
   if (!data) return {}
   return {
     title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
@@ -47,13 +55,27 @@ export default async function CustomBikePage({ params }: Props) {
   const build = getBuildBySlug(slug)
 
   if (!build) {
-    // Try loading from Supabase — first by slug column, fallback to UUID (legacy)
+    // Try loading from Supabase — first by slug column, then by UUID
     const supabase = await createClient()
-    const { data: bike } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, price, description, seller_id, slug, profiles:seller_id(full_name), bike_images(url, is_cover, position)')
-      .or(`slug.eq.${slug},id.eq.${slug}`)
+    const select = 'id, title, make, model, year, style, city, price, description, seller_id, slug, profiles(full_name), bike_images(url, is_cover, position)'
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let { data: bike } = await (supabase.from('bikes') as any)
+      .select(select)
+      .eq('slug', slug)
       .eq('status', 'active')
       .maybeSingle()
+
+    // Fallback: try as UUID (legacy links)
+    if (!bike) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: byId } = await (supabase.from('bikes') as any)
+        .select(select)
+        .eq('id', slug)
+        .eq('status', 'active')
+        .maybeSingle()
+      bike = byId
+    }
 
     if (!bike) notFound()
 
