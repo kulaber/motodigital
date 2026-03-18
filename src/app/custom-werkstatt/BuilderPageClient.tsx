@@ -253,6 +253,9 @@ export default function BuilderPageClient({ builders }: Props) {
     return unique.filter(l => LEISTUNGEN.includes(l))
   }, [builders, activeSpecialty])
 
+  const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
+  const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
+
   const filtered = useMemo(() => builders.filter(b => {
     const specOk       = effectiveSpecialty === 'Alle' ||
       b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
@@ -482,10 +485,6 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current = []
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ── derive effective filter values — auto-reset if selection no longer available ── */
-  const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
-  const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
 
   /* ── scroll list to top on filter change ── */
   useEffect(() => {
