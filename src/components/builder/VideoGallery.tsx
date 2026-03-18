@@ -21,7 +21,7 @@ export default function VideoGallery({ videos }: { videos: VideoItem[] }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {videos.map((item, i) => (
           <button
-            key={i}
+            key={item.url}
             type="button"
             onClick={() => setOpen(i)}
             className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/5 text-left"

@@ -60,7 +60,7 @@ export default function BuilderContactButton({ builderId, builderFirstName, bike
     const { data: created, error: insertError } = await (supabase.from('conversations') as any)
       .insert({ seller_id: builderId, buyer_id: user.id, bike_id: bikeId })
       .select('id')
-      .single()
+      .maybeSingle()
 
     if (insertError) {
       setError('Fehler beim Öffnen der Konversation.')

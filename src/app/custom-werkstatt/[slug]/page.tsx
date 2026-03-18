@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
@@ -7,12 +8,33 @@ import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, 
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
-import BuilderMap from '@/components/builder/BuilderMap'
+import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamicParams = true
+
+const TAG_ICON_MAP: Record<string, React.ReactNode> = {
+  'Komplettumbau':          <Wrench size={14} />,
+  'Teilumbau':              <Settings size={14} />,
+  'TÜV-Einzelabnahme':     <ShieldCheck size={14} />,
+  'Elektrikarbeiten':       <Zap size={14} />,
+  'Lackierung':             <Palette size={14} />,
+  'Karosseriearbeiten':     <Wrench size={14} />,
+  'Konzeption & Design':    <Pencil size={14} />,
+  'Lieferung':              <Truck size={14} />,
+  'Basis-Bike Beschaffung': <Bike size={14} />,
+  'Restaurierung':          <RefreshCw size={14} />,
+  'Cafe Racer':             <Flag size={14} />,
+  'Bobber':                 <Bike size={14} />,
+  'Scrambler':              <Mountain size={14} />,
+  'Chopper':                <Wrench size={14} />,
+  'Custom Paint':           <Palette size={14} />,
+  'Tracker':                <Flag size={14} />,
+  'Street':                 <Navigation size={14} />,
+  'Enduro':                 <Leaf size={14} />,
+}
 
 async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -37,7 +59,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
-    .single()
+    .maybeSingle()
 
   if (!row) return null
 
@@ -171,7 +193,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         {/* Hintergrundbild */}
         {coverImage ? (
-          <img src={coverImage.url} alt={builder.name} className="absolute inset-0 w-full h-full object-cover" />
+          <Image src={coverImage.url} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
         ) : (
           <div className="absolute inset-0 bg-[#1a1a1a]" />
         )}
@@ -195,7 +217,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
             {/* Logo / Avatar */}
             <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 flex items-center justify-center shadow-lg">
-              <img src="/pin-logo.svg" alt="Logo" className="w-9 h-9 sm:w-11 sm:h-11 opacity-90" />
+              <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-9 h-9 sm:w-11 sm:h-11 opacity-90" />
             </div>
 
             {/* Text */}
@@ -322,27 +344,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {builder.tags.map(tag => {
-                    const iconMap: Record<string, React.ReactNode> = {
-                      'Komplettumbau':        <Wrench size={14} />,
-                      'Teilumbau':            <Settings size={14} />,
-                      'TÜV-Einzelabnahme':    <ShieldCheck size={14} />,
-                      'Elektrikarbeiten':     <Zap size={14} />,
-                      'Lackierung':           <Palette size={14} />,
-                      'Karosseriearbeiten':   <Wrench size={14} />,
-                      'Konzeption & Design':  <Pencil size={14} />,
-                      'Lieferung':            <Truck size={14} />,
-                      'Basis-Bike Beschaffung': <Bike size={14} />,
-                      'Restaurierung':        <RefreshCw size={14} />,
-                      'Cafe Racer':           <Flag size={14} />,
-                      'Bobber':               <Bike size={14} />,
-                      'Scrambler':            <Mountain size={14} />,
-                      'Chopper':              <Wrench size={14} />,
-                      'Custom Paint':         <Palette size={14} />,
-                      'Tracker':              <Flag size={14} />,
-                      'Street':               <Navigation size={14} />,
-                      'Enduro':               <Leaf size={14} />,
-                    }
-                    const icon = iconMap[tag] ?? <Check size={14} />
+                    const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
                     return (
                       <div key={tag} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
                         <span className="text-[#06a5a5] flex-shrink-0">{icon}</span>
@@ -365,12 +367,12 @@ export default async function BuilderProfilePage({ params }: Props) {
                     {builder.team.map(member => (
                       <div key={member.name} className="flex flex-col p-4 bg-white rounded-2xl border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all duration-200">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#DDDDDD] ring-offset-2 ring-offset-white">
+                          <div className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#DDDDDD] ring-offset-2 ring-offset-white">
                             {member.avatar ? (
-                              <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                              <Image src={member.avatar} alt={member.name} fill sizes="56px" className="object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-[#06a5a5]">
-                                <img src="/pin-logo.svg" alt="Logo" className="w-7 h-7 opacity-90" />
+                                <Image src="/pin-logo.svg" alt="Logo" width={28} height={28} className="opacity-90" />
                               </div>
                             )}
                           </div>
@@ -410,7 +412,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Map */}
               {builder.lat && builder.lng && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden mb-4">
-                  <BuilderMap
+                  <BuilderMapClient
                     lat={builder.lat}
                     lng={builder.lng}
                     name={builder.name}

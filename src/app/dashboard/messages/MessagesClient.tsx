@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, Send, MessageCircle, Trash2 } from 'lucide-react'
@@ -17,7 +18,7 @@ interface Props {
 function Avatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
   if (avatarUrl) {
     return (
-      <img src={avatarUrl} alt={name} className="w-9 h-9 rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
+      <Image src={avatarUrl} alt={name} width={36} height={36} className="rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
     )
   }
   return (
@@ -191,9 +192,9 @@ function MessageThread({
             <div key={msg.id} className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
               {/* Other person avatar — left */}
               {!isOwn && (
-                <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#F7F7F7] flex items-center justify-center text-[10px] font-bold text-[#717171]">
+                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#F7F7F7] flex items-center justify-center text-[10px] font-bold text-[#717171]">
                   {avatarUrl
-                    ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                    ? <Image src={avatarUrl} alt={name} fill sizes="28px" className="object-cover" />
                     : name.charAt(0).toUpperCase()
                   }
                 </div>
@@ -212,9 +213,9 @@ function MessageThread({
 
               {/* Own avatar — right */}
               {isOwn && (
-                <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#06a5a5]/10 flex items-center justify-center text-[10px] font-bold text-[#06a5a5]">
+                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#06a5a5]/10 flex items-center justify-center text-[10px] font-bold text-[#06a5a5]">
                   {avatarUrl
-                    ? <img src={avatarUrl} alt="Ich" className="w-full h-full object-cover" />
+                    ? <Image src={avatarUrl} alt="Ich" fill sizes="28px" className="object-cover" />
                     : 'I'
                   }
                 </div>
@@ -262,7 +263,7 @@ export default function MessagesClient({ conversations: initial, userId }: Props
     const { data } = await (supabase.from('conversations') as any)
       .select('deleted_for')
       .eq('id', convId)
-      .single()
+      .maybeSingle()
 
     const current: string[] = data?.deleted_for ?? []
     if (!current.includes(userId)) {
@@ -282,7 +283,7 @@ export default function MessagesClient({ conversations: initial, userId }: Props
     ;(supabase.from('profiles') as any)
       .select('avatar_url')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
       .then(({ data }: { data: { avatar_url: string | null } | null }) => {
         setMyAvatarUrl(data?.avatar_url ?? null)
       })

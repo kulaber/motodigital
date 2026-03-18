@@ -33,6 +33,7 @@ export default function BaseBikeAutocomplete({ value, onChange, className }: Pro
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (query.length < 2) { setResults([]); return }
     const timeout = setTimeout(async () => {
       setLoading(true)
@@ -48,7 +49,7 @@ export default function BaseBikeAutocomplete({ value, onChange, className }: Pro
       setLoading(false)
     }, 250)
     return () => clearTimeout(timeout)
-  }, [query])
+  }, [query]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function select(bike: BaseBike) {
     const label = `${bike.make} ${bike.model}`

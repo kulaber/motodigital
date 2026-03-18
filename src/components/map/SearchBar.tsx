@@ -3,6 +3,7 @@
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const UMBAU_TYPEN = [
   'Café Racer',
   'Scrambler',

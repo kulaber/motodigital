@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, Calendar, Wrench, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
@@ -192,8 +193,8 @@ export default async function CustomBikePage({ params }: Props) {
                 href={`/custom-bike/${b.slug}`}
                 className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                  <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                  <Image src={b.coverImg} alt={b.title} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>

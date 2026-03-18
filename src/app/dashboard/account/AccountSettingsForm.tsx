@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
@@ -230,9 +231,9 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profilbild</h2>
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-full bg-[#F7F7F7] border border-[#222222]/10 overflow-hidden flex items-center justify-center">
+            <div className="relative w-20 h-20 rounded-full bg-[#F7F7F7] border border-[#222222]/10 overflow-hidden flex items-center justify-center">
               {avatarUrl
-                ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ? <Image src={avatarUrl} alt="Avatar" fill sizes="80px" className="object-cover" />
                 : <User size={28} className="text-[#222222]/20" />
               }
             </div>

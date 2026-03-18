@@ -85,7 +85,7 @@ export default async function BuilderPage() {
   // Geocode builders that have a city/address but no coordinates
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
   if (token) {
-    await Promise.all(
+    await Promise.allSettled(
       dbBuilders.map(async b => {
         if (b.lat && b.lng) return
         const query = b.address || b.city

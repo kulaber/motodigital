@@ -149,14 +149,14 @@ export default function EditBuilderPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: me } = await (supabase.from('profiles') as any)
-        .select('role').eq('id', user.id).single()
+        .select('role').eq('id', user.id).maybeSingle()
       if (me?.role !== 'superadmin') { router.push('/dashboard'); return }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
         .select('id, full_name, city, specialty, bio, instagram_url, website_url, tags, is_verified, since_year, opening_hours')
         .or(`username.eq.${slug},slug.eq.${slug}`)
-        .single() as { data: ProfileData | null }
+        .maybeSingle() as { data: ProfileData | null }
 
       if (data) {
         setDbProfile(data)

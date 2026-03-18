@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { X, ChevronLeft, ChevronRight, Grid2x2 } from 'lucide-react'
 
@@ -66,7 +67,7 @@ export default function BuilderGallery({ images }: Props) {
           {/* 4 thumbnails */}
           {thumbs.map((item, i) => (
             <button
-              key={i}
+              key={item.url}
               onClick={() => setLightbox(i + 1)}
               className="relative overflow-hidden cursor-zoom-in group"
             >
@@ -151,13 +152,13 @@ export default function BuilderGallery({ images }: Props) {
           <div className="relative z-10 flex gap-2 justify-center px-4 pb-4 overflow-x-auto flex-shrink-0" onClick={e => e.stopPropagation()}>
             {images.map((img, i) => (
               <button
-                key={i}
+                key={img.url}
                 onClick={() => setLightbox(i)}
-                className={`flex-shrink-0 w-12 h-9 rounded-lg overflow-hidden border-2 transition-all ${
+                className={`relative flex-shrink-0 w-12 h-9 rounded-lg overflow-hidden border-2 transition-all ${
                   i === lightbox ? 'border-white opacity-100' : 'border-transparent opacity-40 hover:opacity-70'
                 }`}
               >
-                <img src={img.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                <Image src={img.url} alt="" fill sizes="48px" className="object-cover" />
               </button>
             ))}
           </div>

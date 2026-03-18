@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
@@ -64,7 +64,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
 
 /* ── Map overlay card ── */
 function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
-  const images = b.media.filter(m => m.type === 'image').slice(0, 8)
+  const images = useMemo(() => b.media.filter(m => m.type === 'image').slice(0, 8), [b.media])
   const [idx, setIdx] = useState(0)
 
   const prev = (e: React.MouseEvent) => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }
@@ -178,6 +178,7 @@ export default function BuilderPageClient({ builders }: Props) {
 
   // Hydration-safe clock
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)
@@ -432,14 +433,6 @@ export default function BuilderPageClient({ builders }: Props) {
     const map = mapRef.current
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
-
-  /* ── fly to selected ── */
-  const handleBuilderClick = useCallback((b: Builder) => {
-    setSelectedBuilder(b)
-    if (b.lat && b.lng && mapRef.current) {
-      mapRef.current.flyTo({ center: [b.lng, b.lat], zoom: 13, duration: 800 })
-    }
-  }, [])
 
   const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
 

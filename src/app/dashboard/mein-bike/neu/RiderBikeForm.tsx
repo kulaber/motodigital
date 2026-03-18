@@ -60,7 +60,7 @@ export default function RiderBikeForm({ userId, makes, baseBikes }: Props) {
           status: 'active',
         })
         .select('id')
-        .single()
+        .maybeSingle()
 
       if (bikeErr) throw new Error(bikeErr.message)
 

@@ -1,15 +1,26 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+
+const schema = z.object({
+  name:  z.string().min(1).max(100).optional(),
+  email: z.string().email(),
+  role:  z.enum(['builder', 'rider']),
+})
 
 export async function POST(request: Request) {
   const formData = await request.formData()
-  const name  = formData.get('name')  as string
-  const email = formData.get('email') as string
-  const role  = formData.get('role')  as string
+  const parsed = schema.safeParse({
+    name:  formData.get('name')  ?? undefined,
+    email: formData.get('email'),
+    role:  formData.get('role'),
+  })
 
-  if (!email || !role) {
+  if (!parsed.success) {
     return NextResponse.redirect(new URL('/landing?error=missing_fields', request.url))
   }
+
+  const { name, email, role } = parsed.data
 
   const supabase = await createClient()
 

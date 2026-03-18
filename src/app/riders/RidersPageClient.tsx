@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, MapPin, SlidersHorizontal, ChevronDown, MessageCircle, LogIn } from 'lucide-react'
@@ -9,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
 
-function MessageButton({ riderId, riderName, bikeId }: { riderId: string; riderName: string; bikeId?: string }) {
+function MessageButton({ riderId, riderName: _riderName, bikeId }: { riderId: string; riderName: string; bikeId?: string }) {
   const [loading, setLoading] = useState(false)
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -49,7 +50,7 @@ function MessageButton({ riderId, riderName, bikeId }: { riderId: string; riderN
     const { data: created } = await (supabase.from('conversations') as any)
       .insert({ seller_id: riderId, buyer_id: user.id, bike_id: bikeId })
       .select('id')
-      .single()
+      .maybeSingle()
 
     router.push(`/dashboard/messages${created?.id ? `?conv=${created.id}` : ''}`)
     setLoading(false)
@@ -106,7 +107,7 @@ export default function RidersPageClient({ riders }: { riders: Rider[] }) {
     if (!r.id) return false
     const ts = lastSeenMap.get(r.id)
     if (!ts) return false
-    return Date.now() - new Date(ts).getTime() < 3 * 60_000
+    return Date.now() - new Date(ts).getTime() < 3 * 60_000 // eslint-disable-line react-hooks/purity
   }
 
   const filtered = useMemo(() => riders.filter(r => {
@@ -205,9 +206,9 @@ export default function RidersPageClient({ riders }: { riders: Rider[] }) {
                         {/* Avatar + Name */}
                         <div className="flex items-start gap-3 mb-3">
                           <div className="relative flex-shrink-0">
-                            <div className="w-11 h-11 rounded-full overflow-hidden border border-[#EBEBEB]">
+                            <div className="relative w-11 h-11 rounded-full overflow-hidden border border-[#EBEBEB]">
                               {r.avatar ? (
-                                <img src={r.avatar} alt={r.name} className="w-full h-full object-cover" />
+                                <Image src={r.avatar} alt={r.name} fill sizes="44px" className="object-cover" />
                               ) : (
                                 <div className="w-full h-full bg-[#06a5a5] flex items-center justify-center">
                                   <span className="text-white text-sm font-bold">{r.initials}</span>
@@ -281,7 +282,7 @@ export default function RidersPageClient({ riders }: { riders: Rider[] }) {
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <img src="/logo.svg" alt="MotoDigital" className="w-20 opacity-10" />
+                          <Image src="/logo.svg" alt="MotoDigital" width={80} height={80} className="opacity-10" />
                         </div>
                       )}
                     </div>

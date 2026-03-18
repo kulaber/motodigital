@@ -170,7 +170,7 @@ export default function BuildGallery({ images, title }: Props) {
           >
             {images.map((img, i) => (
               <button
-                key={i}
+                key={img}
                 onClick={() => setLightbox(i)}
                 className={`flex-shrink-0 w-11 h-11 rounded-lg overflow-hidden transition-all duration-200 ${
                   i === lightbox

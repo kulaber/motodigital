@@ -17,7 +17,7 @@ export default async function AdminEventsPage() {
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
-    .single() as { data: { role: string } | null }
+    .maybeSingle() as { data: { role: string } | null }
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 

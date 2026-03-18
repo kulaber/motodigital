@@ -19,13 +19,13 @@ export default async function EditBikePage({ params }: Props) {
   const { data: bike } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, year, style, cc, mileage_km, price, city, lat, lng, description, status, seller_id, bike_images(id, url, is_cover, position)')
     .eq('id', slug)
-    .single()
+    .maybeSingle()
 
   if (!bike) notFound()
   // Only owner or superadmin can edit
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('role').eq('id', user.id).single()
+    .select('role').eq('id', user.id).maybeSingle()
   if (bike.seller_id !== user.id && profile?.role !== 'superadmin') redirect('/dashboard')
 
   return (

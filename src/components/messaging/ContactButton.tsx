@@ -33,7 +33,7 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
         { onConflict: 'bike_id,buyer_id', ignoreDuplicates: false }
       )
       .select('id')
-      .single()
+      .maybeSingle()
 
     if (!error && data) {
       router.push(`/dashboard/messages?conv=${data.id}`)

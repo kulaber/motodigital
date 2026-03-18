@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown } from 'lucide-react'
-import { MAKES, MODELS, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
+import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 import LocationAutocomplete, { type LocationResult } from '@/components/ui/LocationAutocomplete'
 import BaseBikeAutocomplete from '@/components/ui/BaseBikeAutocomplete'
 import { compressImage } from '@/lib/utils/compressImage'
@@ -150,7 +150,7 @@ export default function NewBikeForm() {
       description:  description.trim() || null,
       status,
       is_verified:  false,
-    }).select('id').single()
+    }).select('id').maybeSingle()
 
     if (bikeError || !bike) {
       setError('Fehler beim Speichern. Bitte versuche es erneut.')

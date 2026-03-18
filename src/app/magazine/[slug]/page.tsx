@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import Header from '@/components/layout/Header'
@@ -7,7 +8,6 @@ import {
   ARTICLES,
   getArticleBySlug,
   getArticlesByCategory,
-  type Article,
   type ArticleSection,
 } from '@/lib/data/magazine'
 import { BUILDERS } from '@/lib/data/builders'
@@ -315,7 +315,7 @@ export default async function ArticlePage({
                     {moreArticles.map(a => (
                       <Link key={a.slug} href={`/magazine/${a.slug}`} className="flex items-start gap-3 group">
                         <div className="relative h-12 w-16 flex-shrink-0 rounded-lg overflow-hidden">
-                          <img src={a.coverImage} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <Image src={a.coverImage} alt={a.title} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-[#222222] leading-snug line-clamp-2 group-hover:text-[#06a5a5] transition-colors">

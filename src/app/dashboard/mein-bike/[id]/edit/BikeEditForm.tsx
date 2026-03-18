@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, Bike, Trash2 } from 'lucide-react'
+import { Camera, Bike } from 'lucide-react'
 
 interface Props {
   bikeId: string

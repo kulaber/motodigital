@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
@@ -23,7 +24,7 @@ export default async function AdminMagazinePage() {
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
-    .single() as { data: { role: string } | null }
+    .maybeSingle() as { data: { role: string } | null }
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
@@ -87,9 +88,8 @@ export default async function AdminMagazinePage() {
                   <tr key={a.slug} className="hover:bg-[#222222]/2 transition-colors group">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-14 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-white">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={a.coverImage} alt={a.title} className="w-full h-full object-cover" />
+                        <div className="relative w-14 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-white">
+                          <Image src={a.coverImage} alt={a.title} fill sizes="56px" className="object-cover" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-[#222222] line-clamp-1">{a.title}</p>

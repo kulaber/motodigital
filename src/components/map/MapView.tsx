@@ -83,7 +83,7 @@ export default function MapView({ initialBikes }: Props) {
 
   // Keep a ref so map event handlers always see latest filteredBuilders
   const filteredBuildersRef = useRef(filteredBuilders)
-  filteredBuildersRef.current = filteredBuilders
+  filteredBuildersRef.current = filteredBuilders // eslint-disable-line react-hooks/refs
 
   // Init Mapbox
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function MapView({ initialBikes }: Props) {
 
     if (activeTab !== 'bikes') return
 
-    bikes.forEach(bike => {
+    bikes.forEach(_bike => {
       // Bikes need lat/lng from DB — placeholder logic
       // In production: use bike.latitude / bike.longitude from the geography column
     })

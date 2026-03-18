@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
@@ -124,9 +125,9 @@ export default function LandingPage() {
                 <Link href={`/custom-bike/${build.slug}`}
                   className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200 h-full">
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    <img src={build.img} alt={build.title}
-                      loading="lazy" decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
+                    <Image src={build.img} alt={build.title}
+                      fill sizes="(max-width: 768px) 100vw, 400px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
@@ -209,8 +210,9 @@ export default function LandingPage() {
             <AnimateIn delay={0} className="flex-1">
               <Link href="/auth/register?role=custom-werkstatt"
                 className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
-                <img src="/custom-werkstatt.png" alt="Custom Werkstatt"
-                  className="absolute inset-0 w-full h-full object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
+                <Image src="/custom-werkstatt.png" alt="Custom Werkstatt"
+                  fill sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
                 <div className="relative z-10 flex flex-col h-full p-7 justify-end">
                   <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] mb-4 self-start">
@@ -233,8 +235,9 @@ export default function LandingPage() {
             <AnimateIn delay={120} className="flex-1">
               <Link href="/auth/register?role=rider"
                 className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
-                <img src="/rider.png" alt="Rider"
-                  className="absolute inset-0 w-full h-full object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
+                <Image src="/rider.png" alt="Rider"
+                  fill sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
                 <div className="relative z-10 flex flex-col h-full p-7 justify-end">
                   <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] mb-4 self-start">

@@ -240,7 +240,7 @@ export default function WieEsFunktioniertPage() {
       {/* Bottom CTA */}
       <section className="bg-[#222222] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-24 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#06a5a5] mb-4">Los geht's</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#06a5a5] mb-4">Los geht&apos;s</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
             Bereit loszulegen?
           </h2>

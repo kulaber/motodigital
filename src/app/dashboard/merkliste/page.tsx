@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
@@ -217,9 +218,9 @@ export default async function MerklistePage({
                       href={`/custom-werkstatt/${slug}`}
                       className="group flex items-start gap-4 bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-black/6"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-[#222222]/8 border border-[#222222]/10 flex items-center justify-center text-base font-bold text-[#717171] flex-shrink-0 overflow-hidden">
+                      <div className="relative w-12 h-12 rounded-xl bg-[#222222]/8 border border-[#222222]/10 flex items-center justify-center text-base font-bold text-[#717171] flex-shrink-0 overflow-hidden">
                         {builder.avatar_url ? (
-                          <img src={builder.avatar_url} alt={builder.full_name ?? ''} className="w-full h-full object-cover" />
+                          <Image src={builder.avatar_url} alt={builder.full_name ?? ''} fill sizes="48px" className="object-cover" />
                         ) : initials}
                       </div>
                       <div className="flex-1 min-w-0">

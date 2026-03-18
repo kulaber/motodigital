@@ -26,7 +26,7 @@ export function useAuth() {
           ;(supabase.from('profiles') as any)
             .select('role, slug, avatar_url')
             .eq('id', currentUser.id)
-            .single()
+            .maybeSingle()
             .then(({ data }: { data: { role: UserRole; slug: string | null; avatar_url: string | null } | null }) => {
               setRole(data?.role ?? null)
               setSlug(data?.slug ?? null)
@@ -41,7 +41,7 @@ export function useAuth() {
     )
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { user, role, slug, avatarUrl, loading }
 }

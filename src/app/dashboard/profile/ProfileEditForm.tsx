@@ -1,8 +1,9 @@
 'use client'
 
+import NextImage from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, Play, Image as ImageIcon, Trash2, CheckCircle } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
 type Profile = {
@@ -106,6 +107,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     for (const rawFile of Array.from(files)) {
       const file = type === 'image' ? await compressImage(rawFile) : rawFile
       const ext = file.name.split('.').pop()
+      // eslint-disable-next-line react-hooks/purity
       const path = `${profile.id}/${Date.now()}.${ext}`
 
       const { data: upload, error: uploadErr } = await supabase.storage
@@ -125,7 +127,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         type,
         title:      null,
         position:   media.length,
-      }).select().single()
+      }).select().maybeSingle()
 
       if (insertErr) { setError(insertErr.message); continue }
       setMedia(prev => [...prev, row as MediaItem])
@@ -286,8 +288,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                     </div>
                   </div>
                 ) : (
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={item.url} alt={item.title ?? ''} className="w-full h-full object-cover" />
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <NextImage src={item.url} alt={item.title ?? ''} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
                   </div>
                 )}
                 {/* Overlay on hover */}

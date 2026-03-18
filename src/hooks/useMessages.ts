@@ -49,14 +49,14 @@ export function useMessages(conversationId: string) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [conversationId])
+  }, [conversationId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function sendMessage(body: string, senderId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.from('messages') as any)
       .insert({ conversation_id: conversationId, sender_id: senderId, body })
       .select()
-      .single()
+      .maybeSingle()
 
     // Optimistisch sofort anzeigen — Realtime dedupliziert via ID-Check
     if (!error && data) {

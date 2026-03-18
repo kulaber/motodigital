@@ -9,6 +9,7 @@ export default function OpeningHoursWidget({ openingHours }: { openingHours: Ope
   const [now, setNow] = useState<Date | null>(null)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)

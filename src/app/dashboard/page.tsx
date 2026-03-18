@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
@@ -33,7 +34,7 @@ export default async function DashboardPage() {
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('full_name, role, city, specialty, bio, is_verified, avatar_url')
     .eq('id', user.id)
-    .single() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null } | null }
+    .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null } | null }
 
   const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }] = await Promise.all([
     supabase
@@ -74,6 +75,7 @@ export default async function DashboardPage() {
       supabase.auth.admin.listUsers({ perPage: 1000 }),
     ])
 
+    // eslint-disable-next-line react-hooks/purity
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const ridersOnline = authResult.data?.users?.filter(u =>
       u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
@@ -92,6 +94,7 @@ export default async function DashboardPage() {
   const chartData = hasRealVisitors
     ? weeklyVisitors
     : [42, 68, 55, 91, 73, 84, 110].map((v, i) => ({
+        // eslint-disable-next-line react-hooks/purity
         date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0],
         visitors: v,
       }))
@@ -106,7 +109,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-14 h-14 rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
+              <Image src={profile.avatar_url} alt="Avatar" width={56} height={56} className="rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
             ) : (
               <div className="w-14 h-14 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center flex-shrink-0">
                 <User size={22} className="text-[#222222]/20" />
@@ -269,9 +272,9 @@ export default async function DashboardPage() {
 
             {/* Mein Bike */}
             <Link href="/dashboard/mein-bike" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
-              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 overflow-hidden">
+              <div className="relative w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 overflow-hidden">
                 {bikes?.[0]?.bike_images?.[0]?.url ? (
-                  <img src={bikes[0].bike_images[0].url} alt={bikes[0].title} className="w-full h-full object-cover" />
+                  <Image src={bikes[0].bike_images[0].url} alt={bikes[0].title} fill sizes="48px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Bike size={18} className="text-[#222222]/15" />
@@ -445,7 +448,7 @@ export default async function DashboardPage() {
                   <div key={bike.id} className="flex items-center gap-4 px-5 py-3.5">
                     <div className="w-12 h-9 rounded-lg bg-white border border-[#222222]/8 flex-shrink-0 overflow-hidden relative">
                       {bike.bike_images?.[0]?.url ? (
-                        <img src={bike.bike_images[0].url} alt={bike.title} className="w-full h-full object-cover" />
+                        <Image src={bike.bike_images[0].url} alt={bike.title} fill sizes="48px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center opacity-25">
                           <svg width="24" height="17" viewBox="0 0 48 34" fill="none">

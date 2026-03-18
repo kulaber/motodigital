@@ -9,7 +9,6 @@ import ContactButton from '@/components/messaging/ContactButton'
 import type { Database } from '@/types/database'
 import { BUILDS } from '@/lib/data/builds'
 import { BUILDERS } from '@/lib/data/builders'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import Header from '@/components/layout/Header'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -241,7 +240,7 @@ export default async function BikeSlugPage({ params }: Props) {
     `)
     .eq('id', slug)
     .eq('status', 'active')
-    .single() as { data: BikeWithRelations | null; error: unknown }
+    .maybeSingle() as { data: BikeWithRelations | null; error: unknown }
 
   if (!bike) notFound()
 

@@ -16,7 +16,7 @@ export default async function BikeEditPage({ params }: { params: Promise<{ id: s
   const { data: bike } = await (supabase.from('bikes') as any)
     .select('id, title, seller_id, bike_images(url, is_cover)')
     .eq('id', id)
-    .single() as { data: { id: string; title: string; seller_id: string; bike_images: { url: string; is_cover: boolean }[] } | null }
+    .maybeSingle() as { data: { id: string; title: string; seller_id: string; bike_images: { url: string; is_cover: boolean }[] } | null }
 
   if (!bike || bike.seller_id !== user.id) notFound()
 

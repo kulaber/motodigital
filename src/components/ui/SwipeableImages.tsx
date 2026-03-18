@@ -44,7 +44,7 @@ export default function SwipeableImages({ images, aspectClass = 'aspect-[4/3]' }
     >
       {images.map((img, i) => (
         <img
-          key={i}
+          key={img.url}
           src={img.url}
           alt={img.alt ?? ''}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
@@ -70,8 +70,8 @@ export default function SwipeableImages({ images, aspectClass = 'aspect-[4/3]' }
 
           {/* Dots */}
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1 pointer-events-none">
-            {images.map((_, i) => (
-              <span key={i} className={`rounded-full transition-all ${i === idx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`} />
+            {images.map((img, i) => (
+              <span key={img.url} className={`rounded-full transition-all ${i === idx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`} />
             ))}
           </div>
         </>

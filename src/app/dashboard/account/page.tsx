@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import AccountSettingsForm from './AccountSettingsForm'
@@ -17,7 +16,7 @@ export default async function AccountSettingsPage() {
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('username, full_name, avatar_url, bio, address, role')
     .eq('id', user.id)
-    .single() as { data: { username: string | null; full_name: string | null; avatar_url: string | null; bio: string | null; address: string | null; role: string | null } | null }
+    .maybeSingle() as { data: { username: string | null; full_name: string | null; avatar_url: string | null; bio: string | null; address: string | null; role: string | null } | null }
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">

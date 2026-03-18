@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star, PlusCircle,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
@@ -63,6 +63,7 @@ export default function Header({ activePage }: Props) {
   }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!user) { setUnreadCount(0); return }
     const uid = user.id
 
@@ -97,7 +98,7 @@ export default function Header({ activePage }: Props) {
       window.removeEventListener('messages-read', stableListener)
       supabase.removeChannel(channel)
     }
-  }, [user])
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close mobile menu on route change
   function close() { setOpen(false); setMobileBikesOpen(false); setMobileDashOpen(false) }
@@ -199,7 +200,7 @@ export default function Header({ activePage }: Props) {
                   className="flex items-center gap-1 text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
                   <span className="relative">
                     {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-[34px] h-[34px] rounded-full object-cover border border-[#222222]/10" />
+                      <Image src={avatarUrl} alt="Avatar" width={34} height={34} className="rounded-full object-cover border border-[#222222]/10" />
                     ) : (
                       <CircleUserRound size={19} />
                     )}
@@ -398,7 +399,7 @@ export default function Header({ activePage }: Props) {
             {/* ── Custom Werkstatt ── */}
             <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
               <span className="flex items-center gap-2.5">
-                <img src="/custom-werkstatt.png" alt="" className="w-6 h-6 object-contain flex-shrink-0" />
+                <Image src="/custom-werkstatt.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
                 Custom Werkstatt
               </span>
             </Link>
@@ -409,7 +410,7 @@ export default function Header({ activePage }: Props) {
               className={mobileNavLink(activePage === 'bikes')}
             >
               <span className="flex items-center gap-2.5">
-                <img src="/custom-bikes.png" alt="" className="w-6 h-6 object-contain flex-shrink-0" />
+                <Image src="/custom-bikes.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
                 Custom Bikes
               </span>
               <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
@@ -427,7 +428,7 @@ export default function Header({ activePage }: Props) {
             {/* ── Rider ── */}
             <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
               <span className="flex items-center gap-2.5">
-                <img src="/rider.png" alt="" className="w-6 h-6 object-contain flex-shrink-0" />
+                <Image src="/rider.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
                 Rider
               </span>
             </Link>

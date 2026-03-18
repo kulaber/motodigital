@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -338,7 +339,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {existingImages.map((img, i) => (
               <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] group">
-                <img src={img.url} alt="" className="w-full h-full object-cover" />
+                <Image src={img.url} alt="" fill sizes="(max-width: 640px) 33vw, 25vw" className="object-cover" />
                 {i === 0 && (
                   <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                     Cover

@@ -20,9 +20,6 @@ const CATEGORY_TABS = [
   { label: 'Guides',        href: '/magazine/guide' },
 ]
 
-function formatDateDE(iso: string): string {
-  return new Date(iso).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
-}
 
 export default function GuidePage() {
   const articles = getArticlesByCategory('guide')
