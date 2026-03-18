@@ -80,7 +80,7 @@ export default async function CustomBikePage({ params }: Props) {
     // Fetch seller name separately to avoid join issues
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: sellerProfile } = await (supabase.from('profiles') as any)
-      .select('full_name')
+      .select('full_name, city')
       .eq('id', bike.seller_id)
       .maybeSingle()
 
@@ -168,7 +168,7 @@ export default async function CustomBikePage({ params }: Props) {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[#222222]">{sellerName || '—'}</p>
-                    {bike.city && <p className="text-xs text-[#717171]">{bike.city}</p>}
+                    {sellerProfile?.city && <p className="text-xs text-[#717171]">{sellerProfile.city}</p>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
