@@ -19,7 +19,7 @@ export default async function EditBikePage({ params }: Props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bike } = await (supabase.from('bikes') as any)
-    .select('id, slug, title, make, model, year, style, mileage_km, price, city, description, status, seller_id, bike_images(id, url, is_cover, position)')
+    .select('id, slug, title, make, model, year, style, mileage_km, price, city, description, modifications, status, seller_id, bike_images(id, url, is_cover, position)')
     .eq('id', slug)
     .maybeSingle()
 

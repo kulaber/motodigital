@@ -57,7 +57,7 @@ export default async function CustomBikePage({ params }: Props) {
   if (!build) {
     // Try loading from Supabase — first by slug column, then by UUID
     const supabase = await createClient()
-    const select = 'id, title, make, model, year, style, city, price, description, seller_id, slug, bike_images(url, is_cover, position)'
+    const select = 'id, title, make, model, year, style, city, price, description, modifications, seller_id, slug, bike_images(url, is_cover, position)'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: bike } = await (supabase.from('bikes') as any)
@@ -152,6 +152,22 @@ export default async function CustomBikePage({ params }: Props) {
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Über dieses Bike</h2>
                   <p className="text-sm text-[#717171] leading-relaxed whitespace-pre-line">{bike.description}</p>
+                </div>
+              )}
+
+              {bike.modifications?.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Umbauten & Modifikationen</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {bike.modifications.map((mod: string, i: number) => (
+                      <div key={i} className="flex items-start gap-2.5 bg-[#F7F7F7] rounded-xl px-4 py-3">
+                        <span className="text-[#06a5a5] mt-0.5 flex-shrink-0">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </span>
+                        <span className="text-xs text-[#444] leading-snug">{mod}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

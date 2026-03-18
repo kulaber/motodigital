@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight } from 'lucide-react'
+import { Upload, X, ChevronRight, Plus } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -35,6 +35,7 @@ type BikeData = {
   price: number
   city: string | null
   description: string | null
+  modifications: string[] | null
   status: 'active' | 'draft'
   seller_id: string
   bike_images: ExistingImage[]
@@ -63,8 +64,9 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const [style, setStyle]   = useState(bike.style)
 
   // ── Step 2: Details ───────────────────────────────
-  const [mileage, setMileage]         = useState(bike.mileage_km ? String(bike.mileage_km) : '')
-  const [description, setDescription] = useState(bike.description ?? '')
+  const [mileage, setMileage]             = useState(bike.mileage_km ? String(bike.mileage_km) : '')
+  const [description, setDescription]     = useState(bike.description ?? '')
+  const [modifications, setModifications] = useState<string[]>(bike.modifications?.length ? bike.modifications : [''])
 
   // ── Step 3: Photos ────────────────────────────────
   const sorted = [...bike.bike_images].sort((a, b) => {
@@ -158,7 +160,8 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
       style,
       mileage_km:  mileage ? parseInt(mileage) : null,
       price:       parseFloat(price.replace(/[^0-9.]/g, '')),
-      description: description.trim() || null,
+      description:   description.trim() || null,
+      modifications: modifications.map(m => m.trim()).filter(Boolean),
       status,
     }).eq('id', bike.id)
 
@@ -321,6 +324,40 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               rows={5} placeholder="Erzähl die Geschichte des Bikes — Umbauten, besondere Parts, Zustand…"
               className={`${inputClass} resize-none leading-relaxed`} />
             <p className="text-xs text-[#222222]/25 mt-1">{description.length} / 2000 Zeichen</p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Umbauten & Modifikationen</label>
+            <div className="flex flex-col gap-2">
+              {modifications.map((mod, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    value={mod}
+                    onChange={e => {
+                      const next = [...modifications]
+                      next[i] = e.target.value
+                      setModifications(next)
+                    }}
+                    placeholder="z.B. Tiefer gelegter Rahmen (handgeschweißt)"
+                    className={inputClass}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setModifications(prev => prev.filter((_, idx) => idx !== i))}
+                    className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-[#222222]/8 text-[#222222]/30 hover:text-[#222222] hover:border-[#222222]/20 transition-all"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setModifications(prev => [...prev, ''])}
+                className="flex items-center gap-2 text-xs font-semibold text-[#717171] hover:text-[#222222] transition-colors mt-1"
+              >
+                <Plus size={13} /> Umbau hinzufügen
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-between pt-2">
