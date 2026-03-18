@@ -39,6 +39,7 @@ export type Builder = {
   bases: string[]
   instagram?: string
   website?: string
+  avatarUrl?: string
   media: BuilderMedia[]
   team?: TeamMember[]
   openingHours?: OpeningHours[]

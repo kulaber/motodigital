@@ -70,7 +70,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, avatar_url')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
@@ -140,6 +140,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     bases:       (row.bases as string[] | null) ?? [],
     instagram:   (row.instagram_url as string | null) ?? undefined,
     website:     (row.website_url as string | null) ?? undefined,
+    avatarUrl:   (row.avatar_url as string | null) ?? undefined,
     media,
     featuredBuilds,
   }
@@ -230,8 +231,13 @@ export default async function BuilderProfilePage({ params }: Props) {
           <div className="max-w-7xl mx-auto flex items-end gap-4">
 
             {/* Logo / Avatar */}
-            <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 flex items-center justify-center shadow-lg">
-              <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
+            <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
+              {builder.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={builder.avatarUrl} alt={builder.name} className="w-full h-full object-cover" />
+              ) : (
+                <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
+              )}
             </div>
 
             {/* Text */}
