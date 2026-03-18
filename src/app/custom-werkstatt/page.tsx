@@ -3,22 +3,11 @@ import Header from '@/components/layout/Header'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
 import BuilderPageClient from './BuilderPageClient'
 import { createClient } from '@/lib/supabase/server'
+import { cityFromAddress } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Custom Werkstatt finden — Verzeichnis | MotoDigital',
   description: 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt — kostenlos auf MotoDigital.',
-}
-
-/** Extract city from a Mapbox address string, e.g. "Frankfurter Straße 20, 03185 Peitz, Deutschland" → "Peitz" */
-function cityFromAddress(address: string): string {
-  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
-  if (parts.length >= 2) {
-    // Second-to-last part before country, strip leading postal code
-    const segment = parts[parts.length - 2]
-    const match = segment.match(/^\d+\s+(.+)$/)
-    return match ? match[1] : segment
-  }
-  return address
 }
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {

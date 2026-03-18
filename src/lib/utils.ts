@@ -37,6 +37,17 @@ export function formatRelativeTime(date: string): string {
   return date
 }
 
+/** Extract city from a Mapbox address string, e.g. "Frankfurter Straße 20, 03185 Peitz, Deutschland" → "Peitz" */
+export function cityFromAddress(address: string): string {
+  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
+  if (parts.length >= 2) {
+    const segment = parts[parts.length - 2]
+    const match = segment.match(/^\d+\s+(.+)$/)
+    return match ? match[1] : segment
+  }
+  return address
+}
+
 /** Supabase Storage public URL helper */
 export function storageUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${path}`

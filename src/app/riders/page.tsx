@@ -4,20 +4,11 @@ import Footer from '@/components/layout/Footer'
 import { RIDERS, type Rider, type RiderBike } from '@/lib/data/riders'
 import RidersPageClient from './RidersPageClient'
 import { createClient } from '@/lib/supabase/server'
+import { cityFromAddress } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Motorcycle Rider Community — Profile & Custom Bikes | MotoDigital',
   description: 'Vernetze dich mit leidenschaftlichen Custom Motorcycle Ridern in Europa. Profile, Bikes und Community auf MotoDigital.',
-}
-
-function cityFromAddress(address: string): string {
-  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
-  if (parts.length >= 2) {
-    const segment = parts[parts.length - 2]
-    const match = segment.match(/^\d+\s+(.+)$/)
-    return match ? match[1] : segment
-  }
-  return address
 }
 
 export default async function RidersPage() {

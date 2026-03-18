@@ -10,6 +10,7 @@ import { BUILDERS } from '@/lib/data/builders'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
+import { cityFromAddress } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
@@ -31,16 +32,6 @@ const USPS = [
   { icon: <MessageCircle size={20} className="text-[#717171]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
   { icon: <ShieldCheck size={20} className="text-[#717171]" />,  title: 'Marketplace',       desc: 'Bald: Custom Builds kaufen & verkaufen — direkt vom Builder.' },
 ]
-
-function cityFromAddress(address: string): string {
-  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
-  if (parts.length >= 2) {
-    const segment = parts[parts.length - 2]
-    const match = segment.match(/^\d+\s+(.+)$/)
-    return match ? match[1] : segment
-  }
-  return address
-}
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {
   const name    = (row.full_name as string | null) ?? 'Unbekannt'
