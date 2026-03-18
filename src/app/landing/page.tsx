@@ -5,6 +5,7 @@ import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
+import QuickSearch from '@/components/landing/QuickSearch'
 import { BUILDERS } from '@/lib/data/builders'
 import BuilderMarquee from '@/components/ui/BuilderMarquee'
 
@@ -36,45 +37,56 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <Header activePage="landing" />
 
-      {/* ── HERO ── */}
-      <section className="relative min-h-screen flex flex-col justify-end pb-16 lg:pb-24 overflow-hidden">
-        <video
-          autoPlay muted loop playsInline preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[#1a1a1a]/50" />
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to bottom, rgba(20,20,20,0.55) 0%, rgba(20,20,20,0.1) 38%, rgba(20,20,20,0.85) 80%, rgba(20,20,20,0.97) 100%)'
-        }} />
+      {/* ── QUICK SEARCH ── */}
+      <section className="bg-white py-4 sm:py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+          <QuickSearch />
+        </div>
+      </section>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 lg:px-8 w-full">
-          <div className="max-w-2xl">
-            <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
-              Beta — Jetzt registrieren
-            </span>
-            <h1
-              className="animate-slide-up font-bold text-white leading-[1.1] mb-5"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.6rem)', animationDelay: '60ms' }}
+      {/* ── HERO VIDEO ── */}
+      <section className="bg-white pb-8 sm:pb-12 lg:pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+          <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-[#222222]/10">
+            <video
+              autoPlay muted loop playsInline preload="metadata"
+              className="w-full aspect-[4/3] sm:aspect-video lg:aspect-[21/9] object-cover"
             >
-              Entdecke die Welt<br />der Custom Bikes
-            </h1>
-            <p
-              className="animate-slide-up text-white/60 font-light mb-8 leading-relaxed max-w-[55ch]"
-              style={{ fontSize: 'clamp(0.9rem, 1.5vw, 1.05rem)', animationDelay: '120ms' }}
-            >
-              Finde Builder, kaufe Builds, starte dein Projekt — die Plattform für Custom Motorrad Kultur.
-            </p>
-            <div className="animate-slide-up flex flex-col sm:flex-row gap-3 mb-12" style={{ animationDelay: '180ms' }}>
-              <Link href="/custom-werkstatt"
-                className="bg-[#06a5a5] text-white font-semibold px-7 py-3.5 rounded-full text-sm text-center hover:bg-[#058f8f] transition-colors duration-200 hover:-translate-y-0.5 transform min-h-[44px] flex items-center justify-center">
-                Custom Werkstatt finden
-              </Link>
-              <Link href="/bikes"
-                className="border border-white/25 text-white font-medium px-7 py-3.5 rounded-full text-sm text-center hover:border-white/60 hover:bg-white/10 transition-colors duration-200 min-h-[44px] flex items-center justify-center">
-                Custom Bikes ansehen
-              </Link>
+              <source src="/custombike_intro.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-[#1a1a1a]/45" />
+            <div className="absolute inset-0" style={{
+              background: 'linear-gradient(to bottom, rgba(20,20,20,0.3) 0%, rgba(20,20,20,0.1) 40%, rgba(20,20,20,0.6) 75%, rgba(20,20,20,0.85) 100%)'
+            }} />
+
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-5 sm:p-8 lg:p-12 text-center">
+              <div className="max-w-2xl">
+                <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full mb-4 sm:mb-5">
+                  Beta — Jetzt registrieren
+                </span>
+                <h1
+                  className="animate-slide-up font-bold text-white leading-[1.1] mb-3 sm:mb-4"
+                  style={{ fontSize: 'clamp(1.4rem, 4vw, 3.2rem)', animationDelay: '60ms' }}
+                >
+                  Entdecke die Welt<br />der Custom Bikes
+                </h1>
+                <p
+                  className="animate-slide-up text-white/60 font-light mb-5 sm:mb-6 leading-relaxed max-w-[50ch] hidden sm:block"
+                  style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1rem)', animationDelay: '120ms' }}
+                >
+                  Finde Builder, kaufe Builds, starte dein Projekt — die Plattform für Custom Motorrad Kultur.
+                </p>
+                <div className="animate-slide-up flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center" style={{ animationDelay: '180ms' }}>
+                  <Link href="/custom-werkstatt"
+                    className="bg-[#06a5a5] text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:bg-[#058f8f] transition-colors duration-200 hover:-translate-y-0.5 transform min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
+                    Custom Werkstatt finden
+                  </Link>
+                  <Link href="/bikes"
+                    className="border border-white/25 text-white font-medium px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:border-white/60 hover:bg-white/10 transition-colors duration-200 min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
+                    Custom Bikes ansehen
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
