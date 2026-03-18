@@ -117,7 +117,7 @@ export default function CommunityCircle() {
 
           {/* Werkstatt — top left */}
           <div className="md-node md-n0 absolute flex flex-col items-center gap-3" style={{ left: 18, top: 12 }}>
-            <div className="w-40 h-32 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
               <img src="/custom-werkstatt.png" alt="Werkstatt" className="w-full h-full object-contain" />
             </div>
             <div className="text-center">
@@ -128,7 +128,7 @@ export default function CommunityCircle() {
 
           {/* Käufer — top right */}
           <div className="md-node md-n1 absolute flex flex-col items-center gap-3" style={{ right: 18, top: 12 }}>
-            <div className="w-40 h-32 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
               <img src="/custom-bikes.png" alt="Käufer" className="w-full h-full object-contain" />
             </div>
             <div className="text-center">
@@ -138,8 +138,8 @@ export default function CommunityCircle() {
           </div>
 
           {/* Rider — bottom center, top=371 centers card on dot y=435 */}
-          <div className="md-node md-n2 absolute flex flex-col items-center gap-3" style={{ left: 'calc(50% - 80px)', top: 371 }}>
-            <div className="w-40 h-32 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
+          <div className="md-node md-n2 absolute flex flex-col items-center gap-3" style={{ left: 'calc(50% - 96px)', top: 363 }}>
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
               <img src="/rider.png" alt="Rider" className="w-full h-full object-contain" />
             </div>
             <div className="text-center">
