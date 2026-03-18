@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import { Star, Bike, Wrench, ChevronRight } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 export const metadata: Metadata = { title: 'Merkliste — MotoDigital' }
 
@@ -14,6 +15,7 @@ type SavedBike = {
   created_at: string
   bikes: {
     id: string
+    slug: string | null
     title: string
     price: number | null
     make: string
@@ -54,7 +56,7 @@ export default async function MerklistePage({
   const [savedBikesResult, savedBuildersResult] = await Promise.all([
     (supabase
       .from('saved_bikes')
-      .select('bike_id, created_at, bikes(id, title, price, make, model, year, status, bike_images(url, is_cover), profiles:seller_id(full_name, username))')
+      .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(url, is_cover), profiles:seller_id(full_name, username))')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBike[] | null }>),
     (supabase
@@ -147,7 +149,7 @@ export default async function MerklistePage({
                   return (
                     <Link
                       key={entry.bike_id}
-                      href={`/bikes/${bike.id}`}
+                      href={`/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`}
                       className="group block bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/6"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">

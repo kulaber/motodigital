@@ -318,7 +318,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </div>
                 )
                 return build.slug ? (
-                  <Link key={build.title} href={`/bikes/${build.slug}`}>{card}</Link>
+                  <Link key={build.title} href={`/custom-bike/${build.slug}`}>{card}</Link>
                 ) : (
                   <div key={build.title}>{card}</div>
                 )

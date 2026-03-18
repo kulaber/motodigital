@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { MapPin, BadgeCheck } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import SwipeableImages from '@/components/ui/SwipeableImages'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type Bike = Pick<BikeRow, 'id' | 'title' | 'price' | 'style' | 'year' | 'city' | 'mileage_km' | 'is_verified'> & {
+  slug?: string | null
   bike_images?: { url: string; is_cover: boolean }[]
 }
 
@@ -21,6 +23,7 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 export default function BikeCard({ bike, highlighted = false }: Props) {
+  const bikeHref = `/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`
   const images = bike.bike_images ?? []
   const sorted = [
     ...images.filter(i => i.is_cover),
@@ -37,7 +40,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
       }
     `}>
       {/* Swipeable gallery — outside Link so touch events work */}
-      <Link href={`/bikes/${bike.id}`} className="block relative">
+      <Link href={bikeHref} className="block relative">
         {sorted.length > 0 ? (
           <div className="relative">
             <SwipeableImages images={sorted} aspectClass="aspect-[4/3]" />
@@ -63,7 +66,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
       </Link>
 
       {/* Content — separate link */}
-      <Link href={`/bikes/${bike.id}`} className="block p-3.5">
+      <Link href={bikeHref} className="block p-3.5">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className="text-sm font-semibold text-[#222222] leading-snug line-clamp-1">
             {bike.title}
