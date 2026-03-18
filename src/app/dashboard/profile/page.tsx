@@ -20,6 +20,8 @@ export default async function ProfileEditPage() {
     .eq('id', user.id)
     .maybeSingle()
 
+  if (profile?.role === 'superadmin') redirect('/dashboard')
+
   const isRider = profile?.role === 'rider'
 
   if (isRider) {

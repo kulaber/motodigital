@@ -55,7 +55,7 @@ export default async function DashboardPage() {
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
   const isRider = profile?.role === 'rider'
-  const isBuilder = profile?.role === 'custom-werkstatt' || profile?.role === 'superadmin'
+  const isBuilder = profile?.role === 'custom-werkstatt'
   const isSuperAdmin = profile?.role === 'superadmin'
 
   // Superadmin platform stats
