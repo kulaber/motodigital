@@ -72,7 +72,80 @@ export default function CommunityCircle() {
           </p>
         </div>
 
-        <div className="relative mx-auto" style={{ width: '100%', maxWidth: 640, height: 560 }}>
+        {/* ── Mobile layout — triangle adapted for portrait ── */}
+        {/* ViewBox 320×420. Logo center: (160,32). W:(64,168). K:(256,168). R:(160,360) */}
+        <div className="lg:hidden relative mx-auto" style={{ width: '100%', maxWidth: 320, height: 420 }}>
+
+          {/* SVG connections */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 320 420" fill="none">
+            {/* Outer triangle — node to node */}
+            <line stroke="#06a5a5" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" x1="64" y1="168" x2="256" y2="168" />
+            <line stroke="#06a5a5" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" x1="64" y1="168" x2="160" y2="360" />
+            <line stroke="#06a5a5" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" x1="256" y1="168" x2="160" y2="360" />
+            {/* Spokes from logo */}
+            <line ref={s1} stroke="#06a5a5" strokeWidth="1.5" strokeDasharray="6 5" strokeOpacity="0.6" x1="160" y1="32" x2="64" y2="168" />
+            <line ref={s2} stroke="#06a5a5" strokeWidth="1.5" strokeDasharray="6 5" strokeOpacity="0.6" x1="160" y1="32" x2="256" y2="168" />
+            <line ref={s3} stroke="#06a5a5" strokeWidth="1.5" strokeDasharray="6 5" strokeOpacity="0.6" x1="160" y1="32" x2="160" y2="360" />
+            {/* Midpoint markers */}
+            <circle cx="160" cy="168" r="2.5" fill="#06a5a5" fillOpacity="0.35" />
+            <circle cx="112" cy="264" r="2.5" fill="#06a5a5" fillOpacity="0.35" />
+            <circle cx="208" cy="264" r="2.5" fill="#06a5a5" fillOpacity="0.35" />
+            {/* Endpoint dots */}
+            <circle cx="64"  cy="168" r="3.5" fill="#06a5a5" fillOpacity="0.5" />
+            <circle cx="256" cy="168" r="3.5" fill="#06a5a5" fillOpacity="0.5" />
+            <circle cx="160" cy="360" r="3.5" fill="#06a5a5" fillOpacity="0.5" />
+          </svg>
+
+          {/* Logo — top center */}
+          <div className="absolute" style={{ left: '50%', top: 4, transform: 'translateX(-50%)' }}>
+            <div className="relative w-14 h-14">
+              <div className="md-ring" />
+              <div className="md-ring md-ring-2" />
+              <div className="md-logo relative w-14 h-14 rounded-full bg-[#06a5a5] flex items-center justify-center z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="24" height="24">
+                  <path fill="white" d={LOGO_PATH} />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Werkstatt — left */}
+          <div className="md-node md-n0 absolute flex flex-col items-center gap-2" style={{ left: 0, top: 120 }}>
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
+              <img src="/custom-werkstatt.png" alt="Werkstatt" className="w-full h-full object-contain" />
+            </div>
+            <div className="text-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">01</p>
+              <p className="text-[11px] font-bold text-white/70 mt-0.5">Werkstatt</p>
+            </div>
+          </div>
+
+          {/* Bike Käufer — right */}
+          <div className="md-node md-n1 absolute flex flex-col items-center gap-2" style={{ right: 0, top: 120 }}>
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
+              <img src="/custom-bikes.png" alt="Bike Käufer" className="w-full h-full object-contain" />
+            </div>
+            <div className="text-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">02</p>
+              <p className="text-[11px] font-bold text-white/70 mt-0.5">Bike Käufer</p>
+            </div>
+          </div>
+
+          {/* Rider — bottom center */}
+          <div className="md-node md-n2 absolute flex flex-col items-center gap-2" style={{ left: 'calc(50% - 64px)', top: 312 }}>
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
+              <img src="/rider.png" alt="Rider" className="w-full h-full object-contain" />
+            </div>
+            <div className="text-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">03</p>
+              <p className="text-[11px] font-bold text-white/70 mt-0.5">Rider</p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── Desktop triangle ── */}
+        <div className="hidden lg:block relative mx-auto" style={{ width: '100%', maxWidth: 640, height: 560 }}>
 
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 640 520" fill="none">
             {/* Outer triangle — node to node, animated */}
@@ -148,7 +221,8 @@ export default function CommunityCircle() {
             </div>
           </div>
 
-        </div>
+        </div>{/* end desktop triangle */}
+
       </div>
     </section>
   )
