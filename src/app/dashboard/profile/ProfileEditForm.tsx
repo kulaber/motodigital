@@ -1,10 +1,93 @@
 'use client'
 
 import NextImage from 'next/image'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, User } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, User, MapPin } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
+
+type MapboxFeature = {
+  id: string
+  place_name: string
+  center: [number, number] // [lng, lat]
+}
+
+function AddressAutocomplete({
+  value,
+  onChange,
+}: {
+  value: { address: string; lat: number | null; lng: number | null }
+  onChange: (v: { address: string; lat: number | null; lng: number | null }) => void
+}) {
+  const [query, setQuery] = useState(value.address)
+  const [suggestions, setSuggestions] = useState<MapboxFeature[]>([])
+  const [open, setOpen] = useState(false)
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+
+  useEffect(() => { setQuery(value.address) }, [value.address])
+
+  function handleInput(val: string) {
+    setQuery(val)
+    onChange({ address: val, lat: null, lng: null })
+    if (debounce.current) clearTimeout(debounce.current)
+    if (!val.trim() || !token) { setSuggestions([]); return }
+    debounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(val)}.json?access_token=${token}&language=de&country=de,at,ch&types=address,place&limit=5`
+        )
+        const json = await res.json()
+        setSuggestions(json.features ?? [])
+        setOpen(true)
+      } catch { setSuggestions([]) }
+    }, 280)
+  }
+
+  function select(f: MapboxFeature) {
+    setQuery(f.place_name)
+    setSuggestions([])
+    setOpen(false)
+    onChange({ address: f.place_name, lat: f.center[1], lng: f.center[0] })
+  }
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <MapPin size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#222222]/25 pointer-events-none" />
+        <input
+          value={query}
+          onChange={e => handleInput(e.target.value)}
+          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder="z.B. Greifswalder Str. 212, 10405 Berlin"
+          className="w-full bg-white border border-[#222222]/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#06a5a5] transition-colors"
+        />
+      </div>
+      {open && suggestions.length > 0 && (
+        <ul className="absolute z-50 top-full mt-1 w-full bg-white border border-[#222222]/10 rounded-xl shadow-lg overflow-hidden">
+          {suggestions.map(f => (
+            <li key={f.id}>
+              <button
+                type="button"
+                onMouseDown={() => select(f)}
+                className="w-full text-left px-4 py-2.5 text-sm text-[#222222]/70 hover:bg-[#F7F7F7] transition-colors flex items-start gap-2.5"
+              >
+                <MapPin size={12} className="text-[#06a5a5] flex-shrink-0 mt-0.5" />
+                <span className="leading-snug">{f.place_name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {value.lat && value.lng && (
+        <p className="text-[10px] text-[#06a5a5] mt-1 flex items-center gap-1">
+          <MapPin size={9} /> {value.lat.toFixed(5)}, {value.lng.toFixed(5)} — Koordinaten gespeichert
+        </p>
+      )}
+    </div>
+  )
+}
 
 const LEISTUNGEN = [
   'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
@@ -61,7 +144,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     (profile.tags ?? []).filter(t => LEISTUNGEN.includes(t))
   )
   const [basesInput, setBasesInput] = useState((profile.bases ?? []).join(', '))
-  const [address, setAddress]       = useState(profile.address ?? '')
+  const [addressData, setAddressData] = useState({
+    address: profile.address ?? '',
+    lat: profile.lat ?? null,
+    lng: profile.lng ?? null,
+  })
   const [instagram, setInstagram]   = useState(profile.instagram_url ?? '')
   const [tiktok, setTiktok]         = useState(profile.tiktok_url ?? '')
   const [website, setWebsite]       = useState(profile.website_url ?? '')
@@ -125,7 +212,9 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       avatar_url:   avatarUrl || null,
       tags:         leistungen.length ? leistungen : null,
       bases:        bases.length ? bases : null,
-      address:      address || null,
+      address:      addressData.address || null,
+      lat:          addressData.lat ?? null,
+      lng:          addressData.lng ?? null,
       instagram_url: instagram || null,
       tiktok_url:    tiktok || null,
       website_url:   website || null,
@@ -288,9 +377,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         </Field>
 
         <Field label="Vollständige Anschrift" className="mb-4">
-          <input value={address} onChange={e => setAddress(e.target.value)}
-            placeholder="z.B. Greifswalder Str. 212, 10405 Berlin"
-            className={input} />
+          <AddressAutocomplete value={addressData} onChange={setAddressData} />
         </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
