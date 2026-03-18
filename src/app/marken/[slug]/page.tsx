@@ -7,14 +7,14 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BRANDS, getBrandBySlug } from '@/lib/data/brands'
 import { BUILDS } from '@/lib/data/builds'
+import { createClient } from '@/lib/supabase/server'
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return BRANDS.map(b => ({ slug: b.slug }))
-}
+// Need dynamic rendering for Supabase queries (cookies)
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -31,9 +31,43 @@ export default async function MarkeDetailPage({ params }: Props) {
   const brand = getBrandBySlug(slug)
   if (!brand) notFound()
 
-  const builds = BUILDS.filter(b =>
+  // Static builds filtered by base name
+  const staticBuilds = BUILDS.filter(b =>
     b.base.toLowerCase().startsWith(brand.name.toLowerCase())
   )
+
+  // DB bikes filtered by make column (as set in the form dropdown)
+  const supabase = await createClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: dbBikes } = await (supabase.from('bikes') as any)
+    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
+    .ilike('make', brand.name)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+
+  // Map DB bikes to a renderable format
+  const dbBuilds = (dbBikes ?? []).map((bike: any) => {
+    const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
+    const cover = images.sort((a: any, b: any) => {
+      if (a.is_cover) return -1
+      if (b.is_cover) return 1
+      return a.position - b.position
+    })[0]
+    return {
+      slug: bike.slug ?? bike.id,
+      title: bike.title,
+      base: `${bike.make} ${bike.model}`,
+      style: bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? '',
+      city: bike.city ?? '',
+      coverImg: cover?.url ?? '',
+      isDb: true,
+    }
+  })
+
+  const builds = [
+    ...staticBuilds.map(b => ({ ...b, isDb: false })),
+    ...dbBuilds,
+  ]
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
@@ -113,13 +147,17 @@ export default async function MarkeDetailPage({ params }: Props) {
                   className="group rounded-2xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] hover:shadow-md transition-all"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                    <Image
-                      src={build.coverImg}
-                      alt={build.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 400px"
-                      className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                    />
+                    {build.coverImg ? (
+                      <Image
+                        src={build.coverImg}
+                        alt={build.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#AAAAAA] text-xs">Kein Foto</div>
+                    )}
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
