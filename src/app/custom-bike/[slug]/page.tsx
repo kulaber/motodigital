@@ -57,7 +57,7 @@ export default async function CustomBikePage({ params }: Props) {
   if (!build) {
     // Try loading from Supabase — first by slug column, then by UUID
     const supabase = await createClient()
-    const select = 'id, title, make, model, year, style, city, price, description, seller_id, slug, profiles(full_name), bike_images(url, is_cover, position)'
+    const select = 'id, title, make, model, year, style, city, price, description, seller_id, slug, bike_images(url, is_cover, position)'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: bike } = await (supabase.from('bikes') as any)
@@ -77,6 +77,13 @@ export default async function CustomBikePage({ params }: Props) {
 
     if (!bike) notFound()
 
+    // Fetch seller name separately to avoid join issues
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: sellerProfile } = await (supabase.from('profiles') as any)
+      .select('full_name')
+      .eq('id', bike.seller_id)
+      .maybeSingle()
+
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = rawImages
       .sort((a: any, b: any) => {
@@ -87,7 +94,7 @@ export default async function CustomBikePage({ params }: Props) {
       .map((i: any) => i.url)
       .filter(Boolean)
 
-    const sellerName: string = bike.profiles?.full_name ?? ''
+    const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
     const price = bike.price ? `€ ${Number(bike.price).toLocaleString('de-DE')}` : null
     const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
@@ -153,24 +160,25 @@ export default async function CustomBikePage({ params }: Props) {
               <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
                 <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Custom Werkstatt</p>
                 {sellerName && (
-                  <div className="flex items-center gap-3 mb-4 p-3 bg-[#F7F7F7] rounded-xl">
-                    <div className="w-10 h-10 rounded-xl bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-                      {sellerInitials}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#222222]">{sellerName}</p>
-                      {bike.city && <p className="text-xs text-[#717171]">{bike.city}</p>}
-                    </div>
-                  </div>
+                  <p className="text-xs text-[#717171] leading-relaxed mb-4">Gebaut von {sellerName}</p>
                 )}
-                {price && (
-                  <div className="mb-4 text-center py-3 bg-[#F7F7F7] rounded-xl">
-                    <p className="text-2xl font-bold text-[#222222] tracking-tight">{price}</p>
+                <div className="flex items-center gap-3 mb-4 p-3 bg-[#F7F7F7] rounded-xl">
+                  <div className="w-10 h-10 rounded-xl bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                    {sellerInitials}
                   </div>
-                )}
-                <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
-                  Werkstatt kontaktieren
-                </button>
+                  <div>
+                    <p className="text-sm font-semibold text-[#222222]">{sellerName || '—'}</p>
+                    {bike.city && <p className="text-xs text-[#717171]">{bike.city}</p>}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
+                    Werkstatt kontaktieren
+                  </button>
+                  <button className="w-full text-center text-sm font-medium text-[#717171] hover:text-[#222222] transition-colors py-2">
+                    Profil ansehen →
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
@@ -216,13 +224,11 @@ export default async function CustomBikePage({ params }: Props) {
           </div>
         </div>
 
-        {price && (
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
-            <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#222222] text-white rounded-xl py-3">
-              {price} · Werkstatt kontaktieren
-            </button>
-          </div>
-        )}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
+          <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
+            Werkstatt kontaktieren
+          </button>
+        </div>
 
         <Footer />
       </div>
