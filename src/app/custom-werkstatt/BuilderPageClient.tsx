@@ -12,8 +12,6 @@ import { createClient } from '@/lib/supabase/client'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-const SPECIALTIES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
-
 const LEISTUNGEN = [
   'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
   'Pulverbeschichtung', 'Schweißen', 'Fräsen', 'Sandstrahlen', 'Verzinken',
@@ -256,13 +254,13 @@ export default function BuilderPageClient({ builders }: Props) {
   }, [builders, activeSpecialty])
 
   const filtered = useMemo(() => builders.filter(b => {
-    const specOk       = activeSpecialty === 'Alle' ||
-      b.specialty.split('·').map(s => s.trim()).includes(activeSpecialty)
-    const leistungOk   = activeLeistung === 'Alle' || b.tags.includes(activeLeistung)
+    const specOk       = effectiveSpecialty === 'Alle' ||
+      b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
+    const leistungOk   = effectiveLeistung === 'Alle' || b.tags.includes(effectiveLeistung)
     const verifiedOk   = !onlyVerified || b.verified
     const openOk       = !onlyOpen || !now || isOpenNow(b.openingHours, now)
     return specOk && leistungOk && verifiedOk && openOk
-  }), [builders, activeSpecialty, activeLeistung, onlyVerified, onlyOpen, now])
+  }), [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
     if (!mapReady || !mapBounds) return []
@@ -485,18 +483,9 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── auto-clear filters when selection no longer available ── */
-  useEffect(() => {
-    if (activeLeistung !== 'Alle' && !availableLeistungen.includes(activeLeistung)) {
-      setActiveLeistung('Alle')
-    }
-  }, [availableLeistungen, activeLeistung])
-
-  useEffect(() => {
-    if (activeSpecialty !== 'Alle' && !availableSpecialties.includes(activeSpecialty)) {
-      setActiveSpecialty('Alle')
-    }
-  }, [availableSpecialties, activeSpecialty])
+  /* ── derive effective filter values — auto-reset if selection no longer available ── */
+  const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
+  const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
 
   /* ── scroll list to top on filter change ── */
   useEffect(() => {

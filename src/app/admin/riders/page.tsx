@@ -57,9 +57,10 @@ export default async function AdminRidersPage() {
   const verifiedCount = riders.filter(r => r.is_verified).length
   const confirmedCount = riders.filter(r => r.email_confirmed).length
 
+  const now = new Date().getTime()
   function timeAgo(iso: string | null) {
     if (!iso) return '—'
-    const diff = Date.now() - new Date(iso).getTime()
+    const diff = now - new Date(iso).getTime()
     const days = Math.floor(diff / 86400000)
     if (days === 0) return 'Heute'
     if (days === 1) return 'Gestern'

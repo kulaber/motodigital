@@ -11,8 +11,6 @@ function isNew(publishedAt?: string): boolean {
 }
 import type { Build } from '@/lib/data/builds'
 
-const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
-
 function getMake(base: string) { return base.split(' ')[0] }
 function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
 
