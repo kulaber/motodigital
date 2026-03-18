@@ -80,7 +80,7 @@ export default async function CustomBikePage({ params }: Props) {
     // Fetch seller name separately to avoid join issues
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: sellerProfile } = await (supabase.from('profiles') as any)
-      .select('full_name, city, username')
+      .select('full_name, city, slug')
       .eq('id', bike.seller_id)
       .maybeSingle()
 
@@ -96,7 +96,7 @@ export default async function CustomBikePage({ params }: Props) {
 
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
-    const sellerProfileHref = sellerProfile?.username ? `/custom-werkstatt/${sellerProfile.username}` : null
+    const sellerProfileHref = sellerProfile?.slug ? `/custom-werkstatt/${sellerProfile.slug}` : null
     const price = bike.price ? `€ ${Number(bike.price).toLocaleString('de-DE')}` : null
     const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
