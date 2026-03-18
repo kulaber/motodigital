@@ -1,9 +1,9 @@
 'use client'
 
 import NextImage from 'next/image'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin, X, AlertCircle } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin, AlertCircle } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
 type MapboxFeature = {
@@ -24,8 +24,6 @@ function AddressAutocomplete({
   const [open, setOpen] = useState(false)
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-
-  useEffect(() => { setQuery(value.address) }, [value.address])
 
   function handleInput(val: string) {
     setQuery(val)

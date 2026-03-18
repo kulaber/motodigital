@@ -1,5 +1,20 @@
 # MotoDigital — Claude Code Configuration
 
+---
+
+## 🚨 WICHTIGE REGELN — IMMER BEACHTEN
+
+> Diese Regeln gelten ab dem ersten Start jeder Session. Keine Ausnahmen.
+
+1. **Kein `git push` ohne explizite Erlaubnis.** Nach einem Commit immer fragen: "Soll ich pushen?" — nie automatisch pushen.
+2. **Kein Vercel-Deployment.** Weder `vercel` noch `vercel --prod` ausführen — nie, außer der User sagt es explizit.
+3. **Kein lokaler Dev-Server starten** (`pnpm dev`, `npm run dev`, `next dev`) ohne vorher zu fragen.
+4. **Alles läuft lokal**, bis der User explizit "pushen" oder "deployen" sagt.
+
+**Warum:** Jeder Push auf `main` triggert ein Vercel-Deployment und verbraucht Quota. Der User hat sein Limit durch unerlaubte Pushes erreicht.
+
+---
+
 > Motorcycle marketplace for custom bikes, builders & workshops.
 > Stack: Next.js 15 · Tailwind CSS v4 · shadcn/ui · Supabase · Mapbox GL JS · Cloudinary · Vercel
 

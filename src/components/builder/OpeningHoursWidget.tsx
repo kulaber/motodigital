@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock } from 'lucide-react'
 import type { OpeningHours } from '@/lib/data/builders'
 import { calcOpenStatus, parseDays, nextOpening } from '@/lib/utils/openingHours'
 
