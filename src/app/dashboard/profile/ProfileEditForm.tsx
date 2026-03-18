@@ -209,7 +209,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
   async function handleAvatarUpload(file: File) {
     setUploading(true)
-    setError(null)
     try {
       const compressed = await compressImage(file, 800, 0.85)
       const ext  = file.name.split('.').pop()
@@ -262,7 +261,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   async function handleMediaUpload(files: FileList | null, type: 'image' | 'video') {
     if (!files || files.length === 0) return
     setUploading(true)
-    setError(null)
 
     for (const rawFile of Array.from(files)) {
       const file = type === 'image' ? await compressImage(rawFile) : rawFile
