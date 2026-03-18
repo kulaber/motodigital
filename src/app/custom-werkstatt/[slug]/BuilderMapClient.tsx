@@ -10,5 +10,5 @@ export default function BuilderMapClient(props: {
   name: string
   address?: string | null
 }) {
-  return <BuilderMap {...props} />
+  return <BuilderMap lat={props.lat} lng={props.lng} name={props.name} address={props.address ?? undefined} />
 }
