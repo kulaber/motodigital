@@ -12,6 +12,7 @@ import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 export const dynamicParams = true
 
@@ -84,7 +85,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       .eq('builder_id', row.id)
       .order('position', { ascending: true }),
     (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, price, bike_images(url, is_cover)')
+      .select('id, slug, title, make, model, year, style, price, bike_images(url, is_cover)')
       .eq('seller_id', row.id)
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
@@ -103,7 +104,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     const coverImg = images.find(i => i.is_cover)?.url ?? images[0]?.url ?? null
     return {
       title: b.title as string,
-      slug:  b.id as string,
+      slug:  (b.slug as string | null) ?? generateBikeSlug(b.title as string, b.id as string),
       base:  [b.make, b.model].filter(Boolean).join(' '),
       style: (b.style as string) ?? '',
       year:  (b.year as number) ?? new Date().getFullYear(),
