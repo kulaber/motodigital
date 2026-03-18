@@ -94,7 +94,7 @@ export default function AdminEditRiderPage() {
       const supabase = createClient()
       const compressed = await compressImage(file, 800, 0.85)
       const ext  = file.name.split('.').pop()
-      const path = `avatars/${id}.${ext}`
+      const path = `${id}/avatar.${ext}`
       const { error: upErr } = await supabase.storage
         .from('builder-media')
         .upload(path, compressed, { upsert: true })

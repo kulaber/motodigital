@@ -47,7 +47,7 @@ export default function RiderProfileEditForm({ profile }: Props) {
     try {
       const compressed = await compressImage(file, 800, 0.85)
       const ext  = file.name.split('.').pop()
-      const path = `avatars/${profile.id}.${ext}`
+      const path = `${profile.id}/avatar.${ext}`
       const { error: upErr } = await supabase.storage
         .from('builder-media')
         .upload(path, compressed, { upsert: true })

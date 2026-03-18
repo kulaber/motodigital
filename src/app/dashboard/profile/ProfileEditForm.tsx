@@ -3,7 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin, X, AlertCircle } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
 type MapboxFeature = {
@@ -89,6 +89,41 @@ function AddressAutocomplete({
   )
 }
 
+/* ── Toast ─────────────────────────────────────────────────────── */
+type ToastType = 'success' | 'error'
+type Toast = { id: number; type: ToastType; message: string }
+
+function useToast() {
+  const [toasts, setToasts] = useState<Toast[]>([])
+  function show(type: ToastType, message: string) {
+    const id = Date.now()
+    setToasts(t => [...t, { id, type, message }])
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4000)
+  }
+  return { toasts, success: (m: string) => show('success', m), error: (m: string) => show('error', m) }
+}
+
+function ToastContainer({ toasts }: { toasts: Toast[] }) {
+  if (!toasts.length) return null
+  return (
+    <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-2 pointer-events-none">
+      {toasts.map(t => (
+        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-sm font-medium pointer-events-auto animate-in slide-in-from-bottom-4 fade-in duration-300 ${
+          t.type === 'success'
+            ? 'bg-[#222222] text-white'
+            : 'bg-red-500 text-white'
+        }`}>
+          {t.type === 'success'
+            ? <CheckCircle size={15} className="flex-shrink-0 text-[#06a5a5]" />
+            : <AlertCircle size={15} className="flex-shrink-0 text-white" />
+          }
+          {t.message}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const LEISTUNGEN = [
   'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
   'Pulverbeschichtung', 'Schweißen', 'Fräsen', 'Sandstrahlen', 'Verzinken',
@@ -161,9 +196,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [media, setMedia]           = useState<MediaItem[]>(initialMedia)
   const [uploading, setUploading]   = useState(false)
   const [saving, setSaving]         = useState(false)
-  const [saved, setSaved]           = useState(false)
-  const [error, setError]           = useState<string | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
+  const { toasts, success: toastSuccess, error: toastError } = useToast()
   const videoInput = useRef<HTMLInputElement>(null)
   const avatarInput = useRef<HTMLInputElement>(null)
 
@@ -179,7 +213,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     try {
       const compressed = await compressImage(file, 800, 0.85)
       const ext  = file.name.split('.').pop()
-      const path = `avatars/${profile.id}.${ext}`
+      const path = `${profile.id}/avatar.${ext}`
       const { error: upErr } = await supabase.storage
         .from('builder-media')
         .upload(path, compressed, { upsert: true })
@@ -190,7 +224,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       setAvatarUrl(publicUrl)
       setAvatarCacheBust(`?t=${Date.now()}`)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen')
+      toastError(e instanceof Error ? e.message : 'Logo-Upload fehlgeschlagen')
     } finally {
       setUploading(false)
     }
@@ -199,8 +233,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setError(null)
-    setSaved(false)
 
     const bases = basesInput.split(',').map(t => t.trim()).filter(Boolean)
     const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
@@ -222,8 +254,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       website_url:   website || null,
     }).eq('id', profile.id)
 
-    if (err) setError(err.message)
-    else setSaved(true)
+    if (err) toastError(err.message)
+    else toastSuccess('Profil gespeichert')
     setSaving(false)
   }
 
@@ -242,7 +274,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         .from('builder-media')
         .upload(path, file, { upsert: false })
 
-      if (uploadErr) { setError(uploadErr.message); continue }
+      if (uploadErr) { toastError(uploadErr.message); continue }
 
       const { data: { publicUrl } } = supabase.storage
         .from('builder-media')
@@ -257,7 +289,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         position:   media.length,
       }).select().maybeSingle()
 
-      if (insertErr) { setError(insertErr.message); continue }
+      if (insertErr) { toastError(insertErr.message); continue }
       setMedia(prev => [...prev, row as MediaItem])
     }
 
@@ -278,6 +310,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
   return (
     <div className="flex flex-col gap-6">
+      <ToastContainer toasts={toasts} />
 
       {/* ── PROFILE FORM ── */}
       <form onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
@@ -403,20 +436,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           </Field>
         </div>
 
-        {error && (
-          <p className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2 mb-4">{error}</p>
-        )}
-
         <div className="flex items-center gap-3">
           <button type="submit" disabled={saving}
             className="bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-50 transition-all">
             {saving ? 'Wird gespeichert...' : 'Änderungen speichern'}
           </button>
-          {saved && (
-            <span className="flex items-center gap-1.5 text-xs text-green-400">
-              <CheckCircle size={13} /> Gespeichert
-            </span>
-          )}
         </div>
       </form>
 
