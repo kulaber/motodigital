@@ -398,10 +398,7 @@ export default function Header({ activePage }: Props) {
 
             {/* ── Custom Werkstatt ── */}
             <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
-              <span className="flex items-center gap-2.5">
-                <Image src="/custom-werkstatt.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
-                Custom Werkstatt
-              </span>
+              Custom Werkstatt
             </Link>
 
             {/* ── Custom Bikes accordion ── */}
@@ -410,7 +407,6 @@ export default function Header({ activePage }: Props) {
               className={mobileNavLink(activePage === 'bikes')}
             >
               <span className="flex items-center gap-2.5">
-                <Image src="/custom-bikes.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
                 Custom Bikes
               </span>
               <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
@@ -427,10 +423,7 @@ export default function Header({ activePage }: Props) {
 
             {/* ── Rider ── */}
             <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
-              <span className="flex items-center gap-2.5">
-                <Image src="/rider.png" alt="" width={24} height={24} className="object-contain flex-shrink-0" />
-                Rider
-              </span>
+              Rider
             </Link>
 
 
