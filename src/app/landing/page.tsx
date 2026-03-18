@@ -172,14 +172,14 @@ export default function LandingPage() {
       <section className="py-20 lg:py-28 bg-white overflow-hidden" id="builder">
         <AnimateIn className="max-w-6xl mx-auto px-5 lg:px-8 flex items-end justify-between mb-10 gap-4">
           <div>
-            <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Builder Spotlight</p>
+            <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Werkstatt Spotlight</p>
             <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
-              Die Menschen<br />
-              <span className="text-[#222222]/25">hinter den Bikes.</span>
+              Finde die besten Werkstätten<br />
+              <span className="text-[#222222]/25">für Deinen Umbau.</span>
             </h2>
           </div>
           <Link href="/custom-werkstatt" className="flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
-            Alle Builder →
+            Alle Custom Werkstätten →
           </Link>
         </AnimateIn>
         <BuilderMarquee builders={BUILDERS.slice(0, 10)} />
