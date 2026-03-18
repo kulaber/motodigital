@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, Calendar, Wrench, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import BuildGallery from '@/components/build/BuildGallery'
 
@@ -37,7 +38,7 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
 
         {/* Back */}
-        <Link href="/builds" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+        <Link href="/bikes" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
           <ArrowLeft size={13} /> Custom Bikes
         </Link>
 
@@ -179,9 +180,9 @@ export default async function CustomBikePage({ params }: Props) {
         {/* Related builds */}
         <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-semibold text-[#222222]">Weitere Builds</h2>
-            <Link href="/builds" className="text-xs text-[#717171] hover:text-[#222222] transition-colors">
-              Alle ansehen →
+            <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
+            <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
+              Alle Custom Bikes ansehen →
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -213,6 +214,8 @@ export default async function CustomBikePage({ params }: Props) {
           {build.builder.name} kontaktieren
         </Link>
       </div>
+
+      <Footer />
     </div>
   )
 }

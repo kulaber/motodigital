@@ -115,7 +115,7 @@ export default function LandingPage() {
                 <span className="text-[#222222]/25">Aus der Community.</span>
               </h2>
             </div>
-            <Link href="/builds" className="flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+            <Link href="/bikes" className="flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
               Alle ansehen →
             </Link>
           </AnimateIn>

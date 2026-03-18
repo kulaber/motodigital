@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
 import BuilderPageClient from './BuilderPageClient'
 import { createClient } from '@/lib/supabase/server'
@@ -109,8 +108,6 @@ export default async function BuilderPage() {
       <Header activePage="custom-werkstatt" />
 
       <BuilderPageClient builders={merged} />
-
-      <Footer />
     </div>
   )
 }

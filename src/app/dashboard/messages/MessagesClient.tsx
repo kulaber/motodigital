@@ -18,7 +18,9 @@ interface Props {
 function Avatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
   if (avatarUrl) {
     return (
-      <Image src={avatarUrl} alt={name} width={36} height={36} className="rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
+      <span className="block w-9 h-9 rounded-full overflow-hidden border border-[#222222]/8 flex-shrink-0">
+        <Image src={avatarUrl} alt={name} width={36} height={36} className="w-full h-full object-cover" />
+      </span>
     )
   }
   return (

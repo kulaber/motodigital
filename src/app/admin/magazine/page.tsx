@@ -99,8 +99,8 @@ export default async function AdminMagazinePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 table-cell">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${CATEGORY_COLOR[a.categoryLabel] ?? ''}`}>
+                    <td className="px-4 py-3.5 table-cell w-36">
+                      <span className={`inline-block whitespace-nowrap text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${CATEGORY_COLOR[a.categoryLabel] ?? ''}`}>
                         {a.categoryLabel}
                       </span>
                     </td>

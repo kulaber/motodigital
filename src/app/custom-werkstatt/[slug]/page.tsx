@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
@@ -254,7 +254,6 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
-                {builder.since && <span className="hidden sm:flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>}
                 <StarRating rating={builder.rating} />
               </div>
             </div>

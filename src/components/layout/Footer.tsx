@@ -17,6 +17,7 @@ const NAV = [
   {
     heading: 'Custom Bikes',
     links: [
+      { label: 'Marken',      href: '/marken' },
       { label: 'Cafe Racer',  href: '/bikes/cafe-racer' },
       { label: 'Bobber',      href: '/bikes/bobber' },
       { label: 'Scrambler',   href: '/bikes/scrambler' },

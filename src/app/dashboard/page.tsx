@@ -109,7 +109,9 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             {profile?.avatar_url ? (
-              <Image src={profile.avatar_url} alt="Avatar" width={56} height={56} className="rounded-full object-cover border border-[#222222]/8 flex-shrink-0" />
+              <span className="block w-14 h-14 rounded-full overflow-hidden border border-[#222222]/8 flex-shrink-0">
+                <Image src={profile.avatar_url} alt="Avatar" width={56} height={56} className="w-full h-full object-cover" />
+              </span>
             ) : (
               <div className="w-14 h-14 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center flex-shrink-0">
                 <User size={22} className="text-[#222222]/20" />
@@ -149,40 +151,32 @@ export default async function DashboardPage() {
                   value: adminStats.buildersTotal,
                   sub: 'registriert',
                   icon: <Wrench size={15} />,
-                  color: 'text-[#717171]',
-                  bg: 'bg-[#222222]/8 border-[#222222]/15',
                 },
                 {
                   label: 'Builder LIVE',
                   value: adminStats.buildersLive,
                   sub: 'verifiziert & aktiv',
                   icon: <Radio size={15} />,
-                  color: 'text-green-400',
-                  bg: 'bg-green-500/8 border-green-500/15',
                 },
                 {
                   label: 'Rider registriert',
                   value: adminStats.ridersTotal,
                   sub: 'verifizierte Accounts',
                   icon: <Users size={15} />,
-                  color: 'text-[#222222]',
-                  bg: 'bg-[#222222]/5 border-[#222222]/10',
                 },
                 {
-                  label: 'Rider online',
+                  label: 'Rider LIVE',
                   value: adminStats.ridersOnline,
                   sub: 'letzte 7 Tage',
                   icon: <BarChart3 size={15} />,
-                  color: 'text-amber-400',
-                  bg: 'bg-amber-500/8 border-amber-500/15',
                 },
               ].map(s => (
-                <div key={s.label} className={`rounded-2xl border p-4 ${s.bg}`}>
-                  <div className={`flex items-center gap-2 mb-2 ${s.color} opacity-70`}>
+                <div key={s.label} className="rounded-2xl border border-[#222222]/8 bg-[#222222]/4 p-4">
+                  <div className="flex items-center gap-2 mb-2 text-[#222222]/40">
                     {s.icon}
                     <span className="text-xs">{s.label}</span>
                   </div>
-                  <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-3xl font-bold text-[#222222]">{s.value}</p>
                   <p className="text-xs text-[#222222]/25 mt-0.5">{s.sub}</p>
                 </div>
               ))}
@@ -249,7 +243,8 @@ export default async function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: 'Custom-Werkstatt', desc: 'Profile verwalten & verifizieren', href: '/admin/custom-werkstatt', count: adminStats?.buildersTotal },
+                { label: 'Custom Werkstätte', desc: 'Profile verwalten & verifizieren', href: '/admin/custom-werkstatt', count: adminStats?.buildersTotal },
+                { label: 'Rider', desc: 'Rider verwalten', href: '/admin/riders', count: adminStats?.ridersTotal },
                 { label: 'Magazin', desc: 'Beiträge erstellen & bearbeiten', href: '/admin/magazine', count: null },
                 { label: 'Events', desc: 'Events verwalten', href: '/admin/events', count: null },
               ].map(item => (
@@ -342,7 +337,7 @@ export default async function DashboardPage() {
 
           </div>
 
-        ) : (
+        ) : !isSuperAdmin ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {[
               { label: 'Aktive Inserate', value: activeCount,                   icon: <TrendingUp size={16}/> },
@@ -356,9 +351,9 @@ export default async function DashboardPage() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
 
-        {!isRider && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
+        {!isRider && !isSuperAdmin && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
 
           {/* LEFT */}
           <div className="flex flex-col gap-5">

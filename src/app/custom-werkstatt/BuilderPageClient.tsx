@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
@@ -170,8 +171,8 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
 export default function BuilderPageClient({ builders }: Props) {
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
   const [styleOpen,          setStyleOpen]          = useState(false)
-  const [leistungenOpen,     setLeistungenOpen]     = useState(false)
-  const [selectedLeistungen, setSelectedLeistungen] = useState<Set<string>>(new Set())
+  const [leistungenOpen,  setLeistungenOpen]  = useState(false)
+  const [activeLeistung, setActiveLeistung]  = useState('Alle')
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
   const [now,             setNow]             = useState<Date | null>(null)
@@ -228,20 +229,40 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }
 
+  const listRef         = useRef<HTMLDivElement>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef          = useRef<mapboxgl.Map | null>(null)
   const markersRef      = useRef<mapboxgl.Marker[]>([])
   const addMarkersRef   = useRef<() => void>(() => {})
 
+  // Dynamic Stil options — split combined specialty strings like "Cafe Racer · Scrambler"
+  const availableSpecialties = useMemo(() => {
+    const pool = activeLeistung === 'Alle' ? builders : builders.filter(b => b.tags.includes(activeLeistung))
+    const unique = Array.from(new Set(
+      pool.flatMap(b => b.specialty.split('·').map(s => s.trim())).filter(Boolean)
+    )).sort()
+    return ['Alle', ...unique]
+  }, [builders, activeLeistung])
+
+  // Dynamic Leistungen options — only show tags available given current Stil filter
+  const availableLeistungen = useMemo(() => {
+    const pool = activeSpecialty === 'Alle'
+      ? builders
+      : builders.filter(b =>
+          b.specialty.split('·').map(s => s.trim()).includes(activeSpecialty)
+        )
+    const unique = Array.from(new Set(pool.flatMap(b => b.tags))).sort()
+    return unique.filter(l => LEISTUNGEN.includes(l))
+  }, [builders, activeSpecialty])
+
   const filtered = useMemo(() => builders.filter(b => {
     const specOk       = activeSpecialty === 'Alle' ||
-      b.tags.some(t => t.toLowerCase() === activeSpecialty.toLowerCase()) ||
-      b.specialty.toLowerCase().includes(activeSpecialty.toLowerCase())
-    const leistungOk   = selectedLeistungen.size === 0 || b.tags.some(t => selectedLeistungen.has(t))
+      b.specialty.split('·').map(s => s.trim()).includes(activeSpecialty)
+    const leistungOk   = activeLeistung === 'Alle' || b.tags.includes(activeLeistung)
     const verifiedOk   = !onlyVerified || b.verified
     const openOk       = !onlyOpen || !now || isOpenNow(b.openingHours, now)
     return specOk && leistungOk && verifiedOk && openOk
-  }), [builders, activeSpecialty, selectedLeistungen, onlyVerified, onlyOpen, now])
+  }), [builders, activeSpecialty, activeLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
     if (!mapReady || !mapBounds) return []
@@ -299,40 +320,55 @@ export default function BuilderPageClient({ builders }: Props) {
 
         const inner = document.createElement('div')
 
-        const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
+        const logoSvgWhite = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
+        const logoSvgTeal  = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="#06a5a5" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
 
         if (cluster.members.length > 1) {
-          // ── Cluster marker ──
+          // ── Cluster marker — default: inverted (white bg, teal icon) ──
           inner.style.cssText = `
             width:40px;height:40px;
-            background:#06a5a5;
-            border:2px solid #06a5a5;
+            background:#ffffff;
+            border:2px solid #DDDDDD;
             border-radius:50%;
             display:flex;align-items:center;justify-content:center;
-            box-shadow:0 2px 8px rgba(0,0,0,0.20);
-            transition:transform 0.15s,box-shadow 0.15s;
+            box-shadow:0 2px 8px rgba(0,0,0,0.15);
+            transition:transform 0.15s,box-shadow 0.15s,background 0.15s;
             pointer-events:none;
             position:relative;
           `
-          inner.innerHTML = logoSvg
+          inner.innerHTML = logoSvgTeal
           // Count badge
           const badge = document.createElement('div')
           badge.style.cssText = `
             position:absolute;top:-4px;right:-4px;
             width:16px;height:16px;
-            background:#ffffff;
-            border:1.5px solid #06a5a5;
+            background:#06a5a5;
+            border:1.5px solid #ffffff;
             border-radius:50%;
             font-size:9px;font-weight:800;
-            color:#06a5a5;
+            color:#ffffff;
             display:flex;align-items:center;justify-content:center;
             font-family:Inter,system-ui,sans-serif;
           `
           badge.textContent = String(cluster.members.length)
           inner.appendChild(badge)
           el.appendChild(inner)
-          el.addEventListener('mouseenter', () => { inner.style.transform = 'scale(1.15)'; inner.style.boxShadow = '0 4px 16px rgba(6,165,165,0.4)' })
-          el.addEventListener('mouseleave', () => { inner.style.transform = 'scale(1)'; inner.style.boxShadow = '0 2px 8px rgba(0,0,0,0.20)' })
+          el.addEventListener('mouseenter', () => {
+            inner.style.background = '#06a5a5'
+            inner.style.borderColor = '#06a5a5'
+            inner.innerHTML = logoSvgWhite
+            inner.appendChild(badge)
+            inner.style.transform = 'scale(1.15)'
+            inner.style.boxShadow = '0 4px 16px rgba(6,165,165,0.45)'
+          })
+          el.addEventListener('mouseleave', () => {
+            inner.style.background = '#ffffff'
+            inner.style.borderColor = '#DDDDDD'
+            inner.innerHTML = logoSvgTeal
+            inner.appendChild(badge)
+            inner.style.transform = 'scale(1)'
+            inner.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+          })
           el.addEventListener('click', (e) => {
             e.stopPropagation()
             const bounds = new mapboxgl.LngLatBounds()
@@ -340,24 +376,35 @@ export default function BuilderPageClient({ builders }: Props) {
             map.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 600 })
           })
         } else {
-          // ── Individual marker ──
+          // ── Individual marker — default: inverted (white bg, teal icon) ──
           const b = cluster.members[0]
           const isActive = selectedBuilder?.slug === b.slug || hoveredBuilder?.slug === b.slug
           inner.style.cssText = `
             width:40px;height:40px;
-            background:${isActive ? '#06a5a5' : '#06a5a5'};
-            border:2px solid ${isActive ? '#048e8e' : '#06a5a5'};
+            background:${isActive ? '#06a5a5' : '#ffffff'};
+            border:2px solid ${isActive ? '#06a5a5' : '#DDDDDD'};
             border-radius:50%;
             display:flex;align-items:center;justify-content:center;
-            box-shadow:${isActive ? '0 4px 16px rgba(6,165,165,0.5)' : '0 2px 8px rgba(0,0,0,0.18)'};
-            transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s;
+            box-shadow:${isActive ? '0 4px 16px rgba(6,165,165,0.5)' : '0 2px 8px rgba(0,0,0,0.15)'};
+            transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s,background 0.15s;
             pointer-events:none;
-            opacity:${isActive ? '1' : '0.92'};
           `
-          inner.innerHTML = logoSvg
+          inner.innerHTML = isActive ? logoSvgWhite : logoSvgTeal
           el.appendChild(inner)
-          el.addEventListener('mouseenter', () => { inner.style.transform = 'scale(1.2)'; inner.style.boxShadow = '0 4px 16px rgba(6,165,165,0.45)'; inner.style.opacity = '1' })
-          el.addEventListener('mouseleave', () => { inner.style.transform = 'scale(1)'; inner.style.boxShadow = isActive ? '0 4px 16px rgba(6,165,165,0.5)' : '0 2px 8px rgba(0,0,0,0.18)'; inner.style.opacity = isActive ? '1' : '0.92' })
+          el.addEventListener('mouseenter', () => {
+            inner.style.background = '#06a5a5'
+            inner.style.borderColor = '#06a5a5'
+            inner.innerHTML = logoSvgWhite
+            inner.style.transform = 'scale(1.2)'
+            inner.style.boxShadow = '0 4px 16px rgba(6,165,165,0.5)'
+          })
+          el.addEventListener('mouseleave', () => {
+            inner.style.background = isActive ? '#06a5a5' : '#ffffff'
+            inner.style.borderColor = isActive ? '#06a5a5' : '#DDDDDD'
+            inner.innerHTML = isActive ? logoSvgWhite : logoSvgTeal
+            inner.style.transform = 'scale(1)'
+            inner.style.boxShadow = isActive ? '0 4px 16px rgba(6,165,165,0.5)' : '0 2px 8px rgba(0,0,0,0.15)'
+          })
           el.addEventListener('click', (e) => { e.stopPropagation(); setSelectedBuilder(b) })
         }
 
@@ -438,6 +485,24 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* ── auto-clear filters when selection no longer available ── */
+  useEffect(() => {
+    if (activeLeistung !== 'Alle' && !availableLeistungen.includes(activeLeistung)) {
+      setActiveLeistung('Alle')
+    }
+  }, [availableLeistungen, activeLeistung])
+
+  useEffect(() => {
+    if (activeSpecialty !== 'Alle' && !availableSpecialties.includes(activeSpecialty)) {
+      setActiveSpecialty('Alle')
+    }
+  }, [availableSpecialties, activeSpecialty])
+
+  /* ── scroll list to top on filter change ── */
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [activeSpecialty, activeLeistung, onlyVerified, onlyOpen])
+
   /* ── redraw markers on filter/hover/zoom change ── */
   useEffect(() => {
     const map = mapRef.current
@@ -459,6 +524,8 @@ export default function BuilderPageClient({ builders }: Props) {
         .mapboxgl-popup-tip { display: none !important; }
         .mapboxgl-ctrl-group { border: 1px solid #DDDDDD !important; border-radius: 10px !important; overflow: hidden; }
         .mapboxgl-ctrl button { background: #fff !important; }
+        .mapboxgl-ctrl-logo { display: none !important; }
+        .mapboxgl-ctrl-attrib { display: none !important; }
       `}</style>
 
       {/* ── Sticky filter bar ── */}
@@ -485,7 +552,7 @@ export default function BuilderPageClient({ builders }: Props) {
                 {/* backdrop */}
                 <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
                 <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
-                  {SPECIALTIES.map(spec => (
+                  {availableSpecialties.map(spec => (
                     <button
                       key={spec}
                       onClick={() => { setActiveSpecialty(spec); setStyleOpen(false) }}
@@ -509,13 +576,13 @@ export default function BuilderPageClient({ builders }: Props) {
             <button
               onClick={() => setLeistungenOpen(v => !v)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                selectedLeistungen.size > 0
+                activeLeistung !== 'Alle'
                   ? 'bg-[#222222] text-white'
                   : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
               }`}
             >
               <Wrench size={11} />
-              {selectedLeistungen.size > 0 ? `Leistungen (${selectedLeistungen.size})` : 'Leistungen'}
+              {activeLeistung === 'Alle' ? 'Leistungen' : activeLeistung}
               <ChevronDown size={11} className={`transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -523,27 +590,20 @@ export default function BuilderPageClient({ builders }: Props) {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
                 <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {LEISTUNGEN.map(l => {
-                    const active = selectedLeistungen.has(l)
-                    return (
-                      <button
-                        key={l}
-                        onClick={() => setSelectedLeistungen(prev => {
-                          const next = new Set(prev)
-                          active ? next.delete(l) : next.add(l)
-                          return next
-                        })}
-                        className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
-                          active
-                            ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
-                            : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
-                        }`}
-                      >
-                        {l}
-                        {active && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
-                      </button>
-                    )
-                  })}
+                  {['Alle', ...availableLeistungen].map(l => (
+                    <button
+                      key={l}
+                      onClick={() => { setActiveLeistung(l); setLeistungenOpen(false) }}
+                      className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
+                        activeLeistung === l
+                          ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
+                          : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
+                      }`}
+                    >
+                      {l}
+                      {activeLeistung === l && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
+                    </button>
+                  ))}
                 </div>
               </>
             )}
@@ -571,6 +631,17 @@ export default function BuilderPageClient({ builders }: Props) {
               Jetzt geöffnet
             </button>
           )}
+
+          {/* Filter zurücksetzen */}
+          {(activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen) && (
+            <button
+              onClick={() => { setActiveSpecialty('Alle'); setActiveLeistung('Alle'); setOnlyVerified(false); setOnlyOpen(false) }}
+              className="w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5 cursor-pointer"
+              aria-label="Filter zurücksetzen"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -578,7 +649,7 @@ export default function BuilderPageClient({ builders }: Props) {
       <div className="flex" style={{ height: mapHeight }}>
 
         {/* LEFT — scrollable 2-col grid */}
-        <div className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
+        <div ref={listRef} className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
           {!mapReady ? (
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -595,7 +666,7 @@ export default function BuilderPageClient({ builders }: Props) {
               <button
                 onClick={() => {
                   setActiveSpecialty('Alle')
-                  setSelectedLeistungen(new Set())
+                  setActiveLeistung('Alle')
                   setOnlyVerified(false)
                   setOnlyOpen(false)
                   const map = mapRef.current
@@ -613,7 +684,7 @@ export default function BuilderPageClient({ builders }: Props) {
             </div>
           ) : (
             <div className="p-4">
-              <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} Builder</p>
+              <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'}</p>
 
               {/* 2-column grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -672,37 +743,44 @@ export default function BuilderPageClient({ builders }: Props) {
                         </div>
                       )}
 
-                      <p className="mt-2 text-[10px] font-semibold text-[#06a5a5] group-hover:text-[#058f8f] transition-colors">
-                        Profil ansehen →
-                      </p>
                     </div>
                   </Link>
                 ))}
               </div>
 
               {/* CTA card */}
-              <div className="mt-6 bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                <div className="w-9 h-9 bg-[#F7F7F7] border border-[#EBEBEB] rounded-xl flex items-center justify-center mb-3">
-                  <Wrench size={16} className="text-[#717171]" />
+              <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
+                {/* Background image */}
+                <div className="absolute inset-0">
+                  <Image
+                    src="/custom-werkstatt.png"
+                    alt="Custom Werkstatt"
+                    fill
+                    sizes="400px"
+                    className="object-cover opacity-30 scale-100 group-hover:scale-110 transition-transform duration-[1200ms] ease-in-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
                 </div>
-                <h3 className="text-sm font-bold text-[#222222] mb-1">Du bist Builder?</h3>
-                <p className="text-xs text-[#717171] leading-relaxed mb-4">
-                  Registriere dich kostenlos und werde direkt von Riders gefunden.
-                </p>
-                <Link href="/auth/register"
-                  className="block w-full bg-[#06a5a5] text-white text-xs font-semibold py-2.5 rounded-full text-center hover:bg-[#058f8f] transition-all">
-                  Als Builder registrieren
-                </Link>
-              </div>
+                {/* Content */}
+                <div className="relative z-10 p-5 pt-14">
+                  <h3 className="text-sm font-bold text-white mb-1">Du betreibst eine Custom Werkstatt?</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-4">
+                    Registriere dich kostenlos und werde direkt von Riders gefunden.
+                  </p>
+                  <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">
+                    Als Custom Werkstatt registrieren
+                  </span>
+                </div>
+              </Link>
 
-              <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} Builder · MotoDigital</p>
+              <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'} · MotoDigital</p>
             </div>
           )}
         </div>
 
         {/* RIGHT — sticky map */}
-        <div className="hidden lg:block w-1/2 relative">
-          <div ref={mapContainerRef} style={{ position: 'absolute', inset: 0 }} />
+        <div className="hidden lg:block w-1/2 relative p-3">
+          <div ref={mapContainerRef} style={{ position: 'absolute', inset: '12px', borderRadius: '16px', overflow: 'hidden' }} />
           {selectedBuilder && (
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}

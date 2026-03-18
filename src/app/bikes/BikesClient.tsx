@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { ChevronDown, X } from 'lucide-react'
 
@@ -13,101 +13,209 @@ import type { Build } from '@/lib/data/builds'
 
 const STYLES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
 
+function getMake(base: string) { return base.split(' ')[0] }
+function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
+
 interface Props {
   builds: Build[]
   initialStyle?: string
 }
 
 export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
-  const [activeStyle, setActiveStyle] = useState(initialStyle)
+  const [activeStyle,   setActiveStyle]   = useState(initialStyle)
   const [activeCountry, setActiveCountry] = useState('Alle')
-  const [countryOpen, setCountryOpen] = useState(false)
+  const [countryOpen,   setCountryOpen]   = useState(false)
+  const [activeMake,    setActiveMake]    = useState('Alle')
+  const [makeOpen,      setMakeOpen]      = useState(false)
+  const [activeModel,   setActiveModel]   = useState('Alle')
+  const [modelOpen,     setModelOpen]     = useState(false)
+  const [styleOpen,     setStyleOpen]     = useState(false)
+
+  const filterRef = useRef<HTMLDivElement>(null)
+  const scrollToFilter = () => {
+    if (!filterRef.current) return
+    const top = filterRef.current.offsetTop - 64 // subtract sticky header height
+    window.scrollTo({ top, behavior: 'smooth' })
+  }
 
   const countries = useMemo(() => {
     const unique = Array.from(new Set(builds.map(b => b.country))).sort()
     return ['Alle', ...unique]
   }, [builds])
 
+  const makes = useMemo(() => {
+    const pool = activeCountry === 'Alle' ? builds : builds.filter(b => b.country === activeCountry)
+    const unique = Array.from(new Set(pool.map(b => getMake(b.base)))).sort()
+    return ['Alle', ...unique]
+  }, [builds, activeCountry])
+
+  const models = useMemo(() => {
+    if (activeMake === 'Alle') return []
+    const pool = builds.filter(b =>
+      getMake(b.base) === activeMake &&
+      (activeCountry === 'Alle' || b.country === activeCountry)
+    )
+    const unique = Array.from(new Set(pool.map(b => getModel(b.base)))).sort()
+    return ['Alle', ...unique]
+  }, [builds, activeMake, activeCountry])
+
+  const styles = useMemo(() => {
+    const pool = builds.filter(b =>
+      (activeCountry === 'Alle' || b.country === activeCountry) &&
+      (activeMake === 'Alle' || getMake(b.base) === activeMake) &&
+      (activeModel === 'Alle' || getModel(b.base) === activeModel)
+    )
+    const unique = Array.from(new Set(pool.map(b => b.style))).sort()
+    return ['Alle', ...unique]
+  }, [builds, activeCountry, activeMake, activeModel])
+
   const filtered = useMemo(() => builds.filter(b => {
     const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
     const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
-    return styleMatch && countryMatch
-  }), [builds, activeStyle, activeCountry])
+    const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
+    const modelMatch   = activeModel === 'Alle' || getModel(b.base) === activeModel
+    return styleMatch && countryMatch && makeMatch && modelMatch
+  }), [builds, activeStyle, activeCountry, activeMake, activeModel])
 
   return (
     <>
       {/* FILTER BAR */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+      <div ref={filterRef} className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
 
-            {/* Style chips */}
-            <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
-              {STYLES.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setActiveStyle(s)}
-                  className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 ${
-                    activeStyle === s
-                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
-                      : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            {/* Dropdowns — outside overflow container so they're not clipped */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+
+            {/* Land */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setCountryOpen(v => !v)}
+                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                  activeCountry !== 'Alle'
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                }`}
+              >
+                {activeCountry === 'Alle' ? 'Land' : activeCountry}
+                <ChevronDown size={11} className={`transition-transform ${countryOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {countryOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                    {countries.map(c => (
+                      <button key={c} onClick={() => { setActiveCountry(c); setActiveMake('Alle'); setActiveModel('Alle'); setActiveStyle('Alle'); setCountryOpen(false); scrollToFilter() }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeCountry === c ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Right side */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-px h-4 bg-[#222222]/10" />
+            {/* Marke */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setMakeOpen(v => !v)}
+                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                  activeMake !== 'Alle'
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                }`}
+              >
+                {activeMake === 'Alle' ? 'Marke' : activeMake}
+                <ChevronDown size={11} className={`transition-transform ${makeOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {makeOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMakeOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
+                    {makes.map(m => (
+                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setActiveStyle('Alle'); setMakeOpen(false); scrollToFilter() }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeMake === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
-              {/* Land dropdown */}
-              <div className="relative">
+            {/* Modell — nur nach Marken-Auswahl */}
+            {activeMake !== 'Alle' && (
+              <div className="relative flex-shrink-0">
                 <button
-                  onClick={() => setCountryOpen(v => !v)}
+                  onClick={() => setModelOpen(v => !v)}
                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
-                    activeCountry !== 'Alle'
-                      ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
+                    activeModel !== 'Alle'
+                      ? 'bg-[#222222] text-white border-[#222222]'
                       : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                   }`}
                 >
-                  {activeCountry === 'Alle' ? 'Land' : activeCountry}
-                  <ChevronDown size={11} className={`transition-transform ${countryOpen ? 'rotate-180' : ''}`} />
+                  {activeModel === 'Alle' ? 'Modell' : activeModel}
+                  <ChevronDown size={11} className={`transition-transform ${modelOpen ? 'rotate-180' : ''}`} />
                 </button>
-
-                {countryOpen && (
+                {modelOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
-                    <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
-                      {countries.map(c => (
-                        <button
-                          key={c}
-                          onClick={() => { setActiveCountry(c); setCountryOpen(false) }}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${
-                            activeCountry === c
-                              ? 'text-[#717171] bg-[#222222]/8'
-                              : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'
-                          }`}
-                        >
-                          {c}
+                    <div className="fixed inset-0 z-40" onClick={() => setModelOpen(false)} />
+                    <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[180px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
+                      {models.map(m => (
+                        <button key={m} onClick={() => { setActiveModel(m); setModelOpen(false); scrollToFilter() }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeModel === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                          {m}
                         </button>
                       ))}
                     </div>
                   </>
                 )}
               </div>
+            )}
 
-              {(activeStyle !== 'Alle' || activeCountry !== 'Alle') && (
-                <button
-                  onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
-                  aria-label="Filter zurücksetzen"
-                  className="w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
-                >
-                  <X size={14} />
-                </button>
+            </div>{/* end dropdowns wrapper */}
+
+            {/* Divider */}
+            <div className="w-px h-4 bg-[#222222]/10 flex-shrink-0" />
+
+            {/* Umbau-Stil dropdown */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setStyleOpen(v => !v)}
+                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                  activeStyle !== 'Alle'
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                }`}
+              >
+                {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
+                <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {styleOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                    {styles.map(s => (
+                      <button key={s} onClick={() => { setActiveStyle(s); setStyleOpen(false); scrollToFilter() }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeStyle === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
+
+            {/* Reset */}
+            {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle') && (
+              <button
+                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle') }}
+                aria-label="Filter zurücksetzen"
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -120,7 +228,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="text-center py-20">
               <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle') }}
+                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle') }}
                 className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen

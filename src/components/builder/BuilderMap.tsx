@@ -75,10 +75,13 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
   }, [lat, lng, name, address])
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-52 rounded-t-none"
-      style={{ minHeight: '208px' }}
-    />
+    <>
+      <style>{`.mapboxgl-ctrl-logo { display: none !important; } .mapboxgl-ctrl-attrib { display: none !important; }`}</style>
+      <div
+        ref={containerRef}
+        className="w-full h-52 rounded-t-none"
+        style={{ minHeight: '208px' }}
+      />
+    </>
   )
 }

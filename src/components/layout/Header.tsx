@@ -140,30 +140,33 @@ export default function Header({ activePage }: Props) {
         </div>
 
         {/* ── Desktop nav ── */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-1">
 
           <Link href="/custom-werkstatt"
-            className={`relative text-sm font-medium transition-colors pb-0.5 ${
-              activePage === 'custom-werkstatt' ? 'text-[#222222] font-semibold' : 'text-[#717171] hover:text-[#222222]'
+            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
+              activePage === 'custom-werkstatt'
+                ? 'text-[#222222] font-semibold bg-[#222222]/8'
+                : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
             Custom Werkstatt
-            {activePage === 'custom-werkstatt' && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#222222] rounded-full" />}
           </Link>
 
           <Link href="/bikes"
-            className={`relative text-sm font-medium transition-colors pb-0.5 ${
-              activePage === 'bikes' ? 'text-[#222222] font-semibold' : 'text-[#717171] hover:text-[#222222]'
+            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
+              activePage === 'bikes'
+                ? 'text-[#222222] font-semibold bg-[#222222]/8'
+                : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
             Custom Bikes
-            {activePage === 'bikes' && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#222222] rounded-full" />}
           </Link>
 
           <Link href="/riders"
-            className={`relative text-sm font-medium transition-colors pb-0.5 ${
-              activePage === 'riders' ? 'text-[#222222] font-semibold' : 'text-[#717171] hover:text-[#222222]'
+            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
+              activePage === 'riders'
+                ? 'text-[#222222] font-semibold bg-[#222222]/8'
+                : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
             Rider
-            {activePage === 'riders' && <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#222222] rounded-full" />}
           </Link>
 
         </nav>
@@ -200,7 +203,9 @@ export default function Header({ activePage }: Props) {
                   className="flex items-center gap-1 text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
                   <span className="relative">
                     {avatarUrl ? (
-                      <Image src={avatarUrl} alt="Avatar" width={34} height={34} className="rounded-full object-cover border border-[#222222]/10" />
+                      <span className="block w-[34px] h-[34px] rounded-full overflow-hidden border border-[#222222]/10 flex-shrink-0">
+                        <Image src={avatarUrl} alt="Avatar" width={34} height={34} className="w-full h-full object-cover" />
+                      </span>
                     ) : (
                       <CircleUserRound size={19} />
                     )}
@@ -250,11 +255,15 @@ export default function Header({ activePage }: Props) {
                       <>
                         <div className="h-px bg-[#222222]/6 mx-3 my-1" />
                         <p className="px-4 pt-1 pb-1 text-[9px] font-bold uppercase tracking-widest text-amber-400/60 flex items-center gap-1">
-                          <Shield size={9} /> Admin
+                          <Shield size={9} /> Superadmin
                         </p>
                         <Link href="/admin/custom-werkstatt" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                          <Users size={14} /> Custom Werkstatt
+                          <Users size={14} /> Custom Werkstätte
+                        </Link>
+                        <Link href="/admin/riders" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <Users size={14} /> Rider
                         </Link>
                         <Link href="/admin/magazine" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
@@ -368,10 +377,13 @@ export default function Header({ activePage }: Props) {
                     {role === 'superadmin' && (
                       <>
                         <p className="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-amber-400/50 flex items-center gap-1">
-                          <Shield size={9} /> Admin
+                          <Shield size={9} /> Superadmin
                         </p>
                         <Link href="/admin/custom-werkstatt" onClick={close} className={mobileDashLink}>
-                          <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Werkstatt
+                          <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Werkstätte
+                        </Link>
+                        <Link href="/admin/riders" onClick={close} className={mobileDashLink}>
+                          <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Rider
                         </Link>
                         <Link href="/admin/magazine" onClick={close} className={mobileDashLink}>
                           <BookOpen size={15} className="text-[#222222]/25 flex-shrink-0" /> Magazin

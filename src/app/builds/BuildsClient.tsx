@@ -126,7 +126,7 @@ export default function BuildsClient({ builds }: Props) {
               {filtered.map((build, i) => (
                 <Link
                   key={build.slug}
-                  href={`/builds/${build.slug}`}
+                  href={`/custom-bike/${build.slug}`}
                   className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 opacity-0 animate-slide-up-sm"
                   style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
                 >

@@ -14,6 +14,7 @@ export type Rider = {
   initials: string
   name: string
   city: string
+  country: string
   lat?: number
   lng?: number
   bike: string
@@ -33,6 +34,7 @@ export const RIDERS: Rider[] = [
     initials: 'LB',
     name: 'Lukas Bauer',
     city: 'Berlin',
+    country: 'Deutschland',
     lat: 52.52,
     lng: 13.405,
     bike: 'Honda CB750 Cafe Racer',
@@ -49,6 +51,7 @@ export const RIDERS: Rider[] = [
     initials: 'NS',
     name: 'Nina Schreiber',
     city: 'Hamburg',
+    country: 'Deutschland',
     lat: 53.5753,
     lng: 10.0153,
     bike: 'Triumph Bonneville Bobber',
@@ -65,6 +68,7 @@ export const RIDERS: Rider[] = [
     initials: 'FH',
     name: 'Felix Hoffmann',
     city: 'München',
+    country: 'Deutschland',
     lat: 48.1351,
     lng: 11.582,
     bike: 'Royal Enfield Himalayan Scrambler',
@@ -81,6 +85,7 @@ export const RIDERS: Rider[] = [
     initials: 'SK',
     name: 'Sarah Klein',
     city: 'Köln',
+    country: 'Deutschland',
     lat: 50.9333,
     lng: 6.95,
     bike: 'Yamaha XSR700 Tracker',
@@ -96,6 +101,7 @@ export const RIDERS: Rider[] = [
     initials: 'MW',
     name: 'Markus Weber',
     city: 'Frankfurt',
+    country: 'Deutschland',
     lat: 50.1109,
     lng: 8.6821,
     bike: 'Harley-Davidson Sportster Chopper',
@@ -112,6 +118,7 @@ export const RIDERS: Rider[] = [
     initials: 'JB',
     name: 'Julia Braun',
     city: 'Stuttgart',
+    country: 'Deutschland',
     lat: 48.7758,
     lng: 9.1829,
     bike: 'Kawasaki Z900 Street Fighter',
@@ -128,6 +135,7 @@ export const RIDERS: Rider[] = [
     initials: 'TM',
     name: 'Thomas Müller',
     city: 'Wien',
+    country: 'Österreich',
     lat: 48.2082,
     lng: 16.3738,
     bike: 'KTM 690 Enduro R',
@@ -144,6 +152,7 @@ export const RIDERS: Rider[] = [
     initials: 'AF',
     name: 'Anna Fischer',
     city: 'Zürich',
+    country: 'Schweiz',
     lat: 47.3769,
     lng: 8.5417,
     bike: 'BMW R nineT Cafe Racer',
