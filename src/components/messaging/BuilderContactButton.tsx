@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
-import { LogIn, MessageCircle } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 interface Props {
   builderId: string
@@ -26,8 +26,8 @@ export default function BuilderContactButton({ builderId, builderFirstName, bike
         href="/auth/login"
         className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all"
       >
-        <LogIn size={14} />
-        Anmelden um zu schreiben
+        <MessageCircle size={14} />
+        {builderFirstName} kontaktieren
       </a>
     )
   }

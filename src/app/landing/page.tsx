@@ -7,7 +7,9 @@ import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
 import QuickSearch from '@/components/landing/QuickSearch'
 import { BUILDERS } from '@/lib/data/builders'
-import BuilderMarquee from '@/components/ui/BuilderMarquee'
+import type { Builder } from '@/lib/data/builders'
+import BuilderCarousel from '@/components/ui/BuilderCarousel'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
@@ -30,7 +32,66 @@ const USPS = [
   { icon: <ShieldCheck size={20} className="text-[#717171]" />,  title: 'Marketplace',       desc: 'Bald: Custom Builds kaufen & verkaufen — direkt vom Builder.' },
 ]
 
-export default function LandingPage() {
+function cityFromAddress(address: string): string {
+  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
+  if (parts.length >= 2) {
+    const segment = parts[parts.length - 2]
+    const match = segment.match(/^\d+\s+(.+)$/)
+    return match ? match[1] : segment
+  }
+  return address
+}
+
+function dbRowToBuilder(row: Record<string, unknown>): Builder {
+  const name    = (row.full_name as string | null) ?? 'Unbekannt'
+  const address = (row.address   as string | null) ?? undefined
+  const rawCity = (row.city as string | null)
+  const city    = address ? cityFromAddress(address) : (rawCity ?? '')
+  return {
+    id:          row.id as string,
+    slug:        row.slug as string,
+    initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+    name,
+    city,
+    address,
+    lat:         (row.lat as number | null) ?? undefined,
+    lng:         (row.lng as number | null) ?? undefined,
+    specialty:   (row.specialty as string | null) ?? '',
+    builds:      0,
+    rating:      (row.rating as number | null) ?? 5.0,
+    verified:    false,
+    featured:    (row.featured as boolean | null) ?? false,
+    since:       (row.since_year as number | null)?.toString() ?? '',
+    tags:        (row.tags as string[] | null) ?? [],
+    bio:         (row.bio as string | null) ?? '',
+    bioLong:     (row.bio_long as string | null) ?? '',
+    bases:       (row.bases as string[] | null) ?? [],
+    instagram:   (row.instagram_url as string | null) ?? undefined,
+    website:     (row.website_url as string | null) ?? undefined,
+    media:       ((row.builder_media as {url:string;type:string;title?:string;position?:number}[] | null) ?? [])
+                   .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                   .map(m => ({ url: m.url, type: m.type as 'image'|'video', title: m.title ?? undefined })),
+    featuredBuilds: [],
+  }
+}
+
+export default async function LandingPage() {
+  // Fetch the 10 most recently added workshops from DB
+  const supabase = await createClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: dbRows } = await (supabase.from('profiles') as any)
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
+    .eq('role', 'custom-werkstatt')
+    .not('slug', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
+
+  // Merge DB builders + static builders, deduplicate by slug, cap at 10
+  const dbSlugs = new Set(dbBuilders.map(b => b.slug))
+  const staticFill = BUILDERS.filter(b => !dbSlugs.has(b.slug))
+  const builders = [...dbBuilders, ...staticFill].slice(0, 10)
   return (
     <div className="min-h-screen bg-white text-[#222222]">
 
@@ -194,7 +255,7 @@ export default function LandingPage() {
             Alle Custom Werkstätten →
           </Link>
         </AnimateIn>
-        <BuilderMarquee builders={BUILDERS.slice(0, 10)} />
+        <BuilderCarousel builders={builders} />
       </section>
 
       {/* ── DARK CTA ── */}

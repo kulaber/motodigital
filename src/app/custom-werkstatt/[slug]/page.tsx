@@ -453,9 +453,9 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Contact CTA */}
               <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Projekt anfragen</p>
+                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
                 <p className="text-xs text-[#717171] leading-relaxed mb-4">
-                  Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
+                  Schreib direkt an {builder.name}.
                 </p>
                 {builder.id ? (
                   <BuilderContactButton
@@ -466,7 +466,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                 ) : (
                   <a href="/auth/login"
                     className="block w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all">
-                    Projekt anfragen
+                    {builder.name} kontaktieren
                   </a>
                 )}
               </div>
@@ -529,7 +529,7 @@ export default async function BuilderProfilePage({ params }: Props) {
         <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
         <a href="#contact"
           className="flex-1 flex items-center justify-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-2.5 hover:bg-[#058f8f] transition-colors">
-          Projekt anfragen
+          {builder.name} kontaktieren
         </a>
       </div>
 
