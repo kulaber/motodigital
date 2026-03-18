@@ -153,6 +153,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [tiktok, setTiktok]         = useState(profile.tiktok_url ?? '')
   const [website, setWebsite]       = useState(profile.website_url ?? '')
   const [avatarUrl, setAvatarUrl]   = useState(profile.avatar_url ?? '')
+  const [avatarCacheBust, setAvatarCacheBust] = useState('')
 
   const computedSlug = profile.slug ?? slugify(fullName)
 
@@ -187,6 +188,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         .from('builder-media')
         .getPublicUrl(path)
       setAvatarUrl(publicUrl)
+      setAvatarCacheBust(`?t=${Date.now()}`)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen')
     } finally {
@@ -286,7 +288,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0 bg-[#06a5a5]">
               {avatarUrl ? (
-                <NextImage src={avatarUrl} alt="Logo" width={80} height={80} className="w-full h-full object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={`${avatarUrl}${avatarCacheBust}`} alt="Logo" className="w-full h-full object-cover" />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="36" height="36">
                   <path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z" />
