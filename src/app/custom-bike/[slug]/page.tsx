@@ -63,7 +63,6 @@ export default async function CustomBikePage({ params }: Props) {
     let { data: bike } = await (supabase.from('bikes') as any)
       .select(select)
       .eq('slug', slug)
-      .eq('status', 'active')
       .maybeSingle()
 
     // Fallback: try as UUID (legacy links)
@@ -72,7 +71,6 @@ export default async function CustomBikePage({ params }: Props) {
       const { data: byId } = await (supabase.from('bikes') as any)
         .select(select)
         .eq('id', slug)
-        .eq('status', 'active')
         .maybeSingle()
       bike = byId
     }
