@@ -30,23 +30,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
   // Try DB lookup for metadata — by slug first, then by UUID
-  const supabase = await createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let { data } = await (supabase.from('bikes') as any)
-    .select('title, style')
-    .eq('slug', slug)
-    .maybeSingle()
-  if (!data) {
+  try {
+    const supabase = await createClient()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: byId } = await (supabase.from('bikes') as any)
+    let { data } = await (supabase.from('bikes') as any)
       .select('title, style')
-      .eq('id', slug)
+      .eq('slug', slug)
       .maybeSingle()
-    data = byId
-  }
-  if (!data) return {}
-  return {
-    title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
+    if (!data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: byId } = await (supabase.from('bikes') as any)
+        .select('title, style')
+        .eq('id', slug)
+        .maybeSingle()
+      data = byId
+    }
+    if (!data) return {}
+    return {
+      title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
+    }
+  } catch {
+    return {}
   }
 }
 
@@ -55,34 +59,69 @@ export default async function CustomBikePage({ params }: Props) {
   const build = getBuildBySlug(slug)
 
   if (!build) {
-    // Try loading from Supabase — first by slug column, then by UUID
+    // Try loading from Supabase
     const supabase = await createClient()
-    const select = 'id, title, make, model, year, style, city, price, description, modifications, seller_id, slug, bike_images(url, is_cover, position)'
+    const baseSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(url, is_cover, position)'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let { data: bike } = await (supabase.from('bikes') as any)
-      .select(select)
-      .eq('slug', slug)
-      .maybeSingle()
+    let bike: any = null
 
-    // Fallback: try as UUID (legacy links)
+    // Try with slug + modifications columns first (new schema)
+    {
+      const { data } = await (supabase.from('bikes') as any)
+        .select(`${baseSelect}, modifications, slug`)
+        .eq('slug', slug)
+        .maybeSingle()
+      if (data) bike = data
+    }
+
+    // Fallback: try without new columns (old schema)
     if (!bike) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: byId } = await (supabase.from('bikes') as any)
-        .select(select)
+      const { data } = await (supabase.from('bikes') as any)
+        .select(baseSelect)
+        .eq('slug', slug)
+        .maybeSingle()
+      if (data) bike = data
+    }
+
+    // Fallback: try as UUID with new columns
+    if (!bike) {
+      const { data } = await (supabase.from('bikes') as any)
+        .select(`${baseSelect}, modifications, slug`)
         .eq('id', slug)
         .maybeSingle()
-      bike = byId
+      if (data) bike = data
+    }
+
+    // Fallback: try as UUID with base columns only
+    if (!bike) {
+      const { data } = await (supabase.from('bikes') as any)
+        .select(baseSelect)
+        .eq('id', slug)
+        .maybeSingle()
+      if (data) bike = data
     }
 
     if (!bike) notFound()
 
-    // Fetch seller name separately to avoid join issues
+    // Fetch seller profile — try with slug first, then without
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: sellerProfile } = await (supabase.from('profiles') as any)
-      .select('full_name, city, slug')
-      .eq('id', bike.seller_id)
-      .maybeSingle()
+    let sellerProfile: any = null
+    {
+      const { data } = await (supabase.from('profiles') as any)
+        .select('full_name, city, slug')
+        .eq('id', bike.seller_id)
+        .maybeSingle()
+      if (data) {
+        sellerProfile = data
+      } else {
+        const { data: fallback } = await (supabase.from('profiles') as any)
+          .select('full_name, city')
+          .eq('id', bike.seller_id)
+          .maybeSingle()
+        sellerProfile = fallback
+      }
+    }
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = rawImages
