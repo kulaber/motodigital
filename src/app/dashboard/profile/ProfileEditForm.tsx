@@ -3,7 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, User, MapPin } from 'lucide-react'
+import { Upload, Play, Image as ImageIcon, Trash2, CheckCircle, MapPin } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
 type MapboxFeature = {
@@ -281,14 +281,16 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       <form onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profil-Informationen</h2>
 
-        {/* Avatar */}
-        <Field label="Profilbild" className="mb-5">
+        {/* Logo */}
+        <Field label="Logo" className="mb-5">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-[#F7F7F7] border border-[#222222]/8 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0 bg-[#06a5a5]">
               {avatarUrl ? (
-                <NextImage src={avatarUrl} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
+                <NextImage src={avatarUrl} alt="Logo" width={80} height={80} className="w-full h-full object-cover" />
               ) : (
-                <User size={22} className="text-[#222222]/20" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="36" height="36">
+                  <path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z" />
+                </svg>
               )}
             </div>
             <div>
@@ -299,14 +301,14 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                 className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-40"
               >
                 <Upload size={11} />
-                {uploading ? 'Wird hochgeladen…' : 'Foto hochladen'}
+                {uploading ? 'Wird hochgeladen…' : 'Logo hochladen'}
               </button>
-              <p className="text-[10px] text-[#222222]/25 mt-1">JPG oder PNG, max. 5 MB</p>
+              <p className="text-[10px] text-[#222222]/25 mt-1">JPG, PNG oder SVG, max. 5 MB</p>
             </div>
             <input
               ref={avatarInput}
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,image/svg+xml"
               className="hidden"
               onChange={e => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f) }}
             />
