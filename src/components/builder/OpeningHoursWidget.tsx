@@ -22,8 +22,7 @@ export default function OpeningHoursWidget({ openingHours }: { openingHours: Ope
 
       {/* Header row */}
       <div className="px-5 pt-4 pb-3 flex items-center gap-2">
-        <Clock size={12} className="text-[#222222]/25 flex-shrink-0" />
-        <span className="text-[11px] font-semibold text-[#222222]/30 uppercase tracking-widest flex-1">
+        <span className="text-base font-bold text-[#222222] tracking-tight flex-1">
           Öffnungszeiten
         </span>
         {status ? (
@@ -64,20 +63,19 @@ export default function OpeningHoursWidget({ openingHours }: { openingHours: Ope
         {openingHours.map((h, i) => {
           const isToday = now ? parseDays(h.day).includes(now.getDay()) : false
           return (
-            <div key={i} className={`flex items-center justify-between px-2 py-2 rounded-lg ${isToday ? 'bg-[#222222]/4' : ''}`}>
+            <div key={i} className="flex items-center justify-between px-2 py-2 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className={`w-0.5 h-3 rounded-full flex-shrink-0 ${isToday ? 'bg-[#06a5a5]' : 'bg-transparent'}`} />
                 <span className={`text-xs ${isToday ? 'text-[#222222]/80 font-semibold' : 'text-[#222222]/40'}`}>
                   {h.day}
                 </span>
-                {isToday && <span className="text-[9px] font-bold text-[#717171] uppercase tracking-widest">Heute</span>}
               </div>
-              <span className={`text-xs font-medium tabular-nums ${
+              <span className={`text-xs font-medium tabular-nums font-[family-name:var(--font-sans)] ${
                 h.hours === 'Geschlossen'
                   ? 'text-[#222222]/20'
                   : h.hours === 'Nur nach Vereinbarung'
                     ? 'text-[#222222]/35 italic text-[11px]'
-                    : isToday ? 'text-[#222222]/75' : 'text-[#222222]/50'
+                    : 'text-[#222222]/60'
               }`}>
                 {h.hours}
               </span>

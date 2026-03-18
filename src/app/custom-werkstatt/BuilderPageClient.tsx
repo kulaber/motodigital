@@ -13,6 +13,13 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 const SPECIALTIES = ['Alle', 'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker', 'Chopper', 'Street', 'Enduro']
 
+const LEISTUNGEN = [
+  'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
+  'Pulverbeschichtung', 'Schweißen', 'Fräsen', 'Sandstrahlen', 'Verzinken',
+  'Vergaser', 'TÜV-Einzelabnahme', 'TÜV-Untersuchung', 'Motorinstandsetzung',
+  'Motorrevision', 'Motordiagnose', 'Sattlerarbeiten',
+]
+
 // Header 64px + filter bar ~56px
 const STICKY_OFFSET = 120
 
@@ -161,10 +168,12 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
 }
 
 export default function BuilderPageClient({ builders }: Props) {
-  const [activeSpecialty, setActiveSpecialty] = useState('Alle')
-  const [styleOpen,       setStyleOpen]       = useState(false)
-  const [onlyVerified,    setOnlyVerified]    = useState(false)
-  const [onlyOpen,        setOnlyOpen]        = useState(false)
+  const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
+  const [styleOpen,          setStyleOpen]          = useState(false)
+  const [leistungenOpen,     setLeistungenOpen]     = useState(false)
+  const [selectedLeistungen, setSelectedLeistungen] = useState<Set<string>>(new Set())
+  const [onlyVerified,       setOnlyVerified]       = useState(false)
+  const [onlyOpen,           setOnlyOpen]           = useState(false)
   const [now,             setNow]             = useState<Date | null>(null)
   const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
   const [hoveredBuilder,  setHoveredBuilder]  = useState<Builder | null>(null)
@@ -225,13 +234,14 @@ export default function BuilderPageClient({ builders }: Props) {
   const addMarkersRef   = useRef<() => void>(() => {})
 
   const filtered = useMemo(() => builders.filter(b => {
-    const specOk     = activeSpecialty === 'Alle' ||
+    const specOk       = activeSpecialty === 'Alle' ||
       b.tags.some(t => t.toLowerCase() === activeSpecialty.toLowerCase()) ||
       b.specialty.toLowerCase().includes(activeSpecialty.toLowerCase())
-    const verifiedOk = !onlyVerified || b.verified
-    const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
-    return specOk && verifiedOk && openOk
-  }), [builders, activeSpecialty, onlyVerified, onlyOpen, now])
+    const leistungOk   = selectedLeistungen.size === 0 || b.tags.some(t => selectedLeistungen.has(t))
+    const verifiedOk   = !onlyVerified || b.verified
+    const openOk       = !onlyOpen || !now || isOpenNow(b.openingHours, now)
+    return specOk && leistungOk && verifiedOk && openOk
+  }), [builders, activeSpecialty, selectedLeistungen, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
     if (!mapReady || !mapBounds) return []
@@ -494,6 +504,51 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
+          {/* Leistungen multi-select dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setLeistungenOpen(v => !v)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                selectedLeistungen.size > 0
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}
+            >
+              <Wrench size={11} />
+              {selectedLeistungen.size > 0 ? `Leistungen (${selectedLeistungen.size})` : 'Leistungen'}
+              <ChevronDown size={11} className={`transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {leistungenOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
+                <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {LEISTUNGEN.map(l => {
+                    const active = selectedLeistungen.has(l)
+                    return (
+                      <button
+                        key={l}
+                        onClick={() => setSelectedLeistungen(prev => {
+                          const next = new Set(prev)
+                          active ? next.delete(l) : next.add(l)
+                          return next
+                        })}
+                        className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
+                          active
+                            ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
+                            : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
+                        }`}
+                      >
+                        {l}
+                        {active && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Verifiziert */}
           <button onClick={() => setOnlyVerified(v => !v)}
             className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
@@ -540,6 +595,7 @@ export default function BuilderPageClient({ builders }: Props) {
               <button
                 onClick={() => {
                   setActiveSpecialty('Alle')
+                  setSelectedLeistungen(new Set())
                   setOnlyVerified(false)
                   setOnlyOpen(false)
                   const map = mapRef.current

@@ -152,7 +152,7 @@ function StarRating({ rating }: { rating: number }) {
         const filled = rating >= i
         const half = !filled && rating >= i - 0.5
         return (
-          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#717171]' : 'text-[#222222]/15'}>
+          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#06a5a5]' : 'text-white/25'}>
             {half ? (
               <>
                 <defs>
@@ -171,7 +171,7 @@ function StarRating({ rating }: { rating: number }) {
           </svg>
         )
       })}
-      <span className="ml-1 text-xs font-semibold text-[#222222]/60">{rating.toFixed(1)}</span>
+      <span className="ml-1 text-xs font-semibold text-white/80">{rating.toFixed(1)}</span>
     </span>
   )
 }
@@ -213,54 +213,56 @@ export default async function BuilderProfilePage({ params }: Props) {
         )}
 
         {/* Dunkler Gradient unten für Lesbarkeit */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
         {/* Back-Link oben */}
-        <div className="absolute top-0 left-0 right-0 pt-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="absolute top-0 left-0 right-0 pt-20 px-4 sm:px-5 lg:px-8">
+          <div className="max-w-7xl mx-auto">
             <Link href="/custom-werkstatt"
               className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
-              <ArrowLeft size={13} /> Alle Builder
+              <ArrowLeft size={13} /> Alle Custom Werkstätten
             </Link>
           </div>
         </div>
 
         {/* Content unten */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 lg:px-8 pb-8">
-          <div className="max-w-6xl mx-auto flex items-end gap-5">
+        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
+          <div className="max-w-7xl mx-auto flex items-end gap-4">
 
             {/* Logo / Avatar */}
-            <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 flex items-center justify-center shadow-lg">
-              <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-9 h-9 sm:w-11 sm:h-11 opacity-90" />
+            <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 flex items-center justify-center shadow-lg">
+              <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
             </div>
 
             {/* Text */}
             <div className="flex-1 min-w-0 pb-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                <h1 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
                   {builder.name}
                 </h1>
                 {builder.verified && (
-                  <span className="inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                    <BadgeCheck size={11} /> Verifiziert
+                  <span className="inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    <BadgeCheck size={10} /> Verifiziert
                   </span>
                 )}
                 {builder.featured && (
-                  <span className="inline-flex items-center bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-semibold px-2.5 py-1 rounded-full">
-                    Top Builder
+                  <span className="hidden sm:inline-flex items-center bg-[#06a5a5]/20 border border-[#06a5a5]/30 text-[#06a5a5] text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    Top Custom Werkstatt
                   </span>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-white/60">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
-                {builder.since && <span className="flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>}
+                {builder.since && <span className="hidden sm:flex items-center gap-1"><Calendar size={11} /> Seit {builder.since}</span>}
                 <StarRating rating={builder.rating} />
               </div>
             </div>
 
-            {/* Aktionen rechts */}
-            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
+            {/* Aktionen rechts — nur Desktop */}
+            <div className="hidden sm:block">
+              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
+            </div>
           </div>
         </div>
       </div>
@@ -270,15 +272,15 @@ export default async function BuilderProfilePage({ params }: Props) {
       {/* ── FEATURED BUILDS — full width, prominent ── */}
       {builder.featuredBuilds.length > 0 && (
         <section className="pb-12">
-          <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
             <div className="flex items-end justify-between mb-5">
               <div>
                 <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-1">Custom Bikes</p>
-                <h2 className="text-xl font-bold text-[#222222] tracking-tight">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight">
                   Projekte von {builder.name}
                 </h2>
               </div>
-              <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Build' : 'Builds'}</span>
+              <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -323,14 +325,14 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── CONTENT ── */}
       <section className="pb-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
 
             {/* LEFT */}
             <div>
               {/* About */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-3">Über {builder.name}</h2>
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {builder.name}</h2>
                 <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>
 
                 {builder.bases.length > 0 && (
@@ -349,7 +351,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Leistungen */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-5">Leistungen</h2>
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-5">Leistungen</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {builder.tags.map(tag => {
                     const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
@@ -367,12 +369,12 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.team && builder.team.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <div className="flex items-center gap-2 mb-5">
-                    <h2 className="text-xl font-bold text-[#222222] tracking-tight">Team</h2>
+                    <h2 className="text-base font-bold text-[#222222] tracking-tight">Team</h2>
                     <span className="ml-auto text-[10px] text-[#B0B0B0] font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {builder.team.map(member => (
-                      <div key={member.name} className="flex flex-col p-4 bg-white rounded-2xl border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all duration-200">
+                      <div key={member.name} className="flex flex-col p-4 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all duration-200">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-[#DDDDDD] ring-offset-2 ring-offset-white">
                             {member.avatar ? (
@@ -419,6 +421,9 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Map */}
               {builder.lat && builder.lng && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden mb-4">
+                  <div className="px-5 pt-4 pb-3">
+                    <h2 className="text-base font-bold text-[#222222] tracking-tight">So findest du {builder.name}</h2>
+                  </div>
                   <BuilderMapClient
                     lat={builder.lat}
                     lng={builder.lng}
@@ -442,7 +447,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Contact CTA */}
               <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                <p className="text-sm font-bold text-[#222222] mb-1">Projekt anfragen</p>
+                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Projekt anfragen</p>
                 <p className="text-xs text-[#717171] leading-relaxed mb-4">
                   Starte eine Konversation direkt mit {builder.name.split(' ')[0]}.
                 </p>
@@ -455,7 +460,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                 ) : (
                   <a href="/auth/login"
                     className="block w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all">
-                    Anmelden um zu schreiben
+                    Projekt anfragen
                   </a>
                 )}
               </div>
@@ -468,7 +473,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-4">Zahlungsmöglichkeiten</h2>
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Zahlungsmöglichkeiten</h2>
                   <div className="flex flex-wrap gap-1.5">
                     {builder.paymentMethods.map(method => (
                       <span key={method} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
@@ -482,7 +487,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Links */}
               {(builder.instagram || builder.website) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">Links</p>
+                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
                       <a
@@ -512,6 +517,15 @@ export default async function BuilderProfilePage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Mobile sticky CTA */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB] flex gap-2">
+        <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
+        <a href="#contact"
+          className="flex-1 flex items-center justify-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-2.5 hover:bg-[#058f8f] transition-colors">
+          Projekt anfragen
+        </a>
+      </div>
 
       <Footer />
     </div>

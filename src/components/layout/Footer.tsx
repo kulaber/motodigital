@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Instagram, Youtube } from 'lucide-react'
+import { Instagram } from 'lucide-react'
 
 const NAV = [
   {
@@ -66,10 +66,6 @@ export default function Footer() {
               <a href="https://www.instagram.com/motodigital.io/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                 className="w-11 h-11 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
                 <Instagram size={16} />
-              </a>
-              <a href="#" aria-label="YouTube"
-                className="w-11 h-11 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
-                <Youtube size={16} />
               </a>
             </div>
           </div>

@@ -78,24 +78,24 @@ export default async function CustomBikePage({ params }: Props) {
         </div>
 
         {/* Main content grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
 
           {/* LEFT */}
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-8">
 
             {/* Story */}
-            <div>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Der Build</h2>
-              <p className="text-[15px] text-[#444] leading-relaxed">{build.description}</p>
+            <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+              <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Der Build</h2>
+              <p className="text-sm text-[#717171] leading-relaxed">{build.description}</p>
             </div>
 
             {/* Modifications */}
-            <div>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Umbauten & Modifikationen</h2>
+            <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+              <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Umbauten & Modifikationen</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {build.modifications.map((mod, i) => (
                   <div key={i} className="flex items-start gap-2.5 bg-[#F7F7F7] rounded-xl px-4 py-3">
-                    <span className="text-[#717171] mt-0.5 flex-shrink-0">
+                    <span className="text-[#06a5a5] mt-0.5 flex-shrink-0">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </span>
                     <span className="text-xs text-[#444] leading-snug">{mod}</span>
@@ -106,8 +106,8 @@ export default async function CustomBikePage({ params }: Props) {
 
             {/* Video */}
             {build.videoUrl && (
-              <div>
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Video</h2>
+              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Video</h2>
                 <video
                   src={build.videoUrl}
                   controls
@@ -122,10 +122,11 @@ export default async function CustomBikePage({ params }: Props) {
           <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 
             {/* Builder card */}
-            <div className="bg-[#F7F7F7] rounded-2xl p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Gebaut von der Custom Werkstatt:</p>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-xl bg-[#E0E0E0] flex items-center justify-center text-sm font-bold text-[#717171] flex-shrink-0">
+            <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+              <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Custom Werkstatt</p>
+              <p className="text-xs text-[#717171] leading-relaxed mb-4">Gebaut von {build.builder.name}</p>
+              <div className="flex items-center gap-3 mb-4 p-3 bg-[#F7F7F7] rounded-xl">
+                <div className="w-10 h-10 rounded-xl bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                   {build.builder.initials}
                 </div>
                 <div>
@@ -136,15 +137,12 @@ export default async function CustomBikePage({ params }: Props) {
                   <p className="text-xs text-[#717171]">{build.builder.city}</p>
                 </div>
               </div>
-              {build.builder.specialty && (
-                <p className="text-xs text-[#717171] mb-4">{build.builder.specialty}</p>
-              )}
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/custom-werkstatt/${build.builder.slug}`}
                   className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors"
                 >
-                  Builder kontaktieren
+                  Werkstatt kontaktieren
                 </Link>
                 <Link
                   href={`/custom-werkstatt/${build.builder.slug}`}
@@ -156,8 +154,8 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
 
             {/* Specs */}
-            <div className="border border-[#EBEBEB] rounded-2xl p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AAAAAA] mb-4">Technische Daten</p>
+            <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+              <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Technische Daten</h2>
               <div className="flex flex-col">
                 {[
                   { label: 'Basis', value: build.base },
