@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, ArrowLeft, Globe, Instagram, CreditCard, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
@@ -18,9 +18,23 @@ export const dynamicParams = true
 const TAG_ICON_MAP: Record<string, React.ReactNode> = {
   'Komplettumbau':          <Wrench size={14} />,
   'Teilumbau':              <Settings size={14} />,
-  'TÜV-Einzelabnahme':     <ShieldCheck size={14} />,
+  'Teileumbau':             <Settings size={14} />,
+  'Elektrik':               <Zap size={14} />,
   'Elektrikarbeiten':       <Zap size={14} />,
   'Lackierung':             <Palette size={14} />,
+  'Folierung':              <Layers size={14} />,
+  'Pulverbeschichtung':     <Droplets size={14} />,
+  'Schweißen':              <Flame size={14} />,
+  'Fräsen':                 <Cog size={14} />,
+  'Sandstrahlen':           <Wind size={14} />,
+  'Verzinken':              <Shield size={14} />,
+  'Vergaser':               <Gauge size={14} />,
+  'TÜV-Einzelabnahme':     <ShieldCheck size={14} />,
+  'TÜV-Untersuchung':      <ClipboardCheck size={14} />,
+  'Motorinstandsetzung':    <Wrench size={14} />,
+  'Motorrevision':          <RefreshCw size={14} />,
+  'Motordiagnose':          <Activity size={14} />,
+  'Sattlerarbeiten':        <Scissors size={14} />,
   'Karosseriearbeiten':     <Wrench size={14} />,
   'Konzeption & Design':    <Pencil size={14} />,
   'Lieferung':              <Truck size={14} />,
@@ -261,7 +275,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               <div>
                 <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-1">Custom Bikes</p>
                 <h2 className="text-xl font-bold text-[#222222] tracking-tight">
-                  Projekte von {builder.name.split(' ')[0]}
+                  Projekte von {builder.name}
                 </h2>
               </div>
               <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Build' : 'Builds'}</span>
@@ -316,10 +330,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div>
               {/* About */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Über</h2>
-                </div>
+                <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-3">Über {builder.name}</h2>
                 <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>
 
                 {builder.bases.length > 0 && (
@@ -338,10 +349,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Leistungen */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                <div className="flex items-center gap-2 mb-5">
-                  <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
-                  <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Leistungen</h2>
-                </div>
+                <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-5">Leistungen</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {builder.tags.map(tag => {
                     const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
@@ -359,8 +367,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.team && builder.team.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <div className="flex items-center gap-2 mb-5">
-                    <span className="w-0.5 h-3 bg-[#06a5a5] rounded-full" />
-                    <h2 className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Team</h2>
+                    <h2 className="text-xl font-bold text-[#222222] tracking-tight">Team</h2>
                     <span className="ml-auto text-[10px] text-[#B0B0B0] font-medium">{builder.team.length} {builder.team.length === 1 ? 'Person' : 'Personen'}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -461,10 +468,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {/* Payment */}
               {builder.paymentMethods && builder.paymentMethods.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <CreditCard size={13} className="text-[#717171]" />
-                    <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Zahlung</p>
-                  </div>
+                  <h2 className="text-xl font-bold text-[#222222] tracking-tight mb-4">Zahlungsmöglichkeiten</h2>
                   <div className="flex flex-wrap gap-1.5">
                     {builder.paymentMethods.map(method => (
                       <span key={method} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
