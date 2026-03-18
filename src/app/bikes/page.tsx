@@ -49,7 +49,7 @@ export default async function BikesPage() {
       year:          r.year,
       price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',
       city:          r.city ?? '',
-      country:       'DE',
+      country:       'Deutschland',
       verified:      false,
       buildYear:     r.year,
       buildDuration: '',
