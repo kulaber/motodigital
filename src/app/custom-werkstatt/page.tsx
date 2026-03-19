@@ -92,11 +92,18 @@ export default async function BuilderPage() {
   const staticOnly = BUILDERS.filter(b => !dbSlugs.has(b.slug))
   const merged = [...dbBuilders, ...staticOnly]
 
+  // Shuffle non-sponsored server-side (Math.random OK in server component)
+  const sponsored = merged.filter(b => b.featured)
+  const nonSponsored = merged.filter(b => !b.featured)
+  // eslint-disable-next-line react-hooks/purity
+  const rest = nonSponsored.map(b => ({ b, r: Math.random() })).sort((a, z) => a.r - z.r).map(({ b }) => b)
+  const shuffled = [...sponsored, ...rest]
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
-      <BuilderPageClient builders={merged} />
+      <BuilderPageClient builders={shuffled} />
     </div>
   )
 }

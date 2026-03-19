@@ -316,10 +316,8 @@ export default function BuilderPageClient({ builders }: Props) {
       const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
       return specOk && leistungOk && verifiedOk && openOk
     })
-    // Gesponserte immer zuerst, Rest zufällig
-    const sponsored = results.filter(b => b.featured)
-    const rest = results.filter(b => !b.featured).sort(() => Math.random() - 0.5)
-    return [...sponsored, ...rest]
+    // Gesponserte immer zuerst (Shuffle bereits server-seitig erfolgt)
+    return [...results.filter(b => b.featured), ...results.filter(b => !b.featured)]
   }, [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
