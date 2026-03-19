@@ -2,6 +2,12 @@
 
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+@keyframes ping-once {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.animate-ping-once { animation: ping-once 0.4s ease-out forwards; }
+
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
 @theme {
   /* Brand / Accent — used ONLY on primary CTA buttons */

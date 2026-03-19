@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import { Heart, Trash2, ImageIcon, X, Send, Video } from 'lucide-react'
+import { Heart, Trash2, ImageIcon, X, Send, Video, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { formatRelativeTime } from '@/lib/utils'
 
@@ -292,6 +292,137 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   )
 }
 
+function VideoPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [playing, setPlaying] = useState(false)
+  const [showIcon, setShowIcon] = useState(false)
+  const iconTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function flashIcon() {
+    setShowIcon(true)
+    if (iconTimer.current) clearTimeout(iconTimer.current)
+    iconTimer.current = setTimeout(() => setShowIcon(false), 800)
+  }
+
+  function toggle() {
+    const v = videoRef.current
+    if (!v) return
+    if (v.paused) { v.play(); setPlaying(true) } else { v.pause(); setPlaying(false) }
+    flashIcon()
+  }
+
+  return (
+    <div className="relative w-full cursor-pointer" style={{ maxHeight: '750px', overflow: 'hidden' }} onClick={toggle}>
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full block object-cover"
+        style={{ maxHeight: '750px' }}
+        playsInline
+        onEnded={() => setPlaying(false)}
+      />
+      {/* Center icon flash */}
+      {showIcon && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center animate-ping-once">
+            {playing ? <Pause size={28} className="text-white fill-white" /> : <Play size={28} className="text-white fill-white" />}
+          </div>
+        </div>
+      )}
+      {/* Static play button when paused and not yet played */}
+      {!playing && !showIcon && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
+            <Play size={28} className="text-white fill-white ml-1" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MediaCarousel({ urls, onOpenLightbox }: { urls: string[]; onOpenLightbox: (url: string) => void }) {
+  const [index, setIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
+  const single = urls.length === 1
+
+  const prev = useCallback(() => setIndex(i => Math.max(0, i - 1)), [])
+  const next = useCallback(() => setIndex(i => Math.min(urls.length - 1, i + 1)), [urls.length])
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (dx < -40) next()
+    else if (dx > 40) prev()
+    touchStartX.current = null
+  }
+
+  const url = urls[index]
+  const isVideo = url.match(/\.(mp4|mov|webm)(\?|$)/i)
+
+  return (
+    <div className="relative overflow-hidden select-none" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {isVideo ? (
+        <VideoPlayer src={url} />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt=""
+          className="w-full block cursor-pointer"
+          style={{ maxHeight: '750px' }}
+          onClick={() => onOpenLightbox(url)}
+        />
+      )}
+
+      {/* Prev / Next arrows */}
+      {!single && (
+        <>
+          {index > 0 && (
+            <button
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          {index < urls.length - 1 && (
+            <button
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Dot indicators */}
+      {!single && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {urls.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              className={`rounded-full transition-all ${i === index ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Counter top-right */}
+      {!single && (
+        <span className="absolute top-2 right-2 text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded-full">
+          {index + 1} / {urls.length}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function PostCard({
   post, userId, userRole, onLike, onDelete
 }: {
@@ -339,23 +470,7 @@ function PostCard({
 
       {/* Media */}
       {post.media_urls.length > 0 && (
-        <div className={`grid gap-0.5 ${post.media_urls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-          {post.media_urls.map((url, i) => (
-            url.match(/\.(mp4|mov|webm)(\?|$)/i) ? (
-              <video key={i} src={url} controls className="w-full block bg-black" style={{ maxHeight: '750px' }} />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={url}
-                alt=""
-                className="w-full block cursor-pointer"
-                style={{ maxHeight: '750px' }}
-                onClick={() => setLightbox(url)}
-              />
-            )
-          ))}
-        </div>
+        <MediaCarousel urls={post.media_urls} onOpenLightbox={setLightbox} />
       )}
 
       {/* Actions */}
