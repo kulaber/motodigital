@@ -43,7 +43,7 @@ function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boole
         src={url}
         alt="Bild"
         onClick={() => onImageClick(url)}
-        className="block max-w-[240px] w-full rounded-xl cursor-zoom-in object-cover hover:opacity-95 transition-opacity"
+        className="block max-w-[240px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
       />
     )
   }
@@ -614,6 +614,34 @@ export default function MessagesClient({ conversations: initial, userId }: Props
       })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
+
+  // Realtime: neue Nachricht → Konversation nach oben sortieren
+  useEffect(() => {
+    const channel = supabase
+      .channel('conv-order')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          const msg = payload.new as { conversation_id: string; created_at: string }
+          setConversations(prev => {
+            const updated = prev.map(c =>
+              c.id === msg.conversation_id
+                ? { ...c, last_message_at: msg.created_at }
+                : c
+            )
+            return [...updated].sort((a, b) => {
+              if (!a.last_message_at) return 1
+              if (!b.last_message_at) return -1
+              return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+            })
+          })
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!selectedId) return
