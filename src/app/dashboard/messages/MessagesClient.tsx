@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X } from 'lucide-react'
+import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X, Plus, Camera } from 'lucide-react'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -207,13 +207,17 @@ function MessageThread({
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+  const [plusMenuOpen, setPlusMenuOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const initialLoadRef = useRef(true)
   const supabase = createClient()
   const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
 
   useEffect(() => {
+    initialLoadRef.current = false
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
@@ -490,42 +494,65 @@ function MessageThread({
       </div>
 
       {/* Input area */}
-      <div className="flex-shrink-0 px-5 py-4 border-t border-[#222222]/5">
+      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white">
+
         {/* Image preview */}
         {previewFile && (
-          <div className="relative mb-3 inline-block">
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#222222]/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewFile.url} alt="Vorschau" className="w-full h-full object-cover" />
+          <div className="px-4 pt-3">
+            <div className="relative inline-block">
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-[#222222]/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={previewFile.url} alt="Vorschau" className="w-full h-full object-cover" />
+              </div>
+              <button
+                onClick={() => setPreviewFile(null)}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#222222] rounded-full flex items-center justify-center text-white"
+              >
+                <X size={10} />
+              </button>
             </div>
-            <button
-              onClick={() => setPreviewFile(null)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#222222] rounded-full flex items-center justify-center text-white"
-            >
-              <X size={10} />
-            </button>
           </div>
         )}
 
-        <div className="flex items-end gap-2">
-          {/* Image upload */}
+        {/* Hidden file inputs */}
+        <input ref={fileInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
+
+        {/* Mobile: einzeiliges Layout */}
+        <div className="flex items-center gap-2 px-3 py-3 sm:hidden">
+          <button
+            type="button"
+            onClick={() => setPlusMenuOpen(true)}
+            className="flex-shrink-0 w-9 h-9 rounded-full bg-[#F0F0F0] flex items-center justify-center text-[#555] active:bg-[#E0E0E0] transition-colors"
+          >
+            <Plus size={18} />
+          </button>
           <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSend() } }}
+            placeholder="Nachricht schreiben..."
+            className="flex-1 bg-white border border-[#E5E5E5] rounded-full px-4 h-10 text-[#222222] placeholder:text-[#999] outline-none focus:outline-none focus:ring-0"
           />
           <button
             type="button"
+            onClick={handleSend}
+            disabled={(!text.trim() && !previewFile) || sending || uploading}
+            className="flex-shrink-0 w-9 h-9 rounded-full bg-[#F0F0F0] disabled:opacity-30 flex items-center justify-center transition-colors active:bg-[#E0E0E0]"
+          >
+            <ArrowUp size={16} className="text-[#555]" />
+          </button>
+        </div>
+
+        {/* Desktop: mehrzeiliges Layout */}
+        <div className="hidden sm:flex items-end gap-2 px-5 py-4">
+          <button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex-shrink-0 w-10 h-10 rounded-full border border-[#222222]/10 flex items-center justify-center text-[#222222]/40 hover:text-[#222222]/60 hover:border-[#222222]/20 transition-colors mb-0.5"
-            title="Bild senden"
+            className="flex-shrink-0 w-10 h-10 rounded-full border border-[#222222]/10 flex items-center justify-center text-[#222222]/40 hover:text-[#222222]/60 transition-colors mb-0.5"
           >
             <ImageIcon size={16} />
           </button>
-
-          {/* Textarea */}
           <div className="flex-1 relative bg-[#F7F7F7] border border-[#222222]/8 rounded-2xl focus-within:border-[#222222]/60 focus-within:bg-white transition-colors">
             <textarea
               ref={textareaRef}
@@ -538,8 +565,6 @@ function MessageThread({
               className="w-full bg-transparent px-4 pt-3 pb-3 text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none focus:outline-none focus:ring-0 leading-relaxed"
             />
           </div>
-
-          {/* Send button */}
           <button
             type="button"
             onClick={handleSend}
@@ -550,6 +575,37 @@ function MessageThread({
           </button>
         </div>
       </div>
+
+      {/* Plus-Menü Bottom Sheet (mobil) */}
+      {plusMenuOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:hidden" onClick={() => setPlusMenuOpen(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="relative bg-white rounded-t-2xl pb-8 pt-2 animate-slide-up-sm"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-[#222222]/10 rounded-full mx-auto mb-4" />
+            <button
+              className="w-full flex items-center gap-4 px-6 py-4 active:bg-[#F7F7F7] transition-colors"
+              onClick={() => { setPlusMenuOpen(false); fileInputRef.current?.click() }}
+            >
+              <div className="w-11 h-11 rounded-full bg-[#F0F0F0] flex items-center justify-center flex-shrink-0">
+                <ImageIcon size={20} className="text-[#333]" />
+              </div>
+              <span className="text-[#222222] font-medium">Foto oder Video hinzufügen</span>
+            </button>
+            <button
+              className="w-full flex items-center gap-4 px-6 py-4 active:bg-[#F7F7F7] transition-colors"
+              onClick={() => { setPlusMenuOpen(false); cameraInputRef.current?.click() }}
+            >
+              <div className="w-11 h-11 rounded-full bg-[#F0F0F0] flex items-center justify-center flex-shrink-0">
+                <Camera size={20} className="text-[#333]" />
+              </div>
+              <span className="text-[#222222] font-medium">Kamera</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxUrl && (

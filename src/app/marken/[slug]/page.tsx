@@ -39,11 +39,24 @@ export default async function MarkeDetailPage({ params }: Props) {
   // DB bikes filtered by make column (as set in the form dropdown)
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: dbBikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
-    .ilike('make', brand.name)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
+  let dbBikes: any[] | null = null
+  // Try with slug column first (new schema), fall back to without
+  {
+    const { data } = await (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
+      .ilike('make', brand.name)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+    dbBikes = data
+  }
+  if (!dbBikes) {
+    const { data } = await (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, bike_images(url, is_cover, position)')
+      .ilike('make', brand.name)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+    dbBikes = data
+  }
 
   // Map DB bikes to a renderable format
   const dbBuilds = (dbBikes ?? []).map((bike: any) => {

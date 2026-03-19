@@ -204,8 +204,9 @@ textarea:focus-visible {
 }
 
 /* Kein Zoom beim Antippen auf iOS/Android — min. 16px font-size */
+/* !important nötig, damit Tailwind-Klassen (text-sm = 14px) nicht überschreiben */
 input, textarea, select {
-  font-size: max(16px, 1em);
+  font-size: max(16px, 1em) !important;
 }
 
 /* ─── Scroll-reveal ──────────────────────────────────────── */
