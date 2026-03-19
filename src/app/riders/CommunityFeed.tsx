@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { Heart, Trash2, ImageIcon, X, Send, Video, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -293,10 +293,19 @@ export default function CommunityFeed({ userId, userRole }: Props) {
 }
 
 function VideoPlayer({ src }: { src: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
   const [showIcon, setShowIcon] = useState(false)
+  const [maxH, setMaxH] = useState<number>(750)
   const iconTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (wrapRef.current) {
+      const w = wrapRef.current.offsetWidth
+      setMaxH(Math.round(w * 16 / 9))
+    }
+  }, [])
 
   function flashIcon() {
     setShowIcon(true)
@@ -312,12 +321,12 @@ function VideoPlayer({ src }: { src: string }) {
   }
 
   return (
-    <div className="relative w-full cursor-pointer" style={{ maxHeight: '750px', overflow: 'hidden' }} onClick={toggle}>
+    <div ref={wrapRef} className="relative w-full cursor-pointer" style={{ maxHeight: maxH, overflow: 'hidden' }} onClick={toggle}>
       <video
         ref={videoRef}
         src={src}
         className="w-full block object-cover"
-        style={{ maxHeight: '750px' }}
+        style={{ maxHeight: maxH }}
         playsInline
         onEnded={() => setPlaying(false)}
       />
@@ -343,40 +352,94 @@ function VideoPlayer({ src }: { src: string }) {
 
 function MediaCarousel({ urls, onOpenLightbox }: { urls: string[]; onOpenLightbox: (url: string) => void }) {
   const [index, setIndex] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const [dims, setDims] = useState<Record<number, { w: number; h: number }>>({})
+  const [containerW, setContainerW] = useState(560)
   const single = urls.length === 1
+
+  useEffect(() => {
+    if (containerRef.current) setContainerW(containerRef.current.offsetWidth)
+  }, [])
+
+  const isVideo = useCallback((url: string) => !!url.match(/\.(mp4|mov|webm)(\?|$)/i), [])
+
+  // Fixed height = height of the most landscape image (smallest rendered height)
+  const fixedHeight = useMemo(() => {
+    const imgIndices = urls.map((u, i) => ({ u, i })).filter(({ u }) => !isVideo(u))
+    if (imgIndices.length === 0) return null
+    const loaded = imgIndices.filter(({ i }) => dims[i])
+    if (loaded.length < imgIndices.length) return null
+    const heights = loaded.map(({ i }) => {
+      const d = dims[i]
+      return Math.min((d.h / d.w) * containerW, 750)
+    })
+    return Math.min(...heights)
+  }, [dims, containerW, urls, isVideo])
 
   const prev = useCallback(() => setIndex(i => Math.max(0, i - 1)), [])
   const next = useCallback(() => setIndex(i => Math.min(urls.length - 1, i + 1)), [urls.length])
 
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
   }
   function onTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
-    if (dx < -40) next()
-    else if (dx > 40) prev()
+    const dy = Math.abs(e.changedTouches[0].clientY - (touchStartY.current ?? 0))
+    if (Math.abs(dx) > dy && Math.abs(dx) > 40) {
+      if (dx < 0) next(); else prev()
+    }
     touchStartX.current = null
+    touchStartY.current = null
   }
 
-  const url = urls[index]
-  const isVideo = url.match(/\.(mp4|mov|webm)(\?|$)/i)
+  const n = urls.length
 
   return (
-    <div className="relative overflow-hidden select-none" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      {isVideo ? (
-        <VideoPlayer src={url} />
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={url}
-          alt=""
-          className="w-full block cursor-pointer"
-          style={{ maxHeight: '750px' }}
-          onClick={() => onOpenLightbox(url)}
-        />
-      )}
+    <div
+      ref={containerRef}
+      className="relative overflow-hidden select-none"
+      style={{ height: fixedHeight ? `${fixedHeight}px` : 'auto' }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Sliding strip */}
+      <div
+        style={{
+          display: 'flex',
+          width: `${n * 100}%`,
+          height: fixedHeight ? '100%' : 'auto',
+          transform: `translateX(calc(-${(index * 100) / n}%))`,
+          transition: single ? 'none' : 'transform 0.32s cubic-bezier(0.4,0,0.2,1)',
+        }}
+      >
+        {urls.map((url, i) => (
+          <div key={i} style={{ width: `${100 / n}%`, flexShrink: 0, height: fixedHeight ? '100%' : 'auto' }}>
+            {isVideo(url) ? (
+              <VideoPlayer src={url} />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={url}
+                alt=""
+                className="w-full block"
+                style={{
+                  height: fixedHeight ? `${fixedHeight}px` : 'auto',
+                  objectFit: fixedHeight ? 'cover' : undefined,
+                  maxHeight: fixedHeight ? undefined : '750px',
+                }}
+                onLoad={e => {
+                  const img = e.currentTarget
+                  setDims(prev => ({ ...prev, [i]: { w: img.naturalWidth, h: img.naturalHeight } }))
+                }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Prev / Next arrows */}
       {!single && (
@@ -389,7 +452,7 @@ function MediaCarousel({ urls, onOpenLightbox }: { urls: string[]; onOpenLightbo
               <ChevronLeft size={18} />
             </button>
           )}
-          {index < urls.length - 1 && (
+          {index < n - 1 && (
             <button
               onClick={next}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
@@ -416,7 +479,7 @@ function MediaCarousel({ urls, onOpenLightbox }: { urls: string[]; onOpenLightbo
       {/* Counter top-right */}
       {!single && (
         <span className="absolute top-2 right-2 text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded-full">
-          {index + 1} / {urls.length}
+          {index + 1} / {n}
         </span>
       )}
     </div>
