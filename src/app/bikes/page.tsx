@@ -14,28 +14,26 @@ export const metadata: Metadata = {
 export default async function BikesPage() {
   const supabase = await createClient()
 
+  // Fetch all active bikes (werkstatt + rider)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // Get IDs of all custom-werkstatt users
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: werkstattProfiles } = await (supabase.from('profiles') as any)
-    .select('id, full_name')
-    .eq('role', 'custom-werkstatt')
+  const { data: rows } = await (supabase.from('bikes') as any)
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, bike_images(url, is_cover, position)')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
 
-  const werkstattIds: string[] = (werkstattProfiles ?? []).map((p: any) => p.id)
-  const werkstattNameById: Record<string, string> = Object.fromEntries(
-    (werkstattProfiles ?? []).map((p: any) => [p.id, p.full_name ?? ''])
+  // Fetch seller names for all bikes
+  const sellerIds: string[] = [...new Set<string>((rows ?? []).map((r: any) => r.seller_id))]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: sellerProfiles } = sellerIds.length > 0
+    ? await (supabase.from('profiles') as any)
+        .select('id, full_name')
+        .in('id', sellerIds)
+    : { data: [] }
+  const sellerNameById: Record<string, string> = Object.fromEntries(
+    (sellerProfiles ?? []).map((p: any) => [p.id, p.full_name ?? ''])
   )
 
-  // Fetch only bikes from werkstatt users
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: rows } = werkstattIds.length > 0
-    ? await (supabase.from('bikes') as any)
-        .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, bike_images(url, is_cover, position)')
-        .eq('status', 'active')
-        .in('seller_id', werkstattIds)
-        .order('created_at', { ascending: false })
-    : { data: [] }
-
   const dbBuilds: Build[] = (rows ?? []).map((r: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
@@ -57,7 +55,7 @@ export default async function BikesPage() {
       modifications: [],
       engine:        '',
       displacement:  '',
-      builder:       { name: werkstattNameById[r.seller_id] ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
+      builder:       { name: sellerNameById[r.seller_id] ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
       coverImg:      cover,
       images:        images.map((i: any) => i.url),
       publishedAt:   r.created_at,

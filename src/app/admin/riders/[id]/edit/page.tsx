@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import NextImage from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import Header from '@/components/layout/Header'
 import { ArrowLeft, Save, Shield, BadgeCheck, User, Upload } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
@@ -145,9 +144,7 @@ export default function AdminEditRiderPage() {
   const inputCls = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#222222]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors'
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <Header />
-      <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
+    <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
 
         <div className="flex items-center justify-between mb-8">
           <Link href="/admin/riders" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
@@ -315,7 +312,6 @@ export default function AdminEditRiderPage() {
 
           </div>
         )}
-      </div>
     </div>
   )
 }

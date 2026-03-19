@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight, Plus } from 'lucide-react'
+import { Upload, X, ChevronRight, ChevronDown, Plus } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
+// ─── Constants ────────────────────────────────────────────────────────────────
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
   { value: 'bobber',     label: 'Bobber'     },
@@ -20,34 +21,26 @@ const STYLES = [
   { value: 'other',      label: 'Sonstiges'  },
 ]
 
+const labelClass = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-2'
+const inputClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#06a5a5] transition-colors'
+const selectClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors appearance-none cursor-pointer'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 type ExistingImage = { id: string; url: string; is_cover: boolean; position: number }
 
 type BikeData = {
-  id: string
-  slug: string | null
-  title: string
-  make: string
-  model: string
-  year: number
-  style: string
-  cc: number | null
-  mileage_km: number | null
-  price: number
-  city: string | null
-  description: string | null
-  modifications: string[] | null
-  status: 'active' | 'draft'
-  seller_id: string
-  bike_images: ExistingImage[]
+  id: string; slug: string | null; title: string; make: string; model: string; year: number
+  style: string; cc: number | null; mileage_km: number | null; price: number
+  city: string | null; description: string | null; modifications: string[] | null
+  status: 'active' | 'draft'; seller_id: string; bike_images: ExistingImage[]
 }
+
+type BaseBike = { make: string; model: string; year_from: number; year_to: number | null }
 
 type Step = 1 | 2 | 3
 
-const labelClass  = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-2'
-const inputClass  = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors'
-const selectClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#222222] outline-none focus:border-[#DDDDDD] transition-colors appearance-none cursor-pointer'
-
-export default function EditBikeForm({ bike }: { bike: BikeData }) {
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; baseBikes: BaseBike[] }) {
   const router = useRouter()
   const supabase = createClient()
   const { toasts, success: toastSuccess, error: toastError } = useToast()
@@ -55,96 +48,109 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
 
-  // ── Step 1: Basis ─────────────────────────────────
-  const [title, setTitle]   = useState(bike.title)
-  const [make, setMake]     = useState(bike.make)
-  const [model, setModel]   = useState(bike.model)
-  const [year, setYear]     = useState(String(bike.year))
-  const [price, setPrice]   = useState(String(bike.price))
-  const [style, setStyle]   = useState(bike.style)
+  // ── Step 1: Basis ──────────────────────────────────
+  const [title, setTitle] = useState(bike.title)
 
-  // ── Step 2: Details ───────────────────────────────
-  const [mileage, setMileage]             = useState(bike.mileage_km ? String(bike.mileage_km) : '')
-  const [description, setDescription]     = useState(bike.description ?? '')
-  const [modifications, setModifications] = useState<string[]>(bike.modifications?.length ? bike.modifications : [''])
+  // Make
+  const makes = useMemo(() => [...new Set(baseBikes.map(b => b.make))].sort(), [baseBikes])
+  const isKnownMake = makes.includes(bike.make)
+  const [makeId, setMakeId] = useState(isKnownMake ? bike.make : 'andere')
+  const [customMake, setCustomMake] = useState(isKnownMake ? '' : bike.make)
 
-  // ── Step 3: Photos ────────────────────────────────
+  // Model
+  const modelsForMake = useMemo(() => baseBikes.filter(b => b.make === makeId), [baseBikes, makeId])
+  const isKnownModel = modelsForMake.some(b => b.model === bike.model)
+  const [modelId, setModelId] = useState(isKnownModel ? bike.model : 'andere')
+  const [customModel, setCustomModel] = useState(isKnownModel ? '' : bike.model)
+
+  // Year
+  const selectedBaseBike = useMemo(
+    () => baseBikes.find(b => b.make === makeId && b.model === modelId) ?? null,
+    [baseBikes, makeId, modelId]
+  )
+  const yearOptions = useMemo(() => {
+    if (!selectedBaseBike) return []
+    const from = selectedBaseBike.year_from
+    const to = selectedBaseBike.year_to ?? new Date().getFullYear()
+    return Array.from({ length: to - from + 1 }, (_, i) => to - i)
+  }, [selectedBaseBike])
+  const [year, setYear] = useState(String(bike.year))
+
+  const finalMake = makeId === 'andere' ? customMake : makeId
+  const finalModel = modelId === 'andere' ? customModel : modelId
+
+  function onMakeChange(val: string) {
+    setMakeId(val)
+    setModelId('')
+    setCustomModel('')
+    setYear('')
+  }
+
+  function onModelChange(val: string) {
+    setModelId(val)
+    setYear('')
+  }
+
+  // ── Step 2: Details ────────────────────────────────
+  const [style, setStyle] = useState(bike.style)
+  const [mileage, setMileage] = useState(bike.mileage_km ? String(bike.mileage_km) : '')
+  const [description, setDescription] = useState(bike.description ?? '')
+  const [modifications, setModifications] = useState<string[]>(bike.modifications?.filter(Boolean) ?? [])
+  const [modInput, setModInput] = useState('')
+
+  function addMod() {
+    const t = modInput.trim()
+    if (!t || modifications.includes(t)) return
+    setModifications(p => [...p, t])
+    setModInput('')
+  }
+
+  // ── Step 3: Photos ─────────────────────────────────
   const sorted = [...bike.bike_images].sort((a, b) => {
     if (a.is_cover) return -1
     if (b.is_cover) return 1
     return a.position - b.position
   })
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>(sorted)
+  type GalleryItem = { type: 'existing'; img: ExistingImage } | { type: 'new'; file: File; preview: string }
+  const [gallery, setGallery] = useState<GalleryItem[]>(sorted.map(img => ({ type: 'existing', img })))
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([])
-  const [newImageFiles, setNewImageFiles] = useState<File[]>([])
-  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
   const [status, setStatus] = useState<'active' | 'draft'>(bike.status)
 
-  // Drag & drop for existing images
-  const dragExistingIdx = useRef<number | null>(null)
-  const [dragOverExistingIdx, setDragOverExistingIdx] = useState<number | null>(null)
+  const dragIdx = useRef<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
-  // Drag & drop for new images
-  const dragNewIdx = useRef<number | null>(null)
-  const [dragOverNewIdx, setDragOverNewIdx] = useState<number | null>(null)
-
-  const step1Valid = title.trim() && make.trim() && model.trim() && year && style && price
-
-  // ── Image handlers ────────────────────────────────
-  async function handleNewImages(files: FileList | null) {
+  async function handleAddImages(files: FileList | null) {
     if (!files) return
-    const total = existingImages.length + newImageFiles.length
-    const add = Array.from(files).slice(0, 8 - total)
+    const add = Array.from(files).slice(0, 8 - gallery.length)
     const compressed = await Promise.all(add.map(f => compressImage(f)))
-    setNewImageFiles(prev => [...prev, ...compressed])
-    compressed.forEach(file => {
-      const reader = new FileReader()
-      reader.onload = e => setNewImagePreviews(prev => [...prev, e.target?.result as string])
-      reader.readAsDataURL(file)
-    })
+    const newItems: GalleryItem[] = compressed.map(file => ({
+      type: 'new',
+      file,
+      preview: URL.createObjectURL(file),
+    }))
+    setGallery(p => [...p, ...newItems])
   }
 
-  function removeExistingImage(id: string) {
-    setExistingImages(prev => prev.filter(i => i.id !== id))
-    setDeletedImageIds(prev => [...prev, id])
+  function removeItem(i: number) {
+    const item = gallery[i]
+    if (item.type === 'existing') setDeletedImageIds(p => [...p, item.img.id])
+    setGallery(p => p.filter((_, idx) => idx !== i))
   }
 
-  function removeNewImage(i: number) {
-    setNewImageFiles(prev => prev.filter((_, idx) => idx !== i))
-    setNewImagePreviews(prev => prev.filter((_, idx) => idx !== i))
-  }
-
-  function handleExistingDrop(toIdx: number) {
-    if (dragExistingIdx.current === null || dragExistingIdx.current === toIdx) {
-      setDragOverExistingIdx(null); return
-    }
-    const from = dragExistingIdx.current
-    const arr = [...existingImages]
-    const [moved] = arr.splice(from, 1)
+  function handleDrop(toIdx: number) {
+    if (dragIdx.current === null || dragIdx.current === toIdx) { setDragOverIdx(null); return }
+    const arr = [...gallery]
+    const [moved] = arr.splice(dragIdx.current, 1)
     arr.splice(toIdx, 0, moved)
-    setExistingImages(arr)
-    setDragOverExistingIdx(null)
-    dragExistingIdx.current = null
+    setGallery(arr)
+    setDragOverIdx(null)
+    dragIdx.current = null
   }
 
-  function handleNewDrop(toIdx: number) {
-    if (dragNewIdx.current === null || dragNewIdx.current === toIdx) {
-      setDragOverNewIdx(null); return
-    }
-    const from = dragNewIdx.current
-    const files = [...newImageFiles]
-    const previews = [...newImagePreviews]
-    const [movedFile] = files.splice(from, 1)
-    const [movedPreview] = previews.splice(from, 1)
-    files.splice(toIdx, 0, movedFile)
-    previews.splice(toIdx, 0, movedPreview)
-    setNewImageFiles(files)
-    setNewImagePreviews(previews)
-    setDragOverNewIdx(null)
-    dragNewIdx.current = null
-  }
+  // ── Validation ─────────────────────────────────────
+  const step1Valid = title.trim() && finalMake.trim() && finalModel.trim() && year
 
-  // ── Submit ────────────────────────────────────────
+  // ── Submit ─────────────────────────────────────────
   async function handleSubmit() {
     setLoading(true)
 
@@ -154,23 +160,17 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('bikes') as any).update({
       title:       title.trim(),
-      make:        make.trim(),
-      model:       model.trim(),
+      make:        finalMake.trim(),
+      model:       finalModel.trim(),
       year:        parseInt(year),
       style,
       mileage_km:  mileage ? parseInt(mileage) : null,
-      price:       parseFloat(price.replace(/[^0-9.]/g, '')),
-      description:   description.trim() || null,
-      modifications: modifications.map(m => m.trim()).filter(Boolean),
+      description: description.trim() || null,
+      modifications,
       status,
     }).eq('id', bike.id)
 
-    if (updateError) {
-      toastError(updateError.message ?? 'Fehler beim Speichern.')
-      console.error('[bikes/edit] update error:', updateError)
-      setLoading(false)
-      return
-    }
+    if (updateError) { toastError(updateError.message); setLoading(false); return }
 
     // Delete removed images
     for (const id of deletedImageIds) {
@@ -178,31 +178,23 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
       await (supabase.from('bike_images') as any).delete().eq('id', id)
     }
 
-    // Update positions of existing images + set cover
-    for (let i = 0; i < existingImages.length; i++) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('bike_images') as any).update({
-        position: i,
-        is_cover: i === 0,
-      }).eq('id', existingImages[i].id)
-    }
-
-    // Upload new images
-    const offset = existingImages.length
-    for (let i = 0; i < newImageFiles.length; i++) {
-      const file = newImageFiles[i]
-      const ext = file.name.split('.').pop()
-      const path = `${user.id}/${bike.id}/${Date.now()}-${i}.${ext}`
-      const { data: upload } = await supabase.storage.from('bike-images').upload(path, file, { upsert: true })
-      if (upload) {
-        const { data: urlData } = supabase.storage.from('bike-images').getPublicUrl(path)
+    // Update positions for all remaining gallery items
+    for (let i = 0; i < gallery.length; i++) {
+      const item = gallery[i]
+      if (item.type === 'existing') {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase.from('bike_images') as any).insert({
-          bike_id:  bike.id,
-          url:      urlData.publicUrl,
-          position: offset + i,
-          is_cover: offset === 0 && i === 0,
-        })
+        await (supabase.from('bike_images') as any).update({ position: i, is_cover: i === 0 }).eq('id', item.img.id)
+      } else {
+        const ext = item.file.name.split('.').pop()
+        const path = `${user.id}/${bike.id}/${Date.now()}-${i}.${ext}`
+        const { data: upload } = await supabase.storage.from('bike-images').upload(path, item.file, { upsert: true })
+        if (upload) {
+          const { data: { publicUrl } } = supabase.storage.from('bike-images').getPublicUrl(path)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase.from('bike_images') as any).insert({
+            bike_id: bike.id, url: publicUrl, position: i, is_cover: i === 0,
+          })
+        }
       }
     }
 
@@ -216,8 +208,9 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <ToastContainer toasts={toasts} />
 
-      {/* Steps */}
+      {/* Step indicator */}
       <div className="flex items-center gap-2 mb-8">
         {steps.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
@@ -238,8 +231,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         ))}
       </div>
 
-      <ToastContainer toasts={toasts} />
-
       {/* ── STEP 1: Basis ── */}
       {step === 1 && (
         <div className="flex flex-col gap-5 animate-fade-in">
@@ -247,61 +238,77 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           <div>
             <label className={labelClass}>Inserat-Titel *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="z.B. Honda CB550 Cafe Racer — The Midnight Scrambler"
+              placeholder="z.B. Honda CB550 Café Racer — The Midnight"
               className={inputClass} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Marke *</label>
-              <input value={make} onChange={e => setMake(e.target.value)}
-                placeholder="Honda" className={inputClass} />
+          {/* Marke */}
+          <div>
+            <label className={labelClass}>Marke *</label>
+            <div className="relative">
+              <select value={makeId} onChange={e => onMakeChange(e.target.value)} className={selectClass}>
+                <option value="">Marke wählen…</option>
+                {makes.map(m => <option key={m} value={m}>{m}</option>)}
+                <option value="andere">Andere…</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
             </div>
-            <div>
-              <label className={labelClass}>Modell *</label>
-              <input value={model} onChange={e => setModel(e.target.value)}
-                placeholder="CB750" className={inputClass} />
-            </div>
+            {makeId === 'andere' && (
+              <input value={customMake} onChange={e => setCustomMake(e.target.value)}
+                placeholder="Marke eingeben…" className={`${inputClass} mt-2`} />
+            )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Baujahr *</label>
+          {/* Modell */}
+          <div>
+            <label className={labelClass}>Modell *</label>
+            {makeId === 'andere' || modelsForMake.length === 0 ? (
+              <input value={customModel} onChange={e => setCustomModel(e.target.value)}
+                placeholder="Modell eingeben…" className={inputClass} />
+            ) : (
+              <>
+                <div className="relative">
+                  <select value={modelId} onChange={e => onModelChange(e.target.value)}
+                    disabled={!makeId} className={`${selectClass} disabled:opacity-40`}>
+                    <option value="">Modell wählen…</option>
+                    {modelsForMake.map(b => (
+                      <option key={b.model} value={b.model}>
+                        {b.model} ({b.year_from}–{b.year_to ?? 'heute'})
+                      </option>
+                    ))}
+                    <option value="andere">Anderes Modell…</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
+                </div>
+                {modelId === 'andere' && (
+                  <input value={customModel} onChange={e => setCustomModel(e.target.value)}
+                    placeholder="Modell eingeben…" className={`${inputClass} mt-2`} />
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Baujahr */}
+          <div>
+            <label className={labelClass}>Baujahr *</label>
+            {yearOptions.length > 0 ? (
+              <div className="relative">
+                <select value={year} onChange={e => setYear(e.target.value)} className={selectClass}>
+                  <option value="">Jahr wählen…</option>
+                  {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
+              </div>
+            ) : (
               <input value={year} onChange={e => setYear(e.target.value)}
                 type="number" min="1920" max={new Date().getFullYear()}
                 placeholder="1981" className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Preis (€) *</label>
-              <input value={price} onChange={e => setPrice(e.target.value)}
-                type="number" min="0" placeholder="9500" className={inputClass} />
-            </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>Typ / Style *</label>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {STYLES.map(s => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setStyle(s.value)}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all ${
-                    style === s.value
-                      ? 'bg-[#222222]/15 border-[#DDDDDD] text-[#717171]'
-                      : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20 hover:text-[#222222]'
-                  }`}
-                >{s.label}</button>
-              ))}
-            </div>
+            )}
           </div>
 
           <div className="flex justify-end pt-2">
-            <button
-              onClick={() => step1Valid && setStep(2)}
-              disabled={!step1Valid}
-              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            >
+            <button onClick={() => step1Valid && setStep(2)} disabled={!step1Valid}
+              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
               Weiter <ChevronRight size={16} />
             </button>
           </div>
@@ -310,54 +317,76 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
 
       {/* ── STEP 2: Details ── */}
       {step === 2 && (
-        <div className="flex flex-col gap-5 animate-fade-in">
+        <div className="flex flex-col gap-6 animate-fade-in">
 
+          {/* Umbaustil */}
+          <div>
+            <label className={labelClass}>Umbaustil *</label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {STYLES.map(s => (
+                <button key={s.value} type="button" onClick={() => setStyle(s.value)}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all ${
+                    style === s.value
+                      ? 'bg-[#06a5a5]/10 border-[#06a5a5]/30 text-[#06a5a5]'
+                      : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20 hover:text-[#222222]'
+                  }`}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Umbauten & Modifikationen */}
+          <div>
+            <label className={labelClass}>Umbauten & Modifikationen</label>
+
+            {/* Tags */}
+            {modifications.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {modifications.map(mod => (
+                  <span key={mod} className="inline-flex items-center gap-1.5 bg-white border border-[#222222]/10 text-[#222222]/70 text-xs font-medium px-3 py-1.5 rounded-full">
+                    {mod}
+                    <button type="button" onClick={() => setModifications(p => p.filter(m => m !== mod))}
+                      className="text-[#222222]/30 hover:text-[#222222] transition-colors">
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Input */}
+            <div className="flex gap-2">
+              <input
+                value={modInput}
+                onChange={e => setModInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMod() } }}
+                placeholder="z.B. Öhlins Federbein, K&N Filter, Custom Sitzbank…"
+                className={inputClass}
+              />
+              <button type="button" onClick={addMod}
+                className="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#06a5a5] text-white hover:bg-[#058f8f] transition-colors disabled:opacity-40"
+                disabled={!modInput.trim()}>
+                <Plus size={16} />
+              </button>
+            </div>
+            <p className="text-xs text-[#222222]/25 mt-1.5">Enter drücken oder + klicken zum Hinzufügen</p>
+          </div>
+
+          {/* Kilometerstand */}
           <div>
             <label className={labelClass}>Kilometerstand</label>
             <input value={mileage} onChange={e => setMileage(e.target.value)}
               type="number" min="0" placeholder="12000" className={inputClass} />
           </div>
 
+          {/* Beschreibung */}
           <div>
             <label className={labelClass}>Beschreibung</label>
             <textarea value={description} onChange={e => setDescription(e.target.value)}
               rows={5} placeholder="Erzähl die Geschichte des Bikes — Umbauten, besondere Parts, Zustand…"
               className={`${inputClass} resize-none leading-relaxed`} />
-            <p className="text-xs text-[#222222]/25 mt-1">{description.length} / 2000 Zeichen</p>
-          </div>
-
-          <div>
-            <label className={labelClass}>Umbauten & Modifikationen</label>
-            <div className="flex flex-col gap-2">
-              {modifications.map((mod, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    value={mod}
-                    onChange={e => {
-                      const next = [...modifications]
-                      next[i] = e.target.value
-                      setModifications(next)
-                    }}
-                    placeholder="z.B. Tiefer gelegter Rahmen (handgeschweißt)"
-                    className={inputClass}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setModifications(prev => prev.filter((_, idx) => idx !== i))}
-                    className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-[#222222]/8 text-[#222222]/30 hover:text-[#222222] hover:border-[#222222]/20 transition-all"
-                  >
-                    <X size={13} />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setModifications(prev => [...prev, ''])}
-                className="flex items-center gap-2 text-xs font-semibold text-[#717171] hover:text-[#222222] transition-colors mt-1"
-              >
-                <Plus size={13} /> Umbau hinzufügen
-              </button>
-            </div>
+            <p className="text-xs text-[#222222]/25 mt-1">{description.length} / 2000</p>
           </div>
 
           <div className="flex justify-between pt-2">
@@ -365,111 +394,68 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               className="text-sm text-[#222222]/40 hover:text-[#222222] transition-colors px-4 py-3">
               ← Zurück
             </button>
-            <button
-              onClick={() => setStep(3)}
-              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] transition-all"
-            >
+            <button onClick={() => setStep(3)}
+              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] transition-all">
               Weiter <ChevronRight size={16} />
             </button>
           </div>
         </div>
       )}
 
-      {/* ── STEP 3: Fotos & Publish ── */}
+      {/* ── STEP 3: Fotos & Veröffentlichen ── */}
       {step === 3 && (
         <div className="flex flex-col gap-6 animate-fade-in">
 
+          {/* Unified gallery */}
           <div>
-            <label className={labelClass}>Fotos (max. 8)</label>
+            <label className={labelClass}>Fotos — ziehen zum Sortieren (max. 8)</label>
 
-            {/* Existing images */}
-            {existingImages.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-                {existingImages.map((img, i) => (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+              {gallery.map((item, i) => {
+                const src = item.type === 'existing' ? item.img.url : item.preview
+                const isNew = item.type === 'new'
+                return (
                   <div
-                    key={img.id}
+                    key={i}
                     draggable
-                    onDragStart={() => { dragExistingIdx.current = i }}
-                    onDragOver={e => { e.preventDefault(); setDragOverExistingIdx(i) }}
-                    onDragLeave={() => setDragOverExistingIdx(null)}
-                    onDrop={() => handleExistingDrop(i)}
-                    onDragEnd={() => { dragExistingIdx.current = null; setDragOverExistingIdx(null) }}
+                    onDragStart={() => { dragIdx.current = i }}
+                    onDragOver={e => { e.preventDefault(); setDragOverIdx(i) }}
+                    onDragLeave={() => setDragOverIdx(null)}
+                    onDrop={() => handleDrop(i)}
+                    onDragEnd={() => { dragIdx.current = null; setDragOverIdx(null) }}
                     className={`relative aspect-square rounded-xl overflow-hidden bg-[#F7F7F7] border cursor-grab active:cursor-grabbing group transition-all ${
-                      dragOverExistingIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
+                      dragOverIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
                     }`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img src={src} alt="" className="w-full h-full object-cover" />
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                         Cover
                       </span>
                     )}
-                    <button type="button" onClick={() => removeExistingImage(img.id)}
+                    {isNew && (
+                      <span className="absolute bottom-1 right-1 text-[9px] font-bold bg-[#717171] text-white px-1.5 py-0.5 rounded-full">
+                        Neu
+                      </span>
+                    )}
+                    <button type="button" onClick={() => removeItem(i)}
                       className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <X size={10} className="text-[#222222]" />
                     </button>
                   </div>
-                ))}
-              </div>
-            )}
+                )
+              })}
+            </div>
 
-            {/* New image previews */}
-            {newImagePreviews.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-                {newImagePreviews.map((src, i) => (
-                  <div
-                    key={`new-${i}`}
-                    draggable
-                    onDragStart={() => { dragNewIdx.current = i }}
-                    onDragOver={e => { e.preventDefault(); setDragOverNewIdx(i) }}
-                    onDragLeave={() => setDragOverNewIdx(null)}
-                    onDrop={() => handleNewDrop(i)}
-                    onDragEnd={() => { dragNewIdx.current = null; setDragOverNewIdx(null) }}
-                    className={`relative aspect-square rounded-xl overflow-hidden bg-white border cursor-grab active:cursor-grabbing group transition-all ${
-                      dragOverNewIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
-                    }`}
-                  >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                    <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#717171] text-white px-1.5 py-0.5 rounded-full">Neu</span>
-                    <button type="button" onClick={() => removeNewImage(i)}
-                      className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <X size={10} className="text-[#222222]" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {existingImages.length + newImageFiles.length < 8 && (
-              <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#DDDDDD]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
+            {gallery.length < 8 && (
+              <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#06a5a5]/40 rounded-2xl p-6 text-center cursor-pointer transition-colors group">
                 <input type="file" accept="image/*" multiple className="sr-only"
-                  onChange={e => handleNewImages(e.target.files)} />
-                <Upload size={24} className="mx-auto mb-3 text-[#222222]/20 group-hover:text-[#717171] transition-colors" />
-                <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">
-                  Fotos hinzufügen oder hierher ziehen
-                </p>
-                <p className="text-xs text-[#222222]/20 mt-1">JPG, PNG, WebP — max. 10 MB pro Bild</p>
+                  onChange={e => handleAddImages(e.target.files)} />
+                <Upload size={22} className="mx-auto mb-2 text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors" />
+                <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">Fotos hinzufügen</p>
+                <p className="text-xs text-[#222222]/20 mt-0.5">JPG, PNG, WebP</p>
               </label>
             )}
-          </div>
-
-          {/* Summary */}
-          <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
-            <p className="text-xs text-[#222222]/30 uppercase tracking-widest font-semibold mb-3">Zusammenfassung</p>
-            <div className="flex flex-col gap-2 text-sm">
-              {[
-                { label: 'Titel', value: title },
-                { label: 'Bike', value: `${make} ${model} · ${year}` },
-                { label: 'Typ', value: STYLES.find(s => s.value === style)?.label ?? style },
-                { label: 'Preis', value: `€ ${parseFloat(price || '0').toLocaleString('de-DE')}` },
-                { label: 'Fotos', value: `${existingImages.length + newImageFiles.length} gesamt` },
-              ].map(row => (
-                <div key={row.label} className="flex justify-between">
-                  <span className="text-[#222222]/40">{row.label}</span>
-                  <span className="text-[#222222] font-medium text-right max-w-[60%] truncate">{row.value}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Status */}
@@ -478,10 +464,30 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               <button key={val} type="button" onClick={() => setStatus(val)}
                 className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
                   status === val
-                    ? 'border-[#DDDDDD] bg-[#222222]/10 text-[#717171]'
+                    ? 'border-[#06a5a5]/30 bg-[#06a5a5]/8 text-[#06a5a5]'
                     : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20'
                 }`}>{label}</button>
             ))}
+          </div>
+
+          {/* Zusammenfassung — nur befüllte Felder */}
+          <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
+            <p className="text-xs text-[#222222]/30 uppercase tracking-widest font-semibold mb-3">Zusammenfassung</p>
+            <div className="flex flex-col gap-2 text-sm">
+              {[
+                { label: 'Titel', value: title || null },
+                { label: 'Bike', value: finalMake && finalModel && year ? `${finalMake} ${finalModel} · ${year}` : null },
+                { label: 'Stil', value: STYLES.find(s => s.value === style)?.label ?? null },
+                { label: 'Kilometerstand', value: mileage ? `${parseInt(mileage).toLocaleString('de-DE')} km` : null },
+                { label: 'Umbauten', value: modifications.length ? `${modifications.length} eingetragen` : null },
+                { label: 'Fotos', value: gallery.length ? `${gallery.length} Bilder` : null },
+              ].filter(row => row.value !== null).map(row => (
+                <div key={row.label} className="flex justify-between">
+                  <span className="text-[#222222]/40">{row.label}</span>
+                  <span className="text-[#222222] font-medium text-right max-w-[60%] truncate">{row.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-between pt-2">
@@ -489,11 +495,8 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               className="text-sm text-[#222222]/40 hover:text-[#222222] transition-colors px-4 py-3">
               ← Zurück
             </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-[#06a5a5] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
-            >
+            <button onClick={handleSubmit} disabled={loading}
+              className="bg-[#06a5a5] text-white font-semibold px-8 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5">
               {loading ? 'Wird gespeichert…' : 'Änderungen speichern'}
             </button>
           </div>

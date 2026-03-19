@@ -33,8 +33,9 @@ function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | nu
   )
 }
 
-/* ─── Message body renderer (text or image) ─── */
+/* ─── Message body renderer (text, image, or combined) ─── */
 function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
+  // Pure image
   if (body.startsWith('[img:') && body.endsWith(']')) {
     const url = body.slice(5, -1)
     return (
@@ -47,8 +48,25 @@ function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boole
       />
     )
   }
+  // Combined: "text\n[img:URL]"
+  const imgMatch = body.match(/^([\s\S]+)\n\[img:(.+)\]$/)
+  if (imgMatch) {
+    const [, text, url] = imgMatch
+    return (
+      <div className="flex flex-col gap-2">
+        <span className="text-sm leading-relaxed text-[#222222]">{text}</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt="Bild"
+          onClick={() => onImageClick(url)}
+          className="block max-w-[240px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
+        />
+      </div>
+    )
+  }
   return (
-    <span className={`text-sm leading-relaxed ${isOwn ? 'text-white' : 'text-[#222222]'}`}>
+    <span className="text-sm leading-relaxed text-[#222222]">
       {body}
     </span>
   )
@@ -294,7 +312,7 @@ function MessageThread({
     if ((!body && !previewFile) || sending || uploading) return
 
     if (previewFile) {
-      await handleImageSend(previewFile.file)
+      await handleImageSend(previewFile.file, body)
       return
     }
 
@@ -308,7 +326,7 @@ function MessageThread({
     onSent()
   }
 
-  async function handleImageSend(file: File) {
+  async function handleImageSend(file: File, caption = '') {
     setUploading(true)
     const blobUrl = previewFile!.url
     const ext = file.name.split('.').pop() ?? 'jpg'
@@ -319,17 +337,16 @@ function MessageThread({
       .from('chat-images')
       .upload(path, file, { contentType: file.type })
 
-    if (!error && data) {
+    const imgUrl = (!error && data)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: urlData } = (supabase.storage as any)
-        .from('chat-images')
-        .getPublicUrl(data.path)
-      await sendMessage(`[img:${urlData.publicUrl}]`, userId)
-    } else {
-      // Fallback: blob URL (nur für aktuellen Nutzer in dieser Session sichtbar)
-      await sendMessage(`[img:${blobUrl}]`, userId)
-    }
+      ? (supabase.storage as any).from('chat-images').getPublicUrl(data.path).data.publicUrl
+      : blobUrl
 
+    const body = caption ? `${caption}\n[img:${imgUrl}]` : `[img:${imgUrl}]`
+    await sendMessage(body, userId)
+
+    setText('')
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
     setPreviewFile(null)
     setUploading(false)
     onSent()
@@ -454,11 +471,11 @@ function MessageThread({
                 ) : (
                   <div className={`px-4 py-3 rounded-2xl ${
                     isOwn
-                      ? 'bg-[#06a5a5] rounded-br-sm'
+                      ? 'bg-[#F7F7F7] rounded-br-sm border border-[#222222]/5'
                       : 'bg-[#F7F7F7] rounded-bl-sm border border-[#222222]/5'
                   }`}>
                     <MessageBody body={msg.body} isOwn={isOwn} onImageClick={setLightboxUrl} />
-                    <p className={`text-[10px] mt-1.5 ${isOwn ? 'text-white/40' : 'text-[#222222]/25'}`}>
+                    <p className="text-[10px] mt-1.5 text-[#222222]/30">
                       {formatRelativeTime(msg.created_at)}
                     </p>
                   </div>

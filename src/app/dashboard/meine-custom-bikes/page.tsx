@@ -2,15 +2,14 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
 import { Plus, Bike } from 'lucide-react'
 import type { Database } from '@/types/database'
-import BikeCardActions from './DeleteBikeButton'
+import BikeCardActions, { PublishToggle } from './DeleteBikeButton'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
-type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at'> & {
+type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at' | 'status'> & {
   slug?: string | null
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
@@ -34,7 +33,7 @@ export default async function MeinBikePage() {
 
   const { data: bikes } = await supabase
     .from('bikes')
-    .select('id, slug, title, make, model, year, created_at, bike_images(url, is_cover)')
+    .select('id, slug, title, make, model, year, status, created_at, bike_images(url, is_cover)')
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 
@@ -42,37 +41,25 @@ export default async function MeinBikePage() {
 
   const pageTitle    = isWerkstatt ? 'Custom Bikes' : 'Mein Bike'
   const pageSubtitle = isWerkstatt ? 'Deine Projekte — werden auf MotoDigital gelistet' : 'Dein persönliches Custom Bike'
-  const addHref      = isWerkstatt ? '/bikes/new' : '/dashboard/meine-custom-bikes/neu'
-  const emptyText    = isWerkstatt ? 'Noch kein Projekt eingetragen' : 'Noch kein Bike eingetragen'
-  const emptyHint    = isWerkstatt ? 'Füge deine Custom Bike Projekte hinzu.' : 'Zeig der Community dein Custom Bike.'
+  const addHref      = '/bikes/new'
+  const emptyText    = 'Noch kein Custom Bike eingetragen'
+  const emptyHint    = 'Füge dein Custom Bike hinzu und werde auf MotoDigital gelistet.'
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7]">
-      <Header />
-
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-16 lg:px-8">
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/dashboard" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
-            Dashboard
-          </Link>
-          <span className="text-[#222222]/15">/</span>
-          <span className="text-xs text-[#222222]/60 font-medium">{pageTitle}</span>
-        </div>
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
 
         {/* Header row */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-[#222222]">{pageTitle}</h1>
-            <p className="text-sm text-[#222222]/35 mt-0.5">{pageSubtitle}</p>
+            <p className="text-sm text-[#222222]/40 mt-1">{pageSubtitle}</p>
           </div>
           <Link
             href={addHref}
             className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
           >
             <Plus size={14} />
-            {isWerkstatt ? 'Projekt hinzufügen' : 'Bike hinzufügen'}
+            Bike hinzufügen
           </Link>
         </div>
 
@@ -89,52 +76,56 @@ export default async function MeinBikePage() {
               className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
             >
               <Plus size={14} />
-              {isWerkstatt ? 'Projekt hinzufügen' : 'Bike hinzufügen'}
+              Bike hinzufügen
             </Link>
           </div>
         ) : (
-          <div className={isWerkstatt
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-            : 'grid grid-cols-1 sm:grid-cols-2 gap-4'
-          }>
+            <div className="flex flex-col gap-4">
             {myBikes.map(bike => {
               const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
 
               return (
-                <div key={bike.id} className="group bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/6">
-                  <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                <div key={bike.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex items-stretch" style={{ minHeight: 220 }}>
+                  {/* Cover */}
+                  <div className="relative w-52 sm:w-64 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
                     {coverImg ? (
                       <img
                         src={coverImg}
                         alt={bike.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Bike size={32} className="text-[#222222]/10" />
+                        <Bike size={28} className="text-[#222222]/15" />
                       </div>
                     )}
                   </div>
-                  <div className="p-4">
-                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-1 line-clamp-1">
-                      {bike.title}
-                    </p>
-                    <p className="text-xs text-[#222222]/40 mb-4">
-                      {bike.make} {bike.model} · {bike.year}
-                    </p>
-                    <BikeCardActions
-                      bikeId={bike.id}
-                      editHref={isWerkstatt ? `/bikes/${bike.id}/edit` : `/dashboard/meine-custom-bikes/${bike.id}/edit`}
-                      viewHref={isWerkstatt ? `/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}` : undefined}
-                    />
+
+                  {/* Info + actions */}
+                  <div className="flex flex-col flex-1 px-6 py-5 min-w-0">
+                    {/* Top row: title + toggle */}
+                    <div className="flex items-start justify-between gap-4 mb-auto">
+                      <div className="min-w-0">
+                        <p className="font-bold text-[#222222] leading-snug line-clamp-1 text-base">{bike.title}</p>
+                        <p className="text-xs text-[#222222]/40 mt-1 font-medium">{bike.make} {bike.model} · {bike.year}</p>
+                      </div>
+                      <PublishToggle bikeId={bike.id} initialStatus={bike.status} />
+                    </div>
+                    {/* Bottom row: action buttons */}
+                    <div className="mt-5">
+                      <BikeCardActions
+                        bikeId={bike.id}
+                        editHref={`/bikes/${bike.id}/edit`}
+                        viewHref={`/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`}
+                      />
+                    </div>
                   </div>
                 </div>
               )
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }

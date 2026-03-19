@@ -158,17 +158,6 @@ export default function RiderProfileEditForm({ profile }: Props) {
         </div>
       </div>
 
-      {/* City */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-widest">Stadt</label>
-        <input
-          value={city}
-          onChange={e => setCity(e.target.value)}
-          placeholder="z. B. Berlin"
-          className="border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#222222]/25 focus:outline-none focus:border-[#06a5a5] transition-colors bg-white"
-        />
-      </div>
-
       {/* Bio */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-widest">Über dich</label>

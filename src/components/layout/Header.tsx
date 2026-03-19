@@ -186,16 +186,7 @@ export default function Header({ activePage }: Props) {
                 </span>
               )}
 
-              {/* Messages button */}
-              <Link href="/dashboard/messages"
-                className="relative flex items-center text-[#222222]/60 hover:text-[#222222] transition-colors px-2.5 py-2 rounded-xl hover:bg-[#222222]/5">
-                <MessageCircle size={19} />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
+
 
               {/* Dashboard dropdown — icon only */}
               <div className="relative" ref={dropdownRef}>

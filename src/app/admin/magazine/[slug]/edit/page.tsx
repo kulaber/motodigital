@@ -1,7 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
 import { ARTICLES } from '@/lib/data/magazine'
 import ArticleEditor from '../../ArticleEditor'
 
@@ -25,12 +24,5 @@ export default async function EditArticlePage({ params }: { params: Promise<{ sl
   const article = ARTICLES.find(a => a.slug === slug)
   if (!article) notFound()
 
-  return (
-    <>
-      <Header />
-      <div className="pt-16">
-        <ArticleEditor initialArticle={article} />
-      </div>
-    </>
-  )
+  return <ArticleEditor initialArticle={article} />
 }

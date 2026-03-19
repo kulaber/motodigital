@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
-import { BadgeCheck, ArrowLeft, Mail, MailX, Shield, ExternalLink, Pencil, Database, FileText, Bike } from 'lucide-react'
+import { BadgeCheck, Mail, MailX, Shield, ExternalLink, Pencil, Database, FileText, Bike } from 'lucide-react'
 import { BUILDERS } from '@/lib/data/builders'
 import { BUILDS } from '@/lib/data/builds'
 
@@ -140,13 +139,7 @@ export default async function AdminBuilderPage() {
   const staticOnlyCount = merged.filter(r => r.hasStaticProfile && !r.hasDbProfile).length
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 pt-24 pb-16 lg:px-8">
-
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
-          <ArrowLeft size={13} /> Dashboard
-        </Link>
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
 
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -289,7 +282,6 @@ export default async function AdminBuilderPage() {
           </div>
         </div>
 
-      </div>
     </div>
   )
 }

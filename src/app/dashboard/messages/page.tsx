@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
 import MessagesClient from './MessagesClient'
 
 export const metadata: Metadata = { title: 'Nachrichten — Dashboard' }
@@ -64,8 +63,7 @@ export default async function MessagesPage() {
   })
 
   return (
-    <div className="h-[100dvh] overflow-hidden flex flex-col bg-white">
-      <Header />
+    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-[#F7F7F7] overflow-hidden">
       <MessagesClient conversations={conversations} userId={user.id} />
     </div>
   )

@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
 import { Star, Bike, Wrench, ChevronRight } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -70,23 +69,11 @@ export default async function MerklistePage({
   const savedBuilders = savedBuildersResult.data ?? []
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7]">
-      <Header />
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
 
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-16 lg:px-8">
-
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/dashboard" className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
-            Dashboard
-          </Link>
-          <span className="text-[#222222]/15">/</span>
-          <span className="text-xs text-[#222222]/60 font-medium">Merkliste</span>
-        </div>
-
-        <div className="mb-6">
+        <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#222222]">Merkliste</h1>
-          <p className="text-sm text-[#222222]/35 mt-0.5">Gespeicherte Custom Bikes und Werkstätten</p>
+          <p className="text-sm text-[#222222]/40 mt-1">Gespeicherte Custom Bikes und Werkstätten</p>
         </div>
 
         {/* Tabs */}
@@ -207,7 +194,7 @@ export default async function MerklistePage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-4">
                 {savedBuilders.map(entry => {
                   const builder = entry.builders
                   if (!builder) return null
@@ -218,31 +205,45 @@ export default async function MerklistePage({
                     <Link
                       key={entry.builder_id}
                       href={`/custom-werkstatt/${slug}`}
-                      className="group flex items-start gap-4 bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-black/6"
+                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex items-stretch"
+                      style={{ minHeight: 140 }}
                     >
-                      <div className="relative w-12 h-12 rounded-xl bg-[#222222]/8 border border-[#222222]/10 flex items-center justify-center text-base font-bold text-[#717171] flex-shrink-0 overflow-hidden">
+                      {/* Avatar / cover */}
+                      <div className="relative w-36 sm:w-48 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
                         {builder.avatar_url ? (
-                          <Image src={builder.avatar_url} alt={builder.full_name ?? ''} fill sizes="48px" className="object-cover" />
-                        ) : initials}
+                          <Image src={builder.avatar_url} alt={builder.full_name ?? ''} fill sizes="192px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-[#222222]/15">
+                            {initials}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-sm font-semibold text-[#222222] truncate group-hover:text-[#06a5a5] transition-colors">
-                            {builder.full_name ?? builder.username}
-                          </p>
+
+                      {/* Info */}
+                      <div className="flex flex-col flex-1 px-6 py-5 min-w-0">
+                        <div className="flex items-start gap-2 mb-auto">
+                          <div className="min-w-0">
+                            <p className="font-bold text-[#222222] leading-snug line-clamp-1 text-base group-hover:text-[#06a5a5] transition-colors">
+                              {builder.full_name ?? builder.username}
+                            </p>
+                            {(builder.city || builder.specialty) && (
+                              <p className="text-xs text-[#222222]/40 mt-1 font-medium">
+                                {[builder.city, builder.specialty].filter(Boolean).join(' · ')}
+                              </p>
+                            )}
+                          </div>
                           {builder.is_verified && (
-                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#06a5a5]/10 text-[#06a5a5] flex-shrink-0">
+                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20 flex-shrink-0 mt-0.5">
                               Verifiziert
                             </span>
                           )}
                         </div>
-                        {(builder.city || builder.specialty) && (
-                          <p className="text-xs text-[#222222]/40 truncate">
-                            {[builder.city, builder.specialty].filter(Boolean).join(' · ')}
-                          </p>
-                        )}
+                        <div className="mt-4">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full group-hover:border-[#06a5a5]/30 group-hover:text-[#06a5a5] transition-all">
+                            Profil ansehen <ChevronRight size={11} />
+                          </span>
+                        </div>
                       </div>
-                      <ChevronRight size={14} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors flex-shrink-0 mt-0.5" />
                     </Link>
                   )
                 })}
@@ -250,7 +251,6 @@ export default async function MerklistePage({
             )}
           </>
         )}
-      </div>
     </div>
   )
 }

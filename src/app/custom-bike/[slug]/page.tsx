@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import BuildGallery from '@/components/build/BuildGallery'
 import { createClient } from '@/lib/supabase/server'
+import ContactModal from './ContactModal'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -98,6 +99,18 @@ export default async function CustomBikePage({ params }: Props) {
       if (data) bike = data
     }
 
+    // Fallback: match by generated title slug (for bikes with null slug in DB)
+    if (!bike) {
+      const { generateBikeSlug } = await import('@/lib/utils/bikeSlug')
+      const { data: allBikes } = await (supabase.from('bikes') as any)
+        .select(`id, title, ${baseSelect}, modifications, slug`)
+        .is('slug', null)
+      const match = (allBikes ?? []).find(
+        (b: any) => generateBikeSlug(b.title) === slug
+      )
+      if (match) bike = match
+    }
+
     if (!bike) notFound()
 
     // Fetch seller profile — try with slug first, then without
@@ -105,14 +118,14 @@ export default async function CustomBikePage({ params }: Props) {
     let sellerProfile: any = null
     {
       const { data } = await (supabase.from('profiles') as any)
-        .select('full_name, city, slug')
+        .select('full_name, city, slug, role, avatar_url')
         .eq('id', bike.seller_id)
         .maybeSingle()
       if (data) {
         sellerProfile = data
       } else {
         const { data: fallback } = await (supabase.from('profiles') as any)
-          .select('full_name, city')
+          .select('full_name, city, role, avatar_url')
           .eq('id', bike.seller_id)
           .maybeSingle()
         sellerProfile = fallback
@@ -209,32 +222,62 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
 
             <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-              <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Custom Werkstatt</p>
-                {sellerName && (
-                  <p className="text-xs text-[#717171] leading-relaxed mb-4">Gebaut von {sellerName}</p>
-                )}
-                <div className="flex items-center gap-3 mb-4 p-3 bg-[#F7F7F7] rounded-xl">
-                  <div className="w-10 h-10 rounded-xl bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-                    {sellerInitials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#222222]">{sellerName || '—'}</p>
-                    {sellerProfile?.city && <p className="text-xs text-[#717171]">{sellerProfile.city}</p>}
+              <div className="bg-white border border-[#DDDDDD] rounded-2xl overflow-hidden">
+                {/* Header label */}
+                <div className="px-5 pt-5 pb-4 border-b border-[#F0F0F0]">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#222222]/25 mb-3">Gebaut von</p>
+
+                  {/* Avatar + identity row */}
+                  <div className="flex items-center gap-3.5">
+                    {/* Avatar */}
+                    <div className="relative w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-[#EBEBEB]">
+                      {sellerProfile?.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={sellerProfile.avatar_url}
+                          alt={sellerName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white">
+                          {sellerInitials}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Name + badge + city */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <p className="text-sm font-bold text-[#222222] leading-tight truncate">{sellerName || '—'}</p>
+                        <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                          sellerProfile?.role === 'custom-werkstatt'
+                            ? 'bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20'
+                            : 'bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8'
+                        }`}>
+                          {sellerProfile?.role === 'custom-werkstatt' ? 'Werkstatt' : 'Rider'}
+                        </span>
+                      </div>
+                      {sellerProfile?.city && (
+                        <p className="text-xs text-[#222222]/35 flex items-center gap-1">
+                          <MapPin size={10} /> {sellerProfile.city}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  {sellerProfileHref ? (
-                    <Link href={sellerProfileHref} className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
-                      Werkstatt kontaktieren
-                    </Link>
-                  ) : (
-                    <button className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors">
-                      Werkstatt kontaktieren
-                    </button>
-                  )}
+
+                {/* CTA */}
+                <div className="px-5 py-4 flex flex-col gap-2">
+                  <ContactModal
+                    sellerId={bike.seller_id}
+                    sellerName={sellerName}
+                    sellerRole={sellerProfile?.role ?? null}
+                    bikeId={bike.id}
+                    bikeTitle={bike.title}
+                    coverImage={imageUrls[0] ?? null}
+                  />
                   {sellerProfileHref && (
-                    <Link href={sellerProfileHref} className="w-full text-center text-sm font-medium text-[#717171] hover:text-[#222222] transition-colors py-2">
+                    <Link href={sellerProfileHref} className="w-full text-center text-xs font-medium text-[#222222]/35 hover:text-[#222222] transition-colors py-1.5">
                       Profil ansehen →
                     </Link>
                   )}

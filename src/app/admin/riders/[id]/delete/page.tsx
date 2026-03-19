@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Header from '@/components/layout/Header'
 import { ArrowLeft, Shield, Trash2, AlertTriangle } from 'lucide-react'
 
 type RiderProfile = {
@@ -68,9 +67,7 @@ export default function AdminDeleteRiderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <Header />
-      <div className="max-w-md mx-auto px-4 pt-24 pb-16 lg:px-8">
+    <div className="max-w-md mx-auto px-6 pt-8 pb-16">
 
         <Link href="/admin/riders" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
           <ArrowLeft size={13} /> Rider-Liste
@@ -120,7 +117,6 @@ export default function AdminDeleteRiderPage() {
 
           </div>
         )}
-      </div>
     </div>
   )
 }

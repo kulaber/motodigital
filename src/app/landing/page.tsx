@@ -120,13 +120,13 @@ export default async function LandingPage() {
                   className="animate-slide-up font-bold text-white leading-[1.1] mb-3 sm:mb-4"
                   style={{ fontSize: 'clamp(1.4rem, 4vw, 3.2rem)', animationDelay: '60ms' }}
                 >
-                  Entdecke die Welt<br />der Custom Bikes
+                  Baue dein Bike.<br />Behalte den Überblick.
                 </h1>
                 <p
                   className="animate-slide-up text-white/60 font-light mb-5 sm:mb-6 leading-relaxed max-w-[50ch] hidden sm:block"
                   style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1rem)', animationDelay: '120ms' }}
                 >
-                  Finde Custom Werkstätten, kaufe Custom Bikes, starte Dein Projekt — die Plattform für Custom Motorrad Kultur.
+                  Mach dein Bike zu etwas Besonderem – und behalte jede Veränderung im Blick.
                 </p>
                 <div className="animate-slide-up flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center" style={{ animationDelay: '180ms' }}>
                   <Link href="/custom-werkstatt"

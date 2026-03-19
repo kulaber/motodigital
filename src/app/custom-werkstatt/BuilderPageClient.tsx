@@ -557,7 +557,7 @@ export default function BuilderPageClient({ builders }: Props) {
               }`}
             >
               <SlidersHorizontal size={11} />
-              {activeSpecialty === 'Alle' ? 'Stil' : activeSpecialty}
+              {activeSpecialty === 'Alle' ? 'Umbaustil' : activeSpecialty}
               <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
             </button>
 

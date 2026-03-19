@@ -461,7 +461,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <BuilderContactButton
                     builderId={builder.id}
                     builderFirstName={builder.name.split(' ')[0]}
-                    bikeId={builder.featuredBuilds[0]?.slug}
+                    builderName={builder.name}
                   />
                 ) : (
                   <a href="/auth/login"

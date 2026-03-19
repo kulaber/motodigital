@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Header from '@/components/layout/Header'
 import { ArrowLeft, Save, Shield, BadgeCheck, ExternalLink, Clock } from 'lucide-react'
 import { BUILDERS } from '@/lib/data/builders'
 
@@ -245,9 +244,7 @@ export default function EditBuilderPage() {
     setHours(h => h.map((r, i) => i < 5 ? { ...r, status, open, close } : r))
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <Header />
-      <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 lg:px-8">
+    <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
 
         <div className="flex items-center justify-between mb-8">
           <Link href="/admin/custom-werkstatt" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
@@ -447,7 +444,6 @@ export default function EditBuilderPage() {
 
           </div>
         )}
-      </div>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
 import { EVENTS } from '@/lib/data/events'
 import EventEditor from '../../EventEditor'
 
@@ -26,12 +25,5 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const event = EVENTS.find(e => e.id === eventId)
   if (!event) notFound()
 
-  return (
-    <>
-      <Header />
-      <div className="pt-16">
-        <EventEditor initialEvent={event} />
-      </div>
-    </>
-  )
+  return <EventEditor initialEvent={event} />
 }

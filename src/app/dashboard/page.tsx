@@ -5,8 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, User, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, Search } from 'lucide-react'
-import Header from '@/components/layout/Header'
+import { Plus, Eye, MessageCircle, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, Search, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -101,36 +100,23 @@ export default async function DashboardPage() {
   const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-12 lg:px-8">
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
 
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <span className="block w-14 h-14 rounded-full overflow-hidden border border-[#222222]/8 flex-shrink-0">
-                <Image src={profile.avatar_url} alt="Avatar" width={56} height={56} className="w-full h-full object-cover" />
-              </span>
-            ) : (
-              <div className="w-14 h-14 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center flex-shrink-0">
-                <User size={22} className="text-[#222222]/20" />
-              </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#222222]">Übersicht</h1>
+            {profile?.full_name && (
+              <p className="text-sm text-[#222222]/40 mt-1">Hallo, {profile.full_name.split(' ')[0]}</p>
             )}
-            <div>
-              <h1 className="text-2xl font-bold text-[#222222]">Dashboard</h1>
-              {profile?.full_name && (
-                <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {isBuilder ? profile.full_name : profile.full_name.split(' ')[0]}</p>
-              )}
-            </div>
           </div>
-          {!isRider && (
+          {!isRider && !isSuperAdmin && (
             <Link
               href="/bikes/new"
               className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
             >
               <Plus size={14} />
-              Neues Custom-Bike hinzufügen
+              Bike hinzufügen
             </Link>
           )}
         </div>
@@ -535,7 +521,6 @@ export default async function DashboardPage() {
           </div>
 
         </div>}
-      </div>
     </div>
   )
 }

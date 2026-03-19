@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import Header from '@/components/layout/Header'
-import { ArrowLeft, Shield, Mail, MailX, BadgeCheck, Trash2, Pencil } from 'lucide-react'
+import { Shield, Mail, MailX, BadgeCheck, Trash2, Pencil } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Admin — Rider' }
 
@@ -70,13 +69,7 @@ export default async function AdminRidersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 pt-24 pb-16 lg:px-8">
-
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-8">
-          <ArrowLeft size={13} /> Dashboard
-        </Link>
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
 
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -186,7 +179,6 @@ export default async function AdminRidersPage() {
           </div>
         </div>
 
-      </div>
     </div>
   )
 }
