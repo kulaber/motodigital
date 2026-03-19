@@ -663,12 +663,12 @@ function PostCard({
         >
           <ThumbsUp
             size={14}
-            className={`transition-all ${post.liked_by_me ? 'fill-red-500 text-red-500 scale-110' : 'text-red-400 group-hover:text-red-500'}`}
+            className={`transition-all ${post.liked_by_me ? 'fill-[#06a5a5] text-[#06a5a5] scale-110' : 'text-[#06a5a5]/50 group-hover:text-[#06a5a5]'}`}
           />
           {post.liked_by_me ? (
             <>
-              {post.likes_count > 0 && <span className="text-red-500">{post.likes_count}</span>}
-              <span className="text-[#222222]/40">Gefällt mir</span>
+              {post.likes_count > 0 && <span className="text-[#06a5a5]">{post.likes_count}</span>}
+              <span className="text-[#06a5a5]">Gefällt mir</span>
             </>
           ) : (
             <>
