@@ -109,7 +109,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
       <SwipeableImages images={images} aspectClass="aspect-[4/3]" />
       {b.featured && (
         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-          <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-[#222222] px-2 py-0.5 rounded-full shadow-sm">Top</span>
+          <span className="text-[11px] font-semibold bg-[#06a5a5]/20 border border-[#06a5a5]/30 text-[#06a5a5] px-2.5 py-0.5 rounded-full">Gesponsert</span>
         </div>
       )}
       {selected && (
@@ -307,14 +307,20 @@ export default function BuilderPageClient({ builders }: Props) {
   const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
   const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
 
-  const filtered = useMemo(() => builders.filter(b => {
-    const specOk       = effectiveSpecialty === 'Alle' ||
-      b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
-    const leistungOk   = effectiveLeistung === 'Alle' || b.tags.includes(effectiveLeistung)
-    const verifiedOk   = !onlyVerified || b.verified
-    const openOk       = !onlyOpen || !now || isOpenNow(b.openingHours, now)
-    return specOk && leistungOk && verifiedOk && openOk
-  }), [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
+  const filtered = useMemo(() => {
+    const results = builders.filter(b => {
+      const specOk     = effectiveSpecialty === 'Alle' ||
+        b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
+      const leistungOk = effectiveLeistung === 'Alle' || b.tags.includes(effectiveLeistung)
+      const verifiedOk = !onlyVerified || b.verified
+      const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
+      return specOk && leistungOk && verifiedOk && openOk
+    })
+    // Gesponserte immer zuerst, Rest zufällig
+    const sponsored = results.filter(b => b.featured)
+    const rest = results.filter(b => !b.featured).sort(() => Math.random() - 0.5)
+    return [...sponsored, ...rest]
+  }, [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
     if (!mapReady || !mapBounds) return []

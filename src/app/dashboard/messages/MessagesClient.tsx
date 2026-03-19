@@ -34,13 +34,17 @@ function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | nu
 }
 
 /* ─── Message body renderer (text or image) ─── */
-function MessageBody({ body, isOwn }: { body: string; isOwn: boolean }) {
+function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
   if (body.startsWith('[img:') && body.endsWith(']')) {
     const url = body.slice(5, -1)
     return (
-      <div className="relative w-52 h-48 rounded-xl overflow-hidden">
-        <Image src={url} alt="Bild" fill sizes="208px" className="object-cover" />
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt="Bild"
+        onClick={() => onImageClick(url)}
+        className="block max-w-[240px] w-full rounded-xl cursor-zoom-in object-cover hover:opacity-95 transition-opacity"
+      />
     )
   }
   return (
@@ -196,9 +200,11 @@ function MessageThread({
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({})
+  // reactions: { [messageId]: { [emoji]: { count, userReacted } } }
+  const [reactions, setReactions] = useState<Record<string, Record<string, { count: number; userReacted: boolean }>>>({})
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null)
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -208,6 +214,53 @@ function MessageThread({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Load reactions + subscribe to realtime
+  useEffect(() => {
+    if (!messages.length) return
+
+    const msgIds = messages.map(m => m.id)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(supabase.from('message_reactions') as any)
+      .select('message_id, user_id, emoji')
+      .in('message_id', msgIds)
+      .then(({ data }: { data: { message_id: string; user_id: string; emoji: string }[] | null }) => {
+        if (!data) return
+        const map: Record<string, Record<string, { count: number; userReacted: boolean }>> = {}
+        for (const r of data) {
+          if (!map[r.message_id]) map[r.message_id] = {}
+          if (!map[r.message_id][r.emoji]) map[r.message_id][r.emoji] = { count: 0, userReacted: false }
+          map[r.message_id][r.emoji].count++
+          if (r.user_id === userId) map[r.message_id][r.emoji].userReacted = true
+        }
+        setReactions(map)
+      })
+
+    const channel = supabase
+      .channel(`reactions:${conversationId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_reactions' }, (payload) => {
+        const r = payload.new as { message_id: string; user_id: string; emoji: string }
+        if (r.user_id === userId) return // eigene bereits optimistisch gesetzt
+        setReactions(prev => {
+          const cur = prev[r.message_id]?.[r.emoji] ?? { count: 0, userReacted: false }
+          return { ...prev, [r.message_id]: { ...(prev[r.message_id] ?? {}), [r.emoji]: { count: cur.count + 1, userReacted: false } } }
+        })
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'message_reactions' }, (payload) => {
+        const r = payload.old as { message_id: string; user_id: string; emoji: string }
+        if (r.user_id === userId) return // eigene bereits optimistisch gesetzt
+        setReactions(prev => {
+          const cur = prev[r.message_id]?.[r.emoji]
+          if (!cur) return prev
+          return { ...prev, [r.message_id]: { ...(prev[r.message_id] ?? {}), [r.emoji]: { count: Math.max(0, cur.count - 1), userReacted: false } } }
+        })
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, conversationId])
 
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setText(e.target.value)
@@ -244,6 +297,7 @@ function MessageThread({
 
   async function handleImageSend(file: File) {
     setUploading(true)
+    const blobUrl = previewFile!.url
     const ext = file.name.split('.').pop() ?? 'jpg'
     const path = `${conversationId}/${Date.now()}.${ext}`
 
@@ -258,6 +312,9 @@ function MessageThread({
         .from('chat-images')
         .getPublicUrl(data.path)
       await sendMessage(`[img:${urlData.publicUrl}]`, userId)
+    } else {
+      // Fallback: blob URL (nur für aktuellen Nutzer in dieser Session sichtbar)
+      await sendMessage(`[img:${blobUrl}]`, userId)
     }
 
     setPreviewFile(null)
@@ -272,15 +329,37 @@ function MessageThread({
     e.target.value = ''
   }
 
-  function handleReact(msgId: string, emoji: string) {
-    setReactions(prev => ({
-      ...prev,
-      [msgId]: {
-        ...(prev[msgId] ?? {}),
-        [emoji]: ((prev[msgId]?.[emoji] ?? 0) + 1),
-      },
-    }))
+  async function handleReact(msgId: string, emoji: string) {
     setHoveredMsgId(null)
+    const already = reactions[msgId]?.[emoji]?.userReacted ?? false
+
+    // Optimistic update — sofort anzeigen
+    setReactions(prev => {
+      const cur = prev[msgId]?.[emoji] ?? { count: 0, userReacted: false }
+      return {
+        ...prev,
+        [msgId]: {
+          ...(prev[msgId] ?? {}),
+          [emoji]: {
+            count: already ? Math.max(0, cur.count - 1) : cur.count + 1,
+            userReacted: !already,
+          },
+        },
+      }
+    })
+
+    if (already) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('message_reactions') as any)
+        .delete()
+        .eq('message_id', msgId)
+        .eq('user_id', userId)
+        .eq('emoji', emoji)
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('message_reactions') as any)
+        .insert({ message_id: msgId, user_id: userId, emoji })
+    }
   }
 
   return (
@@ -318,7 +397,7 @@ function MessageThread({
           const isOwn = msg.sender_id === userId
           const avatarUrl = isOwn ? myAvatarUrl : conv.other?.avatar_url
           const msgReactions = reactions[msg.id] ?? {}
-          const hasReactions = Object.values(msgReactions).some(v => v > 0)
+          const hasReactions = Object.values(msgReactions).some(v => v.count > 0)
 
           return (
             <div
@@ -354,31 +433,38 @@ function MessageThread({
                 </div>
 
                 {/* Bubble */}
-                <div className={`px-4 py-3 rounded-2xl ${
-                  msg.body.startsWith('[img:') ? 'p-0 overflow-hidden' : ''
-                } ${
-                  isOwn
-                    ? 'bg-[#06a5a5] rounded-br-sm'
-                    : 'bg-[#F7F7F7] rounded-bl-sm border border-[#222222]/5'
-                }`}>
-                  <MessageBody body={msg.body} isOwn={isOwn} />
-                  {!msg.body.startsWith('[img:') && (
+                {msg.body.startsWith('[img:') ? (
+                  <div className="rounded-2xl overflow-hidden">
+                    <MessageBody body={msg.body} isOwn={isOwn} onImageClick={setLightboxUrl} />
+                  </div>
+                ) : (
+                  <div className={`px-4 py-3 rounded-2xl ${
+                    isOwn
+                      ? 'bg-[#06a5a5] rounded-br-sm'
+                      : 'bg-[#F7F7F7] rounded-bl-sm border border-[#222222]/5'
+                  }`}>
+                    <MessageBody body={msg.body} isOwn={isOwn} onImageClick={setLightboxUrl} />
                     <p className={`text-[10px] mt-1.5 ${isOwn ? 'text-white/40' : 'text-[#222222]/25'}`}>
                       {formatRelativeTime(msg.created_at)}
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Reaction indicators */}
                 {hasReactions && (
-                  <div className="flex gap-0.5 mt-1 flex-wrap">
-                    {Object.entries(msgReactions).filter(([, count]) => count > 0).map(([emoji, count]) => (
-                      <span
+                  <div className="flex gap-1 mt-1 flex-wrap">
+                    {Object.entries(msgReactions).filter(([, v]) => v.count > 0).map(([emoji, v]) => (
+                      <button
                         key={emoji}
-                        className="bg-white border border-[#222222]/10 rounded-full px-1.5 py-0.5 text-xs shadow-sm"
+                        onClick={() => handleReact(msg.id, emoji)}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                          v.userReacted
+                            ? 'bg-[#06a5a5]/10 border-[#06a5a5]/30 text-[#06a5a5]'
+                            : 'bg-white border-[#222222]/10 text-[#222222]/60 hover:border-[#222222]/20'
+                        }`}
                       >
-                        {emoji} <span className="text-[10px] text-[#222222]/40">{count}</span>
-                      </span>
+                        {emoji} <span className="text-[10px] font-semibold">{v.count}</span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -460,6 +546,28 @@ function MessageThread({
           </button>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            onClick={() => setLightboxUrl(null)}
+          >
+            <X size={20} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxUrl}
+            alt="Vollbild"
+            className="max-w-full max-h-full object-contain rounded-xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }

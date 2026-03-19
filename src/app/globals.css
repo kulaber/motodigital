@@ -203,6 +203,11 @@ textarea:focus-visible {
   box-shadow: none;
 }
 
+/* Kein Zoom beim Antippen auf iOS/Android — min. 16px font-size */
+input, textarea, select {
+  font-size: max(16px, 1em);
+}
+
 /* ─── Scroll-reveal ──────────────────────────────────────── */
 .reveal {
   opacity: 0;
