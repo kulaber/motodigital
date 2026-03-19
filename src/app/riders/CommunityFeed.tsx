@@ -389,6 +389,22 @@ function VideoPlayer({ src }: { src: string }) {
     }
   }, [])
 
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting && videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause()
+          setPlaying(false)
+        }
+      },
+      { threshold: 0.2 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   function flashIcon() {
     setShowIcon(true)
     if (iconTimer.current) clearTimeout(iconTimer.current)
