@@ -316,7 +316,15 @@ function VideoPlayer({ src }: { src: string }) {
   function toggle() {
     const v = videoRef.current
     if (!v) return
-    if (v.paused) { v.play(); setPlaying(true) } else { v.pause(); setPlaying(false) }
+    if (v.paused) {
+      v.muted = false
+      v.currentTime = v.currentTime <= 0.001 ? 0 : v.currentTime
+      v.play()
+      setPlaying(true)
+    } else {
+      v.pause()
+      setPlaying(false)
+    }
     flashIcon()
   }
 
@@ -329,6 +337,8 @@ function VideoPlayer({ src }: { src: string }) {
         style={{ maxHeight: maxH }}
         playsInline
         preload="metadata"
+        muted
+        onLoadedMetadata={e => { e.currentTarget.currentTime = 0.001 }}
         onEnded={() => setPlaying(false)}
       />
       {/* Center icon flash */}
