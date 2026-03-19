@@ -36,6 +36,7 @@ interface Props {
 export default function CommunityFeed({ userId, userRole }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<Topic | null>(null)
   const [body, setBody] = useState('')
   const [topic, setTopic] = useState<Topic | null>(null)
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
@@ -189,8 +190,37 @@ export default function CommunityFeed({ userId, userRole }: Props) {
     setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
+  const visiblePosts = filter ? posts.filter(p => p.topic === filter) : posts
+
   return (
     <div className="flex flex-col gap-4">
+
+      {/* Filter bar */}
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={() => setFilter(null)}
+          className={`text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all ${
+            filter === null
+              ? 'bg-[#222222] text-white border-[#222222]'
+              : 'text-[#222222]/50 border-[#EBEBEB] hover:border-[#222222]/25 hover:text-[#222222]'
+          }`}
+        >
+          Alle
+        </button>
+        {TOPICS.map(t => (
+          <button
+            key={t.value}
+            onClick={() => setFilter(prev => prev === t.value ? null : t.value as Topic)}
+            className={`text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all ${
+              filter === t.value
+                ? `${t.color} border-transparent`
+                : 'text-[#222222]/50 border-[#EBEBEB] hover:border-[#222222]/25 hover:text-[#222222]'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       {/* Create post — only logged in */}
       {canPost && (
@@ -301,13 +331,17 @@ export default function CommunityFeed({ userId, userRole }: Props) {
             </div>
           ))}
         </div>
-      ) : posts.length === 0 ? (
+      ) : visiblePosts.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-12 text-center">
-          <p className="text-sm font-semibold text-[#222222]/30 mb-1">Noch keine Beiträge</p>
-          <p className="text-xs text-[#222222]/20">Sei der Erste — teile dein Bike mit der Community!</p>
+          <p className="text-sm font-semibold text-[#222222]/30 mb-1">
+            {filter ? 'Keine Beiträge in dieser Kategorie' : 'Noch keine Beiträge'}
+          </p>
+          <p className="text-xs text-[#222222]/20">
+            {filter ? 'Versuche einen anderen Filter.' : 'Sei der Erste — teile dein Bike mit der Community!'}
+          </p>
         </div>
       ) : (
-        posts.map(post => (
+        visiblePosts.map(post => (
           <PostCard
             key={post.id}
             post={post}
