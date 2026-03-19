@@ -6,12 +6,20 @@ import { Heart, Trash2, ImageIcon, X, Send, Video, ChevronLeft, ChevronRight, Pl
 import { createClient } from '@/lib/supabase/client'
 import { formatRelativeTime } from '@/lib/utils'
 
+const TOPICS = [
+  { value: 'showcase',   label: 'Showcase',          color: 'bg-[#06a5a5]/10 text-[#06a5a5]' },
+  { value: 'hilfe',      label: 'Hilfe benötigt',    color: 'bg-amber-50 text-amber-600' },
+  { value: 'fahrt',      label: 'Fahrt in der Nähe', color: 'bg-violet-50 text-violet-600' },
+] as const
+type Topic = typeof TOPICS[number]['value']
+
 interface Post {
   id: string
   body: string | null
   media_urls: string[]
   created_at: string
   user_id: string
+  topic: Topic | null
   author_name: string | null
   author_avatar: string | null
   author_initials: string
@@ -29,6 +37,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [body, setBody] = useState('')
+  const [topic, setTopic] = useState<Topic | null>(null)
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -38,7 +47,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   async function loadPosts() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: postsData, error: postsError } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id')
+      .select('id, body, media_urls, created_at, user_id, topic')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -69,7 +78,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
-    const mapped: Post[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string }[]).map(p => {
+    const mapped: Post[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null }[]).map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
       return {
@@ -78,6 +87,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
         media_urls: p.media_urls ?? [],
         created_at: p.created_at,
         user_id: p.user_id,
+        topic: (p.topic as Topic | null) ?? null,
         author_name: name,
         author_avatar: profile?.avatar_url ?? null,
         author_initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
@@ -143,10 +153,12 @@ export default function CommunityFeed({ userId, userRole }: Props) {
       user_id: userId,
       body: body.trim() || null,
       media_urls: uploadedUrls,
+      topic: topic ?? null,
     })
 
     if (!insertError) {
       setBody('')
+      setTopic(null)
       setMediaFiles([])
       await loadPosts()
     }
@@ -191,6 +203,24 @@ export default function CommunityFeed({ userId, userRole }: Props) {
             style={{ resize: 'none' }}
             className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
           />
+
+          {/* Topic selector */}
+          <div className="flex gap-2 mt-3 flex-wrap">
+            {TOPICS.map(t => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setTopic(prev => prev === t.value ? null : t.value as Topic)}
+                className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
+                  topic === t.value
+                    ? `${t.color} border-transparent`
+                    : 'text-[#222222]/40 border-[#EBEBEB] hover:border-[#222222]/20'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
 
           {/* Media previews */}
           {mediaFiles.length > 0 && (
@@ -536,6 +566,16 @@ function PostCard({
           </button>
         )}
       </div>
+
+      {/* Topic badge */}
+      {post.topic && (() => {
+        const t = TOPICS.find(t => t.value === post.topic)
+        return t ? (
+          <div className="px-4 pb-2">
+            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${t.color}`}>{t.label}</span>
+          </div>
+        ) : null
+      })()}
 
       {/* Body */}
       {post.body && (
