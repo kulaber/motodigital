@@ -8,13 +8,11 @@
 }
 .animate-ping-once { animation: ping-once 0.4s ease-out forwards; }
 
-@keyframes moto-zoom {
-  0%   { left: -10%; opacity: 0;   transform: translateY(-50%) scale(0.7); }
-  15%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { left: 110%; opacity: 0;  transform: translateY(-50%) scale(1.1); }
+@keyframes expand {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.animate-moto-zoom { animation: moto-zoom 0.7s cubic-bezier(0.4,0,0.2,1) forwards; }
+.animate-expand { animation: expand 0.2s ease-out forwards; }
 
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
 @theme {

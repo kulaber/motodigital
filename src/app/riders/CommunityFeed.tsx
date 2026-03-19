@@ -37,6 +37,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<Topic | null>(null)
+  const [composerOpen, setComposerOpen] = useState(false)
   const [body, setBody] = useState('')
   const [topic, setTopic] = useState<Topic | null>(null)
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
@@ -161,6 +162,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
       setBody('')
       setTopic(null)
       setMediaFiles([])
+      setComposerOpen(false)
       await loadPosts()
     }
     setSubmitting(false)
@@ -224,85 +226,101 @@ export default function CommunityFeed({ userId, userRole }: Props) {
 
       {/* Create post — only logged in */}
       {canPost && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#EBEBEB] p-4">
-          <textarea
-            value={body}
-            onChange={e => setBody(e.target.value)}
-            placeholder="Was fährst du gerade? Teile es mit der Community…"
-            rows={3}
-            style={{ resize: 'none' }}
-            className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
-          />
-
-          {/* Topic selector */}
-          <div className="flex gap-2 mt-3 flex-wrap">
-            {TOPICS.map(t => (
-              <button
-                key={t.value}
-                type="button"
-                onClick={() => setTopic(prev => prev === t.value ? null : t.value as Topic)}
-                className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
-                  topic === t.value
-                    ? `${t.color} border-transparent`
-                    : 'text-[#222222]/40 border-[#EBEBEB] hover:border-[#222222]/20'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Media previews */}
-          {mediaFiles.length > 0 && (
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {mediaFiles.map((m, i) => (
-                <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#EBEBEB] flex-shrink-0">
-                  {m.file.type.startsWith('video/') ? (
-                    <video src={m.url} className="w-full h-full object-cover" />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.url} alt="" className="w-full h-full object-cover" />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
-                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
-              ))}
-            </div>
+        <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
+          {/* Collapsed trigger */}
+          {!composerOpen && (
+            <button
+              type="button"
+              onClick={() => setComposerOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
+            >
+              <span className="text-sm text-[#222222]/30 flex-1">Was fährst du gerade? Teile es mit der Community…</span>
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#06a5a5] bg-[#06a5a5]/8 px-3 py-1.5 rounded-full flex-shrink-0">
+                <Send size={11} />
+                Posten
+              </span>
+            </button>
           )}
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#F0F0F0]">
-            <div className="flex items-center gap-1">
-              <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
-              >
-                <ImageIcon size={15} />
-              </button>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
-              >
-                <Video size={15} />
-              </button>
-            </div>
-            <button
-              type="submit"
-              disabled={submitting || (!body.trim() && mediaFiles.length === 0)}
-              className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
-            >
-              <Send size={12} />
-              {submitting ? 'Wird gepostet…' : 'Veröffentlichen'}
-            </button>
-          </div>
-        </form>
+          {/* Expanded composer */}
+          {composerOpen && (
+            <form onSubmit={handleSubmit} className="p-4 animate-expand">
+              <textarea
+                autoFocus
+                value={body}
+                onChange={e => setBody(e.target.value)}
+                placeholder="Was fährst du gerade? Teile es mit der Community…"
+                rows={4}
+                style={{ resize: 'none' }}
+                className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
+              />
+
+              {/* Topic selector */}
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {TOPICS.map(t => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTopic(prev => prev === t.value ? null : t.value as Topic)}
+                    className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
+                      topic === t.value
+                        ? `${t.color} border-transparent`
+                        : 'text-[#222222]/40 border-[#EBEBEB] hover:border-[#222222]/20'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Media previews */}
+              {mediaFiles.length > 0 && (
+                <div className="flex gap-2 mt-3 flex-wrap">
+                  {mediaFiles.map((m, i) => (
+                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#EBEBEB] flex-shrink-0">
+                      {m.file.type.startsWith('video/') ? (
+                        <video src={m.url} className="w-full h-full object-cover" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
+                        className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#F0F0F0]">
+                <div className="flex items-center gap-1">
+                  <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors">
+                    <ImageIcon size={15} />
+                  </button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors">
+                    <Video size={15} />
+                  </button>
+                  <button type="button" onClick={() => { setComposerOpen(false); setBody(''); setTopic(null); setMediaFiles([]) }} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors ml-1">
+                    <X size={15} />
+                  </button>
+                </div>
+                <button
+                  type="submit"
+                  disabled={submitting || (!body.trim() && mediaFiles.length === 0)}
+                  className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
+                >
+                  <Send size={12} />
+                  {submitting ? 'Wird gepostet…' : 'Veröffentlichen'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       )}
 
       {/* Not logged in hint */}
