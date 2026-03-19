@@ -142,13 +142,13 @@ export default function Header({ activePage }: Props) {
         {/* ── Desktop nav ── */}
         <nav className="hidden md:flex items-center gap-1">
 
-          <Link href="/custom-werkstatt"
+          <Link href="/riders"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
-              activePage === 'custom-werkstatt'
+              activePage === 'riders'
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Custom Werkstatt
+            Rider
           </Link>
 
           <Link href="/bikes"
@@ -160,13 +160,13 @@ export default function Header({ activePage }: Props) {
             Custom Bikes
           </Link>
 
-          <Link href="/riders"
+          <Link href="/custom-werkstatt"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
-              activePage === 'riders'
+              activePage === 'custom-werkstatt'
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Rider
+            Werkstattsuche
           </Link>
 
         </nav>
@@ -419,9 +419,9 @@ export default function Header({ activePage }: Props) {
               </>
             ) : null}
 
-            {/* ── Custom Werkstatt ── */}
-            <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
-              Custom Werkstatt
+            {/* ── Rider ── */}
+            <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
+              Rider
             </Link>
 
             {/* ── Custom Bikes accordion ── */}
@@ -444,9 +444,9 @@ export default function Header({ activePage }: Props) {
               </div>
             )}
 
-            {/* ── Rider ── */}
-            <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
-              Rider
+            {/* ── Werkstattsuche ── */}
+            <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
+              Werkstattsuche
             </Link>
 
 
