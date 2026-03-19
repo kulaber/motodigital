@@ -587,6 +587,7 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null)
   const selectedConv = conversations.find(c => c.id === selectedId) ?? null
   const supabase = createClient()
+  const selectedIdRef = useRef(selectedId)
 
   async function handleDelete(convId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -619,7 +620,10 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
-  // Realtime: neue Nachricht → Konversation nach oben sortieren
+  // selectedIdRef immer aktuell halten
+  useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
+
+  // Realtime: neue Nachricht → Konversation nach oben + unread_count updaten
   useEffect(() => {
     const channel = supabase
       .channel('conv-order')
@@ -627,18 +631,21 @@ export default function MessagesClient({ conversations: initial, userId }: Props
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
-          const msg = payload.new as { conversation_id: string; created_at: string }
+          const msg = payload.new as { conversation_id: string; sender_id: string; created_at: string }
           setConversations(prev => {
-            const updated = prev.map(c =>
-              c.id === msg.conversation_id
-                ? { ...c, last_message_at: msg.created_at }
-                : c
-            )
-            return [...updated].sort((a, b) => {
-              if (!a.last_message_at) return 1
-              if (!b.last_message_at) return -1
-              return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
-            })
+            const idx = prev.findIndex(c => c.id === msg.conversation_id)
+            if (idx === -1) return prev
+            const conv = prev[idx]
+            const isActive = selectedIdRef.current === msg.conversation_id
+            const isOtherUser = msg.sender_id !== userId
+            const updated = {
+              ...conv,
+              last_message_at: msg.created_at,
+              unread_count: isOtherUser && !isActive ? conv.unread_count + 1 : conv.unread_count,
+            }
+            // Konversation an erste Stelle
+            const rest = prev.filter(c => c.id !== msg.conversation_id)
+            return [updated, ...rest]
           })
         }
       )
