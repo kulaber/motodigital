@@ -189,12 +189,14 @@ function MessageThread({
   conv,
   onBack,
   myAvatarUrl,
+  onSent,
 }: {
   conversationId: string
   userId: string
   conv: Conversation
   onBack: () => void
   myAvatarUrl: string | null
+  onSent: () => void
 }) {
   const { messages, loading, sendMessage } = useMessages(conversationId)
   const [text, setText] = useState('')
@@ -293,6 +295,7 @@ function MessageThread({
     }
     await sendMessage(body, userId)
     setSending(false)
+    onSent()
   }
 
   async function handleImageSend(file: File) {
@@ -319,6 +322,7 @@ function MessageThread({
 
     setPreviewFile(null)
     setUploading(false)
+    onSent()
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -682,6 +686,18 @@ export default function MessagesClient({ conversations: initial, userId }: Props
                 conv={selectedConv}
                 onBack={() => setSelectedId(null)}
                 myAvatarUrl={myAvatarUrl}
+                onSent={() => {
+                  const now = new Date().toISOString()
+                  setConversations(prev => {
+                    const updated = prev.map(c =>
+                      c.id === selectedId ? { ...c, last_message_at: now } : c
+                    )
+                    return [
+                      ...updated.filter(c => c.id === selectedId),
+                      ...updated.filter(c => c.id !== selectedId),
+                    ]
+                  })
+                }}
               />
             ) : (
               <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
