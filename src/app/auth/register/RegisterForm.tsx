@@ -3,9 +3,24 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Wrench, Bike, BadgeCheck, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
 
 type Role = 'rider' | 'custom-werkstatt'
+
+const WERKSTATT_BENEFITS = [
+  'Öffentliches Werkstatt-Profil mit Galerie',
+  'Direktanfragen von Ridern — ohne Provision',
+  'Auf der Karte sichtbar & auffindbar',
+  'Custom Bikes inserieren & verkaufen',
+]
+
+const RIDER_BENEFITS = [
+  'Custom Werkstätten entdecken & kontaktieren',
+  'Custom Bikes kaufen & Builds speichern',
+  'Magazin, Guides & Community',
+  'Digitaler Bike-Pass (bald verfügbar)',
+]
 
 export default function RegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
@@ -13,6 +28,7 @@ export default function RegisterForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -57,51 +73,64 @@ export default function RegisterForm() {
   if (step === 1) {
     return (
       <div>
-        <p className="text-xs font-semibold text-[#222222]/35 uppercase tracking-widest mb-4 text-center">
-          Ich bin...
-        </p>
+        <div className="flex flex-col gap-3">
 
-        <div className="flex flex-col gap-2.5">
-          {/* Builder — primary / recommended */}
+          {/* Custom Werkstatt */}
           <button
             onClick={() => handleRoleSelect('custom-werkstatt')}
-            className="relative flex items-center gap-4 p-4 bg-[#222222]/6 border border-[#DDDDDD]/30 rounded-xl hover:border-[#DDDDDD]/60 hover:bg-[#222222]/10 transition-all text-left group"
+            className="relative overflow-hidden rounded-2xl border-2 border-[#222222]/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#222222]/15 border border-[#DDDDDD]/25 flex items-center justify-center flex-shrink-0">
-              <Wrench size={18} className="text-[#717171]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <p className="text-sm font-bold text-[#222222] whitespace-nowrap">Custom-Werkstatt</p>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                  Beliebt
-                </span>
+            {/* Image header */}
+            <div className="relative h-20 w-full">
+              <Image src="/custom-werkstatt.png" alt="Custom Werkstatt" fill sizes="320px" className="object-cover" />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
+              <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                <p className="text-white font-bold text-sm">Custom Werkstatt</p>
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
               </div>
-              <p className="text-xs text-[#222222]/45">Ich baue Custom Bikes & möchte Kunden gewinnen</p>
             </div>
-            <ChevronRight size={15} className="text-[#717171]/50 group-hover:text-[#717171] transition-colors flex-shrink-0" />
+            {/* Content */}
+            <div className="px-4 py-3 bg-white">
+              <p className="text-xs text-[#222222]/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
+              <ul className="flex flex-col gap-1.5">
+                {WERKSTATT_BENEFITS.map(b => (
+                  <li key={b} className="flex items-center gap-2">
+                    <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
+                    <span className="text-xs text-[#222222]/50">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </button>
 
-          {/* Rider — secondary */}
+          {/* Rider */}
           <button
             onClick={() => handleRoleSelect('rider')}
-            className="flex items-center gap-4 p-4 bg-white border border-[#222222]/8 rounded-xl hover:border-[#222222]/20 hover:bg-[#222222]/3 transition-all text-left group"
+            className="relative overflow-hidden rounded-2xl border-2 border-[#222222]/10 hover:border-[#222222]/35 hover:shadow-md transition-all text-left group"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#222222]/5 border border-[#222222]/10 flex items-center justify-center flex-shrink-0">
-              <Bike size={18} className="text-[#222222]/40" />
+            {/* Image header */}
+            <div className="relative h-20 w-full">
+              <Image src="/rider.png" alt="Rider" fill sizes="320px" className="object-cover" />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
+              <div className="absolute bottom-3 left-4">
+                <p className="text-white font-bold text-sm">Rider</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#222222] mb-0.5">Rider</p>
-              <p className="text-xs text-[#222222]/35">Ich suche Custom Bikes & Inspiration</p>
+            {/* Content */}
+            <div className="px-4 py-3 bg-white">
+              <p className="text-xs text-[#222222]/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
+              <ul className="flex flex-col gap-1.5">
+                {RIDER_BENEFITS.map(b => (
+                  <li key={b} className="flex items-center gap-2">
+                    <Check size={10} className="text-[#222222]/30 flex-shrink-0" />
+                    <span className="text-xs text-[#222222]/50">{b}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ChevronRight size={15} className="text-[#222222]/20 group-hover:text-[#222222]/50 transition-colors flex-shrink-0" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 mt-5 px-1">
-          <BadgeCheck size={12} className="text-[#717171]/60 flex-shrink-0" />
-          <p className="text-[11px] text-[#222222]/30">Kostenlos — keine Kreditkarte erforderlich</p>
-        </div>
       </div>
     )
   }
@@ -112,61 +141,68 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-      {/* Role badge + back */}
+      {/* Back + role indicator */}
       <div className="flex items-center justify-between mb-1">
         <button type="button" onClick={() => setStep(1)}
-          className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors flex items-center gap-1">
-          ← Zurück
+          className="flex items-center gap-1.5 text-xs text-[#222222]/40 hover:text-[#222222] transition-colors">
+          <ArrowLeft size={13} />
+          Zurück
         </button>
-        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+        <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
-            ? 'bg-[#222222]/12 text-[#717171] border-[#DDDDDD]/25'
-            : 'bg-[#222222]/6 text-[#222222]/50 border-[#222222]/12'
+            ? 'bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20'
+            : 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]/40'
         }`}>
-          {isBuilder ? '🔧 Custom-Werkstatt' : '🏍️ Rider'}
-        </span>
+          {isBuilder ? <Wrench size={11} /> : <Bike size={11} />}
+          {isBuilder ? 'Custom Werkstatt' : 'Rider'}
+        </div>
       </div>
 
-      {isBuilder && (
-        <div className="flex items-start gap-2.5 bg-[#222222]/6 border border-[#DDDDDD]/20 rounded-xl px-3.5 py-3 -mt-1">
-          <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />
-          <p className="text-[11px] text-[#717171]/80 leading-relaxed">
-            Nach der Registrierung kannst du dein Werkstatt-Profil mit Builds, Öffnungszeiten und Fotos befüllen.
-          </p>
-        </div>
-      )}
-
       <div>
-        <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-1.5">
-          {isBuilder ? 'Name / Workshop' : 'Name'}
+        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">
+          {isBuilder ? 'Name / Werkstatt' : 'Dein Name'}
         </label>
         <input
           type="text" required value={name} onChange={e => setName(e.target.value)}
           placeholder={isBuilder ? 'z.B. Moto Garage Berlin' : 'Dein Name'}
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors"
+          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-1.5">E-Mail</label>
+        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">E-Mail</label>
         <input
           type="email" required value={email} onChange={e => setEmail(e.target.value)}
           placeholder="deine@email.de"
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors"
+          autoComplete="email"
+          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-1.5">Passwort</label>
-        <input
-          type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)}
-          placeholder="Mindestens 8 Zeichen"
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors"
-        />
+        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">Passwort</label>
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            required minLength={8}
+            value={password} onChange={e => setPassword(e.target.value)}
+            placeholder="Mindestens 8 Zeichen"
+            autoComplete="new-password"
+            className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-11 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#222222]/30 hover:text-[#222222]/60 transition-colors"
+            aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
       </div>
 
       {error && (
-        <p className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2">{error}</p>
+        <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
       )}
 
       <button type="submit" disabled={loading}

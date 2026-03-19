@@ -209,6 +209,7 @@ function MessageThread({
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const [plusMenuOpen, setPlusMenuOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -218,7 +219,12 @@ function MessageThread({
 
   useEffect(() => {
     initialLoadRef.current = false
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollContainerRef.current
+    if (!el) return
+    // Use requestAnimationFrame to ensure DOM is fully painted before scrolling
+    requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight
+    })
   }, [messages])
 
   // Load reactions + subscribe to realtime
@@ -388,7 +394,7 @@ function MessageThread({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
         {loading && (
           <div className="flex flex-col gap-3 animate-pulse">
             {[...Array(4)].map((_, i) => (

@@ -68,11 +68,6 @@ button, [role="button"], a, label[for], summary {
   cursor: pointer;
 }
 
-/* ─── Custom scrollbar ───────────────────────────────────── */
-::-webkit-scrollbar         { width: 6px; height: 6px; }
-::-webkit-scrollbar-track   { background: #F7F7F7; }
-::-webkit-scrollbar-thumb   { background: #DDDDDD; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #B0B0B0; }
 
 /* ─── Utility: hide scrollbar ────────────────────────────── */
 .scrollbar-hide {

@@ -114,7 +114,7 @@ export default async function LandingPage() {
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-5 sm:p-8 lg:p-12 text-center">
               <div className="max-w-2xl">
                 <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full mb-4 sm:mb-5">
-                  Beta — Jetzt registrieren
+                  Beta — Jetzt kostenlos registrieren
                 </span>
                 <h1
                   className="animate-slide-up font-bold text-white leading-[1.1] mb-3 sm:mb-4"
@@ -126,7 +126,7 @@ export default async function LandingPage() {
                   className="animate-slide-up text-white/60 font-light mb-5 sm:mb-6 leading-relaxed max-w-[50ch] hidden sm:block"
                   style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1rem)', animationDelay: '120ms' }}
                 >
-                  Finde Builder, kaufe Builds, starte dein Projekt — die Plattform für Custom Motorrad Kultur.
+                  Finde Custom Werkstätten, kaufe Custom Bikes, starte Dein Projekt — die Plattform für Custom Motorrad Kultur.
                 </p>
                 <div className="animate-slide-up flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center" style={{ animationDelay: '180ms' }}>
                   <Link href="/custom-werkstatt"

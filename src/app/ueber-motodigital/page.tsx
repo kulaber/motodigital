@@ -202,8 +202,8 @@ export default function WieEsFunktioniertPage() {
               {
                 status: 'Geplant',
                 live: false,
-                title: 'Build Konfigurator',
-                description: 'Visuelles Tool zum Planen und Präsentieren von Custom Bike Projekten.',
+                title: 'Digitaler Custom Bike-Pass',
+                description: 'Ein MotoDigital-Pass zur Verifizierung und Dokumentation von Custom Bikes. Für mehr Sicherheit und Transparenz für deine Custom Bike-Identität.',
               },
               {
                 status: 'Geplant',

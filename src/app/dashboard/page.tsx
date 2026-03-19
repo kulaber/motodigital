@@ -120,7 +120,7 @@ export default async function DashboardPage() {
             <div>
               <h1 className="text-2xl font-bold text-[#222222]">Dashboard</h1>
               {profile?.full_name && (
-                <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {profile.full_name.split(' ')[0]}</p>
+                <p className="text-sm text-[#222222]/35 mt-0.5">Hallo, {isBuilder ? profile.full_name : profile.full_name.split(' ')[0]}</p>
               )}
             </div>
           </div>

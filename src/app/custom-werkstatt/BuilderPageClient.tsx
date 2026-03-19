@@ -663,7 +663,7 @@ export default function BuilderPageClient({ builders }: Props) {
       <div className="flex" style={{ height: mapHeight }}>
 
         {/* LEFT — scrollable 2-col grid */}
-        <div ref={listRef} className="w-full lg:w-1/2 overflow-y-auto border-r border-[#EBEBEB]">
+        <div ref={listRef} className="w-full lg:w-1/2 overflow-y-scroll border-r border-[#EBEBEB]">
           {!mapReady ? (
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
