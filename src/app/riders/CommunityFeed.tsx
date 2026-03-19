@@ -573,6 +573,17 @@ function PostCard({
   const isOwn = userId === post.user_id
   const isAdmin = userRole === 'superadmin'
   const [lightbox, setLightbox] = useState<string | null>(null)
+  const [motoAnim, setMotoAnim] = useState(false)
+
+  function handleLikeClick() {
+    if (!post.liked_by_me) {
+      setMotoAnim(false)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setMotoAnim(true))
+      })
+    }
+    onLike()
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
@@ -622,16 +633,36 @@ function PostCard({
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4 px-4 py-3 border-t border-[#F7F7F7]">
+      <div className="relative flex items-center gap-4 px-4 py-3 border-t border-[#F7F7F7] overflow-hidden">
+        {/* Motorcycle animation */}
+        {motoAnim && (
+          <span
+            className="absolute text-base pointer-events-none animate-moto-zoom"
+            onAnimationEnd={() => setMotoAnim(false)}
+            style={{ top: '50%', transform: 'translateY(-50%)' }}
+          >
+            🏍️
+          </span>
+        )}
         <button
-          onClick={onLike}
-          className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${
-            post.liked_by_me ? 'text-red-500' : 'text-[#222222]/40 hover:text-red-400'
-          }`}
+          onClick={handleLikeClick}
+          className="flex items-center gap-1.5 text-xs font-semibold transition-colors group"
         >
-          <Heart size={14} className={post.liked_by_me ? 'fill-red-500' : ''} />
-          {post.likes_count > 0 && <span>{post.likes_count}</span>}
-          Gefällt mir
+          <Heart
+            size={14}
+            className={`transition-all ${post.liked_by_me ? 'fill-red-500 text-red-500 scale-110' : 'text-red-400 group-hover:text-red-500'}`}
+          />
+          {post.liked_by_me ? (
+            <>
+              {post.likes_count > 0 && <span className="text-red-500">{post.likes_count}</span>}
+              <span className="text-[#222222]/40">Gefällt mir</span>
+            </>
+          ) : (
+            <>
+              {post.likes_count > 0 && <span className="text-[#222222]/40 group-hover:text-[#222222]">{post.likes_count}</span>}
+              <span className="text-[#222222]/40 group-hover:text-[#222222]">Gefällt mir</span>
+            </>
+          )}
         </button>
       </div>
 
