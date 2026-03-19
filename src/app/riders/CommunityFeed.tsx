@@ -13,6 +13,12 @@ const TOPICS = [
 ] as const
 type Topic = typeof TOPICS[number]['value']
 
+const ONLINE_THRESHOLD_MS = 3 * 60 * 1000 // 3 minutes
+function isOnline(lastSeen: string | null): boolean {
+  if (!lastSeen) return false
+  return Date.now() - new Date(lastSeen).getTime() < ONLINE_THRESHOLD_MS
+}
+
 interface Post {
   id: string
   body: string | null
@@ -23,6 +29,7 @@ interface Post {
   author_name: string | null
   author_avatar: string | null
   author_initials: string
+  author_online: boolean
   likes_count: number
   liked_by_me: boolean
 }
@@ -60,10 +67,10 @@ export default function CommunityFeed({ userId, userRole }: Props) {
     const userIds = [...new Set((postsData as { user_id: string }[]).map(p => p.user_id))]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: profilesData } = await (supabase.from('profiles') as any)
-      .select('id, full_name, avatar_url')
+      .select('id, full_name, avatar_url, last_seen_at')
       .in('id', userIds)
 
-    const profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {}
+    const profileMap: Record<string, { full_name: string | null; avatar_url: string | null; last_seen_at: string | null }> = {}
     for (const prof of (profilesData ?? [])) {
       profileMap[prof.id] = prof
     }
@@ -93,6 +100,7 @@ export default function CommunityFeed({ userId, userRole }: Props) {
         author_name: name,
         author_avatar: profile?.avatar_url ?? null,
         author_initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+        author_online: isOnline(profile?.last_seen_at ?? null),
         likes_count: likesMap[p.id]?.count ?? 0,
         liked_by_me: likesMap[p.id]?.byMe ?? false,
       }
@@ -612,13 +620,18 @@ function PostCard({
     <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#06a5a5]/10">
-          {post.author_avatar ? (
-            <Image src={post.author_avatar} alt={post.author_name ?? ''} fill sizes="40px" className="object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-xs font-bold text-[#06a5a5]">
-              {post.author_initials}
-            </div>
+        <div className="relative flex-shrink-0 w-10 h-10">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#06a5a5]/10">
+            {post.author_avatar ? (
+              <Image src={post.author_avatar} alt={post.author_name ?? ''} fill sizes="40px" className="object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs font-bold text-[#06a5a5]">
+                {post.author_initials}
+              </div>
+            )}
+          </div>
+          {post.author_online && (
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full" />
           )}
         </div>
         <div className="flex-1 min-w-0">
