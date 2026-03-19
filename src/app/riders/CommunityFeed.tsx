@@ -328,6 +328,7 @@ function VideoPlayer({ src }: { src: string }) {
         className="w-full block object-cover"
         style={{ maxHeight: maxH }}
         playsInline
+        preload="metadata"
         onEnded={() => setPlaying(false)}
       />
       {/* Center icon flash */}
