@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Image from 'next/image'
-import { Heart, Trash2, ImageIcon, X, Send, Video, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
+import { ThumbsUp, Trash2, ImageIcon, X, Send, Video, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { formatRelativeTime } from '@/lib/utils'
 
@@ -573,17 +573,6 @@ function PostCard({
   const isOwn = userId === post.user_id
   const isAdmin = userRole === 'superadmin'
   const [lightbox, setLightbox] = useState<string | null>(null)
-  const [motoAnim, setMotoAnim] = useState(false)
-
-  function handleLikeClick() {
-    if (!post.liked_by_me) {
-      setMotoAnim(false)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setMotoAnim(true))
-      })
-    }
-    onLike()
-  }
 
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
@@ -633,22 +622,12 @@ function PostCard({
       )}
 
       {/* Actions */}
-      <div className="relative flex items-center gap-4 px-4 py-3 border-t border-[#F7F7F7] overflow-hidden">
-        {/* Motorcycle animation */}
-        {motoAnim && (
-          <span
-            className="absolute text-base pointer-events-none animate-moto-zoom"
-            onAnimationEnd={() => setMotoAnim(false)}
-            style={{ top: '50%', transform: 'translateY(-50%)' }}
-          >
-            🏍️
-          </span>
-        )}
+      <div className="flex items-center gap-4 px-4 py-3 border-t border-[#F7F7F7]">
         <button
-          onClick={handleLikeClick}
+          onClick={onLike}
           className="flex items-center gap-1.5 text-xs font-semibold transition-colors group"
         >
-          <Heart
+          <ThumbsUp
             size={14}
             className={`transition-all ${post.liked_by_me ? 'fill-red-500 text-red-500 scale-110' : 'text-red-400 group-hover:text-red-500'}`}
           />
