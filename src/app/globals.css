@@ -196,6 +196,13 @@ a, button, [role="button"] {
   border-radius: 4px;
 }
 
+/* Inputs & Textareas: kein Focus-Ring */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 /* ─── Scroll-reveal ──────────────────────────────────────── */
 .reveal {
   opacity: 0;

@@ -64,7 +64,7 @@ export default async function MessagesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen overflow-hidden flex flex-col bg-white">
       <Header />
       <MessagesClient conversations={conversations} userId={user.id} />
     </div>

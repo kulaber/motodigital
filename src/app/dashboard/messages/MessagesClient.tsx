@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, Send, MessageCircle, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X } from 'lucide-react'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -14,22 +14,43 @@ interface Props {
   userId: string
 }
 
+const REACTIONS = ['👍', '❤️', '😂', '😮', '😢']
 
-function Avatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+/* ─── Avatar ─── */
+function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | null; sm?: boolean }) {
+  const dim = sm ? 'w-8 h-8 text-[10px]' : 'w-11 h-11 text-sm'
   if (avatarUrl) {
     return (
-      <span className="block w-9 h-9 rounded-full overflow-hidden border border-[#222222]/8 flex-shrink-0">
-        <Image src={avatarUrl} alt={name} width={36} height={36} className="w-full h-full object-cover" />
+      <span className={`block ${dim} rounded-full overflow-hidden flex-shrink-0`}>
+        <Image src={avatarUrl} alt={name} width={44} height={44} className="w-full h-full object-cover" />
       </span>
     )
   }
   return (
-    <div className="w-9 h-9 rounded-full bg-[#222222]/10 border border-[#DDDDDD]/30 flex items-center justify-center text-xs font-bold text-[#717171] flex-shrink-0">
+    <div className={`${dim} rounded-full bg-[#F7F7F7] border border-[#E0E0E0] flex items-center justify-center font-bold text-[#717171] flex-shrink-0`}>
       {name.charAt(0).toUpperCase()}
     </div>
   )
 }
 
+/* ─── Message body renderer (text or image) ─── */
+function MessageBody({ body, isOwn }: { body: string; isOwn: boolean }) {
+  if (body.startsWith('[img:') && body.endsWith(']')) {
+    const url = body.slice(5, -1)
+    return (
+      <div className="relative w-52 h-48 rounded-xl overflow-hidden">
+        <Image src={url} alt="Bild" fill sizes="208px" className="object-cover" />
+      </div>
+    )
+  }
+  return (
+    <span className={`text-sm leading-relaxed ${isOwn ? 'text-white' : 'text-[#222222]'}`}>
+      {body}
+    </span>
+  )
+}
+
+/* ─── Conversation List ─── */
 function ConversationList({
   conversations,
   selectedId,
@@ -41,76 +62,111 @@ function ConversationList({
   onSelect: (id: string) => void
   onDelete: (id: string) => void
 }) {
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<'alle' | 'ungelesen'>('alle')
+
+  const filtered = conversations.filter(c => {
+    const name = c.other?.full_name ?? c.other?.username ?? ''
+    const matchesSearch = name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.bike?.title ?? '').toLowerCase().includes(search.toLowerCase())
+    const matchesFilter = filter === 'alle' || c.unread_count > 0
+    return matchesSearch && matchesFilter
+  })
+
   return (
     <div className="flex flex-col h-full">
-      <div className="px-5 py-4 border-b border-[#222222]/5">
-        <h1 className="text-sm font-semibold text-[#222222]">Nachrichten</h1>
-        <p className="text-xs text-[#222222]/30 mt-0.5">{conversations.length} Konversation{conversations.length !== 1 ? 'en' : ''}</p>
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3 flex-shrink-0">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-[#222222]">Nachrichten</h1>
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-3">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Suchen…"
+            className="w-full bg-[#F7F7F7] rounded-full pl-8 pr-3 py-2 text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none focus:outline-none focus:ring-0"
+          />
+        </div>
+
+        {/* Filter pills */}
+        <div className="flex gap-2">
+          {(['alle', 'ungelesen'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                filter === f
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-[#F7F7F7] text-[#222222]/60 hover:bg-[#EEEEEE]'
+              }`}
+            >
+              {f === 'alle' ? 'Alle' : 'Ungelesen'}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto divide-y divide-[#222222]/5">
-        {conversations.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-            <MessageCircle size={32} className="text-[#222222]/10 mb-3" />
-            <p className="text-sm text-[#222222]/30">Noch keine Nachrichten</p>
+      {/* List */}
+      <div className="flex-1 overflow-y-auto">
+        {filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <MessageCircle size={28} className="text-[#222222]/10 mb-2" />
+            <p className="text-sm text-[#222222]/30">Keine Nachrichten</p>
           </div>
         )}
-        {conversations.map(conv => {
+        {filtered.map(conv => {
           const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
           const isSelected = conv.id === selectedId
           const hasUnread = conv.unread_count > 0
           return (
             <div
               key={conv.id}
-              className={`group relative flex items-start gap-3 px-4 py-3.5 border-l-2 transition-colors ${
-                isSelected
-                  ? 'bg-[#06a5a5]/5 border-[#06a5a5]'
-                  : hasUnread
-                  ? 'bg-[#06a5a5]/3 border-[#06a5a5]/30 hover:bg-[#06a5a5]/6'
-                  : 'border-transparent hover:bg-[#222222]/3'
+              className={`group relative flex items-center gap-3 px-5 py-4 transition-colors cursor-pointer ${
+                isSelected ? 'bg-[#F7F7F7]' : 'hover:bg-[#FAFAFA]'
               }`}
+              onClick={() => onSelect(conv.id)}
             >
-              <button
-                onClick={() => onSelect(conv.id)}
-                className="flex items-start gap-3 flex-1 min-w-0 text-left"
-              >
-                <div className="relative flex-shrink-0">
-                  <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
-                  {hasUnread && !isSelected && (
-                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#06a5a5] rounded-full border-2 border-white" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <p className={`text-sm truncate ${hasUnread && !isSelected ? 'font-bold text-[#222222]' : 'font-semibold text-[#222222]'}`}>
-                      {name}
-                    </p>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {conv.last_message_at && (
-                        <span className={`text-[10px] ${hasUnread && !isSelected ? 'text-[#06a5a5] font-semibold' : 'text-[#222222]/25'}`}>
-                          {formatRelativeTime(conv.last_message_at)}
-                        </span>
-                      )}
-                      {hasUnread && !isSelected && (
-                        <span className="min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                          {conv.unread_count > 9 ? '9+' : conv.unread_count}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {conv.bike && (
-                    <p className={`text-xs truncate ${hasUnread && !isSelected ? 'text-[#222222]/50' : 'text-[#222222]/35'}`}>
-                      {conv.bike.title}
-                    </p>
-                  )}
-                </div>
-              </button>
+              {/* Avatar */}
+              <div className="relative flex-shrink-0">
+                <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
+                {hasUnread && !isSelected && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#06a5a5] rounded-full border-2 border-white" />
+                )}
+              </div>
 
-              {/* Delete button — visible on hover */}
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-0.5">
+                  <p className={`text-sm truncate ${hasUnread && !isSelected ? 'font-bold' : 'font-semibold'} text-[#222222]`}>
+                    {name}
+                  </p>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {conv.last_message_at && (
+                      <span className={`text-[11px] ${hasUnread && !isSelected ? 'text-[#06a5a5] font-semibold' : 'text-[#222222]/30'}`}>
+                        {formatRelativeTime(conv.last_message_at)}
+                      </span>
+                    )}
+                    {hasUnread && !isSelected && (
+                      <span className="min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                        {conv.unread_count > 9 ? '9+' : conv.unread_count}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {conv.bike && (
+                  <p className="text-xs text-[#222222]/40 truncate">{conv.bike.title}</p>
+                )}
+              </div>
+
+              {/* Delete */}
               <button
-                onClick={() => onDelete(conv.id)}
-                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-50 text-[#222222]/20 hover:text-red-400"
-                title="Konversation löschen"
+                onClick={e => { e.stopPropagation(); onDelete(conv.id) }}
+                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-[#222222]/20 hover:text-red-400"
+                title="Löschen"
               >
                 <Trash2 size={13} />
               </button>
@@ -122,6 +178,7 @@ function ConversationList({
   )
 }
 
+/* ─── Message Thread ─── */
 function MessageThread({
   conversationId,
   userId,
@@ -138,63 +195,141 @@ function MessageThread({
   const { messages, loading, sendMessage } = useMessages(conversationId)
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({})
+  const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
+  const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const supabase = createClient()
   const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  async function handleSend(e: React.FormEvent) {
-    e.preventDefault()
+  function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setText(e.target.value)
+    // Auto-resize
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  async function handleSend() {
     const body = text.trim()
-    if (!body || sending) return
+    if ((!body && !previewFile) || sending || uploading) return
+
+    if (previewFile) {
+      await handleImageSend(previewFile.file)
+      return
+    }
+
     setSending(true)
     setText('')
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+    }
     await sendMessage(body, userId)
     setSending(false)
+  }
+
+  async function handleImageSend(file: File) {
+    setUploading(true)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `${conversationId}/${Date.now()}.${ext}`
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.storage as any)
+      .from('chat-images')
+      .upload(path, file, { contentType: file.type })
+
+    if (!error && data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: urlData } = (supabase.storage as any)
+        .from('chat-images')
+        .getPublicUrl(data.path)
+      await sendMessage(`[img:${urlData.publicUrl}]`, userId)
+    }
+
+    setPreviewFile(null)
+    setUploading(false)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setPreviewFile({ file, url })
+    e.target.value = ''
+  }
+
+  function handleReact(msgId: string, emoji: string) {
+    setReactions(prev => ({
+      ...prev,
+      [msgId]: {
+        ...(prev[msgId] ?? {}),
+        [emoji]: ((prev[msgId]?.[emoji] ?? 0) + 1),
+      },
+    }))
+    setHoveredMsgId(null)
   }
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 sm:px-5 py-4 border-b border-[#222222]/5 flex-shrink-0">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#222222]/5 flex-shrink-0">
         <button
           onClick={onBack}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-xl hover:bg-[#222222]/5 transition-colors text-[#222222]/50"
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#222222]/5 transition-colors text-[#222222]/50"
         >
           <ArrowLeft size={16} />
         </button>
         <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#222222]">{name}</p>
+          <p className="text-sm font-bold text-[#222222]">{name}</p>
           {conv.bike && <p className="text-xs text-[#222222]/35 truncate">{conv.bike.title}</p>}
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 flex flex-col gap-2">
+      <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
         {loading && (
-          <div className="flex flex-col gap-2 animate-pulse">
+          <div className="flex flex-col gap-3 animate-pulse">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`h-8 rounded-2xl bg-[#222222]/5 ${i % 2 === 0 ? 'w-2/3' : 'w-1/2 self-end'}`} />
+              <div key={i} className={`h-10 rounded-2xl bg-[#222222]/5 ${i % 2 === 0 ? 'w-2/3' : 'w-1/2 self-end'}`} />
             ))}
           </div>
         )}
         {!loading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center flex-1 text-center">
-            <p className="text-xs text-[#222222]/25">Noch keine Nachrichten — schreib als Erster!</p>
+            <p className="text-xs text-[#222222]/25">Noch keine Nachrichten</p>
           </div>
         )}
         {messages.map(msg => {
           const isOwn = msg.sender_id === userId
           const avatarUrl = isOwn ? myAvatarUrl : conv.other?.avatar_url
-          const name = isOwn ? 'Ich' : (conv.other?.full_name ?? conv.other?.username ?? '?')
+          const msgReactions = reactions[msg.id] ?? {}
+          const hasReactions = Object.values(msgReactions).some(v => v > 0)
+
           return (
-            <div key={msg.id} className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-              {/* Other person avatar — left */}
+            <div
+              key={msg.id}
+              className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+              onMouseEnter={() => setHoveredMsgId(msg.id)}
+              onMouseLeave={() => setHoveredMsgId(null)}
+            >
+              {/* Other avatar */}
               {!isOwn && (
-                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#F7F7F7] flex items-center justify-center text-[10px] font-bold text-[#717171]">
+                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden bg-[#F7F7F7] flex items-center justify-center text-[10px] font-bold text-[#717171]">
                   {avatarUrl
                     ? <Image src={avatarUrl} alt={name} fill sizes="28px" className="object-cover" />
                     : name.charAt(0).toUpperCase()
@@ -202,20 +337,56 @@ function MessageThread({
                 </div>
               )}
 
-              <div className={`max-w-[72%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                isOwn
-                  ? 'bg-[#06a5a5] text-white rounded-br-sm'
-                  : 'bg-[#F7F7F7] text-[#222222] rounded-bl-sm border border-[#222222]/5'
-              }`}>
-                {msg.body}
-                <p className={`text-[10px] mt-1 ${isOwn ? 'text-white/40' : 'text-[#222222]/25'}`}>
-                  {formatRelativeTime(msg.created_at)}
-                </p>
+              <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[72%]`}>
+                {/* Emoji reaction bar (shown on hover) */}
+                <div className={`transition-all duration-150 mb-1 ${hoveredMsgId === msg.id ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none translate-y-1'}`}>
+                  <div className="flex gap-0.5 bg-white rounded-full shadow-lg border border-[#222222]/8 px-1.5 py-1">
+                    {REACTIONS.map(emoji => (
+                      <button
+                        key={emoji}
+                        onClick={() => handleReact(msg.id, emoji)}
+                        className="text-sm px-1.5 py-0.5 rounded-full hover:bg-[#222222]/6 transition-colors"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bubble */}
+                <div className={`px-4 py-3 rounded-2xl ${
+                  msg.body.startsWith('[img:') ? 'p-0 overflow-hidden' : ''
+                } ${
+                  isOwn
+                    ? 'bg-[#06a5a5] rounded-br-sm'
+                    : 'bg-[#F7F7F7] rounded-bl-sm border border-[#222222]/5'
+                }`}>
+                  <MessageBody body={msg.body} isOwn={isOwn} />
+                  {!msg.body.startsWith('[img:') && (
+                    <p className={`text-[10px] mt-1.5 ${isOwn ? 'text-white/40' : 'text-[#222222]/25'}`}>
+                      {formatRelativeTime(msg.created_at)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Reaction indicators */}
+                {hasReactions && (
+                  <div className="flex gap-0.5 mt-1 flex-wrap">
+                    {Object.entries(msgReactions).filter(([, count]) => count > 0).map(([emoji, count]) => (
+                      <span
+                        key={emoji}
+                        className="bg-white border border-[#222222]/10 rounded-full px-1.5 py-0.5 text-xs shadow-sm"
+                      >
+                        {emoji} <span className="text-[10px] text-[#222222]/40">{count}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Own avatar — right */}
+              {/* Own avatar */}
               {isOwn && (
-                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#222222]/8 bg-[#06a5a5]/10 flex items-center justify-center text-[10px] font-bold text-[#06a5a5]">
+                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden bg-[#06a5a5]/10 flex items-center justify-center text-[10px] font-bold text-[#06a5a5]">
                   {avatarUrl
                     ? <Image src={avatarUrl} alt="Ich" fill sizes="28px" className="object-cover" />
                     : 'I'
@@ -228,39 +399,84 @@ function MessageThread({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSend} className="flex items-center gap-2 px-4 sm:px-5 py-3 border-t border-[#222222]/5 flex-shrink-0">
-        <input
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder="Nachricht schreiben…"
-          className="flex-1 bg-[#F7F7F7] border border-[#222222]/8 rounded-full px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#06a5a5]/40 transition-colors"
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || sending}
-          className="w-9 h-9 rounded-full bg-[#06a5a5] hover:bg-[#058f8f] disabled:opacity-30 flex items-center justify-center transition-all flex-shrink-0"
-        >
-          <Send size={14} className="text-white" />
-        </button>
-      </form>
+      {/* Input area */}
+      <div className="flex-shrink-0 px-5 py-4 border-t border-[#222222]/5">
+        {/* Image preview */}
+        {previewFile && (
+          <div className="relative mb-3 inline-block">
+            <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#222222]/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={previewFile.url} alt="Vorschau" className="w-full h-full object-cover" />
+            </div>
+            <button
+              onClick={() => setPreviewFile(null)}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#222222] rounded-full flex items-center justify-center text-white"
+            >
+              <X size={10} />
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-end gap-2">
+          {/* Image upload */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex-shrink-0 w-10 h-10 rounded-full border border-[#222222]/10 flex items-center justify-center text-[#222222]/40 hover:text-[#222222]/60 hover:border-[#222222]/20 transition-colors mb-0.5"
+            title="Bild senden"
+          >
+            <ImageIcon size={16} />
+          </button>
+
+          {/* Textarea */}
+          <div className="flex-1 relative bg-[#F7F7F7] border border-[#222222]/8 rounded-2xl focus-within:border-[#222222]/60 focus-within:bg-white transition-colors">
+            <textarea
+              ref={textareaRef}
+              value={text}
+              onChange={handleTextChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Nachricht schreiben…"
+              rows={3}
+              style={{ resize: 'none' }}
+              className="w-full bg-transparent px-4 pt-3 pb-3 text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none focus:outline-none focus:ring-0 leading-relaxed"
+            />
+          </div>
+
+          {/* Send button */}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={(!text.trim() && !previewFile) || sending || uploading}
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-[#06a5a5] hover:bg-[#058f8f] disabled:opacity-30 flex items-center justify-center transition-all mb-0.5"
+          >
+            <ArrowUp size={16} className="text-white" />
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
 
+/* ─── Main export ─── */
 export default function MessagesClient({ conversations: initial, userId }: Props) {
   const searchParams = useSearchParams()
   const convParam = searchParams.get('conv')
   const [conversations, setConversations] = useState(initial)
-  const [selectedId,   setSelectedId]   = useState<string | null>(
+  const [selectedId, setSelectedId] = useState<string | null>(
     convParam && initial.some(c => c.id === convParam) ? convParam : null
   )
-  const [myAvatarUrl,  setMyAvatarUrl]  = useState<string | null>(null)
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null)
   const selectedConv = conversations.find(c => c.id === selectedId) ?? null
   const supabase = createClient()
 
   async function handleDelete(convId: string) {
-    // Fetch current deleted_for, append userId, update
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase.from('conversations') as any)
       .select('deleted_for')
@@ -275,7 +491,6 @@ export default function MessagesClient({ conversations: initial, userId }: Props
         .eq('id', convId)
     }
 
-    // Optimistic UI update
     setConversations(prev => prev.filter(c => c.id !== convId))
     if (selectedId === convId) setSelectedId(null)
   }
@@ -292,9 +507,9 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
-  // Nachrichten als gelesen markieren + Header-Badge aktualisieren
   useEffect(() => {
     if (!selectedId) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('messages') as any)
       .update({ read_at: new Date().toISOString() })
       .eq('conversation_id', selectedId)
@@ -307,12 +522,12 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   }, [selectedId])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-8 pb-12">
-      <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 130px)' }}>
-        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] h-full divide-x divide-[#222222]/5">
+    <div className="flex-1 overflow-hidden min-h-0 lg:px-8 lg:py-6">
+      <div className="h-full bg-white overflow-hidden lg:rounded-2xl lg:border lg:border-[#222222]/6">
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] h-full">
 
-          {/* Conversation list — hidden on mobile when a chat is open */}
-          <div className={`${selectedId ? 'hidden lg:flex' : 'flex'} flex-col h-full overflow-hidden`}>
+          {/* Left: conversation list */}
+          <div className={`${selectedId ? 'hidden lg:flex' : 'flex'} flex-col h-full overflow-hidden border-r border-[#222222]/6`}>
             <ConversationList
               conversations={conversations}
               selectedId={selectedId}
@@ -321,7 +536,7 @@ export default function MessagesClient({ conversations: initial, userId }: Props
             />
           </div>
 
-          {/* Message thread */}
+          {/* Right: message thread */}
           <div className={`${selectedId ? 'flex' : 'hidden lg:flex'} flex-col h-full overflow-hidden`}>
             {selectedConv ? (
               <MessageThread
@@ -335,7 +550,8 @@ export default function MessagesClient({ conversations: initial, userId }: Props
             ) : (
               <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
                 <MessageCircle size={40} className="text-[#222222]/8 mb-3" />
-                <p className="text-sm text-[#222222]/25">Wähle eine Konversation aus</p>
+                <p className="text-sm font-semibold text-[#222222]/25">Wähle eine Konversation aus</p>
+                <p className="text-xs text-[#222222]/15 mt-1">Deine Nachrichten erscheinen hier</p>
               </div>
             )}
           </div>

@@ -95,7 +95,7 @@ export default async function MeinBikePage() {
         ) : (
           <div className={isWerkstatt
             ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-            : 'flex flex-col gap-4 max-w-lg'
+            : 'grid grid-cols-1 sm:grid-cols-2 gap-4'
           }>
             {myBikes.map(bike => {
               const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
