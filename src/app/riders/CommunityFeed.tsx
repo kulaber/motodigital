@@ -615,13 +615,17 @@ function PostCard({
   const isOwn = userId === post.user_id
   const isAdmin = userRole === 'superadmin'
   const [lightbox, setLightbox] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(false)
+  const CLAMP_LINES = 4
+  const bodyLines = (post.body ?? '').split('\n').length
+  const bodyLong = (post.body ?? '').length > 280 || bodyLines > CLAMP_LINES
 
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3">
         <div className="relative flex-shrink-0 w-10 h-10">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#06a5a5]/10">
+          <div className="absolute inset-0 rounded-full overflow-hidden bg-[#06a5a5]/10">
             {post.author_avatar ? (
               <Image src={post.author_avatar} alt={post.author_name ?? ''} fill sizes="40px" className="object-cover" />
             ) : (
@@ -660,7 +664,22 @@ function PostCard({
 
       {/* Body */}
       {post.body && (
-        <p className="px-4 pb-3 text-sm text-[#222222]/80 leading-relaxed whitespace-pre-wrap">{post.body}</p>
+        <div className="px-4 pb-3">
+          <p
+            className="text-sm text-[#222222]/80 leading-relaxed whitespace-pre-wrap"
+            style={!expanded && bodyLong ? { display: '-webkit-box', WebkitLineClamp: CLAMP_LINES, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : undefined}
+          >
+            {post.body}
+          </p>
+          {bodyLong && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="mt-1 text-xs font-semibold text-[#222222]/40 hover:text-[#222222] transition-colors"
+            >
+              {expanded ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+            </button>
+          )}
+        </div>
       )}
 
       {/* Media */}
