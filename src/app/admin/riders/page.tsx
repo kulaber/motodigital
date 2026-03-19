@@ -69,15 +69,15 @@ export default async function AdminRidersPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Shield size={14} className="text-amber-400" />
               <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
             </div>
-            <h1 className="text-2xl font-bold text-[#222222]">Rider</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Rider</h1>
           </div>
           <span className="text-sm text-[#222222]/30">{riders.length} gesamt</span>
         </div>
@@ -104,11 +104,11 @@ export default async function AdminRidersPage() {
               <thead>
                 <tr className="border-b border-[#222222]/6">
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Name</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Stadt</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">E-Mail</th>
-                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Verif.</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Registriert</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Letzter Login</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Stadt</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">E-Mail</th>
+                  <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Verif.</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden lg:table-cell">Registriert</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden lg:table-cell">Letzter Login</th>
                   <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
@@ -121,10 +121,10 @@ export default async function AdminRidersPage() {
                         {r.username && <p className="text-xs text-[#222222]/30">@{r.username}</p>}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 hidden md:table-cell">
                       <span className="text-xs text-[#222222]/50">{r.city ?? '—'}</span>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 hidden sm:table-cell">
                       {r.email ? (
                         <div className="flex items-center gap-1.5">
                           {r.email_confirmed
@@ -137,16 +137,16 @@ export default async function AdminRidersPage() {
                         <span className="text-xs text-[#222222]/20">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3.5 text-center">
+                    <td className="px-4 py-3.5 text-center hidden sm:table-cell">
                       {r.is_verified
                         ? <BadgeCheck size={14} className="text-[#717171] mx-auto" />
                         : <span className="text-xs text-[#222222]/20">—</span>
                       }
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 hidden lg:table-cell">
                       <span className="text-xs text-[#222222]/40">{timeAgo(r.created_at)}</span>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 hidden lg:table-cell">
                       <span className="text-xs text-[#222222]/40">{timeAgo(r.last_sign_in_at)}</span>
                     </td>
                     <td className="px-5 py-3.5">

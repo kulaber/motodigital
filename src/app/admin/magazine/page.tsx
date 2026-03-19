@@ -32,18 +32,18 @@ export default async function AdminMagazinePage() {
   const guide      = ARTICLES.filter(a => a.category === 'guide').length
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Shield size={14} className="text-amber-400" />
               <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
             </div>
-            <h1 className="text-2xl font-bold text-[#222222]">Magazin</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Magazin</h1>
           </div>
           <Link href="/admin/magazine/new"
-            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all self-start sm:self-auto">
             <Plus size={14} /> Neuer Beitrag
           </Link>
         </div>
@@ -70,9 +70,9 @@ export default async function AdminMagazinePage() {
               <thead>
                 <tr className="border-b border-[#222222]/6">
                   <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Beitrag</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Kategorie</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Autor</th>
-                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest table-cell">Veröffentlicht</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Kategorie</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Autor</th>
+                  <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Veröffentlicht</th>
                   <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
                 </tr>
               </thead>
@@ -92,15 +92,15 @@ export default async function AdminMagazinePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 table-cell w-36">
+                    <td className="px-4 py-3.5 hidden sm:table-cell w-36">
                       <span className={`inline-block whitespace-nowrap text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${CATEGORY_COLOR[a.categoryLabel] ?? ''}`}>
                         {a.categoryLabel}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 table-cell">
+                    <td className="px-4 py-3.5 hidden md:table-cell">
                       <span className="text-xs text-[#222222]/45">{a.author}</span>
                     </td>
-                    <td className="px-4 py-3.5 table-cell">
+                    <td className="px-4 py-3.5 hidden md:table-cell">
                       <span className="text-xs text-[#222222]/45">
                         {new Date(a.publishedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </span>

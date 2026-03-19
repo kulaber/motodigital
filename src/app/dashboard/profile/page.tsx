@@ -23,7 +23,7 @@ export default async function ProfileEditPage() {
 
   if (isRider) {
     return (
-      <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#222222]">Rider Profil</h1>
           <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
@@ -40,7 +40,7 @@ export default async function ProfileEditPage() {
     .order('position', { ascending: true })
 
   return (
-    <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#222222]">Custom Werkstatt Profil</h1>
         <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>

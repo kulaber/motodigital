@@ -14,7 +14,9 @@ export default function DashboardShell({ children, role, userName, avatarUrl }: 
       <Header />
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
-          <DashboardNav role={role} userName={userName} avatarUrl={avatarUrl} />
+          <div className="hidden lg:block">
+            <DashboardNav role={role} userName={userName} avatarUrl={avatarUrl} />
+          </div>
           <main className="flex-1 min-w-0">
             {children}
           </main>

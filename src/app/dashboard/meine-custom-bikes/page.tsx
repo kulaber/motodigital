@@ -46,17 +46,17 @@ export default async function MeinBikePage() {
   const emptyHint    = 'Füge dein Custom Bike hinzu und werde auf MotoDigital gelistet.'
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
 
         {/* Header row */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#222222]">{pageTitle}</h1>
-            <p className="text-sm text-[#222222]/40 mt-1">{pageSubtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">{pageTitle}</h1>
+            <p className="text-xs sm:text-sm text-[#222222]/40 mt-1">{pageSubtitle}</p>
           </div>
           <Link
             href={addHref}
-            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all self-start sm:self-auto"
           >
             <Plus size={14} />
             Bike hinzufügen
@@ -85,9 +85,9 @@ export default async function MeinBikePage() {
               const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
 
               return (
-                <div key={bike.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex items-stretch" style={{ minHeight: 220 }}>
+                <div key={bike.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex flex-col sm:flex-row sm:items-stretch sm:min-h-[200px]">
                   {/* Cover */}
-                  <div className="relative w-52 sm:w-64 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
+                  <div className="relative aspect-[16/9] sm:aspect-auto sm:w-52 md:w-64 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
                     {coverImg ? (
                       <img
                         src={coverImg}
@@ -103,7 +103,7 @@ export default async function MeinBikePage() {
                   </div>
 
                   {/* Info + actions */}
-                  <div className="flex flex-col flex-1 px-6 py-5 min-w-0">
+                  <div className="flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-5 min-w-0">
                     {/* Top row: title + toggle */}
                     <div className="flex items-start justify-between gap-4 mb-auto">
                       <div className="min-w-0">

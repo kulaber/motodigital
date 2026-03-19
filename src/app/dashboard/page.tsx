@@ -100,12 +100,12 @@ export default async function DashboardPage() {
   const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
 
         {/* Header row */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#222222]">Übersicht</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Übersicht</h1>
             {profile?.full_name && (
               <p className="text-sm text-[#222222]/40 mt-1">Hallo, {profile.full_name.split(' ')[0]}</p>
             )}
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
                     {s.icon}
                     <span className="text-xs">{s.label}</span>
                   </div>
-                  <p className="text-3xl font-bold text-[#222222]">{s.value}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#222222]">{s.value}</p>
                   <p className="text-xs text-[#222222]/25 mt-0.5">{s.sub}</p>
                 </div>
               ))}
@@ -227,7 +227,7 @@ export default async function DashboardPage() {
               <Shield size={14} className="text-amber-400" />
               <p className="text-xs font-bold uppercase tracking-widest text-amber-400/80">Admin-Bereiche</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {[
                 { label: 'Custom Werkstätte', desc: 'Profile verwalten & verifizieren', href: '/admin/custom-werkstatt', count: adminStats?.buildersTotal },
                 { label: 'Rider', desc: 'Rider verwalten', href: '/admin/riders', count: adminStats?.ridersTotal },
@@ -339,7 +339,7 @@ export default async function DashboardPage() {
           </div>
         ) : null}
 
-        {!isRider && !isSuperAdmin && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
+        {!isRider && !isSuperAdmin && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start mt-0">
 
           {/* LEFT */}
           <div className="flex flex-col gap-5">
@@ -349,7 +349,7 @@ export default async function DashboardPage() {
               <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
                   style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.08) 0%, transparent 65%)', transform: 'translate(30%,-30%)' }} />
-                <div className="flex items-start justify-between gap-4 relative">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center flex-shrink-0">
                       <User size={20} className="text-[#717171]" />
@@ -368,7 +368,7 @@ export default async function DashboardPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 flex-shrink-0">
+                  <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
                     <Link
                       href="/dashboard/profile"
                       className="flex items-center gap-1.5 text-xs bg-[#06a5a5] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all whitespace-nowrap"

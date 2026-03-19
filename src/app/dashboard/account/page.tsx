@@ -17,7 +17,7 @@ export default async function AccountSettingsPage() {
     .maybeSingle() as { data: { username: string | null; full_name: string | null; avatar_url: string | null; bio: string | null; address: string | null; role: string | null } | null }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#222222]">Konto-Einstellungen</h1>
           <p className="text-sm text-[#222222]/40 mt-1">Profil, E-Mail und Passwort verwalten</p>

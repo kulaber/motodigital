@@ -69,7 +69,7 @@ export default async function MerklistePage({
   const savedBuilders = savedBuildersResult.data ?? []
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
 
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#222222]">Merkliste</h1>
@@ -205,11 +205,10 @@ export default async function MerklistePage({
                     <Link
                       key={entry.builder_id}
                       href={`/custom-werkstatt/${slug}`}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex items-stretch"
-                      style={{ minHeight: 140 }}
+                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex flex-col sm:flex-row sm:items-stretch"
                     >
                       {/* Avatar / cover */}
-                      <div className="relative w-36 sm:w-48 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
+                      <div className="relative aspect-[16/9] sm:aspect-auto sm:w-40 md:w-48 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
                         {builder.avatar_url ? (
                           <Image src={builder.avatar_url} alt={builder.full_name ?? ''} fill sizes="192px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                         ) : (
@@ -220,7 +219,7 @@ export default async function MerklistePage({
                       </div>
 
                       {/* Info */}
-                      <div className="flex flex-col flex-1 px-6 py-5 min-w-0">
+                      <div className="flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-5 min-w-0">
                         <div className="flex items-start gap-2 mb-auto">
                           <div className="min-w-0">
                             <p className="font-bold text-[#222222] leading-snug line-clamp-1 text-base group-hover:text-[#06a5a5] transition-colors">
