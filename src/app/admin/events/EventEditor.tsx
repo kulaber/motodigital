@@ -36,6 +36,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
   const handleSave = async () => {
     const event: Event = {
       id: initialEvent?.id ?? Date.now(),
+      slug: initialEvent?.slug ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       name,
       date,
       location,

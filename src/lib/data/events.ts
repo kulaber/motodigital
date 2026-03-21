@@ -1,5 +1,6 @@
 export type Event = {
   id: number
+  slug: string
   name: string
   date: string
   location: string
@@ -11,6 +12,7 @@ export type Event = {
 export const EVENTS: Event[] = [
   {
     id: 1,
+    slug: 'glemseck-101',
     name: 'Glemseck 101',
     date: 'September 2026',
     location: 'Leonberg, Deutschland',
@@ -19,6 +21,7 @@ export const EVENTS: Event[] = [
   },
   {
     id: 2,
+    slug: 'wheels-and-waves',
     name: 'Wheels & Waves',
     date: 'Juni 2026',
     location: 'Biarritz, Frankreich',
@@ -27,6 +30,7 @@ export const EVENTS: Event[] = [
   },
   {
     id: 3,
+    slug: 'eindhoven-motor-show',
     name: 'Eindhoven Motor Show',
     date: 'November 2026',
     location: 'Eindhoven, Niederlande',
@@ -35,6 +39,7 @@ export const EVENTS: Event[] = [
   },
   {
     id: 4,
+    slug: 'cafe-racer-festival',
     name: 'Cafe Racer Festival',
     date: 'Juni 2026',
     location: 'Paris, Frankreich',
@@ -43,6 +48,7 @@ export const EVENTS: Event[] = [
   },
   {
     id: 5,
+    slug: 'intermot',
     name: 'Intermot',
     date: 'Oktober 2026',
     location: 'Köln, Deutschland',
@@ -51,6 +57,7 @@ export const EVENTS: Event[] = [
   },
   {
     id: 6,
+    slug: 'amd-world-championship',
     name: 'AMD World Championship',
     date: 'Oktober 2026',
     location: 'Köln, Deutschland',
@@ -61,4 +68,8 @@ export const EVENTS: Event[] = [
 
 export function getEventById(id: number): Event | undefined {
   return EVENTS.find(e => e.id === id)
+}
+
+export function getEventBySlug(slug: string): Event | undefined {
+  return EVENTS.find(e => e.slug === slug)
 }
