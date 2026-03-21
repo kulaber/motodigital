@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown } from 'lucide-react'
 
@@ -75,8 +75,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     return ['Alle', ...unique]
   }, [builds, activeCountry, activeMake, activeModel])
 
-  // Reset page when filters or sort change
-  useEffect(() => { setPage(1) }, [activeStyle, activeCountry, activeMake, activeModel, activeSort])
+
 
   const filtered = useMemo(() => {
     const result = builds.filter(b => {
@@ -134,7 +133,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
                   <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
                     {countries.map(c => (
-                      <button key={c} onClick={() => { setActiveCountry(c); setActiveMake('Alle'); setActiveModel('Alle'); setActiveStyle('Alle'); setCountryOpen(false); scrollToFilter() }}
+                      <button key={c} onClick={() => { setActiveCountry(c); setActiveMake('Alle'); setActiveModel('Alle'); setActiveStyle('Alle'); setPage(1); setCountryOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeCountry === c ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {c}
                       </button>
@@ -162,7 +161,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="fixed inset-0 z-40" onClick={() => setMakeOpen(false)} />
                   <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
                     {makes.map(m => (
-                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setActiveStyle('Alle'); setMakeOpen(false); scrollToFilter() }}
+                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setActiveStyle('Alle'); setPage(1); setMakeOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeMake === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {m}
                       </button>
@@ -191,7 +190,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     <div className="fixed inset-0 z-40" onClick={() => setModelOpen(false)} />
                     <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[180px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
                       {models.map(m => (
-                        <button key={m} onClick={() => { setActiveModel(m); setModelOpen(false); scrollToFilter() }}
+                        <button key={m} onClick={() => { setActiveModel(m); setPage(1); setModelOpen(false); scrollToFilter() }}
                           className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeModel === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                           {m}
                         </button>
@@ -225,7 +224,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
                   <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
                     {styles.map(s => (
-                      <button key={s} onClick={() => { setActiveStyle(s); setStyleOpen(false); scrollToFilter() }}
+                      <button key={s} onClick={() => { setActiveStyle(s); setPage(1); setStyleOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeStyle === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {s}
                       </button>
@@ -238,7 +237,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             {/* Reset */}
             {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle') && (
               <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle') }}
+                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 aria-label="Filter zurücksetzen"
                 className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
               >
@@ -264,7 +263,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="fixed inset-0 z-40" onClick={() => setSortOpen(false)} />
                   <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[170px]">
                     {(['popular', 'newest', 'oldest'] as const).map(key => (
-                      <button key={key} onClick={() => { setActiveSort(key); setSortOpen(false); scrollToFilter() }}
+                      <button key={key} onClick={() => { setActiveSort(key); setPage(1); setSortOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeSort === key ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {SORT_LABELS[key]}
                       </button>
@@ -286,7 +285,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="text-center py-20">
               <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle') }}
+                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen
