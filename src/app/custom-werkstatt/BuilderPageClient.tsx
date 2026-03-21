@@ -1,11 +1,13 @@
+// Light Mode only — no dark: classes
 'use client'
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
+import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import { createClient } from '@/lib/supabase/client'
@@ -119,7 +121,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
   )
 }
 
-/* ── Map overlay card ── */
+/* ── Map overlay card (desktop only) ── */
 function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
   const images = useMemo(() => b.media.filter(m => m.type === 'image').slice(0, 8), [b.media])
   const [idx, setIdx] = useState(0)
@@ -159,7 +161,6 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
                   >
                     <ChevronRight size={14} strokeWidth={2.5} />
                   </button>
-                  {/* Dot indicators */}
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                     {images.slice(0, 6).map((_, i) => (
                       <button
@@ -178,7 +179,6 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
             </div>
           )}
 
-          {/* Close */}
           <button
             onClick={onClose}
             className="absolute top-2 right-2 z-20 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full shadow flex items-center justify-center hover:scale-110 transition-transform"
@@ -217,23 +217,158 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
   )
 }
 
+/* ── Builder card list (shared between desktop & mobile) ── */
+function BuilderList({
+  builders: allBuilders,
+  visible,
+  mapReady,
+  selectedBuilder,
+  savedIds,
+  onToggleSave,
+  onHover,
+  onHoverEnd,
+  onReset,
+  isMobile,
+}: {
+  builders: Builder[]
+  visible: Builder[]
+  mapReady: boolean
+  selectedBuilder: Builder | null
+  savedIds: Set<string>
+  onToggleSave: (id: string | null) => void
+  onHover?: (b: Builder) => void
+  onHoverEnd?: () => void
+  onReset: () => void
+  isMobile?: boolean
+}) {
+  if (!mapReady) {
+    return (
+      <div className={`p-4 grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="animate-pulse">
+            <div className="w-full aspect-[4/3] bg-[#F0F0F0] rounded-xl mb-2" />
+            <div className="h-3 bg-[#F0F0F0] rounded w-3/4 mb-1.5" />
+            <div className="h-2.5 bg-[#F0F0F0] rounded w-1/2" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (visible.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-8">
+        <p className="text-[#717171] text-sm mb-4">Keine Custom-Werkstatt in diesem Kartenbereich.</p>
+        <button
+          onClick={onReset}
+          className="text-xs font-semibold text-[#222222] border border-[#DDDDDD] px-4 py-2 rounded-full hover:bg-[#F7F7F7] transition-all cursor-pointer"
+        >
+          Filter zurücksetzen
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4">
+      <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'}</p>
+
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
+        {visible.map(b => (
+          <Link
+            key={b.slug}
+            href={`/custom-werkstatt/${b.slug}`}
+            className="group"
+            onMouseEnter={() => onHover?.(b)}
+            onMouseLeave={() => onHoverEnd?.()}
+          >
+            <div className="relative">
+              <BuilderCardPhoto b={b} selected={!isMobile && selectedBuilder?.slug === b.slug} />
+              <SaveButton
+                builderId={b.id ?? null}
+                saved={b.id ? savedIds.has(b.id) : false}
+                onToggle={onToggleSave}
+              />
+            </div>
+            <div className="pt-2.5 pb-1">
+              <div className="flex items-start justify-between gap-1 mb-0.5">
+                <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1 flex-1">{b.name}</p>
+                {b.verified && <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />}
+              </div>
+              <p className="text-xs text-[#717171] flex items-center gap-1 mb-1">
+                <MapPin size={9} className="flex-shrink-0" />
+                <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
+              </p>
+              {b.rating && (
+                <p className="text-xs text-[#222222] flex items-center gap-0.5 font-medium">
+                  <Star size={10} className="fill-[#222222] text-[#222222]" />
+                  {b.rating.toFixed(1)}
+                </p>
+              )}
+              {b.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {b.tags.slice(0, 2).map(tag => (
+                    <span key={tag} className="text-[9px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-1.5 py-0.5 rounded-full">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* CTA card */}
+      <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
+        <div className="absolute inset-0">
+          <Image
+            src="/custom-werkstatt.png"
+            alt="Custom Werkstatt"
+            fill
+            sizes="400px"
+            className="object-cover opacity-30 scale-100 group-hover:scale-110 transition-transform duration-[1200ms] ease-in-out"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
+        </div>
+        <div className="relative z-10 p-5 pt-14">
+          <h3 className="text-sm font-bold text-white mb-1">Du betreibst eine Custom Werkstatt?</h3>
+          <p className="text-xs text-white/50 leading-relaxed mb-4">Registriere dich kostenlos und werde direkt von Riders gefunden.</p>
+          <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Als Custom Werkstatt registrieren</span>
+        </div>
+      </Link>
+
+      <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'} · MotoDigital</p>
+    </div>
+  )
+}
+
 export default function BuilderPageClient({ builders }: Props) {
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
   const [styleOpen,          setStyleOpen]          = useState(false)
-  const [leistungenOpen,  setLeistungenOpen]  = useState(false)
-  const [activeLeistung, setActiveLeistung]  = useState('Alle')
+  const [leistungenOpen,     setLeistungenOpen]     = useState(false)
+  const [activeLeistung,     setActiveLeistung]     = useState('Alle')
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
-  const [now,             setNow]             = useState<Date | null>(null)
-  const [selectedBuilder, setSelectedBuilder] = useState<Builder | null>(null)
-  const [hoveredBuilder,  setHoveredBuilder]  = useState<Builder | null>(null)
-  const [savedIds,        setSavedIds]        = useState<Set<string>>(new Set())
-  const [userId,          setUserId]          = useState<string | null>(null)
-  const [mapBounds,       setMapBounds]       = useState<mapboxgl.LngLatBounds | null>(null)
-  const [mapReady,        setMapReady]        = useState(false)
-  const [markerEpoch,     setMarkerEpoch]     = useState(0)  // increments on moveend to trigger cluster redraw
+  const [now,                setNow]                = useState<Date | null>(null)
+  const [selectedBuilder,    setSelectedBuilder]    = useState<Builder | null>(null)
+  const [hoveredBuilder,     setHoveredBuilder]     = useState<Builder | null>(null)
+  const [savedIds,           setSavedIds]           = useState<Set<string>>(new Set())
+  const [userId,             setUserId]             = useState<string | null>(null)
+  const [mapBounds,          setMapBounds]          = useState<mapboxgl.LngLatBounds | null>(null)
+  const [mapReady,           setMapReady]           = useState(false)
+  const [markerEpoch,        setMarkerEpoch]        = useState(0)
+  const [mobileView,         setMobileView]         = useState<'map' | 'list'>('map')
+  const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  const listRef          = useRef<HTMLDivElement>(null)
+  const mapContainerRef  = useRef<HTMLDivElement>(null)
+  const desktopMapSlot   = useRef<HTMLDivElement>(null)
+  const mobileMapSlot    = useRef<HTMLDivElement>(null)
+  const mapRef           = useRef<mapboxgl.Map | null>(null)
+  const markersRef       = useRef<mapboxgl.Marker[]>([])
+  const addMarkersRef    = useRef<() => void>(() => {})
+  const isMobileRef      = useRef(false)
 
   // Hydration-safe clock
   useEffect(() => {
@@ -241,6 +376,25 @@ export default function BuilderPageClient({ builders }: Props) {
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)
+  }, [])
+
+  // Track mobile breakpoint + move map between slots on resize
+  useEffect(() => {
+    const check = () => {
+      const wasMobile = isMobileRef.current
+      isMobileRef.current = window.innerWidth < 1024
+      if (wasMobile !== isMobileRef.current) {
+        const mapEl = mapContainerRef.current
+        const slot = isMobileRef.current ? mobileMapSlot.current : desktopMapSlot.current
+        if (mapEl && slot && mapEl.parentElement !== slot) {
+          slot.appendChild(mapEl)
+          setTimeout(() => mapRef.current?.resize(), 50)
+        }
+      }
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   // Load current user + saved builders
@@ -260,9 +414,8 @@ export default function BuilderPageClient({ builders }: Props) {
 
   async function toggleSave(builderId: string | null) {
     if (!userId) { router.push('/auth/login'); return }
-    if (!builderId) return   // static builder without DB id — cannot save
+    if (!builderId) return
     const isSaved = savedIds.has(builderId)
-    // Optimistic update
     setSavedIds(prev => {
       const next = new Set(prev)
       isSaved ? next.delete(builderId) : next.add(builderId)
@@ -278,13 +431,7 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }
 
-  const listRef         = useRef<HTMLDivElement>(null)
-  const mapContainerRef = useRef<HTMLDivElement>(null)
-  const mapRef          = useRef<mapboxgl.Map | null>(null)
-  const markersRef      = useRef<mapboxgl.Marker[]>([])
-  const addMarkersRef   = useRef<() => void>(() => {})
-
-  // Dynamic Stil options — split combined specialty strings like "Cafe Racer · Scrambler"
+  // Dynamic Stil options
   const availableSpecialties = useMemo(() => {
     const pool = activeLeistung === 'Alle' ? builders : builders.filter(b => b.tags.includes(activeLeistung))
     const unique = Array.from(new Set(
@@ -293,7 +440,7 @@ export default function BuilderPageClient({ builders }: Props) {
     return ['Alle', ...unique]
   }, [builders, activeLeistung])
 
-  // Dynamic Leistungen options — only show tags available given current Stil filter
+  // Dynamic Leistungen options
   const availableLeistungen = useMemo(() => {
     const pool = activeSpecialty === 'Alle'
       ? builders
@@ -316,7 +463,6 @@ export default function BuilderPageClient({ builders }: Props) {
       const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
       return specOk && leistungOk && verifiedOk && openOk
     })
-    // Gesponserte immer zuerst (Shuffle bereits server-seitig erfolgt)
     return [...results.filter(b => b.featured), ...results.filter(b => !b.featured)]
   }, [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
@@ -334,6 +480,9 @@ export default function BuilderPageClient({ builders }: Props) {
   }, [filtered, mapBounds, mapReady])
 
   /* ── markers ── */
+  const logoSvgWhite = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
+  const logoSvgTeal  = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="#06a5a5" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
+
   useEffect(() => {
     addMarkersRef.current = () => {
       const map = mapRef.current
@@ -341,7 +490,6 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current.forEach(m => m.remove())
       markersRef.current = []
 
-      // Pixel-space clustering: group pins within 40px of each other
       const PIXEL_RADIUS = 40
       const withCoords = filtered.filter(b => b.lat && b.lng)
       const projected = withCoords.map(b => ({ b, px: map.project([b.lng!, b.lat!]) }))
@@ -376,11 +524,7 @@ export default function BuilderPageClient({ builders }: Props) {
 
         const inner = document.createElement('div')
 
-        const logoSvgWhite = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
-        const logoSvgTeal  = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="18" height="18"><path fill="#06a5a5" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"/></svg>`
-
         if (cluster.members.length > 1) {
-          // ── Cluster marker — default: inverted (white bg, teal icon) ──
           inner.style.cssText = `
             width:40px;height:40px;
             background:#ffffff;
@@ -393,7 +537,6 @@ export default function BuilderPageClient({ builders }: Props) {
             position:relative;
           `
           inner.innerHTML = logoSvgTeal
-          // Count badge
           const badge = document.createElement('div')
           badge.style.cssText = `
             position:absolute;top:-4px;right:-4px;
@@ -432,7 +575,6 @@ export default function BuilderPageClient({ builders }: Props) {
             map.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 600 })
           })
         } else {
-          // ── Individual marker — default: inverted (white bg, teal icon) ──
           const b = cluster.members[0]
           const isActive = selectedBuilder?.slug === b.slug || hoveredBuilder?.slug === b.slug
           inner.style.cssText = `
@@ -461,7 +603,14 @@ export default function BuilderPageClient({ builders }: Props) {
             inner.style.transform = 'scale(1)'
             inner.style.boxShadow = isActive ? '0 4px 16px rgba(6,165,165,0.5)' : '0 2px 8px rgba(0,0,0,0.15)'
           })
-          el.addEventListener('click', (e) => { e.stopPropagation(); setSelectedBuilder(b) })
+          el.addEventListener('click', (e) => {
+            e.stopPropagation()
+            if (isMobileRef.current) {
+              setMobileSheetBuilder(b)
+            } else {
+              setSelectedBuilder(b)
+            }
+          })
         }
 
         const m = new mapboxgl.Marker({ element: el })
@@ -470,18 +619,41 @@ export default function BuilderPageClient({ builders }: Props) {
         markersRef.current.push(m)
       }
     }
-  }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
+  }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Move map canvas into the correct slot (desktop vs mobile) ── */
+  useEffect(() => {
+    const mapEl = mapContainerRef.current
+    if (!mapEl) return
+    const slot = isMobileRef.current ? mobileMapSlot.current : desktopMapSlot.current
+    if (slot && mapEl.parentElement !== slot) {
+      slot.appendChild(mapEl)
+      setTimeout(() => mapRef.current?.resize(), 50)
+    }
+  }, [mobileView])
 
   /* ── init map once ── */
   useEffect(() => {
-    const container = mapContainerRef.current
-    if (!container) return
+    // Create the map canvas element
+    const mapEl = document.createElement('div')
+    if (isMobileRef.current) {
+      mapEl.style.cssText = 'position:absolute;inset:0;overflow:hidden;'
+    } else {
+      mapEl.style.cssText = 'position:absolute;inset:12px;border-radius:16px;overflow:hidden;'
+    }
+    mapContainerRef.current = mapEl
+
+    // Place it in the right slot
+    const slot = isMobileRef.current ? mobileMapSlot.current : desktopMapSlot.current
+    if (!slot) return
+    slot.appendChild(mapEl)
+
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-    if (!token || mapRef.current) return
+    if (!token) return
 
     mapboxgl.accessToken = token.trim()
     const map = new mapboxgl.Map({
-      container,
+      container: mapEl,
       style: 'mapbox://styles/mapbox/light-v11',
       center: [10.5, 51.2],
       zoom: 5,
@@ -499,16 +671,17 @@ export default function BuilderPageClient({ builders }: Props) {
     })
     map.on('move',    () => setMapBounds(map.getBounds() ?? null))
     map.on('moveend', () => { setMapBounds(map.getBounds() ?? null); setMarkerEpoch(e => e + 1) })
-    map.on('click', () => setSelectedBuilder(null))
+    map.on('click', () => { setSelectedBuilder(null); setMobileSheetBuilder(null) })
 
     const ro = new ResizeObserver(() => map.resize())
-    ro.observe(container)
+    ro.observe(mapEl)
 
     return () => {
       ro.disconnect()
       map.remove()
       mapRef.current = null
       markersRef.current = []
+      mapEl.remove()
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -523,7 +696,40 @@ export default function BuilderPageClient({ builders }: Props) {
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
 
+  /* ── Resize map + adjust inset when mobile view changes ── */
+  useEffect(() => {
+    const mapEl = mapContainerRef.current
+    if (!mapEl) return
+    // On mobile: map fills entire slot. On desktop: 12px inset with rounded corners.
+    if (isMobileRef.current) {
+      mapEl.style.cssText = 'position:absolute;inset:0;overflow:hidden;'
+    } else {
+      mapEl.style.cssText = 'position:absolute;inset:12px;border-radius:16px;overflow:hidden;'
+    }
+    setTimeout(() => mapRef.current?.resize(), 50)
+  }, [mobileView])
+
   const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
+
+  const resetAllFilters = useCallback(() => {
+    setActiveSpecialty('Alle')
+    setActiveLeistung('Alle')
+    setOnlyVerified(false)
+    setOnlyOpen(false)
+  }, [])
+
+  const resetAndFitMap = useCallback(() => {
+    resetAllFilters()
+    const map = mapRef.current
+    if (!map) return
+    const withCoords = builders.filter(b => b.lat && b.lng)
+    if (withCoords.length === 0) return
+    const bounds = new mapboxgl.LngLatBounds()
+    withCoords.forEach(b => bounds.extend([b.lng!, b.lat!]))
+    map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 800 })
+  }, [builders, resetAllFilters])
+
+  const hasActiveFilter = activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen
 
   return (
     <>
@@ -544,8 +750,8 @@ export default function BuilderPageClient({ builders }: Props) {
 
       {/* ── Sticky filter bar ── */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-        <div className="px-4 sm:px-5 lg:px-6 py-3 flex items-center gap-2">
-
+        {/* Desktop filters */}
+        <div className="hidden lg:flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2">
           {/* Stil dropdown */}
           <div className="relative">
             <button
@@ -563,7 +769,6 @@ export default function BuilderPageClient({ builders }: Props) {
 
             {styleOpen && (
               <>
-                {/* backdrop */}
                 <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
                 <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
                   {availableSpecialties.map(spec => (
@@ -585,7 +790,7 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
-          {/* Leistungen multi-select dropdown */}
+          {/* Leistungen dropdown */}
           <div className="relative">
             <button
               onClick={() => setLeistungenOpen(v => !v)}
@@ -646,10 +851,10 @@ export default function BuilderPageClient({ builders }: Props) {
             </button>
           )}
 
-          {/* Filter zurücksetzen */}
-          {(activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen) && (
+          {/* Reset */}
+          {hasActiveFilter && (
             <button
-              onClick={() => { setActiveSpecialty('Alle'); setActiveLeistung('Alle'); setOnlyVerified(false); setOnlyOpen(false) }}
+              onClick={resetAllFilters}
               className="w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5 cursor-pointer"
               aria-label="Filter zurücksetzen"
             >
@@ -657,155 +862,145 @@ export default function BuilderPageClient({ builders }: Props) {
             </button>
           )}
         </div>
+
+        {/* Mobile filter chips */}
+        <div className="lg:hidden">
+          <div className="flex gap-2 px-4 py-2.5 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {availableSpecialties.map(spec => (
+              <button
+                key={spec}
+                onClick={() => setActiveSpecialty(spec)}
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border ${
+                  activeSpecialty === spec
+                    ? 'bg-[#2AABAB] text-white border-[#2AABAB]'
+                    : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
+                }`}
+              >
+                {spec === 'Alle' ? 'Alle Stile' : spec}
+              </button>
+            ))}
+
+            <div className="flex-shrink-0 w-px bg-[#E5E5E5] my-1" />
+
+            <button
+              onClick={() => setOnlyVerified(v => !v)}
+              className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border flex items-center gap-1 ${
+                onlyVerified
+                  ? 'bg-[#2AABAB] text-white border-[#2AABAB]'
+                  : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
+              }`}
+            >
+              <BadgeCheck size={11} /> Verifiziert
+            </button>
+
+            {now && (
+              <button
+                onClick={() => setOnlyOpen(v => !v)}
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border flex items-center gap-1.5 ${
+                  onlyOpen
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-[#717171]'}`} />
+                Geöffnet
+              </button>
+            )}
+
+            {hasActiveFilter && (
+              <button
+                onClick={resetAllFilters}
+                className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[#1A1A1A] border border-[#E5E5E5] flex items-center gap-1"
+              >
+                <X size={11} /> Reset
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Split layout: List left | Map right ── */}
-      <div className="flex" style={{ height: mapHeight }}>
-
-        {/* LEFT — scrollable 2-col grid */}
-        <div ref={listRef} className="w-full lg:w-1/2 overflow-y-scroll border-r border-[#EBEBEB]">
-          {!mapReady ? (
-            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="w-full aspect-[4/3] bg-[#F0F0F0] rounded-xl mb-2" />
-                  <div className="h-3 bg-[#F0F0F0] rounded w-3/4 mb-1.5" />
-                  <div className="h-2.5 bg-[#F0F0F0] rounded w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : visible.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-8">
-              <p className="text-[#717171] text-sm mb-4">Keine Custom-Werkstatt in diesem Kartenbereich.</p>
-              <button
-                onClick={() => {
-                  setActiveSpecialty('Alle')
-                  setActiveLeistung('Alle')
-                  setOnlyVerified(false)
-                  setOnlyOpen(false)
-                  const map = mapRef.current
-                  if (!map) return
-                  const withCoords = builders.filter(b => b.lat && b.lng)
-                  if (withCoords.length === 0) return
-                  const bounds = new mapboxgl.LngLatBounds()
-                  withCoords.forEach(b => bounds.extend([b.lng!, b.lat!]))
-                  map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 800 })
-                }}
-                className="text-xs font-semibold text-[#222222] border border-[#DDDDDD] px-4 py-2 rounded-full hover:bg-[#F7F7F7] transition-all cursor-pointer"
-              >
-                Filter zurücksetzen
-              </button>
-            </div>
-          ) : (
-            <div className="p-4">
-              <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'}</p>
-
-              {/* 2-column grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {visible.map(b => (
-                  <Link
-                    key={b.slug}
-                    href={`/custom-werkstatt/${b.slug}`}
-                    className="group"
-                    onMouseEnter={() => setHoveredBuilder(b)}
-                    onMouseLeave={() => setHoveredBuilder(null)}
-                  >
-                    {/* Photo carousel + save button */}
-                    <div className="relative">
-                      <BuilderCardPhoto b={b} selected={selectedBuilder?.slug === b.slug} />
-                      <SaveButton
-                        builderId={b.id ?? null}
-                        saved={b.id ? savedIds.has(b.id) : false}
-                        onToggle={toggleSave}
-                      />
-                    </div>
-
-                    {/* Card info */}
-                    <div className="pt-2.5 pb-1">
-                      {/* Name row */}
-                      <div className="flex items-start justify-between gap-1 mb-0.5">
-                        <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1 flex-1">
-                          {b.name}
-                        </p>
-                        {b.verified && (
-                          <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />
-                        )}
-                      </div>
-
-                      {/* City + specialty */}
-                      <p className="text-xs text-[#717171] flex items-center gap-1 mb-1">
-                        <MapPin size={9} className="flex-shrink-0" />
-                        <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
-                      </p>
-
-                      {/* Rating */}
-                      {b.rating && (
-                        <p className="text-xs text-[#222222] flex items-center gap-0.5 font-medium">
-                          <Star size={10} className="fill-[#222222] text-[#222222]" />
-                          {b.rating.toFixed(1)}
-                        </p>
-                      )}
-
-                      {/* Tags */}
-                      {b.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {b.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="text-[9px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-1.5 py-0.5 rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* CTA card */}
-              <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
-                {/* Background image */}
-                <div className="absolute inset-0">
-                  <Image
-                    src="/custom-werkstatt.png"
-                    alt="Custom Werkstatt"
-                    fill
-                    sizes="400px"
-                    className="object-cover opacity-30 scale-100 group-hover:scale-110 transition-transform duration-[1200ms] ease-in-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
-                </div>
-                {/* Content */}
-                <div className="relative z-10 p-5 pt-14">
-                  <h3 className="text-sm font-bold text-white mb-1">Du betreibst eine Custom Werkstatt?</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mb-4">
-                    Registriere dich kostenlos und werde direkt von Riders gefunden.
-                  </p>
-                  <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">
-                    Als Custom Werkstatt registrieren
-                  </span>
-                </div>
-              </Link>
-
-              <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'} · MotoDigital</p>
-            </div>
-          )}
+      {/* ── Desktop: Split layout (List left 40% | Map right 60%) ── */}
+      <div className="hidden lg:flex" style={{ height: mapHeight }}>
+        {/* LEFT — scrollable list */}
+        <div ref={listRef} className="w-[40%] overflow-y-scroll border-r border-[#EBEBEB]">
+          <BuilderList
+            builders={builders}
+            visible={visible}
+            mapReady={mapReady}
+            selectedBuilder={selectedBuilder}
+            savedIds={savedIds}
+            onToggleSave={toggleSave}
+            onHover={setHoveredBuilder}
+            onHoverEnd={() => setHoveredBuilder(null)}
+            onReset={resetAndFitMap}
+          />
         </div>
 
-        {/* RIGHT — sticky map */}
-        <div className="hidden lg:block w-1/2 relative p-3">
-          <div ref={mapContainerRef} style={{ position: 'absolute', inset: '12px', borderRadius: '16px', overflow: 'hidden' }} />
-{selectedBuilder && (
+        {/* RIGHT — map */}
+        <div ref={desktopMapSlot} className="w-[60%] relative p-3">
+          {selectedBuilder && (
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}
         </div>
       </div>
 
-      {/* Mobile map — below list on small screens */}
-      <div className="lg:hidden w-full relative" style={{ height: '50vh' }}>
-        <div className="absolute inset-0 flex items-center justify-center bg-[#F7F7F7] text-xs text-[#B0B0B0]">
-          Karte nur auf Desktop verfügbar
+      {/* ── Mobile: Toggle between Map and List ── */}
+      <div className="lg:hidden relative" style={{ height: mapHeight }}>
+        {/* Map slot */}
+        <div
+          ref={mobileMapSlot}
+          className="absolute inset-0"
+          style={{ visibility: mobileView === 'map' ? 'visible' : 'hidden' }}
+        />
+
+        {/* List overlay (slides over map when in list view) */}
+        <div
+          className="absolute inset-0 bg-white overflow-y-auto transition-transform duration-300 ease-in-out z-10"
+          style={{
+            transform: mobileView === 'list' ? 'translateY(0)' : 'translateY(100%)',
+          }}
+        >
+          <BuilderList
+            builders={builders}
+            visible={visible}
+            mapReady={mapReady}
+            selectedBuilder={null}
+            savedIds={savedIds}
+            onToggleSave={toggleSave}
+            onReset={resetAndFitMap}
+            isMobile
+          />
         </div>
+
+        {/* Floating toggle button */}
+        <button
+          onClick={() => {
+            setMobileView(v => v === 'map' ? 'list' : 'map')
+            setMobileSheetBuilder(null)
+          }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          {mobileView === 'map' ? (
+            <>
+              <ListIcon size={16} className="text-[#1A1A1A]" />
+              <span className="text-sm font-semibold text-[#1A1A1A]">Liste anzeigen</span>
+            </>
+          ) : (
+            <>
+              <MapIcon size={16} className="text-[#1A1A1A]" />
+              <span className="text-sm font-semibold text-[#1A1A1A]">Karte anzeigen</span>
+            </>
+          )}
+        </button>
+
+        {/* Mobile bottom sheet on marker tap */}
+        {mobileSheetBuilder && mobileView === 'map' && (
+          <WorkshopBottomSheet
+            builder={mobileSheetBuilder}
+            onClose={() => setMobileSheetBuilder(null)}
+          />
+        )}
       </div>
     </>
   )

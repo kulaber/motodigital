@@ -122,13 +122,7 @@ export default function Header({ activePage }: Props) {
 
   return (
     <>
-    {/* Mobile overlay */}
-    {open && (
-      <div
-        className="fixed inset-0 bg-black/40 z-40 md:hidden"
-        onClick={close}
-      />
-    )}
+    {/* Mobile overlay — hidden when fullscreen menu is open */}
     <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#222222]/5 bg-white/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16">
 
@@ -298,167 +292,191 @@ export default function Header({ activePage }: Props) {
           )}
         </div>
 
-        {/* ── Mobile hamburger ── */}
-        <button
-          className="md:hidden ml-3 flex-shrink-0 w-11 h-11 flex items-center justify-center text-[#222222]/60 hover:text-[#222222] transition-colors rounded-xl"
-          onClick={() => setOpen(o => !o)}
-          aria-label="Menü"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        {/* ── Mobile: Auth + Hamburger ── */}
+        <div className="md:hidden flex items-center gap-2 ml-auto">
+          {!loading && !user && (
+            <>
+              <Link href="/auth/login" onClick={close}
+                className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
+                Anmelden
+              </Link>
+              <Link href="/auth/register" onClick={close}
+                className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
+                Registrieren
+              </Link>
+            </>
+          )}
+          <button
+            className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F0F0] transition-colors"
+            onClick={() => setOpen(o => !o)}
+            aria-label="Menü"
+          >
+            {open ? (
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2.17" y="0.76" width="21" height="2" rx="1" transform="rotate(45 2.17 0.76)" fill="#222222" />
+                <rect x="0.76" y="15.61" width="21" height="2" rx="1" transform="rotate(-45 0.76 15.61)" fill="#222222" />
+              </svg>
+            ) : (
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect y="1" width="18" height="2" rx="1" fill="#222222" />
+                <rect y="9" width="18" height="2" rx="1" fill="#222222" />
+              </svg>
+            )}
+          </button>
+        </div>
 
       </div>
 
-      {/* ── Mobile menu ── */}
-      {open && (
-        <div className="md:hidden border-t border-[#222222]/5 bg-white overflow-hidden">
-          <div className="px-4 py-3 flex flex-col gap-0.5">
-
-            {/* ── Auth section first (when logged in) ── */}
-            {!loading && user ? (
-              <>
-                {/* Role badge */}
-                {role && ROLE_BADGE[role] && (
-                  <div className="px-3 py-2">
-                    <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${ROLE_BADGE[role].color}`}>
-                      {ROLE_BADGE[role].label}
-                    </span>
-                  </div>
-                )}
-
-                {/* Dashboard accordion */}
-                <button
-                  onClick={() => setMobileDashOpen(v => !v)}
-                  className={mobileNavLink(false)}
-                >
-                  <span className="flex items-center gap-2.5">
-                    <LayoutDashboard size={17} className="text-[#222222]/30 flex-shrink-0" />
-                    Dashboard
-                  </span>
-                  <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileDashOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {mobileDashOpen && (
-                  <div className="pl-9 flex flex-col gap-0.5 mb-1">
-                    <Link href="/dashboard" onClick={close} className={mobileDashLink}>
-                      <LayoutDashboard size={15} className="text-[#222222]/25 flex-shrink-0" /> Übersicht
-                    </Link>
-                    <Link href="/dashboard/messages" onClick={close} className={mobileDashLink}>
-                      <MessageCircle size={15} className="text-[#222222]/25 flex-shrink-0" /> Nachrichten
-                      {unreadCount > 0 && (
-                        <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </Link>
-                    {role === 'rider' && (
-                      <>
-                        <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
-                          <Bike size={15} className="text-[#222222]/25 flex-shrink-0" /> Mein Bike
-                        </Link>
-                        <Link href="/dashboard/merkliste" onClick={close} className={mobileDashLink}>
-                          <Star size={15} className="text-[#222222]/25 flex-shrink-0" /> Merkliste
-                        </Link>
-                      </>
-                    )}
-                    {role === 'custom-werkstatt' && (
-                      <>
-                        <Link href="/dashboard/profile" onClick={close} className={mobileDashLink}>
-                          <User size={15} className="text-[#222222]/25 flex-shrink-0" /> Profil bearbeiten
-                        </Link>
-                        <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
-                          <Wrench size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Bikes
-                        </Link>
-                      </>
-                    )}
-                    {role === 'custom-werkstatt' && slug && (
-                      <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={close} className={mobileDashLink}>
-                        <ExternalLink size={15} className="text-[#222222]/25 flex-shrink-0" /> Werkstatt-Ansicht
-                      </a>
-                    )}
-                    {role === 'superadmin' && (
-                      <>
-                        <p className="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-amber-400/50 flex items-center gap-1">
-                          <Shield size={9} /> Superadmin
-                        </p>
-                        <Link href="/admin/custom-werkstatt" onClick={close} className={mobileDashLink}>
-                          <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Werkstätte
-                        </Link>
-                        <Link href="/admin/riders" onClick={close} className={mobileDashLink}>
-                          <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Rider
-                        </Link>
-                        <Link href="/admin/magazine" onClick={close} className={mobileDashLink}>
-                          <BookOpen size={15} className="text-[#222222]/25 flex-shrink-0" /> Magazin
-                        </Link>
-                        <Link href="/admin/events" onClick={close} className={mobileDashLink}>
-                          <CalendarDays size={15} className="text-[#222222]/25 flex-shrink-0" /> Events
-                        </Link>
-                      </>
-                    )}
-                    <Link href="/dashboard/account" onClick={close} className={mobileDashLink}>
-                      <Settings size={15} className="text-[#222222]/25 flex-shrink-0" /> Konto-Einstellungen
-                    </Link>
-                    <div className="h-px bg-[#222222]/6 mx-1 my-1" />
-                    <button onClick={handleLogout}
-                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-red-400/80 transition-colors active:bg-red-500/8 active:text-red-500">
-                      <LogOut size={15} className="flex-shrink-0" /> Abmelden
-                    </button>
-                  </div>
-                )}
-
-                <div className="h-px bg-[#222222]/8 mx-1 my-2" />
-              </>
-            ) : null}
-
-            {/* ── Rider ── */}
-            <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
-              Rider
-            </Link>
-
-            {/* ── Custom Bikes accordion ── */}
-            <button
-              onClick={() => setMobileBikesOpen(v => !v)}
-              className={mobileNavLink(activePage === 'bikes')}
-            >
-              <span className="flex items-center gap-2.5">
-                Custom Bikes
-              </span>
-              <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {mobileBikesOpen && (
-              <div className="pl-9 flex flex-col gap-0.5 mb-1">
-                {BIKE_STYLES.map(s => (
-                  <Link key={s.href} href={s.href} onClick={close} className={mobileSubLink}>
-                    {s.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {/* ── Werkstattsuche ── */}
-            <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
-              Werkstattsuche
-            </Link>
-
-
-            {/* ── Login/Register (not logged in) ── */}
-            {!loading && !user && (
-              <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#222222]/8">
-                <Link href="/auth/login" onClick={close}
-                  className="w-full py-3 text-center text-sm font-medium text-[#222222]/70 border border-[#222222]/12 rounded-xl hover:text-[#222222] hover:border-[#222222]/25 transition-all">
-                  Anmelden
-                </Link>
-                <Link href="/auth/register" onClick={close}
-                  className="w-full py-3 text-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl hover:bg-[#058f8f] transition-all">
-                  Registrieren
-                </Link>
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
     </header>
+
+    {/* ── Mobile menu (fullscreen, outside header to avoid stacking context) ── */}
+    {open && (
+      <div className="md:hidden fixed inset-0 top-16 z-[60] bg-white overflow-y-auto">
+        <div className="px-4 py-3 flex flex-col gap-0.5 min-h-full">
+
+          {/* ── Auth section first (when logged in) ── */}
+          {!loading && user ? (
+            <>
+              {/* Role badge */}
+              {role && ROLE_BADGE[role] && (
+                <div className="px-3 py-2">
+                  <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${ROLE_BADGE[role].color}`}>
+                    {ROLE_BADGE[role].label}
+                  </span>
+                </div>
+              )}
+
+              {/* Dashboard accordion */}
+              <button
+                onClick={() => setMobileDashOpen(v => !v)}
+                className={mobileNavLink(false)}
+              >
+                <span className="flex items-center gap-2.5">
+                  <LayoutDashboard size={17} className="text-[#222222]/30 flex-shrink-0" />
+                  Dashboard
+                </span>
+                <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileDashOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {mobileDashOpen && (
+                <div className="pl-9 flex flex-col gap-0.5 mb-1">
+                  <Link href="/dashboard" onClick={close} className={mobileDashLink}>
+                    <LayoutDashboard size={15} className="text-[#222222]/25 flex-shrink-0" /> Übersicht
+                  </Link>
+                  <Link href="/dashboard/messages" onClick={close} className={mobileDashLink}>
+                    <MessageCircle size={15} className="text-[#222222]/25 flex-shrink-0" /> Nachrichten
+                    {unreadCount > 0 && (
+                      <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  {role === 'rider' && (
+                    <>
+                      <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
+                        <Bike size={15} className="text-[#222222]/25 flex-shrink-0" /> Mein Bike
+                      </Link>
+                      <Link href="/dashboard/merkliste" onClick={close} className={mobileDashLink}>
+                        <Star size={15} className="text-[#222222]/25 flex-shrink-0" /> Merkliste
+                      </Link>
+                    </>
+                  )}
+                  {role === 'custom-werkstatt' && (
+                    <>
+                      <Link href="/dashboard/profile" onClick={close} className={mobileDashLink}>
+                        <User size={15} className="text-[#222222]/25 flex-shrink-0" /> Profil bearbeiten
+                      </Link>
+                      <Link href="/dashboard/meine-custom-bikes" onClick={close} className={mobileDashLink}>
+                        <Wrench size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Bikes
+                      </Link>
+                    </>
+                  )}
+                  {role === 'custom-werkstatt' && slug && (
+                    <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={close} className={mobileDashLink}>
+                      <ExternalLink size={15} className="text-[#222222]/25 flex-shrink-0" /> Werkstatt-Ansicht
+                    </a>
+                  )}
+                  {role === 'superadmin' && (
+                    <>
+                      <p className="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-amber-400/50 flex items-center gap-1">
+                        <Shield size={9} /> Superadmin
+                      </p>
+                      <Link href="/admin/custom-werkstatt" onClick={close} className={mobileDashLink}>
+                        <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Custom Werkstätte
+                      </Link>
+                      <Link href="/admin/riders" onClick={close} className={mobileDashLink}>
+                        <Users size={15} className="text-[#222222]/25 flex-shrink-0" /> Rider
+                      </Link>
+                      <Link href="/admin/magazine" onClick={close} className={mobileDashLink}>
+                        <BookOpen size={15} className="text-[#222222]/25 flex-shrink-0" /> Magazin
+                      </Link>
+                      <Link href="/admin/events" onClick={close} className={mobileDashLink}>
+                        <CalendarDays size={15} className="text-[#222222]/25 flex-shrink-0" /> Events
+                      </Link>
+                    </>
+                  )}
+                  <Link href="/dashboard/account" onClick={close} className={mobileDashLink}>
+                    <Settings size={15} className="text-[#222222]/25 flex-shrink-0" /> Konto-Einstellungen
+                  </Link>
+                  <div className="h-px bg-[#222222]/6 mx-1 my-1" />
+                  <button onClick={handleLogout}
+                    className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-red-400/80 transition-colors active:bg-red-500/8 active:text-red-500">
+                    <LogOut size={15} className="flex-shrink-0" /> Abmelden
+                  </button>
+                </div>
+              )}
+
+              <div className="h-px bg-[#222222]/8 mx-1 my-2" />
+            </>
+          ) : null}
+
+          {/* ── Navigation links ── */}
+          <Link href="/riders" onClick={close} className={mobileNavLink(activePage === 'riders')}>
+            Rider
+          </Link>
+
+          <button
+            onClick={() => setMobileBikesOpen(v => !v)}
+            className={mobileNavLink(activePage === 'bikes')}
+          >
+            <span className="flex items-center gap-2.5">
+              Custom Bikes
+            </span>
+            <ChevronDown size={16} className={`text-[#222222]/30 flex-shrink-0 transition-transform ${mobileBikesOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {mobileBikesOpen && (
+            <div className="pl-9 flex flex-col gap-0.5 mb-1">
+              {BIKE_STYLES.map(s => (
+                <Link key={s.href} href={s.href} onClick={close} className={mobileSubLink}>
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <Link href="/custom-werkstatt" onClick={close} className={mobileNavLink(activePage === 'custom-werkstatt')}>
+            Werkstattsuche
+          </Link>
+
+          <Link href="/magazin" onClick={close} className={mobileNavLink(activePage === 'magazine')}>
+            Magazin
+          </Link>
+
+          <Link href="/events" onClick={close} className={mobileNavLink(activePage === 'events')}>
+            Events
+          </Link>
+
+          <Link href="/marken" onClick={close} className={mobileNavLink(false)}>
+            Marken
+          </Link>
+
+          <Link href="/ueber" onClick={close} className={mobileNavLink(false)}>
+            Über MotoDigital
+          </Link>
+
+        </div>
+      </div>
+    )}
     </>
   )
 }
