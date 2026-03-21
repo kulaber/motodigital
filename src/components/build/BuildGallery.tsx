@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react'
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
 export default function BuildGallery({ images, title }: Props) {
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
+  const [mobileIdx, setMobileIdx] = useState(0)
+  const touchStartX = useRef(0)
+  const touchDeltaX = useRef(0)
 
   const prev = useCallback(() => {
     setLightbox(i => (i === null ? null : (i - 1 + images.length) % images.length))
@@ -53,8 +56,55 @@ export default function BuildGallery({ images, title }: Props) {
 
   return (
     <>
-      {/* Airbnb-style grid — wrapper is relative+overflow-hidden, button is sibling of grid */}
-      <div className="relative rounded-2xl overflow-hidden">
+      {/* ── Mobile slider (< md) ── */}
+      <div className="md:hidden relative -mx-4 sm:-mx-6">
+        <div
+          className="flex overflow-x-hidden touch-pan-x"
+          onTouchStart={e => { touchStartX.current = e.touches[0].clientX; touchDeltaX.current = 0 }}
+          onTouchMove={e => { touchDeltaX.current = e.touches[0].clientX - touchStartX.current }}
+          onTouchEnd={() => {
+            if (touchDeltaX.current < -40 && mobileIdx < images.length - 1) setMobileIdx(i => i + 1)
+            else if (touchDeltaX.current > 40 && mobileIdx > 0) setMobileIdx(i => i - 1)
+            touchDeltaX.current = 0
+          }}
+        >
+          <div
+            className="flex transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${mobileIdx * 100}%)`, width: `${images.length * 100}%` }}
+          >
+            {images.map((img, i) => (
+              <button
+                key={img}
+                onClick={() => openLightbox(i)}
+                className="w-full flex-shrink-0 aspect-[4/3] relative"
+                style={{ width: `${100 / images.length}%` }}
+              >
+                <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+        {/* Dots */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                  i === mobileIdx ? 'bg-white scale-110' : 'bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+        {/* Counter */}
+        <span className="absolute top-3 right-3 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
+          {mobileIdx + 1} / {images.length}
+        </span>
+      </div>
+
+      {/* ── Desktop grid (md+) ── */}
+      <div className="hidden md:block relative rounded-2xl overflow-hidden">
       <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]"
         style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
       >
