@@ -119,8 +119,6 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
     }
   }, [lightbox, prev, next]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [i1, i2, i3, i4] = images
-
   return (
     <>
       {/* ── Mobile slider (< md) — Instagram-style swipe ── */}
@@ -281,67 +279,76 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
         </div>
       </div>
 
-      {/* ── Desktop grid (md+) ── */}
+      {/* ── Desktop grid (md+) — adapts to image count ── */}
       <div className="hidden md:flex flex-col relative rounded-2xl overflow-hidden">
-      <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]"
-        style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
-      >
-        {/* Main image — left, spans 2 rows */}
-        <button
-          onClick={() => openLightbox(0)}
-          className="relative overflow-hidden cursor-zoom-in group"
-          style={{ gridRow: '1 / 3', gridColumn: '1 / 2' }}
-        >
-          <img src={i1} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-        </button>
-
-        {/* Top-right — spans 2 cols */}
-        {i2 && (
-          <button
-            onClick={() => openLightbox(1)}
-            className="relative overflow-hidden cursor-zoom-in group"
-            style={{ gridRow: '1 / 2', gridColumn: '2 / 4' }}
-          >
-            <img src={i2} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-          </button>
+        {images.length === 1 ? (
+          /* Single image — full width */
+          <div className="h-[50vh] min-h-[340px] max-h-[520px]">
+            <button onClick={() => openLightbox(0)} className="relative w-full h-full overflow-hidden cursor-zoom-in group">
+              <img src={images[0]} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+          </div>
+        ) : images.length === 2 ? (
+          /* Two images — side by side */
+          <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]" style={{ gridTemplateColumns: '3fr 2fr' }}>
+            <button onClick={() => openLightbox(0)} className="relative overflow-hidden cursor-zoom-in group">
+              <img src={images[0]} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(1)} className="relative overflow-hidden cursor-zoom-in group">
+              <img src={images[1]} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+          </div>
+        ) : images.length === 3 ? (
+          /* Three images — large left, two stacked right */
+          <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]" style={{ gridTemplateColumns: '3fr 2fr', gridTemplateRows: '1fr 1fr' }}>
+            <button onClick={() => openLightbox(0)} className="relative overflow-hidden cursor-zoom-in group" style={{ gridRow: '1 / 3' }}>
+              <img src={images[0]} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(1)} className="relative overflow-hidden cursor-zoom-in group">
+              <img src={images[1]} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(2)} className="relative overflow-hidden cursor-zoom-in group">
+              <img src={images[2]} alt={`${title} 3`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+          </div>
+        ) : (
+          /* Four+ images — large left (2 rows), wide top-right, two bottom-right */
+          <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]" style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+            <button onClick={() => openLightbox(0)} className="relative overflow-hidden cursor-zoom-in group" style={{ gridRow: '1 / 3', gridColumn: '1 / 2' }}>
+              <img src={images[0]} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(1)} className="relative overflow-hidden cursor-zoom-in group" style={{ gridRow: '1 / 2', gridColumn: '2 / 4' }}>
+              <img src={images[1]} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(2)} className="relative overflow-hidden cursor-zoom-in group" style={{ gridRow: '2 / 3', gridColumn: '2 / 3' }}>
+              <img src={images[2]} alt={`${title} 3`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+            <button onClick={() => openLightbox(3)} className="relative overflow-hidden cursor-zoom-in group" style={{ gridRow: '2 / 3', gridColumn: '3 / 4' }}>
+              <img src={images[3]} alt={`${title} 4`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </button>
+          </div>
         )}
 
-        {/* Bottom-right left */}
-        {i3 && (
+        {/* "Alle Fotos" button */}
+        {images.length > 1 && (
           <button
-            onClick={() => openLightbox(2)}
-            className="relative overflow-hidden cursor-zoom-in group"
-            style={{ gridRow: '2 / 3', gridColumn: '2 / 3' }}
+            onClick={() => openLightbox(0)}
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white text-[#222222] border border-[#DDDDDD] text-xs font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md hover:border-[#222222]/20 transition-all z-10"
           >
-            <img src={i3} alt={`${title} 3`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            <LayoutGrid size={13} />
+            Alle {images.length} Fotos anzeigen
           </button>
         )}
-
-        {/* Bottom-right right */}
-        {i4 && (
-          <button
-            onClick={() => openLightbox(3)}
-            className="relative overflow-hidden cursor-zoom-in group"
-            style={{ gridRow: '2 / 3', gridColumn: '3 / 4' }}
-          >
-            <img src={i4} alt={`${title} 4`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-          </button>
-        )}
-
-      </div>
-
-        {/* "Alle Fotos" button — sibling of grid, absolute within the rounded wrapper */}
-        <button
-          onClick={() => openLightbox(0)}
-          className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white text-[#222222] border border-[#DDDDDD] text-xs font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md hover:border-[#222222]/20 transition-all z-10"
-        >
-          <LayoutGrid size={13} />
-          Alle {images.length} Fotos anzeigen
-        </button>
       </div>
 
       {/* Lightbox */}

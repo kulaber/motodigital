@@ -122,7 +122,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
 
   async function handleAddImages(files: FileList | null) {
     if (!files) return
-    const add = Array.from(files).slice(0, 8 - gallery.length)
+    const add = Array.from(files).slice(0, 25 - gallery.length)
     const compressed = await Promise.all(add.map(f => compressImage(f)))
     const newItems: GalleryItem[] = compressed.map(file => ({
       type: 'new',
@@ -408,7 +408,8 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
 
           {/* Unified gallery */}
           <div>
-            <label className={labelClass}>Fotos — ziehen zum Sortieren (max. 8)</label>
+            <label className={labelClass}>Fotos — ziehen zum Sortieren (max. 25)</label>
+            <p className="text-xs text-[#222222]/30 mb-3">Für eine optimale Darstellung, mindestens drei Fotos hochladen. Maximal 25 Fotos.</p>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
               {gallery.map((item, i) => {
@@ -447,7 +448,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               })}
             </div>
 
-            {gallery.length < 8 && (
+            {gallery.length < 25 && (
               <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#06a5a5]/40 rounded-2xl p-6 text-center cursor-pointer transition-colors group">
                 <input type="file" accept="image/*" multiple className="sr-only"
                   onChange={e => handleAddImages(e.target.files)} />

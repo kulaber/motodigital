@@ -107,7 +107,7 @@ export default function NewBikeForm() {
 
   async function handleImages(files: FileList | null) {
     if (!files) return
-    const newFiles = Array.from(files).slice(0, 8 - imageFiles.length)
+    const newFiles = Array.from(files).slice(0, 25 - imageFiles.length)
     const compressed = await Promise.all(newFiles.map(f => compressImage(f)))
     setImageFiles(prev => [...prev, ...compressed])
     compressed.forEach(file => {
@@ -462,7 +462,8 @@ export default function NewBikeForm() {
         <div className="flex flex-col gap-6 animate-fade-in">
 
           <div>
-            <label className={labelClass}>Fotos (max. 8)</label>
+            <label className={labelClass}>Fotos (max. 25)</label>
+            <p className="text-xs text-[#222222]/30 mb-3">Für eine optimale Darstellung, mindestens drei Fotos hochladen. Maximal 25 Fotos.</p>
             <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#DDDDDD]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
               <input type="file" accept="image/*" multiple className="sr-only"
                 onChange={e => handleImages(e.target.files)} />
