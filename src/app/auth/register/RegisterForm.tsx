@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Image from 'next/image'
 import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
 
 type Role = 'rider' | 'custom-werkstatt'
@@ -75,27 +74,21 @@ export default function RegisterForm() {
       <div>
         <div className="flex flex-col gap-3">
 
-          {/* Custom Werkstatt */}
+          {/* Rider */}
           <button
-            onClick={() => handleRoleSelect('custom-werkstatt')}
-            className="relative overflow-hidden rounded-2xl border-2 border-[#222222]/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
+            onClick={() => handleRoleSelect('rider')}
+            className="rounded-2xl border-2 border-[#222222]/10 hover:border-[#222222]/35 hover:shadow-md transition-all text-left group"
           >
-            {/* Image header */}
-            <div className="relative h-20 w-full">
-              <Image src="/custom-werkstatt.png" alt="Custom Werkstatt" fill sizes="320px" className="object-cover" />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
-              <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                <p className="text-white font-bold text-sm">Custom Werkstatt</p>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
+            <div className="px-4 py-4 bg-white rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Bike size={18} className="text-[#222222]/60" />
+                <p className="font-bold text-base text-[#222222]">Rider</p>
               </div>
-            </div>
-            {/* Content */}
-            <div className="px-4 py-3 bg-white">
-              <p className="text-xs text-[#222222]/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
+              <p className="text-xs text-[#222222]/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
               <ul className="flex flex-col gap-1.5">
-                {WERKSTATT_BENEFITS.map(b => (
+                {RIDER_BENEFITS.map(b => (
                   <li key={b} className="flex items-center gap-2">
-                    <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
+                    <Check size={10} className="text-[#222222]/30 flex-shrink-0" />
                     <span className="text-xs text-[#222222]/50">{b}</span>
                   </li>
                 ))}
@@ -103,26 +96,22 @@ export default function RegisterForm() {
             </div>
           </button>
 
-          {/* Rider */}
+          {/* Custom Werkstatt */}
           <button
-            onClick={() => handleRoleSelect('rider')}
-            className="relative overflow-hidden rounded-2xl border-2 border-[#222222]/10 hover:border-[#222222]/35 hover:shadow-md transition-all text-left group"
+            onClick={() => handleRoleSelect('custom-werkstatt')}
+            className="rounded-2xl border-2 border-[#222222]/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
           >
-            {/* Image header */}
-            <div className="relative h-20 w-full">
-              <Image src="/rider.png" alt="Rider" fill sizes="320px" className="object-cover" />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
-              <div className="absolute bottom-3 left-4">
-                <p className="text-white font-bold text-sm">Rider</p>
+            <div className="px-4 py-4 bg-white rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Wrench size={18} className="text-[#06a5a5]" />
+                <p className="font-bold text-base text-[#222222]">Custom Werkstatt</p>
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
               </div>
-            </div>
-            {/* Content */}
-            <div className="px-4 py-3 bg-white">
-              <p className="text-xs text-[#222222]/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
+              <p className="text-xs text-[#222222]/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
               <ul className="flex flex-col gap-1.5">
-                {RIDER_BENEFITS.map(b => (
+                {WERKSTATT_BENEFITS.map(b => (
                   <li key={b} className="flex items-center gap-2">
-                    <Check size={10} className="text-[#222222]/30 flex-shrink-0" />
+                    <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
                     <span className="text-xs text-[#222222]/50">{b}</span>
                   </li>
                 ))}

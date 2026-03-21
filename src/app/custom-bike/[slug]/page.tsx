@@ -327,13 +327,13 @@ export default async function CustomBikePage({ params }: Props) {
           </div>
         </div>
 
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
           {sellerProfileHref ? (
-            <Link href={sellerProfileHref} className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
+            <Link href={sellerProfileHref} className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3 shadow-lg">
               Werkstatt kontaktieren
             </Link>
           ) : (
-            <button className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3">
+            <button className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3 shadow-lg">
               Werkstatt kontaktieren
             </button>
           )}
@@ -519,10 +519,10 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* Mobile floating CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
         <Link
           href={`/custom-werkstatt/${build.builder.slug}`}
-          className="flex items-center justify-center w-full text-sm font-semibold bg-[#222222] text-white rounded-xl py-3 transition-colors"
+          className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#222222] text-white rounded-xl py-3 transition-colors shadow-lg"
         >
           {build.builder.name} kontaktieren
         </Link>

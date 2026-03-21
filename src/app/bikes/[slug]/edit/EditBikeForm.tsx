@@ -7,6 +7,7 @@ import { Upload, X, ChevronRight, ChevronDown, Plus } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STYLES = [
@@ -35,12 +36,10 @@ type BikeData = {
   status: 'active' | 'draft'; seller_id: string; bike_images: ExistingImage[]
 }
 
-type BaseBike = { make: string; model: string; year_from: number; year_to: number | null }
-
 type Step = 1 | 2 | 3
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; baseBikes: BaseBike[] }) {
+export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const router = useRouter()
   const supabase = createClient()
   const { toasts, success: toastSuccess, error: toastError } = useToast()
@@ -51,33 +50,35 @@ export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; base
   // ── Step 1: Basis ──────────────────────────────────
   const [title, setTitle] = useState(bike.title)
 
-  // Make
-  const makes = useMemo(() => [...new Set(baseBikes.map(b => b.make))].sort(), [baseBikes])
-  const isKnownMake = makes.includes(bike.make)
-  const [makeId, setMakeId] = useState(isKnownMake ? bike.make : 'andere')
-  const [customMake, setCustomMake] = useState(isKnownMake ? '' : bike.make)
+  // Make — match by name against MAKES
+  const knownMake = MAKES.find(m => m.name === bike.make)
+  const [makeId, setMakeId] = useState(knownMake ? knownMake.id : 'andere')
+  const [customMake, setCustomMake] = useState(knownMake ? '' : bike.make)
+  const isCustomMake = makeId === 'andere'
 
   // Model
-  const modelsForMake = useMemo(() => baseBikes.filter(b => b.make === makeId), [baseBikes, makeId])
-  const isKnownModel = modelsForMake.some(b => b.model === bike.model)
-  const [modelId, setModelId] = useState(isKnownModel ? bike.model : 'andere')
-  const [customModel, setCustomModel] = useState(isKnownModel ? '' : bike.model)
+  const modelsForMake: MotorcycleModel[] = useMemo(
+    () => (makeId && !isCustomMake ? getModelsByMake(makeId) : []),
+    [makeId, isCustomMake]
+  )
+  const knownModel = modelsForMake.find(m => m.name === bike.model)
+  const [modelId, setModelId] = useState(knownModel ? knownModel.id : (modelsForMake.length > 0 ? 'andere' : ''))
+  const [customModel, setCustomModel] = useState(knownModel ? '' : bike.model)
 
   // Year
-  const selectedBaseBike = useMemo(
-    () => baseBikes.find(b => b.make === makeId && b.model === modelId) ?? null,
-    [baseBikes, makeId, modelId]
+  const selectedModel = useMemo(
+    () => modelsForMake.find(m => m.id === modelId) ?? null,
+    [modelsForMake, modelId]
   )
-  const yearOptions = useMemo(() => {
-    if (!selectedBaseBike) return []
-    const from = selectedBaseBike.year_from
-    const to = selectedBaseBike.year_to ?? new Date().getFullYear()
-    return Array.from({ length: to - from + 1 }, (_, i) => to - i)
-  }, [selectedBaseBike])
+  const yearOptions = useMemo(
+    () => (selectedModel ? getYearsForModel(selectedModel) : []),
+    [selectedModel]
+  )
   const [year, setYear] = useState(String(bike.year))
 
-  const finalMake = makeId === 'andere' ? customMake : makeId
-  const finalModel = modelId === 'andere' ? customModel : modelId
+  const selectedMake = MAKES.find(m => m.id === makeId)
+  const finalMake = isCustomMake ? customMake : (selectedMake?.name ?? makeId)
+  const finalModel = modelId === 'andere' || !selectedModel ? customModel : selectedModel.name
 
   function onMakeChange(val: string) {
     setMakeId(val)
@@ -248,8 +249,7 @@ export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; base
             <div className="relative">
               <select value={makeId} onChange={e => onMakeChange(e.target.value)} className={selectClass}>
                 <option value="">Marke wählen…</option>
-                {makes.map(m => <option key={m} value={m}>{m}</option>)}
-                <option value="andere">Andere…</option>
+                {MAKES.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
               <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
             </div>
@@ -262,7 +262,7 @@ export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; base
           {/* Modell */}
           <div>
             <label className={labelClass}>Modell *</label>
-            {makeId === 'andere' || modelsForMake.length === 0 ? (
+            {isCustomMake || modelsForMake.length === 0 ? (
               <input value={customModel} onChange={e => setCustomModel(e.target.value)}
                 placeholder="Modell eingeben…" className={inputClass} />
             ) : (
@@ -271,9 +271,9 @@ export default function EditBikeForm({ bike, baseBikes }: { bike: BikeData; base
                   <select value={modelId} onChange={e => onModelChange(e.target.value)}
                     disabled={!makeId} className={`${selectClass} disabled:opacity-40`}>
                     <option value="">Modell wählen…</option>
-                    {modelsForMake.map(b => (
-                      <option key={b.model} value={b.model}>
-                        {b.model} ({b.year_from}–{b.year_to ?? 'heute'})
+                    {modelsForMake.map(m => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} ({m.yearFrom}–{m.yearTo ?? 'heute'})
                       </option>
                     ))}
                     <option value="andere">Anderes Modell…</option>

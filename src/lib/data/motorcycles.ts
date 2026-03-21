@@ -734,6 +734,20 @@ export const MODELS: MotorcycleModel[] = [
       { displacement: 949, name: 'Le Mans III/IV', engine: 'Zweizylinder V', power: '79 PS', torque: '83 Nm' },
     ],
   },
+  {
+    id: 'moto-guzzi-california',
+    makeId: 'moto-guzzi',
+    name: 'California',
+    yearFrom: 1971,
+    categories: ['Cruiser', 'Touring', 'Bobber'],
+    variants: [
+      { displacement: 844, name: 'California II', engine: 'Zweizylinder V', power: '68 PS', torque: '70 Nm' },
+      { displacement: 949, name: 'California III', engine: 'Zweizylinder V', power: '71 PS', torque: '75 Nm' },
+      { displacement: 1064, name: 'California EV / Special', engine: 'Zweizylinder V', power: '74 PS', torque: '85 Nm' },
+      { displacement: 1380, name: 'California 1400 Touring', engine: 'Zweizylinder V', power: '96 PS', torque: '121 Nm' },
+      { displacement: 1380, name: 'California 1400 Custom', engine: 'Zweizylinder V', power: '96 PS', torque: '121 Nm' },
+    ],
+  },
 
   // ── NORTON ───────────────────────────────
   {

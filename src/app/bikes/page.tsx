@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description: 'Kaufe und verkaufe handgefertigte Custom Motorcycles — Cafe Racer, Bobber, Scrambler, Tracker und Chopper aus ganz Europa.',
 }
 
+const STYLE_LABELS: Record<string, string> = {
+  naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
+  scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
+  street: 'Street', enduro: 'Enduro', other: 'Sonstiges',
+}
+
 export default async function BikesPage() {
   const supabase = await createClient()
 
@@ -42,7 +48,7 @@ export default async function BikesPage() {
       href:          `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
       title:         r.title,
       tagline:       '',
-      style:         r.style,
+      style:         STYLE_LABELS[r.style] ?? r.style,
       base:          `${r.make} ${r.model}`,
       year:          r.year,
       price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',

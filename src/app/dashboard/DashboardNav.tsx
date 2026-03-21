@@ -62,6 +62,7 @@ export default function DashboardNav({ role, userName, avatarUrl }: Props) {
   const adminItems: NavItem[] = role === 'superadmin'
     ? [
         { label: 'Werkstätten', href: '/admin/custom-werkstatt', icon: <Wrench size={15} /> },
+        { label: 'Custom Bikes', href: '/admin/custom-bikes', icon: <Bike size={15} /> },
         { label: 'Rider', href: '/admin/riders', icon: <Users size={15} /> },
         { label: 'Magazin', href: '/admin/magazine', icon: <BookOpen size={15} /> },
         { label: 'Events', href: '/admin/events', icon: <Calendar size={15} /> },

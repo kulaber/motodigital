@@ -525,10 +525,10 @@ export default async function BuilderProfilePage({ params }: Props) {
       </section>
 
       {/* Mobile sticky CTA */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-white border-t border-[#EBEBEB] flex gap-2">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center gap-2">
         <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
         <a href="#contact"
-          className="flex-1 flex items-center justify-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-2.5 hover:bg-[#058f8f] transition-colors">
+          className="flex-1 max-w-md flex items-center justify-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-2.5 hover:bg-[#058f8f] transition-colors shadow-lg">
           {builder.name} kontaktieren
         </a>
       </div>

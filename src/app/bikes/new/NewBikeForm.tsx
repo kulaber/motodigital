@@ -48,7 +48,7 @@ export default function NewBikeForm() {
   const [style, setStyle]           = useState('')
   const [cc, setCc]                 = useState('')
   const [mileage, setMileage]       = useState('')
-  const [price, setPrice]           = useState('')
+  const [price]                     = useState('')
   const [description, setDescription] = useState('')
   const [modifications, setModifications] = useState<string[]>([''])
   const [status, setStatus]         = useState<'active' | 'draft'>('active')
@@ -153,7 +153,7 @@ export default function NewBikeForm() {
       style,
       cc:           cc ? parseInt(cc) : null,
       mileage_km:   mileage ? parseInt(mileage) : null,
-      price:        parseFloat(price.replace(/[^0-9.]/g, '')),
+      price:        0,
       city:         null,
       lat:          null,
       lng:          null,
@@ -202,7 +202,7 @@ export default function NewBikeForm() {
     router.refresh()
   }
 
-  const step1Valid = title && submitMake && submitModel && year && style && price
+  const step1Valid = title && submitMake && submitModel && year && style
 
   const steps = ['Basis', 'Details', 'Fotos & Veröffentlichen']
 
@@ -357,11 +357,7 @@ export default function NewBikeForm() {
                   placeholder="1974" className={inputClass} />
               )}
             </div>
-            <div>
-              <label className={labelClass}>Preis (€) *</label>
-              <input value={price} onChange={e => setPrice(e.target.value)}
-                type="number" min="0" placeholder="14500" className={inputClass} />
-            </div>
+            <div>{/* spacer */}</div>
           </div>
 
           {/* Typ / Style */}
@@ -531,10 +527,6 @@ export default function NewBikeForm() {
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Typ</span>
                 <span className="text-[#222222]">{STYLES.find(s => s.value === style)?.label}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#222222]/40">Preis</span>
-                <span className="text-[#717171] font-semibold">€ {parseFloat(price || '0').toLocaleString('de-DE')}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Fotos</span>
