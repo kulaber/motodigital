@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
+import { Star, Heart, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   name: string
   builderId: string | null
   slug: string
+  iconOnly?: boolean
 }
 
-export default function HeroActions({ name, builderId: initialBuilderId, slug }: Props) {
+export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly }: Props) {
   const [shareOpen, setShareOpen]     = useState(false)
   const [copied, setCopied]           = useState(false)
   const [saved, setSaved]             = useState(false)
@@ -99,33 +100,39 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug }:
   }
 
   return (
-    <div className="flex items-center gap-2 flex-shrink-0 pb-1" ref={ref}>
+    <div className={`flex items-center gap-2${iconOnly ? '' : ' flex-shrink-0 pb-1'}`} ref={ref}>
       {/* Speichern */}
       <button
         onClick={handleSave}
         disabled={loadingSave}
-        className={`flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all disabled:opacity-60 ${
-          saved
-            ? 'bg-[#06a5a5] border-[#06a5a5] text-white'
-            : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-        }`}
+        className={iconOnly
+          ? `w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] text-white' : 'bg-black/50 text-white hover:bg-black/60'}`
+          : `flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] border-[#06a5a5] text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`
+        }
+        aria-label={saved ? 'Gespeichert' : 'Speichern'}
       >
-        <Star size={13} className={saved ? 'fill-white' : ''} />
-        {saved ? 'Gespeichert' : 'Speichern'}
+        {iconOnly
+          ? <Heart size={15} className={saved ? 'fill-white' : ''} />
+          : <><Star size={13} className={saved ? 'fill-white' : ''} />{saved ? 'Gespeichert' : 'Speichern'}</>
+        }
       </button>
 
       {/* Teilen */}
       <div className="relative">
         <button
           onClick={() => setShareOpen(v => !v)}
-          className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all"
+          className={iconOnly
+            ? 'w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/60 transition-all'
+            : 'flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all'
+          }
+          aria-label="Teilen"
         >
-          <Share2 size={13} />
-          Teilen
+          <Share2 size={iconOnly ? 15 : 13} />
+          {!iconOnly && ' Teilen'}
         </button>
 
         {shareOpen && (
-          <div className="absolute bottom-full mb-2 right-0 bg-white rounded-2xl shadow-2xl shadow-black/20 border border-[#EBEBEB] overflow-hidden w-52 z-50">
+          <div className={`absolute ${iconOnly ? 'top-full mt-2' : 'bottom-full mb-2'} right-0 bg-white rounded-2xl shadow-2xl shadow-black/20 border border-[#EBEBEB] overflow-hidden w-52 z-50`}>
             <div className="px-4 py-3 border-b border-[#F0F0F0]">
               <p className="text-xs font-semibold text-[#222222]">Seite teilen</p>
             </div>

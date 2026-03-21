@@ -147,14 +147,14 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   }
 }
 
-function StarRating({ rating }: { rating: number }) {
+function StarRating({ rating, light }: { rating: number; light?: boolean }) {
   return (
     <span className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map(i => {
         const filled = rating >= i
         const half = !filled && rating >= i - 0.5
         return (
-          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#06a5a5]' : 'text-white/25'}>
+          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#06a5a5]' : (light ? 'text-[#DDDDDD]' : 'text-white/25')}>
             {half ? (
               <>
                 <defs>
@@ -173,7 +173,7 @@ function StarRating({ rating }: { rating: number }) {
           </svg>
         )
       })}
-      <span className="ml-1 text-xs font-semibold text-white/80">{rating.toFixed(1)}</span>
+      <span className={`ml-1 text-xs font-semibold ${light ? 'text-[#717171]' : 'text-white/80'}`}>{rating.toFixed(1)}</span>
     </span>
   )
 }
@@ -205,19 +205,71 @@ export default async function BuilderProfilePage({ params }: Props) {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
-      {/* ── HERO mit Titelbild + Overlay-Content ── */}
-      <div className="relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
-        {/* Hintergrundbild */}
+      {/* ── MOBILE HERO ── */}
+      <div className="sm:hidden relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         {coverImage ? (
           <Image src={coverImage.url} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
         ) : (
           <div className="absolute inset-0 bg-[#1a1a1a]" />
         )}
 
-        {/* Dunkler Gradient unten für Lesbarkeit */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
-        {/* Back-Link oben */}
+        {/* Top: Back + Save/Share */}
+        <div className="absolute top-0 left-0 right-0 z-10 pt-4 px-4">
+          <div className="flex items-center justify-between">
+            <Link href="/custom-werkstatt"
+              className="inline-flex items-center gap-1.5 bg-black/50 text-white text-xs font-medium px-2.5 py-1.5 rounded-full backdrop-blur-sm hover:bg-black/60 transition-colors">
+              <ArrowLeft size={13} /> Zurück
+            </Link>
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+          </div>
+        </div>
+
+        {/* Bottom: Profile info */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-6">
+          <div className="flex items-end gap-3">
+            <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
+              {builder.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={builder.avatarUrl} alt={builder.name} className="w-full h-full object-cover" />
+              ) : (
+                <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 opacity-90" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0 pb-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h1 className="text-xl font-bold text-white tracking-tight">
+                  {builder.name}
+                </h1>
+                {builder.verified && (
+                  <span className="inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    <BadgeCheck size={10} /> Verifiziert
+                  </span>
+                )}
+                {builder.featured && (
+                  <span className="inline-flex items-center bg-[#06a5a5]/20 border border-[#06a5a5]/30 text-[#06a5a5] text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    Top Custom Werkstatt
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
+                <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
+                <StarRating rating={builder.rating} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DESKTOP HERO ── */}
+      <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
+        {coverImage ? (
+          <Image src={coverImage.url} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
+        ) : (
+          <div className="absolute inset-0 bg-[#1a1a1a]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
         <div className="absolute top-0 left-0 right-0 pt-20 px-4 sm:px-5 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <Link href="/custom-werkstatt"
@@ -226,12 +278,8 @@ export default async function BuilderProfilePage({ params }: Props) {
             </Link>
           </div>
         </div>
-
-        {/* Content unten */}
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
           <div className="max-w-7xl mx-auto flex items-end gap-4">
-
-            {/* Logo / Avatar */}
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
               {builder.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -240,8 +288,6 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
               )}
             </div>
-
-            {/* Text */}
             <div className="flex-1 min-w-0 pb-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
                 <h1 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
@@ -258,14 +304,11 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </span>
                 )}
               </div>
-
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
                 <StarRating rating={builder.rating} />
               </div>
             </div>
-
-            {/* Aktionen rechts — nur Desktop */}
             <div className="hidden sm:block">
               <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
             </div>
@@ -357,8 +400,17 @@ export default async function BuilderProfilePage({ params }: Props) {
 
               {/* Leistungen */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-5">Leistungen</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4 sm:mb-5">Leistungen</h2>
+                {/* Mobile: chip row */}
+                <div className="flex flex-wrap gap-2 sm:hidden">
+                  {builder.tags.map(tag => (
+                    <span key={tag} className="flex items-center gap-1.5 text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                {/* Desktop: grid cards */}
+                <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {builder.tags.map(tag => {
                     const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
                     return (
@@ -524,13 +576,14 @@ export default async function BuilderProfilePage({ params }: Props) {
         </div>
       </section>
 
-      {/* Mobile sticky CTA */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center gap-2">
-        <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
-        <a href="#contact"
-          className="flex-1 max-w-md flex items-center justify-center text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-2.5 hover:bg-[#058f8f] transition-colors shadow-lg">
-          {builder.name} kontaktieren
-        </a>
+      {/* Sticky CTA */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3">
+        <div className="max-w-md mx-auto">
+          <a href="#contact"
+            className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full py-3 shadow-lg transition-colors">
+            {builder.name} kontaktieren
+          </a>
+        </div>
       </div>
 
       <Footer />
