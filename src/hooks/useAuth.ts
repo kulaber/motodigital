@@ -11,6 +11,7 @@ export function useAuth() {
   const [role,      setRole]      = useState<UserRole>(null)
   const [slug,      setSlug]      = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [fullName,  setFullName]  = useState<string | null>(null)
   const [loading,   setLoading]   = useState(true)
   const supabase = createClient()
 
@@ -24,18 +25,20 @@ export function useAuth() {
         if (currentUser) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ;(supabase.from('profiles') as any)
-            .select('role, slug, avatar_url')
+            .select('role, slug, avatar_url, full_name')
             .eq('id', currentUser.id)
             .maybeSingle()
-            .then(({ data }: { data: { role: UserRole; slug: string | null; avatar_url: string | null } | null }) => {
+            .then(({ data }: { data: { role: UserRole; slug: string | null; avatar_url: string | null; full_name: string | null } | null }) => {
               setRole(data?.role ?? null)
               setSlug(data?.slug ?? null)
               setAvatarUrl(data?.avatar_url ?? null)
+              setFullName(data?.full_name ?? null)
             })
         } else {
           setRole(null)
           setSlug(null)
           setAvatarUrl(null)
+          setFullName(null)
         }
       }
     )
@@ -43,5 +46,5 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { user, role, slug, avatarUrl, loading }
+  return { user, role, slug, avatarUrl, fullName, loading }
 }
