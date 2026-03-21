@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ChevronDown, X, ArrowUpDown } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -30,14 +30,18 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [styleOpen,     setStyleOpen]     = useState(false)
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
   const [sortOpen,      setSortOpen]      = useState(false)
+  const [page,          setPage]          = useState(1)
+  const PER_PAGE = 12
 
   const SORT_LABELS: Record<string, string> = { popular: 'Beliebt', newest: 'Neueste zuerst', oldest: 'Älteste zuerst' }
 
   const filterRef = useRef<HTMLDivElement>(null)
+  const gridAnchorRef = useRef<HTMLDivElement>(null)
   const scrollToFilter = () => {
     if (!filterRef.current) return
-    const top = filterRef.current.offsetTop - 64 // subtract sticky header height
-    window.scrollTo({ top, behavior: 'smooth' })
+    const rect = filterRef.current.getBoundingClientRect()
+    const offset = window.scrollY + rect.top - 64
+    window.scrollTo({ top: offset, behavior: 'smooth' })
   }
 
   const countries = useMemo(() => {
@@ -71,6 +75,9 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     return ['Alle', ...unique]
   }, [builds, activeCountry, activeMake, activeModel])
 
+  // Reset page when filters or sort change
+  useEffect(() => { setPage(1) }, [activeStyle, activeCountry, activeMake, activeModel, activeSort])
+
   const filtered = useMemo(() => {
     const result = builds.filter(b => {
       const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
@@ -88,6 +95,16 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     }
     return result
   }, [builds, activeStyle, activeCountry, activeMake, activeModel, activeSort])
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+
+  function goToPage(p: number) {
+    setPage(p)
+    setTimeout(() => {
+      gridAnchorRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)
+  }
 
   return (
     <>
@@ -262,6 +279,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
       </div>
 
       {/* GRID */}
+      <div ref={gridAnchorRef} className="-mt-32 pt-32" />
       <section className="py-8 sm:py-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
 
@@ -277,7 +295,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {filtered.map((build, i) => (
+              {paged.map((build, i) => (
                 <Link
                   key={build.slug}
                   href={build.href ?? `/custom-bike/${build.slug}`}
@@ -317,11 +335,52 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
           )}
 
           {filtered.length > 0 && (
-            <div className="mt-10 sm:mt-14 text-center">
-              <p className="text-xs text-[#222222]/20 mb-4">{filtered.length} von {builds.length} Bikes</p>
-              <button className="border border-[#222222]/12 text-[#222222]/50 hover:text-[#222222] hover:border-[#222222]/25 text-sm font-medium px-8 py-3 rounded-full transition-all hover:-translate-y-0.5">
-                Mehr laden
-              </button>
+            <div className="mt-10 sm:mt-14 flex flex-col items-center gap-4">
+              <p className="text-xs text-[#222222]/20">
+                {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} von {filtered.length} Bikes
+              </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => goToPage(page - 1)}
+                    disabled={page === 1}
+                    className="w-9 h-9 flex items-center justify-center rounded-full border border-[#222222]/10 text-[#222222]/40 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-25 disabled:pointer-events-none"
+                  >
+                    <ChevronLeft size={15} />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce<(number | 'dots')[]>((acc, p, i, arr) => {
+                      if (i > 0 && p - (arr[i - 1]) > 1) acc.push('dots')
+                      acc.push(p)
+                      return acc
+                    }, [])
+                    .map((item, i) =>
+                      item === 'dots' ? (
+                        <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-[#222222]/20 text-xs">…</span>
+                      ) : (
+                        <button
+                          key={item}
+                          onClick={() => goToPage(item)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                            page === item
+                              ? 'bg-[#222222] text-white'
+                              : 'border border-[#222222]/10 text-[#222222]/45 hover:text-[#222222] hover:border-[#222222]/25'
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => goToPage(page + 1)}
+                    disabled={page === totalPages}
+                    className="w-9 h-9 flex items-center justify-center rounded-full border border-[#222222]/10 text-[#222222]/40 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-25 disabled:pointer-events-none"
+                  >
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
