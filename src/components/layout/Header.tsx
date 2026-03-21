@@ -254,7 +254,7 @@ export default function Header({ activePage }: Props) {
           ) : (
             <>
               <Link href="/auth/login" className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
-                Anmelden
+                Login
               </Link>
               <Link href="/auth/register" className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
@@ -269,7 +269,7 @@ export default function Header({ activePage }: Props) {
             <>
               <Link href="/auth/login"
                 className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
-                Anmelden
+                Login
               </Link>
               <Link href="/auth/register"
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
