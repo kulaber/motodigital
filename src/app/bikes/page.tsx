@@ -76,7 +76,7 @@ export default async function BikesPage() {
   const allBuilds = [...dbBuilds, ...BUILDS]
 
   return (
-    <div className="min-h-screen bg-white text-[#222222] overflow-x-hidden" style={{ fontFamily: 'var(--font-sans)' }}>
+    <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
       <Header activePage="bikes" />
 
       {/* PAGE HEADER */}

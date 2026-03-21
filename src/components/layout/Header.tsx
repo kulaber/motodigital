@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation'
 import MobileNav from './MobileNav'
 
 interface Props {
-  activePage?: 'bikes' | 'custom-werkstatt' | 'map' | 'landing' | 'magazine' | 'events' | 'sell' | 'builds' | 'riders'
+  activePage?: 'bikes' | 'custom-werkstatt' | 'map' | 'landing' | 'magazine' | 'events' | 'sell' | 'builds' | 'explore'
 }
 
 const ROLE_BADGE: Record<string, { label: string; color: string }> = {
@@ -112,13 +112,13 @@ export default function Header({ activePage }: Props) {
 
         {/* ── Desktop nav ── */}
         <nav className="hidden lg:flex items-center gap-1">
-          <Link href="/riders"
+          <Link href="/explore"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
-              activePage === 'riders'
+              activePage === 'explore'
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Rider
+            Explore
           </Link>
           <Link href="/bikes"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
