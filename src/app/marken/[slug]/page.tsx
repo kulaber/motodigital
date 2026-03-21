@@ -95,8 +95,14 @@ export default async function MarkeDetailPage({ params }: Props) {
 
         {/* Hero */}
         <div className="flex items-start gap-5 mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center flex-shrink-0">
-            <span className="text-lg font-bold text-[#222222]">{brand.name.slice(0, 2).toUpperCase()}</span>
+          <div className="w-20 h-20 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center flex-shrink-0 p-2.5">
+            <Image
+              src={`/brands/${brand.slug}.svg`}
+              alt={brand.name}
+              width={160}
+              height={80}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">

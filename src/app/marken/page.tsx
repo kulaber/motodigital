@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BRANDS } from '@/lib/data/brands'
@@ -56,11 +57,15 @@ export default async function MarkenPage() {
                 href={`/marken/${brand.slug}`}
                 className="group bg-white border border-[#EBEBEB] hover:border-[#DDDDDD] hover:shadow-md rounded-2xl p-6 transition-all duration-200"
               >
-                {/* Initials avatar */}
-                <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center mb-4">
-                  <span className="text-sm font-bold text-[#222222]">
-                    {brand.name.slice(0, 2).toUpperCase()}
-                  </span>
+                {/* Brand logo */}
+                <div className="h-14 flex items-center mb-4">
+                  <Image
+                    src={`/brands/${brand.slug}.svg`}
+                    alt={brand.name}
+                    width={160}
+                    height={56}
+                    className="h-12 w-auto max-w-[140px] object-contain"
+                  />
                 </div>
 
                 <div className="flex items-start justify-between gap-2 mb-2">

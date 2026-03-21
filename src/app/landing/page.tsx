@@ -102,7 +102,7 @@ export default async function LandingPage() {
           <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-[#222222]/10">
             <video
               autoPlay muted loop playsInline preload="metadata"
-              className="w-full aspect-[4/3] sm:aspect-video lg:aspect-[21/9] object-cover"
+              className="w-full aspect-[9/11] sm:aspect-video lg:aspect-[21/9] object-cover"
             >
               <source src="/custombike_intro.mp4" type="video/mp4" />
             </video>
@@ -113,11 +113,11 @@ export default async function LandingPage() {
 
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-5 sm:p-8 lg:p-12 text-center">
               <div className="max-w-2xl">
-                <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full mb-4 sm:mb-5">
+                <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full mb-6 sm:mb-5">
                   Beta — Jetzt kostenlos registrieren
                 </span>
                 <h1
-                  className="animate-slide-up font-bold text-white leading-[1.1] mb-3 sm:mb-4"
+                  className="animate-slide-up font-bold text-white leading-[1.1] mb-6 sm:mb-4"
                   style={{ fontSize: 'clamp(1.4rem, 4vw, 3.2rem)', animationDelay: '60ms' }}
                 >
                   Baue dein Bike.<br />Behalte den Überblick.

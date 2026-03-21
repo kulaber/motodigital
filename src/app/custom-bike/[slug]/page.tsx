@@ -152,7 +152,7 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="min-h-screen bg-white text-[#222222]">
         <Header activePage="bikes" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
-          <Link href="/bikes" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+          <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
             <ArrowLeft size={13} /> Custom Bikes
           </Link>
 
@@ -311,7 +311,7 @@ export default async function CustomBikePage({ params }: Props) {
                 Alle Custom Bikes ansehen →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {BUILDS.slice(0, 3).map(b => (
                 <Link key={b.slug} href={`/custom-bike/${b.slug}`} className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all">
                   <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
@@ -329,11 +329,11 @@ export default async function CustomBikePage({ params }: Props) {
 
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
           {sellerProfileHref ? (
-            <Link href={sellerProfileHref} className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3 shadow-lg">
+            <Link href={sellerProfileHref} className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors">
               Werkstatt kontaktieren
             </Link>
           ) : (
-            <button className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#06a5a5] text-white rounded-xl py-3 shadow-lg">
+            <button className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors">
               Werkstatt kontaktieren
             </button>
           )}
@@ -351,7 +351,7 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
 
         {/* Back */}
-        <Link href="/bikes" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+        <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
           <ArrowLeft size={13} /> Custom Bikes
         </Link>
 
@@ -454,7 +454,7 @@ export default async function CustomBikePage({ params }: Props) {
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/custom-werkstatt/${build.builder.slug}`}
-                  className="w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors"
+                  className="hidden lg:block w-full text-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-xl px-4 py-2.5 transition-colors"
                 >
                   Werkstatt kontaktieren
                 </Link>
@@ -498,7 +498,7 @@ export default async function CustomBikePage({ params }: Props) {
               Alle Custom Bikes ansehen →
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {BUILDS.filter(b => b.slug !== build.slug).slice(0, 3).map(b => (
               <Link
                 key={b.slug}
@@ -522,7 +522,7 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
         <Link
           href={`/custom-werkstatt/${build.builder.slug}`}
-          className="flex items-center justify-center w-full max-w-md text-sm font-semibold bg-[#222222] text-white rounded-xl py-3 transition-colors shadow-lg"
+          className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors"
         >
           {build.builder.name} kontaktieren
         </Link>

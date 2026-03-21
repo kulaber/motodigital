@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { X, ChevronLeft, ChevronRight, LayoutGrid, ArrowLeft } from 'lucide-react'
 
 interface Props {
   images: string[]
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function BuildGallery({ images, title }: Props) {
+  const router = useRouter()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
   const [mobileIdx, setMobileIdx] = useState(0)
@@ -134,6 +136,17 @@ export default function BuildGallery({ images, title }: Props) {
             </div>
           )}
 
+          {/* Back button */}
+          <button
+            onClick={() => {
+              document.documentElement.style.scrollBehavior = 'auto'
+              router.back()
+            }}
+            className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm"
+          >
+            <ArrowLeft size={13} /> Zurück
+          </button>
+
           {/* Counter */}
           <span className="absolute top-3 right-3 z-10 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
             {mobileIdx + 1} / {images.length}
@@ -142,7 +155,7 @@ export default function BuildGallery({ images, title }: Props) {
       </div>
 
       {/* ── Desktop grid (md+) ── */}
-      <div className="hidden md:block relative rounded-2xl overflow-hidden">
+      <div className="hidden md:flex flex-col relative rounded-2xl overflow-hidden">
       <div className="grid gap-1.5 h-[50vh] min-h-[340px] max-h-[520px]"
         style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
       >
