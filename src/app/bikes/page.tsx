@@ -23,7 +23,7 @@ export default async function BikesPage() {
   // Fetch all active bikes (werkstatt + rider)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, bike_images(url, is_cover, position)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(url, is_cover, position)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -32,11 +32,14 @@ export default async function BikesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sellerProfiles } = sellerIds.length > 0
     ? await (supabase.from('profiles') as any)
-        .select('id, full_name')
+        .select('id, full_name, role')
         .in('id', sellerIds)
     : { data: [] }
   const sellerNameById: Record<string, string> = Object.fromEntries(
     (sellerProfiles ?? []).map((p: any) => [p.id, p.full_name ?? ''])
+  )
+  const sellerRoleById: Record<string, string> = Object.fromEntries(
+    (sellerProfiles ?? []).map((p: any) => [p.id, p.role ?? 'rider'])
   )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +68,8 @@ export default async function BikesPage() {
       coverImg:      cover,
       images:        images.map((i: any) => i.url),
       publishedAt:   r.created_at,
+      role:          sellerRoleById[r.seller_id] ?? 'rider',
+      viewCount:     r.view_count ?? 0,
     }
   })
 

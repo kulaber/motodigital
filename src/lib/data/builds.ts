@@ -28,6 +28,8 @@ export type Build = {
   videoUrl?: string
   publishedAt?: string   // ISO date string, e.g. '2026-03-16'
   href?: string          // override link (for Supabase bikes)
+  role?: string          // seller role: 'custom-werkstatt' | 'rider'
+  viewCount?: number     // number of page views
 }
 
 export const BUILDS: Build[] = [

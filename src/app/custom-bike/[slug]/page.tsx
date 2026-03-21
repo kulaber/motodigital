@@ -8,7 +8,14 @@ import Footer from '@/components/layout/Footer'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import BuildGallery from '@/components/build/BuildGallery'
 import { createClient } from '@/lib/supabase/server'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import ContactModal from './ContactModal'
+
+const STYLE_LABELS: Record<string, string> = {
+  naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
+  scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
+  street: 'Street', enduro: 'Enduro', other: 'Sonstiges',
+}
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -304,27 +311,7 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
           </div>
 
-          <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
-              <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
-                Alle Custom Bikes ansehen →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {BUILDS.slice(0, 3).map(b => (
-                <Link key={b.slug} href={`/custom-bike/${b.slug}`} className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all">
-                  <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                    <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
-                    <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <RelatedBikes excludeId={bike.id} />
         </div>
 
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
@@ -491,31 +478,7 @@ export default async function CustomBikePage({ params }: Props) {
         </div>
 
         {/* Related builds */}
-        <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
-            <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
-              Alle Custom Bikes ansehen →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {BUILDS.filter(b => b.slug !== build.slug).slice(0, 3).map(b => (
-              <Link
-                key={b.slug}
-                href={`/custom-bike/${b.slug}`}
-                className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                  <Image src={b.coverImg} alt={b.title} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
-                </div>
-                <div className="p-3">
-                  <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
-                  <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <RelatedBikes excludeSlug={build.slug} />
       </div>
 
       {/* Mobile floating CTA */}
@@ -529,6 +492,114 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       <Footer />
+    </div>
+  )
+}
+
+async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; excludeSlug?: string }) {
+  const supabase = await createClient()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabase.from('bikes') as any)
+    .select('id, title, make, model, style, city, slug, seller_id, bike_images(url, is_cover, position)')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(4)
+
+  if (excludeId) query = query.neq('id', excludeId)
+
+  const { data: rows } = await query
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let related: { href: string; title: string; style: string; base: string; city: string; img: string; role: string; slug: string }[] = (rows ?? []).map((r: any) => {
+    const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+    return {
+      slug:  r.id as string,
+      href:  `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
+      title: r.title as string,
+      style: STYLE_LABELS[r.style] ?? (r.style as string),
+      base:  `${r.make} ${r.model}`,
+      city:  (r.city as string) ?? '',
+      img:   cover,
+      role:  '',
+      sellerId: r.seller_id as string,
+    }
+  })
+
+  // Fetch seller roles
+  const sellerIds = [...new Set(related.map((r: any) => r.sellerId))]
+  if (sellerIds.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profiles } = await (supabase.from('profiles') as any)
+      .select('id, full_name, role')
+      .in('id', sellerIds)
+    const roleMap: Record<string, string> = Object.fromEntries(
+      ((profiles ?? []) as { id: string; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
+    )
+    const nameMap: Record<string, string> = Object.fromEntries(
+      ((profiles ?? []) as { id: string; full_name: string | null }[]).map(p => [p.id, p.full_name ?? ''])
+    )
+    related = related.map((r: any) => ({ ...r, role: roleMap[r.sellerId] ?? 'rider', builder: nameMap[r.sellerId] ?? '' }))
+  }
+
+  // Fill with static BUILDS if not enough DB bikes
+  if (related.length < 3) {
+    const dbSlugs = new Set(related.map(r => r.slug))
+    const staticFill = BUILDS
+      .filter(b => b.slug !== excludeSlug && !dbSlugs.has(b.slug))
+      .slice(0, 3 - related.length)
+      .map(b => ({
+        slug:  b.slug,
+        href:  `/custom-bike/${b.slug}`,
+        title: b.title,
+        style: b.style,
+        base:  b.base,
+        city:  b.city,
+        img:   b.coverImg,
+        role:  '',
+        builder: b.builder.name,
+        sellerId: '',
+      }))
+    related = [...related, ...staticFill]
+  }
+
+  const cards = related.slice(0, 3)
+
+  return (
+    <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
+        <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
+          Alle Custom Bikes ansehen →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {cards.map((b: any) => (
+          <Link
+            key={b.slug}
+            href={b.href}
+            className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={b.img} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+              <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                {b.style}
+              </span>
+              {b.role && (
+                <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                  {b.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
+                </span>
+              )}
+            </div>
+            <div className="p-3 sm:p-4">
+              <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{b.title}</h3>
+              <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.base} · {b.builder || ''} · {b.city}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

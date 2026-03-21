@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
-import { ChevronDown, X } from 'lucide-react'
+import { ChevronDown, X, ArrowUpDown } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -28,6 +28,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [activeModel,   setActiveModel]   = useState('Alle')
   const [modelOpen,     setModelOpen]     = useState(false)
   const [styleOpen,     setStyleOpen]     = useState(false)
+  const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
+  const [sortOpen,      setSortOpen]      = useState(false)
+
+  const SORT_LABELS: Record<string, string> = { popular: 'Beliebt', newest: 'Neueste zuerst', oldest: 'Älteste zuerst' }
 
   const filterRef = useRef<HTMLDivElement>(null)
   const scrollToFilter = () => {
@@ -67,13 +71,23 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     return ['Alle', ...unique]
   }, [builds, activeCountry, activeMake, activeModel])
 
-  const filtered = useMemo(() => builds.filter(b => {
-    const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
-    const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
-    const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
-    const modelMatch   = activeModel === 'Alle' || getModel(b.base) === activeModel
-    return styleMatch && countryMatch && makeMatch && modelMatch
-  }), [builds, activeStyle, activeCountry, activeMake, activeModel])
+  const filtered = useMemo(() => {
+    const result = builds.filter(b => {
+      const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
+      const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
+      const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
+      const modelMatch   = activeModel === 'Alle' || getModel(b.base) === activeModel
+      return styleMatch && countryMatch && makeMatch && modelMatch
+    })
+    if (activeSort === 'popular') {
+      result.sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
+    } else if (activeSort === 'newest') {
+      result.sort((a, b) => new Date(b.publishedAt ?? '1970').getTime() - new Date(a.publishedAt ?? '1970').getTime())
+    } else if (activeSort === 'oldest') {
+      result.sort((a, b) => new Date(a.publishedAt ?? '1970').getTime() - new Date(b.publishedAt ?? '1970').getTime())
+    }
+    return result
+  }, [builds, activeStyle, activeCountry, activeMake, activeModel, activeSort])
 
   return (
     <>
@@ -214,6 +228,35 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                 <X size={14} />
               </button>
             )}
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Sortieren */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setSortOpen(v => !v)}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222] transition-all"
+              >
+                <ArrowUpDown size={11} />
+                <span className="hidden sm:inline">{SORT_LABELS[activeSort]}</span>
+                <span className="sm:hidden">Sortieren</span>
+                <ChevronDown size={11} className={`transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {sortOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setSortOpen(false)} />
+                  <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[170px]">
+                    {(['popular', 'newest', 'oldest'] as const).map(key => (
+                      <button key={key} onClick={() => { setActiveSort(key); setSortOpen(false); scrollToFilter() }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeSort === key ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                        {SORT_LABELS[key]}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -253,6 +296,11 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     {isNew(build.publishedAt) && (
                       <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
                         Neu
+                      </span>
+                    )}
+                    {build.role && (
+                      <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        {build.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
                       </span>
                     )}
                   </div>

@@ -11,19 +11,30 @@ import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
   description: 'Die erste Plattform für Custom Motorrad Kultur. Finde Builder, kaufe Builds, starte dein Projekt.',
 }
 
-const BUILDS = [
-  { slug: 'the-midnight-scrambler', title: 'The Midnight Scrambler', style: 'Cafe Racer', base: 'Honda CB550',    builder: 'Jakob K.',    city: 'Berlin',    img: 'https://images.unsplash.com/photo-1568708167256-1f385e6485f5?w=600&q=75' },
-  { slug: 'iron-bastard-no-3',      title: 'Iron Bastard No. 3',     style: 'Bobber',     base: 'BMW R80',        builder: 'Max S.',      city: 'München',   img: 'https://images.unsplash.com/photo-1505052533681-2be9d65eade5?w=600&q=75' },
-  { slug: 'desert-fox-scrambler',   title: 'Desert Fox Scrambler',   style: 'Scrambler',  base: 'Triumph T100',   builder: 'Anna W.',     city: 'Hamburg',   img: 'https://images.unsplash.com/photo-1677435783431-4f81723d5a18?w=600&q=75' },
-  { slug: 'flat-track-killer',      title: 'Flat Track Killer',      style: 'Tracker',    base: 'Yamaha SR500',   builder: 'René B.',     city: 'Köln',      img: 'https://images.unsplash.com/photo-1603096564885-1a332df4f903?w=600&q=75' },
-  { slug: 'low-and-slow',           title: 'Low & Slow',             style: 'Chopper',    base: 'H-D Sportster',  builder: 'Kai F.',      city: 'Stuttgart', img: 'https://images.unsplash.com/photo-1567972411080-a8ad4b2fded1?w=600&q=75' },
-  { slug: 'berlin-ghost',           title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750',   builder: 'Studio Nord', city: 'Berlin',    img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=75' },
+const STYLE_LABELS: Record<string, string> = {
+  naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
+  scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
+  street: 'Street', enduro: 'Enduro', other: 'Sonstiges',
+}
+
+interface FeaturedBuild {
+  slug: string; href?: string; title: string; style: string; base: string; builder: string; city: string; img: string; role?: string
+}
+
+const FALLBACK_BUILDS: FeaturedBuild[] = [
+  { slug: 'the-midnight-scrambler', href: '/custom-bike/the-midnight-scrambler', title: 'The Midnight Scrambler', style: 'Cafe Racer', base: 'Honda CB550',    builder: 'Jakob K.',    city: 'Berlin',    img: 'https://images.unsplash.com/photo-1568708167256-1f385e6485f5?w=600&q=75' },
+  { slug: 'iron-bastard-no-3',      href: '/custom-bike/iron-bastard-no-3',      title: 'Iron Bastard No. 3',     style: 'Bobber',     base: 'BMW R80',        builder: 'Max S.',      city: 'München',   img: 'https://images.unsplash.com/photo-1505052533681-2be9d65eade5?w=600&q=75' },
+  { slug: 'desert-fox-scrambler',   href: '/custom-bike/desert-fox-scrambler',   title: 'Desert Fox Scrambler',   style: 'Scrambler',  base: 'Triumph T100',   builder: 'Anna W.',     city: 'Hamburg',   img: 'https://images.unsplash.com/photo-1677435783431-4f81723d5a18?w=600&q=75' },
+  { slug: 'flat-track-killer',      href: '/custom-bike/flat-track-killer',      title: 'Flat Track Killer',      style: 'Tracker',    base: 'Yamaha SR500',   builder: 'René B.',     city: 'Köln',      img: 'https://images.unsplash.com/photo-1603096564885-1a332df4f903?w=600&q=75' },
+  { slug: 'low-and-slow',           href: '/custom-bike/low-and-slow',           title: 'Low & Slow',             style: 'Chopper',    base: 'H-D Sportster',  builder: 'Kai F.',      city: 'Stuttgart', img: 'https://images.unsplash.com/photo-1567972411080-a8ad4b2fded1?w=600&q=75' },
+  { slug: 'berlin-ghost',           href: '/custom-bike/berlin-ghost',           title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750',   builder: 'Studio Nord', city: 'Berlin',    img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=75' },
 ]
 
 const USPS = [
@@ -67,8 +78,51 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
 }
 
 export default async function LandingPage() {
-  // Fetch the 10 most recently added workshops from DB
   const supabase = await createClient()
+
+  // ── Fetch the 6 newest active bikes ──
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: bikeRows } = await (supabase.from('bikes') as any)
+    .select('id, title, make, model, style, city, slug, seller_id, bike_images(url, is_cover, position)')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: Record<string, unknown>) => r.seller_id as string))]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: sellerProfiles } = sellerIds.length > 0
+    ? await (supabase.from('profiles') as any).select('id, full_name, role').in('id', sellerIds)
+    : { data: [] }
+  const sellerName: Record<string, string> = Object.fromEntries(
+    ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.full_name ?? ''])
+  )
+  const sellerRole: Record<string, string> = Object.fromEntries(
+    ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dbBuilds: FeaturedBuild[] = (bikeRows ?? []).map((r: any) => {
+    const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+    return {
+      slug:    r.id as string,
+      href:    `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
+      title:   r.title as string,
+      style:   STYLE_LABELS[r.style] ?? (r.style as string),
+      base:    `${r.make} ${r.model}`,
+      builder: sellerName[r.seller_id] ?? '',
+      city:    (r.city as string) ?? '',
+      img:     cover,
+      role:    sellerRole[r.seller_id] ?? 'rider',
+    }
+  })
+
+  // Fill with fallbacks if fewer than 6 DB bikes
+  const BUILDS: FeaturedBuild[] = dbBuilds.length >= 6
+    ? dbBuilds
+    : [...dbBuilds, ...FALLBACK_BUILDS.slice(dbBuilds.length)]
+
+  // ── Fetch the 10 most recently added workshops from DB ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRows } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
@@ -185,8 +239,8 @@ export default async function LandingPage() {
           </AnimateIn>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {BUILDS.map((build, i) => (
-              <AnimateIn key={build.title} delay={i * 60}>
-                <Link href={`/custom-bike/${build.slug}`}
+              <AnimateIn key={build.slug} delay={i * 60}>
+                <Link href={build.href ?? `/custom-bike/${build.slug}`}
                   className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200 h-full">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image src={build.img} alt={build.title}
@@ -195,6 +249,11 @@ export default async function LandingPage() {
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
+                    {build.role && (
+                      <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        {build.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
+                      </span>
+                    )}
                   </div>
                   <div className="p-3 sm:p-4">
                     <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{build.title}</h3>
