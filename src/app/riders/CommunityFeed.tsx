@@ -49,6 +49,8 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   const [topic, setTopic] = useState<Topic | null>(null)
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const canPost = !!userId
@@ -195,10 +197,25 @@ export default function CommunityFeed({ userId, userRole }: Props) {
   }
 
   async function handleDelete(postId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('community_posts') as any).delete().eq('id', postId)
+    setDeleteTarget(null)
+    const deletedPost = posts.find(p => p.id === postId)
     setPosts(prev => prev.filter(p => p.id !== postId))
+    try {
+      const res = await fetch(`/api/community-posts/${postId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error()
+    } catch {
+      if (deletedPost) setPosts(prev => [...prev, deletedPost].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+      setDeleteError('Beitrag konnte nicht gelöscht werden.')
+      setTimeout(() => setDeleteError(null), 4000)
+    }
   }
+
+  useEffect(() => {
+    if (!deleteTarget) return
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setDeleteTarget(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [deleteTarget])
 
   const visiblePosts = filter ? posts.filter(p => p.topic === filter) : posts
 
@@ -374,10 +391,56 @@ export default function CommunityFeed({ userId, userRole }: Props) {
             userId={userId}
             userRole={userRole}
             onLike={() => handleLike(post)}
-            onDelete={() => handleDelete(post.id)}
+            onDelete={() => setDeleteTarget(post.id)}
           />
         ))
       )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 animate-[fadeIn_150ms_ease]"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="text-base font-bold text-[#222222] mb-2">Beitrag löschen</h3>
+            <p className="text-sm text-[#717171] mb-6">
+              Möchtest du diesen Beitrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl border border-[#EBEBEB] text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={() => handleDelete(deleteTarget)}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl bg-[#EF4444] text-white hover:bg-[#DC2626] transition-colors"
+              >
+                Löschen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error toast */}
+      {deleteError && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#222222] text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg">
+          {deleteError}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -645,9 +708,9 @@ function PostCard({
         {(isOwn || isAdmin) && (
           <button
             onClick={onDelete}
-            className="w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-[#222222]/20 hover:text-red-400 transition-colors"
+            className="w-8 h-8 rounded-full bg-white border border-[#E5E5E5] shadow-sm flex items-center justify-center text-[#222222]/30 hover:bg-[#FEF2F2] hover:text-[#EF4444] hover:border-[#FECACA] transition-colors"
           >
-            <Trash2 size={13} />
+            <Trash2 size={14} />
           </button>
         )}
       </div>

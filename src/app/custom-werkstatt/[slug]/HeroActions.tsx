@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Star, Heart, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
+import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
@@ -112,7 +112,7 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
         aria-label={saved ? 'Gespeichert' : 'Speichern'}
       >
         {iconOnly
-          ? <Heart size={15} className={saved ? 'fill-white' : ''} />
+          ? <Star size={15} className={saved ? 'fill-white' : ''} />
           : <><Star size={13} className={saved ? 'fill-white' : ''} />{saved ? 'Gespeichert' : 'Speichern'}</>
         }
       </button>

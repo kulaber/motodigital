@@ -151,13 +151,13 @@ export default async function CustomBikePage({ params }: Props) {
     return (
       <div className="min-h-screen bg-white text-[#222222]">
         <Header activePage="bikes" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-6 pb-24">
           <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
             <ArrowLeft size={13} /> Custom Bikes
           </Link>
 
           {imageUrls.length > 0 ? (
-            <BuildGallery images={imageUrls} title={bike.title} />
+            <BuildGallery images={imageUrls} title={bike.title} bikeId={bike.id} />
           ) : (
             <div className="rounded-2xl bg-[#F7F7F7] aspect-video flex items-center justify-center text-[#AAAAAA] text-sm">
               Keine Fotos vorhanden
@@ -348,7 +348,7 @@ export default async function CustomBikePage({ params }: Props) {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="bikes" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-6 pb-24">
 
         {/* Back */}
         <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">

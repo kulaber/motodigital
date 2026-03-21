@@ -919,10 +919,10 @@ export default function BuilderPageClient({ builders }: Props) {
         </div>
       </div>
 
-      {/* ── Desktop: Split layout (List left 40% | Map right 60%) ── */}
+      {/* ── Desktop: Split layout (List left 50% | Map right 50%) ── */}
       <div className="hidden lg:flex" style={{ height: mapHeight }}>
         {/* LEFT — scrollable list */}
-        <div ref={listRef} className="w-[40%] overflow-y-scroll border-r border-[#EBEBEB]">
+        <div ref={listRef} className="w-1/2 overflow-y-scroll border-r border-[#EBEBEB]">
           <BuilderList
             builders={builders}
             visible={visible}
@@ -937,7 +937,7 @@ export default function BuilderPageClient({ builders }: Props) {
         </div>
 
         {/* RIGHT — map */}
-        <div ref={desktopMapSlot} className="w-[60%] relative p-3">
+        <div ref={desktopMapSlot} className="w-1/2 relative p-3">
           {selectedBuilder && (
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}
