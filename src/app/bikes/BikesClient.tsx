@@ -253,12 +253,11 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="relative flex-shrink-0">
               <button
                 onClick={() => setSortOpen(v => !v)}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222] transition-all"
+                className="flex items-center gap-1.5 text-xs font-semibold p-2 sm:px-4 sm:py-2 rounded-full border border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222] transition-all"
               >
-                <ArrowUpDown size={11} />
+                <ArrowUpDown size={13} className="sm:size-[11px]" />
                 <span className="hidden sm:inline">{SORT_LABELS[activeSort]}</span>
-                <span className="sm:hidden">Sortieren</span>
-                <ChevronDown size={11} className={`transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={11} className={`hidden sm:block transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
               </button>
               {sortOpen && (
                 <>
