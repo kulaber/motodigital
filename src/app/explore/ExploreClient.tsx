@@ -7,6 +7,7 @@ import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Tr
 import { createClient } from '@/lib/supabase/client'
 import MediaSlider from '@/components/bike/MediaSlider'
 import type { MediaItem } from '@/components/bike/MediaSlider'
+import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
 import { RIDERS } from '@/lib/data/riders'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
 import { EVENTS } from '@/lib/data/events'
@@ -117,6 +118,68 @@ function urlsToMediaItems(urls: string[]): MediaItem[] {
       position: i,
     }
   })
+}
+
+/* ── Mixed media slider (images + videos) ──────────────── */
+
+function PostMediaSlider({ items, alt }: { items: MediaItem[]; alt: string }) {
+  const [idx, setIdx] = useState(0)
+  const startX = useRef<number | null>(null)
+
+  const current = items[idx]
+  const multi = items.length > 1
+
+  function onTouchStart(e: React.TouchEvent) { startX.current = e.touches[0].clientX }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (startX.current === null) return
+    const dx = e.changedTouches[0].clientX - startX.current
+    startX.current = null
+    if (Math.abs(dx) < 40) return
+    setIdx(i => Math.max(0, Math.min(i + (dx < 0 ? 1 : -1), items.length - 1)))
+  }
+
+  return (
+    <div
+      className="relative w-full overflow-hidden bg-black select-none"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {current.media_type === 'video' ? (
+        <PostVideoPlayer url={current.url} thumbnail_url={current.thumbnail_url} alt={alt} />
+      ) : (
+        <div className="relative w-full aspect-video">
+          <Image src={current.url} alt={alt} fill sizes="(max-width: 640px) 100vw, 560px" className="object-cover" />
+        </div>
+      )}
+
+      {/* Navigation arrows */}
+      {multi && (
+        <>
+          {idx > 0 && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx(i => i - 1) }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full shadow flex items-center justify-center z-10"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M6.5 2L3.5 5l3 3" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+            </button>
+          )}
+          {idx < items.length - 1 && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx(i => i + 1) }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full shadow flex items-center justify-center z-10"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3.5 2L6.5 5l-3 3" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+            </button>
+          )}
+          <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1 pointer-events-none z-10">
+            {items.map((item, i) => (
+              <span key={item.id} className={`rounded-full transition-all ${i === idx ? 'w-[7px] h-[7px] bg-white' : 'w-[5px] h-[5px] bg-white/50'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 /* ── Feed: Community Post Card (user-generated) ────────── */
@@ -286,11 +349,36 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         )
       })()}
 
-      {imageUrls.length > 0 && (
-        <div className="mt-3 overflow-hidden group">
-          <MediaSlider items={urlsToMediaItems(imageUrls)} alt={post.author_name} aspectClass="aspect-video" />
-        </div>
-      )}
+      {imageUrls.length > 0 && (() => {
+        const mediaItems = urlsToMediaItems(imageUrls)
+        const hasVideo = mediaItems.some(m => m.media_type === 'video')
+
+        // Single video → use PostVideoPlayer with 2:3 aspect ratio
+        if (mediaItems.length === 1 && hasVideo) {
+          const item = mediaItems[0]
+          return (
+            <div className="mt-3 overflow-hidden">
+              <PostVideoPlayer url={item.url} thumbnail_url={item.thumbnail_url} alt={post.author_name} />
+            </div>
+          )
+        }
+
+        // Mixed or multi-item with video → use MediaSlider but swap video items to PostVideoPlayer
+        if (hasVideo) {
+          return (
+            <div className="mt-3 overflow-hidden">
+              <PostMediaSlider items={mediaItems} alt={post.author_name} />
+            </div>
+          )
+        }
+
+        // Images only → use MediaSlider with 16:9
+        return (
+          <div className="mt-3 overflow-hidden group">
+            <MediaSlider items={mediaItems} alt={post.author_name} aspectClass="aspect-video" />
+          </div>
+        )
+      })()}
 
       {/* Location map */}
       {post.latitude != null && post.longitude != null && (
@@ -414,6 +502,54 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       )}
     </div>
   )
+}
+
+/* ── Image compression (Canvas API) ────────────────────── */
+
+const MAX_LONG_EDGE = 1920
+const QUALITY = 0.82
+
+function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    // Skip non-image files
+    if (!file.type.startsWith('image/')) { resolve(file); return }
+
+    const img = new window.Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+
+      let { width, height } = img
+      const longEdge = Math.max(width, height)
+
+      // Only resize if larger than max
+      if (longEdge > MAX_LONG_EDGE) {
+        const scale = MAX_LONG_EDGE / longEdge
+        width = Math.round(width * scale)
+        height = Math.round(height * scale)
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, width, height)
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }))
+          } else {
+            resolve(file)
+          }
+        },
+        'image/webp',
+        QUALITY
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
+    img.src = objectUrl
+  })
 }
 
 /* ── Main component ────────────────────────────────────── */
@@ -573,7 +709,8 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
     setSubmitting(true)
 
     const uploadedUrls: string[] = []
-    for (const { file } of mediaFiles) {
+    for (const { file: rawFile } of mediaFiles) {
+      const file = await compressImage(rawFile)
       const ext = file.name.split('.').pop() ?? 'jpg'
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
