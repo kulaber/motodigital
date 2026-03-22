@@ -468,18 +468,11 @@ export default async function BuilderProfilePage({ params }: Props) {
                 <p className="text-xs text-[#717171] leading-relaxed mb-4">
                   Schreib direkt an {builder.name}.
                 </p>
-                {builder.id ? (
-                  <BuilderContactButton
-                    builderId={builder.id}
-                    builderFirstName={builder.name.split(' ')[0]}
-                    builderName={builder.name}
-                  />
-                ) : (
-                  <a href="/auth/login"
-                    className="block w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all">
-                    {builder.name} kontaktieren
-                  </a>
-                )}
+                <BuilderContactButton
+                  builderId={builder.id ?? ''}
+                  builderFirstName={builder.name.split(' ')[0]}
+                  builderName={builder.name}
+                />
               </div>
 
               {/* Opening hours */}
