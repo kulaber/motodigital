@@ -11,7 +11,7 @@ export default async function AdminCustomBikesPage() {
   // Fetch all bikes (all statuses)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, bike_images(url, is_cover)')
+    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .order('created_at', { ascending: false }) as {
       data: {
         id: string; title: string; make: string; model: string; year: number

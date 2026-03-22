@@ -33,7 +33,7 @@ export default async function MeinBikePage() {
 
   const { data: bikes } = await supabase
     .from('bikes')
-    .select('id, slug, title, make, model, year, status, created_at, bike_images(url, is_cover)')
+    .select('id, slug, title, make, model, year, status, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 

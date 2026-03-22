@@ -43,7 +43,7 @@ export default async function MarkeDetailPage({ params }: Props) {
   // Try with slug column first (new schema), fall back to without
   {
     const { data } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
+      .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .ilike('make', brand.name)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
@@ -51,7 +51,7 @@ export default async function MarkeDetailPage({ params }: Props) {
   }
   if (!dbBikes) {
     const { data } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, bike_images(url, is_cover, position)')
+      .select('id, title, make, model, year, style, city, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .ilike('make', brand.name)
       .eq('status', 'active')
       .order('created_at', { ascending: false })

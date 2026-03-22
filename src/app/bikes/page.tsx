@@ -23,7 +23,7 @@ export default async function BikesPage() {
   // Fetch all active bikes (werkstatt + rider)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(url, is_cover, position)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 

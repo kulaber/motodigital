@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, Calendar, Wrench, ArrowLeft } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
@@ -64,7 +64,7 @@ export default async function CustomBikePage({ params }: Props) {
   if (!build) {
     // Try loading from Supabase
     const supabase = await createClient()
-    const baseSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(url, is_cover, position)'
+    const baseSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bike: any = null
@@ -151,7 +151,6 @@ export default async function CustomBikePage({ params }: Props) {
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
     const sellerProfileHref = sellerProfile?.slug ? `/custom-werkstatt/${sellerProfile.slug}` : null
-    const price = bike.price ? `€ ${Number(bike.price).toLocaleString('de-DE')}` : null
     const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
     return (
@@ -181,23 +180,6 @@ export default async function CustomBikePage({ params }: Props) {
                 {bike.title}
               </h1>
               <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
-            </div>
-            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
-              {bike.city && (
-                <span className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
-                  <MapPin size={11} /> {bike.city}
-                </span>
-              )}
-              {bike.year && (
-                <span className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
-                  <Calendar size={11} /> {bike.year}
-                </span>
-              )}
-              {price && (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-[#222222] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
-                  {price}
-                </span>
-              )}
             </div>
           </div>
 
@@ -362,19 +344,6 @@ export default async function CustomBikePage({ params }: Props) {
             </h1>
             <p className="text-[#717171] text-sm">{build.tagline}</p>
           </div>
-
-          {/* Meta pills */}
-          <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
-            {[
-              { icon: <MapPin size={11} />, label: build.city },
-              { icon: <Calendar size={11} />, label: `Build ${build.buildYear}` },
-              { icon: <Wrench size={11} />, label: build.displacement },
-            ].map(m => (
-              <span key={m.label} className="flex items-center gap-1.5 text-xs text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
-                {m.icon} {m.label}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* Main content grid */}
@@ -500,7 +469,7 @@ async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; ex
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, city, slug, seller_id, bike_images(url, is_cover, position)')
+    .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(4)

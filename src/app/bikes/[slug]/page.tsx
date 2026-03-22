@@ -237,7 +237,7 @@ export default async function BikeSlugPage({ params }: Props) {
     .select(`
       id, title, make, model, year, style, city, price, description,
       cc, mileage_km, is_verified, view_count, created_at, seller_id, workshop_id, slug,
-      bike_images ( id, url, position, is_cover ),
+      bike_images ( id, url, position, is_cover, media_type, thumbnail_url ),
       profiles:seller_id ( id, username, full_name, avatar_url, is_verified, created_at ),
       workshops:workshop_id ( id, name, slug, logo_url, city, avg_rating )
     `)

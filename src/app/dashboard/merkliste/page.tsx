@@ -55,7 +55,7 @@ export default async function MerklistePage({
   const [savedBikesResult, savedBuildersResult] = await Promise.all([
     (supabase
       .from('saved_bikes')
-      .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(url, is_cover), profiles:seller_id(full_name, username))')
+      .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles:seller_id(full_name, username))')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBike[] | null }>),
     (supabase

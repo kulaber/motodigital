@@ -3,11 +3,17 @@
 import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight, ChevronDown, Plus } from 'lucide-react'
+import { Upload, X, ChevronRight, ChevronDown, Plus, Play } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 import { compressImage } from '@/lib/utils/compressImage'
+import { generateVideoThumbnail } from '@/lib/utils/videoThumbnail'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+
+const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024  // 10MB
+const MAX_MEDIA_COUNT = 10
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
@@ -30,8 +36,8 @@ export default function NewBikeForm() {
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
-  const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  type MediaFile = { file: File; preview: string; isVideo: boolean; thumbFile?: File }
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([])
   const dragIdx = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
@@ -105,34 +111,48 @@ export default function NewBikeForm() {
     }
   }
 
-  async function handleImages(files: FileList | null) {
+  async function handleMedia(files: FileList | null) {
     if (!files) return
-    const newFiles = Array.from(files).slice(0, 25 - imageFiles.length)
-    const compressed = await Promise.all(newFiles.map(f => compressImage(f)))
-    setImageFiles(prev => [...prev, ...compressed])
-    compressed.forEach(file => {
-      const reader = new FileReader()
-      reader.onload = e => setImagePreviews(prev => [...prev, e.target?.result as string])
-      reader.readAsDataURL(file)
+    const incoming = Array.from(files).slice(0, MAX_MEDIA_COUNT - mediaFiles.length)
+    const newItems: MediaFile[] = []
+
+    for (const file of incoming) {
+      const isVideo = VIDEO_TYPES.includes(file.type)
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        toastError(`Video "${file.name}" ist zu groß (max. 100 MB)`)
+        continue
+      }
+      if (!isVideo && file.size > MAX_IMAGE_SIZE) {
+        toastError(`Bild "${file.name}" ist zu groß (max. 10 MB)`)
+        continue
+      }
+
+      const processed = isVideo ? file : await compressImage(file)
+      const preview = URL.createObjectURL(processed)
+      let thumbFile: File | undefined
+      if (isVideo) {
+        try { thumbFile = await generateVideoThumbnail(file) } catch { /* ignore */ }
+      }
+      newItems.push({ file: processed, preview, isVideo, thumbFile })
+    }
+
+    setMediaFiles(prev => [...prev, ...newItems])
+  }
+
+  function removeMedia(i: number) {
+    setMediaFiles(prev => {
+      URL.revokeObjectURL(prev[i].preview)
+      return prev.filter((_, idx) => idx !== i)
     })
   }
 
-  function removeImage(i: number) {
-    setImageFiles(prev => prev.filter((_, idx) => idx !== i))
-    setImagePreviews(prev => prev.filter((_, idx) => idx !== i))
-  }
-
-  function handleImageDrop(toIdx: number) {
+  function handleMediaDrop(toIdx: number) {
     if (dragIdx.current === null || dragIdx.current === toIdx) { setDragOverIdx(null); return }
     const from = dragIdx.current
-    const reorderFiles = [...imageFiles]
-    const reorderPreviews = [...imagePreviews]
-    const [movedFile] = reorderFiles.splice(from, 1)
-    const [movedPreview] = reorderPreviews.splice(from, 1)
-    reorderFiles.splice(toIdx, 0, movedFile)
-    reorderPreviews.splice(toIdx, 0, movedPreview)
-    setImageFiles(reorderFiles)
-    setImagePreviews(reorderPreviews)
+    const arr = [...mediaFiles]
+    const [moved] = arr.splice(from, 1)
+    arr.splice(toIdx, 0, moved)
+    setMediaFiles(arr)
     setDragOverIdx(null)
     dragIdx.current = null
   }
@@ -177,8 +197,8 @@ export default function NewBikeForm() {
       return
     }
 
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i]
+    for (let i = 0; i < mediaFiles.length; i++) {
+      const { file, isVideo, thumbFile } = mediaFiles[i]
       const ext = file.name.split('.').pop()
       const path = `${user.id}/${bike.id}/${i}.${ext}`
       const { data: upload } = await supabase.storage
@@ -186,12 +206,27 @@ export default function NewBikeForm() {
         .upload(path, file, { upsert: true })
       if (upload) {
         const { data: urlData } = supabase.storage.from('bike-images').getPublicUrl(path)
+
+        // Upload thumbnail for videos
+        let thumbnailUrl: string | null = null
+        if (isVideo && thumbFile) {
+          const thumbPath = `${user.id}/${bike.id}/${i}_thumb.jpg`
+          const { data: thumbUpload } = await supabase.storage
+            .from('bike-images')
+            .upload(thumbPath, thumbFile, { upsert: true })
+          if (thumbUpload) {
+            thumbnailUrl = supabase.storage.from('bike-images').getPublicUrl(thumbPath).data.publicUrl
+          }
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('bike_images') as any).insert({
-          bike_id:  bike.id,
-          url:      urlData.publicUrl,
-          position: i,
-          is_cover: i === 0,
+          bike_id:       bike.id,
+          url:           urlData.publicUrl,
+          position:      i,
+          is_cover:      i === 0,
+          media_type:    isVideo ? 'video' : 'image',
+          thumbnail_url: thumbnailUrl,
         })
       }
     }
@@ -462,41 +497,56 @@ export default function NewBikeForm() {
         <div className="flex flex-col gap-6 animate-fade-in">
 
           <div>
-            <label className={labelClass}>Fotos (max. 25)</label>
-            <p className="text-xs text-[#222222]/30 mb-3">Für eine optimale Darstellung, mindestens drei Fotos hochladen. Maximal 25 Fotos.</p>
+            <label className={labelClass}>Medien (max. {MAX_MEDIA_COUNT})</label>
+            <p className="text-xs text-[#222222]/30 mb-3">Fotos und Videos hochladen. Maximal {MAX_MEDIA_COUNT} Dateien (Bilder max. 10 MB, Videos max. 100 MB).</p>
             <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#DDDDDD]/40 rounded-2xl p-8 text-center cursor-pointer transition-colors group">
-              <input type="file" accept="image/*" multiple className="sr-only"
-                onChange={e => handleImages(e.target.files)} />
+              <input type="file" accept="image/*,video/mp4,video/webm,video/quicktime" multiple className="sr-only"
+                onChange={e => handleMedia(e.target.files)} />
               <Upload size={24} className="mx-auto mb-3 text-[#222222]/20 group-hover:text-[#717171] transition-colors" />
               <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">
-                Fotos auswählen oder hierher ziehen
+                Fotos oder Videos auswählen
               </p>
-              <p className="text-xs text-[#222222]/20 mt-1">JPG, PNG, WebP — max. 10 MB pro Bild</p>
+              <p className="text-xs text-[#222222]/20 mt-1">JPG, PNG, WebP, MP4, WebM — max. 10 MB / 100 MB</p>
             </label>
 
-            {imagePreviews.length > 0 && (
+            {mediaFiles.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3">
-                {imagePreviews.map((src, i) => (
+                {mediaFiles.map((item, i) => (
                   <div
                     key={i}
                     draggable
                     onDragStart={() => { dragIdx.current = i }}
                     onDragOver={e => { e.preventDefault(); setDragOverIdx(i) }}
                     onDragLeave={() => setDragOverIdx(null)}
-                    onDrop={() => handleImageDrop(i)}
+                    onDrop={() => handleMediaDrop(i)}
                     onDragEnd={() => { dragIdx.current = null; setDragOverIdx(null) }}
                     className={`relative aspect-square rounded-xl overflow-hidden bg-white border transition-all cursor-grab active:cursor-grabbing group ${
                       dragOverIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
                     }`}
                   >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    {item.isVideo ? (
+                      <>
+                        {item.thumbFile ? (
+                          <img src={URL.createObjectURL(item.thumbFile)} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={item.preview} className="w-full h-full object-cover" muted preload="metadata" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-8 h-8 bg-black/40 rounded-full flex items-center justify-center">
+                            <Play size={14} className="text-white ml-0.5" fill="white" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <img src={item.preview} alt="" className="w-full h-full object-cover" />
+                    )}
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                         Cover
                       </span>
                     )}
                     <button
-                      onClick={() => removeImage(i)}
+                      onClick={() => removeMedia(i)}
                       className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X size={10} className="text-[#222222]" />
@@ -531,7 +581,7 @@ export default function NewBikeForm() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Fotos</span>
-                <span className="text-[#222222]">{imageFiles.length} hochgeladen</span>
+                <span className="text-[#222222]">{mediaFiles.length} hochgeladen</span>
               </div>
             </div>
           </div>

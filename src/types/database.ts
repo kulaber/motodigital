@@ -135,8 +135,10 @@ export interface Database {
           url: string
           position: number
           is_cover: boolean
+          media_type: 'image' | 'video'
+          thumbnail_url: string | null
         }
-        Insert: Omit<Database['public']['Tables']['bike_images']['Row'], 'id'> & { id?: string }
+        Insert: Omit<Database['public']['Tables']['bike_images']['Row'], 'id' | 'media_type'> & { id?: string; media_type?: 'image' | 'video' }
         Update: Partial<Database['public']['Tables']['bike_images']['Insert']>
       }
       conversations: {

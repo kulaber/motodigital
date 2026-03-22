@@ -3,10 +3,16 @@
 import { useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight, ChevronDown, Plus } from 'lucide-react'
+import { Upload, X, ChevronRight, ChevronDown, Plus, Play } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
+import { generateVideoThumbnail } from '@/lib/utils/videoThumbnail'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+
+const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024  // 10MB
+const MAX_MEDIA_COUNT = 10
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -27,7 +33,7 @@ const inputClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 p
 const selectClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-10 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors appearance-none cursor-pointer'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ExistingImage = { id: string; url: string; is_cover: boolean; position: number }
+type ExistingImage = { id: string; url: string; is_cover: boolean; position: number; media_type?: 'image' | 'video'; thumbnail_url?: string | null }
 
 type BikeData = {
   id: string; slug: string | null; title: string; make: string; model: string; year: number
@@ -112,7 +118,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     if (b.is_cover) return 1
     return a.position - b.position
   })
-  type GalleryItem = { type: 'existing'; img: ExistingImage } | { type: 'new'; file: File; preview: string }
+  type GalleryItem = { type: 'existing'; img: ExistingImage } | { type: 'new'; file: File; preview: string; isVideo: boolean; thumbFile?: File }
   const [gallery, setGallery] = useState<GalleryItem[]>(sorted.map(img => ({ type: 'existing', img })))
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([])
   const [status, setStatus] = useState<'active' | 'draft'>(bike.status)
@@ -120,15 +126,29 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const dragIdx = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
-  async function handleAddImages(files: FileList | null) {
+  async function handleAddMedia(files: FileList | null) {
     if (!files) return
-    const add = Array.from(files).slice(0, 25 - gallery.length)
-    const compressed = await Promise.all(add.map(f => compressImage(f)))
-    const newItems: GalleryItem[] = compressed.map(file => ({
-      type: 'new',
-      file,
-      preview: URL.createObjectURL(file),
-    }))
+    const incoming = Array.from(files).slice(0, MAX_MEDIA_COUNT - gallery.length)
+    const newItems: GalleryItem[] = []
+
+    for (const file of incoming) {
+      const isVideo = VIDEO_TYPES.includes(file.type)
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        toastError(`Video "${file.name}" ist zu groß (max. 100 MB)`)
+        continue
+      }
+      if (!isVideo && file.size > MAX_IMAGE_SIZE) {
+        toastError(`Bild "${file.name}" ist zu groß (max. 10 MB)`)
+        continue
+      }
+      const processed = isVideo ? file : await compressImage(file)
+      let thumbFile: File | undefined
+      if (isVideo) {
+        try { thumbFile = await generateVideoThumbnail(file) } catch { /* ignore */ }
+      }
+      newItems.push({ type: 'new', file: processed, preview: URL.createObjectURL(processed), isVideo, thumbFile })
+    }
+
     setGallery(p => [...p, ...newItems])
   }
 
@@ -191,9 +211,24 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         const { data: upload } = await supabase.storage.from('bike-images').upload(path, item.file, { upsert: true })
         if (upload) {
           const { data: { publicUrl } } = supabase.storage.from('bike-images').getPublicUrl(path)
+
+          // Upload thumbnail for videos
+          let thumbnailUrl: string | null = null
+          if (item.isVideo && item.thumbFile) {
+            const thumbPath = `${user.id}/${bike.id}/${Date.now()}-${i}_thumb.jpg`
+            const { data: thumbUpload } = await supabase.storage
+              .from('bike-images')
+              .upload(thumbPath, item.thumbFile, { upsert: true })
+            if (thumbUpload) {
+              thumbnailUrl = supabase.storage.from('bike-images').getPublicUrl(thumbPath).data.publicUrl
+            }
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase.from('bike_images') as any).insert({
             bike_id: bike.id, url: publicUrl, position: i, is_cover: i === 0,
+            media_type: item.isVideo ? 'video' : 'image',
+            thumbnail_url: thumbnailUrl,
           })
         }
       }
@@ -408,12 +443,16 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
 
           {/* Unified gallery */}
           <div>
-            <label className={labelClass}>Fotos — ziehen zum Sortieren (max. 25)</label>
-            <p className="text-xs text-[#222222]/30 mb-3">Für eine optimale Darstellung, mindestens drei Fotos hochladen. Maximal 25 Fotos.</p>
+            <label className={labelClass}>Medien — ziehen zum Sortieren (max. {MAX_MEDIA_COUNT})</label>
+            <p className="text-xs text-[#222222]/30 mb-3">Fotos und Videos hochladen. Maximal {MAX_MEDIA_COUNT} Dateien (Bilder max. 10 MB, Videos max. 100 MB).</p>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
               {gallery.map((item, i) => {
-                const src = item.type === 'existing' ? item.img.url : item.preview
+                const isExisting = item.type === 'existing'
+                const isVideo = isExisting
+                  ? item.img.media_type === 'video'
+                  : item.isVideo
+                const src = isExisting ? item.img.url : item.preview
                 const isNew = item.type === 'new'
                 return (
                   <div
@@ -428,7 +467,24 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                       dragOverIdx === i ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/8'
                     }`}
                   >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    {isVideo ? (
+                      <>
+                        {isExisting && item.img.thumbnail_url ? (
+                          <img src={item.img.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                        ) : !isExisting && item.thumbFile ? (
+                          <img src={URL.createObjectURL(item.thumbFile)} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={src} className="w-full h-full object-cover" muted preload="metadata" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-8 h-8 bg-black/40 rounded-full flex items-center justify-center">
+                            <Play size={14} className="text-white ml-0.5" fill="white" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                    )}
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">
                         Cover
@@ -448,13 +504,13 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               })}
             </div>
 
-            {gallery.length < 25 && (
+            {gallery.length < MAX_MEDIA_COUNT && (
               <label className="block border-2 border-dashed border-[#222222]/10 hover:border-[#06a5a5]/40 rounded-2xl p-6 text-center cursor-pointer transition-colors group">
-                <input type="file" accept="image/*" multiple className="sr-only"
-                  onChange={e => handleAddImages(e.target.files)} />
+                <input type="file" accept="image/*,video/mp4,video/webm,video/quicktime" multiple className="sr-only"
+                  onChange={e => handleAddMedia(e.target.files)} />
                 <Upload size={22} className="mx-auto mb-2 text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors" />
-                <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">Fotos hinzufügen</p>
-                <p className="text-xs text-[#222222]/20 mt-0.5">JPG, PNG, WebP</p>
+                <p className="text-sm text-[#222222]/40 group-hover:text-[#222222]/60 transition-colors">Fotos oder Videos hinzufügen</p>
+                <p className="text-xs text-[#222222]/20 mt-0.5">JPG, PNG, WebP, MP4, WebM</p>
               </label>
             )}
           </div>
@@ -481,7 +537,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                 { label: 'Stil', value: STYLES.find(s => s.value === style)?.label ?? null },
                 { label: 'Kilometerstand', value: mileage ? `${parseInt(mileage).toLocaleString('de-DE')} km` : null },
                 { label: 'Umbauten', value: modifications.length ? `${modifications.length} eingetragen` : null },
-                { label: 'Fotos', value: gallery.length ? `${gallery.length} Bilder` : null },
+                { label: 'Medien', value: gallery.length ? `${gallery.length} Dateien` : null },
               ].filter(row => row.value !== null).map(row => (
                 <div key={row.label} className="flex justify-between">
                   <span className="text-[#222222]/40">{row.label}</span>

@@ -1,14 +1,15 @@
 import Link from 'next/link'
 import { MapPin, BadgeCheck } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
-import SwipeableImages from '@/components/ui/SwipeableImages'
+import MediaSlider from './MediaSlider'
+import type { MediaItem } from './MediaSlider'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type Bike = Pick<BikeRow, 'id' | 'title' | 'price' | 'style' | 'year' | 'city' | 'mileage_km' | 'is_verified'> & {
   slug?: string | null
-  bike_images?: { url: string; is_cover: boolean }[]
+  bike_images?: { id?: string; url: string; is_cover: boolean; media_type?: 'image' | 'video'; thumbnail_url?: string | null; position?: number }[]
 }
 
 interface Props {
@@ -25,10 +26,18 @@ const STYLE_LABELS: Record<string, string> = {
 export default function BikeCard({ bike, highlighted = false }: Props) {
   const bikeHref = `/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`
   const images = bike.bike_images ?? []
-  const sorted = [
+
+  // Sort: cover first, then by position
+  const sorted: MediaItem[] = [
     ...images.filter(i => i.is_cover),
     ...images.filter(i => !i.is_cover),
-  ].map(i => ({ url: i.url, alt: bike.title }))
+  ].map((i, idx) => ({
+    id: i.id ?? `img-${idx}`,
+    url: i.url,
+    thumbnail_url: i.thumbnail_url ?? null,
+    media_type: i.media_type ?? 'image',
+    position: i.position ?? idx,
+  }))
 
   return (
     <div className={`
@@ -39,11 +48,11 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
         : 'border-[#222222]/6 hover:border-[#222222]/15'
       }
     `}>
-      {/* Swipeable gallery — outside Link so touch events work */}
+      {/* Media slider — outside Link so touch/video events work */}
       <Link href={bikeHref} className="block relative">
         {sorted.length > 0 ? (
           <div className="relative">
-            <SwipeableImages images={sorted} aspectClass="aspect-[4/3]" />
+            <MediaSlider items={sorted} alt={`${bike.title}`} />
             {/* Style tag */}
             <span className="absolute top-2.5 left-2.5 bg-white/75 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full pointer-events-none z-10">
               {STYLE_LABELS[bike.style] ?? bike.style}
@@ -55,7 +64,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
             )}
           </div>
         ) : (
-          <div className="aspect-[4/3] bg-[#F7F7F7] flex items-center justify-center rounded-t-2xl">
+          <div className="aspect-[4/5] bg-[#F7F7F7] flex items-center justify-center rounded-t-2xl">
             <svg width="48" height="34" viewBox="0 0 48 34" fill="none">
               <circle cx="8" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>
               <circle cx="40" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>

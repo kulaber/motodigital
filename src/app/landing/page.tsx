@@ -83,7 +83,7 @@ export default async function LandingPage() {
   // ── Fetch the 6 newest active bikes ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikeRows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, city, slug, seller_id, bike_images(url, is_cover, position)')
+    .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(6)
