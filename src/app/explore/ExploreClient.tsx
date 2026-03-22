@@ -3,17 +3,20 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Bookmark, MessageCircle, ChevronRight, Clock, Users, Send, ImageIcon, Video, X, Plus, Heart, Calendar, ExternalLink, ChevronDown } from 'lucide-react'
+import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { BUILDS, type Build } from '@/lib/data/builds'
-import { EVENTS, type Event } from '@/lib/data/events'
+import MediaSlider from '@/components/bike/MediaSlider'
+import type { MediaItem } from '@/components/bike/MediaSlider'
 import { RIDERS } from '@/lib/data/riders'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
 import { formatRelativeTime } from '@/lib/utils'
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
+import { useToast, ToastContainer } from '@/components/ui/Toast'
+import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 
 /* ── Types ─────────────────────────────────────────────── */
 
-type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-suche'
+type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-suche' | 'in-der-naehe'
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'alle', label: 'Alle' },
@@ -21,6 +24,7 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'events', label: 'Events' },
   { value: 'hilfe', label: 'Hilfe' },
   { value: 'biete-suche', label: 'Biete/Suche' },
+  { value: 'in-der-naehe', label: 'In der Nähe' },
 ]
 
 // Composer tags include "Allgemein" + all filter categories except "Alle"
@@ -35,133 +39,18 @@ interface CommunityPost {
   media_urls: string[]
   created_at: string
   topic: Category | null
-  event_slug: string | null
   user_id: string
   author_name: string
   author_initials: string
   author_avatar: string | null
   likes_count: number
   liked_by_me: boolean
+  latitude: number | null
+  longitude: number | null
+  location_name: string | null
 }
 
-interface PartItem {
-  id: string
-  kind: 'suche' | 'biete'
-  title: string
-  description: string
-  userName: string
-  userInitials: string
-  userAvatar?: string
-  city: string
-  createdAt: string
-}
-
-interface WorkshopPost {
-  id: string
-  workshopName: string
-  workshopSlug: string
-  workshopInitials: string
-  workshopAvatar?: string
-  city: string
-  body: string
-  imageUrl?: string
-  createdAt: string
-}
-
-type FeedItem =
-  | { type: 'build'; data: Build; sortDate: string }
-  | { type: 'event'; data: Event; sortDate: string }
-  | { type: 'part'; data: PartItem; sortDate: string }
-  | { type: 'workshop-post'; data: WorkshopPost; sortDate: string }
-  | { type: 'community'; data: CommunityPost; sortDate: string }
-
-/* ── Mock data ─────────────────────────────────────────── */
-
-const PARTS: PartItem[] = [
-  {
-    id: 'p1',
-    kind: 'biete',
-    title: 'Mikuni VM32 Vergaser-Set (4x)',
-    description: 'Komplett überholt, passt auf Honda CB500/550. Düsensatz inklusive.',
-    userName: 'Lukas Bauer',
-    userInitials: 'LB',
-    userAvatar: RIDERS[0].avatar,
-    city: 'Berlin',
-    createdAt: '2026-03-19T14:00:00Z',
-  },
-  {
-    id: 'p2',
-    kind: 'suche',
-    title: 'Öhlins Federbeine für BMW R80',
-    description: 'Suche passende Öhlins Federbeine (340mm) für meinen R80 Bobber-Umbau.',
-    userName: 'Felix Hoffmann',
-    userInitials: 'FH',
-    userAvatar: RIDERS[2].avatar,
-    city: 'München',
-    createdAt: '2026-03-18T09:30:00Z',
-  },
-  {
-    id: 'p3',
-    kind: 'biete',
-    title: 'Motogadget m.unit blue',
-    description: 'Neu & originalverpackt. Habe doppelt bestellt — Neupreis 299 €, VB 220 €.',
-    userName: 'Sarah Klein',
-    userInitials: 'SK',
-    userAvatar: RIDERS[3].avatar,
-    city: 'Köln',
-    createdAt: '2026-03-17T16:45:00Z',
-  },
-]
-
-const WORKSHOP_POSTS: WorkshopPost[] = [
-  {
-    id: 'wp1',
-    workshopName: 'Jakob Kraft',
-    workshopSlug: 'jakob-kraft',
-    workshopInitials: 'JK',
-    workshopAvatar: BUILDERS[0].team?.[0]?.avatar,
-    city: 'Berlin',
-    body: 'Der neue SR500 Tracker ist endlich fertig! 8 Monate Arbeit, komplett handgefertigt. Danke an alle, die uns auf dem Weg begleitet haben.',
-    imageUrl: BUILDS[0].coverImg,
-    createdAt: '2026-03-21T08:00:00Z',
-  },
-  {
-    id: 'wp2',
-    workshopName: 'Max Steiner',
-    workshopSlug: 'max-steiner',
-    workshopInitials: 'MS',
-    workshopAvatar: BUILDERS[1].team?.[0]?.avatar,
-    city: 'München',
-    body: 'Samstag ist Open-Garage-Day! Kommt vorbei, schaut euch die aktuellen Projekte an und trinkt einen Kaffee mit uns. Ab 11 Uhr geht\'s los.',
-    createdAt: '2026-03-20T16:00:00Z',
-  },
-  {
-    id: 'wp3',
-    workshopName: 'Studio Nord',
-    workshopSlug: 'studio-nord',
-    workshopInitials: 'SN',
-    workshopAvatar: BUILDERS[2].team?.[0]?.avatar,
-    city: 'Hamburg',
-    body: 'Neues Projekt gestartet: Kawasaki Z650 Tracker-Umbau für einen Kunden aus Kiel. Updates folgen hier!',
-    imageUrl: BUILDS[3]?.coverImg,
-    createdAt: '2026-03-19T11:00:00Z',
-  },
-]
-
-const BUILD_DATES = [
-  '2026-03-20T10:00:00Z', '2026-03-17T15:00:00Z', '2026-03-14T12:00:00Z',
-  '2026-03-11T08:00:00Z', '2026-03-08T18:00:00Z', '2026-03-05T11:00:00Z',
-]
-const EVENT_DATES = [
-  '2026-03-21T09:00:00Z', '2026-03-16T14:00:00Z', '2026-03-13T10:00:00Z',
-  '2026-03-09T16:00:00Z', '2026-03-06T12:00:00Z', '2026-03-03T09:00:00Z',
-]
-
-function seedNum(str: string, max: number, offset = 0): number {
-  let h = 0
-  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0
-  return Math.abs(h + offset) % max
-}
+/* ── Sidebar: Workshop list item ───────────────────────── */
 
 /* ── Sidebar: Workshop list item ───────────────────────── */
 
@@ -207,176 +96,22 @@ function RiderItem({ rider }: { rider: typeof RIDERS[number] }) {
   )
 }
 
-/* ── Feed: Build / Projekt Card ────────────────────────── */
+/* ── Helper: convert media URLs to MediaSlider items ───── */
 
-function BuildCard({ build }: { build: Build }) {
-  const saves = 5 + seedNum(build.slug, 45)
-  const comments = seedNum(build.slug, 20, 7)
+const VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.m4v']
 
-  return (
-    <div className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden hover:shadow-[0_2px_16px_rgba(0,0,0,0.08)] transition-shadow">
-      <div className="relative aspect-video overflow-hidden">
-        <Image
-          src={build.coverImg}
-          alt={build.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 600px"
-          className="object-cover hover:scale-[1.03] transition-transform duration-500"
-        />
-        <div className="absolute top-3 left-3">
-          <span className="px-2.5 py-1 text-[11px] font-semibold bg-[#06a5a5] text-white rounded-full">
-            {build.style}
-          </span>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <h3 className="font-bold text-[#222222] text-base mb-1">{build.title}</h3>
-        <div className="flex items-center gap-1.5 text-xs text-[#717171] mb-2">
-          <MapPin size={12} />
-          <span>{build.city}, {build.country}</span>
-        </div>
-        <p className="text-sm text-[#717171] line-clamp-2 mb-3">{build.tagline}</p>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#F0F0F0] flex items-center justify-center text-[10px] font-bold text-[#222222]/40">
-              {build.builder.initials}
-            </div>
-            <span className="text-xs text-[#717171]">{build.builder.name}</span>
-          </div>
-          <div className="flex items-center gap-3 text-[#B0B0B0]">
-            <span className="flex items-center gap-1 text-xs">
-              <Bookmark size={13} /> {saves}
-            </span>
-            <span className="flex items-center gap-1 text-xs">
-              <MessageCircle size={13} /> {comments}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── Feed: Workshop Post Card ──────────────────────────── */
-
-function WorkshopPostCard({ post }: { post: WorkshopPost }) {
-  return (
-    <div className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden">
-      <div className="flex items-center gap-3 p-4 pb-0">
-        <Link href={`/custom-werkstatt/${post.workshopSlug}`} className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-[#F0F0F0] flex items-center justify-center overflow-hidden">
-            {post.workshopAvatar ? (
-              <Image src={post.workshopAvatar} alt={post.workshopName} width={40} height={40} className="object-cover w-full h-full" />
-            ) : (
-              <span className="text-xs font-bold text-[#222222]/40">{post.workshopInitials}</span>
-            )}
-          </div>
-        </Link>
-        <div className="min-w-0">
-          <Link href={`/custom-werkstatt/${post.workshopSlug}`} className="text-sm font-semibold text-[#222222] hover:text-[#06a5a5] transition-colors truncate block leading-tight">
-            {post.workshopName}
-          </Link>
-          <p className="text-[11px] text-[#717171]">Custom Werkstatt · {post.city}</p>
-        </div>
-        <span className="ml-auto text-[11px] text-[#B0B0B0] whitespace-nowrap">{formatRelativeTime(post.createdAt)}</span>
-      </div>
-
-      <div className="px-4 pt-3 pb-4">
-        <p className="text-sm text-[#222222] leading-relaxed">{post.body}</p>
-      </div>
-
-      {post.imageUrl && (
-        <div className="relative aspect-video overflow-hidden">
-          <Image src={post.imageUrl} alt="" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ── Feed: Event Card ──────────────────────────────────── */
-
-function EventCard({ event }: { event: Event }) {
-  const participants = 12 + event.id * 5
-
-  return (
-    <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
-      <div className="flex items-start justify-between mb-2">
-        <span className="px-2.5 py-1 text-[11px] font-semibold bg-violet-50 text-violet-600 rounded-full">
-          Event
-        </span>
-      </div>
-
-      <h3 className="font-bold text-[#222222] text-base mb-1">{event.name}</h3>
-
-      <div className="flex items-center gap-4 text-xs text-[#717171] mb-2">
-        <span className="flex items-center gap-1.5">
-          <Clock size={12} /> {event.date}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <MapPin size={12} /> {event.location}
-        </span>
-      </div>
-
-      <p className="text-sm text-[#717171] line-clamp-2 mb-3">{event.description}</p>
-
-      <div className="flex items-center gap-2.5">
-        <div className="flex -space-x-2">
-          {RIDERS.slice(0, 4).map((r, i) => (
-            <div key={i} className="w-7 h-7 rounded-full border-2 border-white overflow-hidden bg-[#F0F0F0] flex-shrink-0">
-              {r.avatar ? (
-                <Image src={r.avatar} alt={r.name} width={28} height={28} className="object-cover w-full h-full" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">{r.initials}</div>
-              )}
-            </div>
-          ))}
-        </div>
-        <span className="text-xs text-[#717171] flex items-center gap-1">
-          <Users size={12} /> {participants} Teilnehmer
-        </span>
-      </div>
-    </div>
-  )
-}
-
-/* ── Feed: Teile Card ──────────────────────────────────── */
-
-function PartCard({ part }: { part: PartItem }) {
-  const isBiete = part.kind === 'biete'
-
-  return (
-    <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`px-2.5 py-1 text-[11px] font-semibold rounded-full ${
-          isBiete
-            ? 'bg-emerald-50 text-emerald-600'
-            : 'bg-amber-50 text-amber-600'
-        }`}>
-          {isBiete ? 'Biete' : 'Suche'}
-        </span>
-      </div>
-
-      <h3 className="font-semibold text-[#222222] text-sm mb-1">{part.title}</h3>
-      <p className="text-sm text-[#717171] line-clamp-2 mb-3">{part.description}</p>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full overflow-hidden bg-[#F0F0F0] flex-shrink-0">
-            {part.userAvatar ? (
-              <Image src={part.userAvatar} alt={part.userName} width={24} height={24} className="object-cover w-full h-full" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">{part.userInitials}</div>
-            )}
-          </div>
-          <span className="text-xs text-[#717171]">{part.userName}</span>
-        </div>
-        <span className="text-[11px] text-[#B0B0B0]">{formatRelativeTime(part.createdAt)}</span>
-      </div>
-    </div>
-  )
+function urlsToMediaItems(urls: string[]): MediaItem[] {
+  return urls.filter(Boolean).map((url, i) => {
+    const lower = url.toLowerCase()
+    const isVideo = VIDEO_EXTS.some(ext => lower.includes(ext))
+    return {
+      id: `media-${i}-${url.slice(-12)}`,
+      url,
+      thumbnail_url: null,
+      media_type: isVideo ? 'video' as const : 'image' as const,
+      position: i,
+    }
+  })
 }
 
 /* ── Feed: Community Post Card (user-generated) ────────── */
@@ -390,7 +125,7 @@ interface Comment {
   user_avatar: string | null
 }
 
-function CommunityPostCard({ post, onLike, loggedIn, userId }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null }) {
+function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void }) {
   const [commentInputOpen, setCommentInputOpen] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -503,6 +238,16 @@ function CommunityPostCard({ post, onLike, loggedIn, userId }: { post: Community
             {tagLabel}
           </span>
         )}
+        {isSuperadmin && onDelete && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDelete() }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+            title="Beitrag löschen"
+          >
+            <Trash2 size={15} />
+          </button>
+        )}
       </div>
 
       {post.body && (
@@ -511,51 +256,29 @@ function CommunityPostCard({ post, onLike, loggedIn, userId }: { post: Community
         </div>
       )}
 
-      {/* Event link */}
-      {post.event_slug && (() => {
-        const ev = EVENTS.find(e => e.slug === post.event_slug)
-        if (!ev) return null
-        const participants = 12 + ev.id * 5
-        return (
-          <div className="mx-4 mt-3">
-            <a
-              href={`/events/${ev.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block p-3 rounded-xl border border-[#222222]/6 hover:border-[#06a5a5]/30 hover:bg-[#06a5a5]/3 transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
-                  <Calendar size={16} className="text-[#06a5a5]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#222222] truncate leading-tight">{ev.name}</p>
-                  <p className="text-[11px] text-[#717171]">{ev.date} · {ev.location}</p>
-                </div>
-                <ExternalLink size={14} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors flex-shrink-0" />
-              </div>
-              <div className="flex items-center gap-2.5 mt-2.5 pl-12">
-                <div className="flex -space-x-2">
-                  {RIDERS.slice(0, 4).map((r, i) => (
-                    <div key={i} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-[#F0F0F0] flex-shrink-0">
-                      {r.avatar ? (
-                        <Image src={r.avatar} alt={r.name} width={24} height={24} className="object-cover w-full h-full" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-[#222222]/40">{r.initials}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[11px] text-[#717171]">{participants} Teilnehmer</span>
-              </div>
-            </a>
-          </div>
-        )
-      })()}
-
       {imageUrls.length > 0 && (
-        <div className="relative aspect-video overflow-hidden mt-3">
-          <Image src={imageUrls[0]} alt="" fill sizes="(max-width: 768px) 100vw, 560px" className="object-cover" />
+        <div className="mt-3 overflow-hidden group">
+          <MediaSlider items={urlsToMediaItems(imageUrls)} alt={post.author_name} aspectClass="aspect-video" />
+        </div>
+      )}
+
+      {/* Location map */}
+      {post.latitude && post.longitude && (
+        <div className="mt-3 mx-4">
+          <div className="rounded-xl overflow-hidden border border-[#222222]/6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s+06a5a5(${post.longitude},${post.latitude})/${post.longitude},${post.latitude},13,0/560x200@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+              alt={post.location_name ?? 'Standort'}
+              className="w-full h-[160px] object-cover"
+            />
+          </div>
+          {post.location_name && (
+            <p className="flex items-center gap-1 text-[11px] text-[#717171] mt-1.5 mb-1">
+              <MapPin size={11} className="flex-shrink-0" />
+              <span className="truncate">{post.location_name}</span>
+            </p>
+          )}
         </div>
       )}
 
@@ -662,29 +385,46 @@ function CommunityPostCard({ post, onLike, loggedIn, userId }: { post: Community
 interface Props {
   userId: string | null
   userCity: string | null
+  isSuperadmin?: boolean
 }
 
-export default function ExploreClient({ userId, userCity }: Props) {
+export default function ExploreClient({ userId, userCity, isSuperadmin }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const { toasts, success: showSuccess, error: showError } = useToast()
 
   // Composer state
   const [composerOpen, setComposerOpen] = useState(false)
   const [body, setBody] = useState('')
   const [composerTag, setComposerTag] = useState<Category>('allgemein')
-  const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null)
-  const [eventPickerOpen, setEventPickerOpen] = useState(false)
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
+  const [composerLocation, setComposerLocation] = useState<{ lat: number; lng: number; address: string } | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [composerStuck, setComposerStuck] = useState(false)
+  const composerSentinelRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const canPost = !!userId
+
+  // Detect when composer becomes sticky
+  useEffect(() => {
+    const sentinel = composerSentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setComposerStuck(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   // Load community posts from Supabase
   const loadPosts = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, event_slug')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -711,7 +451,7 @@ export default function ExploreClient({ userId, userCity }: Props) {
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
-    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; event_slug: string | null }[]).map(p => {
+    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null }[]).map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
       return {
@@ -721,12 +461,14 @@ export default function ExploreClient({ userId, userCity }: Props) {
         created_at: p.created_at,
         user_id: p.user_id,
         topic: (p.topic as Category | null) ?? null,
-        event_slug: p.event_slug ?? null,
         author_name: name,
         author_initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         author_avatar: profile?.avatar_url ?? null,
         likes_count: likesMap[p.id]?.count ?? 0,
         liked_by_me: likesMap[p.id]?.byMe ?? false,
+        latitude: p.latitude ?? null,
+        longitude: p.longitude ?? null,
+        location_name: p.location_name ?? null,
       }
     })
 
@@ -754,6 +496,30 @@ export default function ExploreClient({ userId, userCity }: Props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('community_post_likes') as any).delete().eq('post_id', postId).eq('user_id', userId)
     }
+  }
+
+  async function handleDeletePost() {
+    if (!deleteTargetId) return
+    setDeleting(true)
+
+    // Optimistic removal
+    const removedPost = communityPosts.find(p => p.id === deleteTargetId)
+    setCommunityPosts(prev => prev.filter(p => p.id !== deleteTargetId))
+    setDeleteTargetId(null)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('community_posts') as any)
+      .delete()
+      .eq('id', deleteTargetId)
+
+    if (error) {
+      // Restore on error
+      if (removedPost) setCommunityPosts(prev => [...prev, removedPost].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+      showError('Fehler beim Löschen')
+    } else {
+      showSuccess('Beitrag wurde gelöscht')
+    }
+    setDeleting(false)
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -789,64 +555,30 @@ export default function ExploreClient({ userId, userCity }: Props) {
       body: body.trim() || null,
       media_urls: uploadedUrls,
       topic: composerTag,
-      event_slug: composerTag === 'events' ? selectedEventSlug : null,
+      ...(composerTag === 'in-der-naehe' && composerLocation ? {
+        latitude: composerLocation.lat,
+        longitude: composerLocation.lng,
+        location_name: composerLocation.address,
+      } : {}),
     })
 
     setBody('')
     setComposerTag('allgemein')
-    setSelectedEventSlug(null)
+    setComposerLocation(null)
     setMediaFiles([])
     setComposerOpen(false)
     setSubmitting(false)
     await loadPosts()
   }
 
-  const feedItems = useMemo<FeedItem[]>(() => {
-    const items: FeedItem[] = []
-
-    BUILDS.forEach((build, i) => {
-      items.push({ type: 'build', data: build, sortDate: build.publishedAt ?? BUILD_DATES[i] ?? '2026-03-01' })
-    })
-    EVENTS.forEach((event, i) => {
-      items.push({ type: 'event', data: event, sortDate: EVENT_DATES[i] ?? '2026-03-01' })
-    })
-    PARTS.forEach(part => {
-      items.push({ type: 'part', data: part, sortDate: part.createdAt })
-    })
-    WORKSHOP_POSTS.forEach(post => {
-      items.push({ type: 'workshop-post', data: post, sortDate: post.createdAt })
-    })
-    communityPosts.forEach(post => {
-      items.push({ type: 'community', data: post, sortDate: post.created_at })
-    })
-
-    items.sort((a, b) => new Date(b.sortDate).getTime() - new Date(a.sortDate).getTime())
-    return items
-  }, [communityPosts])
-
-  const filteredItems = useMemo(() => {
-    if (category === 'alle') return feedItems
-
-    return feedItems.filter(item => {
-      // Community posts match by their topic tag
-      if (item.type === 'community') {
-        return item.data.topic === category
-      }
-      // Static items match by type
-      switch (category) {
-        case 'projekte':
-          return item.type === 'build'
-        case 'events':
-          return item.type === 'event'
-        case 'hilfe':
-          return false // only community posts with topic 'hilfe'
-        case 'biete-suche':
-          return item.type === 'part'
-        default:
-          return true
-      }
-    })
-  }, [category, feedItems])
+  const filteredPosts = useMemo(() => {
+    const sorted = [...communityPosts].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    if (category === 'alle') return sorted
+    if (category === 'in-der-naehe') return sorted.filter(p => p.latitude != null && p.longitude != null)
+    return sorted.filter(p => p.topic === category)
+  }, [category, communityPosts])
 
   // Sort workshops: user's city first, then others
   const nearbyWorkshops = useMemo(() => {
@@ -921,9 +653,12 @@ export default function ExploreClient({ userId, userCity }: Props) {
             ))}
           </div>
 
+          {/* Composer sentinel */}
+          <div ref={composerSentinelRef} className="h-0" />
+
           {/* Composer */}
           {canPost ? (
-            <div className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4">
+            <div className={`sticky top-[73px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck ? 'mx-2 shadow-md' : 'mx-0 shadow-sm'}`}>
               {!composerOpen ? (
                 <button
                   type="button"
@@ -936,7 +671,14 @@ export default function ExploreClient({ userId, userCity }: Props) {
                   </span>
                 </button>
               ) : (
-                <form onSubmit={handleSubmit} className="p-4 animate-expand">
+                <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
+                  <button
+                    type="button"
+                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setMediaFiles([]) }}
+                    className="absolute top-3 right-3 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
+                  >
+                    <X size={15} />
+                  </button>
                   <textarea
                     autoFocus
                     value={body}
@@ -953,7 +695,7 @@ export default function ExploreClient({ userId, userCity }: Props) {
                       <button
                         key={t.value}
                         type="button"
-                        onClick={() => { setComposerTag(t.value); if (t.value !== 'events') { setSelectedEventSlug(null); setEventPickerOpen(false) } }}
+                        onClick={() => setComposerTag(t.value)}
                         className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
                           composerTag === t.value
                             ? 'bg-[#222222] text-white border-[#222222]'
@@ -965,40 +707,19 @@ export default function ExploreClient({ userId, userCity }: Props) {
                     ))}
                   </div>
 
-                  {/* Event picker — shown when "Events" tag is selected */}
-                  {composerTag === 'events' && (
-                    <div className="mt-3 relative">
-                      <button
-                        type="button"
-                        onClick={() => setEventPickerOpen(prev => !prev)}
-                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-[#222222]/6 hover:border-[#222222]/15 transition-colors text-left"
-                      >
-                        <span className="flex items-center gap-2 text-sm">
-                          <Calendar size={14} className="text-[#06a5a5]" />
-                          {selectedEventSlug
-                            ? EVENTS.find(e => e.slug === selectedEventSlug)?.name ?? 'Event wählen'
-                            : <span className="text-[#222222]/30">Event wählen…</span>
+                  {/* Location picker for "In der Nähe" */}
+                  {composerTag === 'in-der-naehe' && (
+                    <div className="mt-3">
+                      <MapboxAddressInput
+                        placeholder="Standort eingeben…"
+                        onSelect={(place) => {
+                          if (place) {
+                            setComposerLocation({ lat: place.lat, lng: place.lng, address: place.address })
+                          } else {
+                            setComposerLocation(null)
                           }
-                        </span>
-                        <ChevronDown size={14} className={`text-[#222222]/30 transition-transform ${eventPickerOpen ? 'rotate-180' : ''}`} />
-                      </button>
-                      {eventPickerOpen && (
-                        <div className="absolute z-10 left-0 right-0 mt-1 bg-white border border-[#222222]/6 rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.08)] overflow-hidden animate-expand">
-                          {EVENTS.map(ev => (
-                            <button
-                              key={ev.slug}
-                              type="button"
-                              onClick={() => { setSelectedEventSlug(ev.slug); setEventPickerOpen(false) }}
-                              className={`w-full text-left px-3 py-2.5 text-sm hover:bg-[#F7F7F7] transition-colors flex items-center justify-between ${
-                                selectedEventSlug === ev.slug ? 'bg-[#06a5a5]/5 text-[#06a5a5] font-semibold' : 'text-[#222222]'
-                              }`}
-                            >
-                              <span>{ev.name}</span>
-                              <span className="text-[10px] text-[#222222]/30">{ev.date}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                        }}
+                      />
                     </div>
                   )}
 
@@ -1008,7 +729,7 @@ export default function ExploreClient({ userId, userCity }: Props) {
                       {mediaFiles.map((m, i) => (
                         <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#222222]/6 flex-shrink-0">
                           {m.file.type.startsWith('video/') ? (
-                            <video src={m.url} className="w-full h-full object-cover" />
+                            <video src={m.url} className="w-full h-full object-cover" muted preload="metadata" />
                           ) : (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={m.url} alt="" className="w-full h-full object-cover" />
@@ -1034,13 +755,10 @@ export default function ExploreClient({ userId, userCity }: Props) {
                       <button type="button" onClick={() => fileInputRef.current?.click()} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors">
                         <Video size={15} />
                       </button>
-                      <button type="button" onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setSelectedEventSlug(null); setMediaFiles([]) }} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors ml-1">
-                        <X size={15} />
-                      </button>
                     </div>
                     <button
                       type="submit"
-                      disabled={submitting || (!body.trim() && mediaFiles.length === 0)}
+                      disabled={submitting || (!body.trim() && mediaFiles.length === 0) || (composerTag === 'in-der-naehe' && !composerLocation)}
                       className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
                     >
                       <Send size={12} />
@@ -1061,29 +779,29 @@ export default function ExploreClient({ userId, userCity }: Props) {
 
           {/* Card stream */}
           <div className="flex flex-col gap-4">
-            {filteredItems.length === 0 && (
+            {filteredPosts.length === 0 && (
               <div className="text-center py-16 text-[#B0B0B0] text-sm">
                 Keine Einträge in dieser Kategorie.
               </div>
             )}
 
-            {filteredItems.map((item) => {
-              switch (item.type) {
-                case 'build':
-                  return <BuildCard key={`b-${item.data.slug}`} build={item.data} />
-                case 'event':
-                  return <EventCard key={`e-${item.data.id}`} event={item.data} />
-                case 'part':
-                  return <PartCard key={`p-${item.data.id}`} part={item.data} />
-                case 'workshop-post':
-                  return <WorkshopPostCard key={`wp-${item.data.id}`} post={item.data} />
-                case 'community':
-                  return <CommunityPostCard key={`cp-${item.data.id}`} post={item.data} onLike={() => handleLike(item.data.id)} loggedIn={!!userId} userId={userId} />
-              }
-            })}
+            {filteredPosts.map(post => (
+              <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} />
+            ))}
           </div>
         </div>
       </main>
+
+      {isSuperadmin && (
+        <DeleteConfirmModal
+          open={deleteTargetId !== null}
+          onClose={() => setDeleteTargetId(null)}
+          onConfirm={handleDeletePost}
+          loading={deleting}
+        />
+      )}
+
+      <ToastContainer toasts={toasts} />
     </>
   )
 }
