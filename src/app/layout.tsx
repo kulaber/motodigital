@@ -25,13 +25,23 @@ export const metadata: Metadata = {
   description: 'Die erste Plattform für Custom Motorrad Kultur. Finde Builder, kaufe Builds, starte dein Projekt.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.vercel.app'),
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
+  manifest: '/manifest.json',
   openGraph: {
     siteName: 'MotoDigital',
     type: 'website',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og-image.jpg'],
+  },
+  themeColor: '#2AABAB',
 }
 
 export default function RootLayout({
