@@ -424,7 +424,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const loadPosts = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name')
+      .select('id, body, media_urls, created_at, user_id, topic')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -451,9 +451,22 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
-    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null }[]).map(p => {
+    // Try to load location data (columns may not exist yet if migration not run)
+    let locationMap: Record<string, { latitude: number | null; longitude: number | null; location_name: string | null }> = {}
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: locData } = await (supabase.from('community_posts') as any)
+        .select('id, latitude, longitude, location_name')
+        .in('id', (postsData as { id: string }[]).map(p => p.id))
+      if (locData) {
+        for (const l of locData) locationMap[l.id] = { latitude: l.latitude, longitude: l.longitude, location_name: l.location_name }
+      }
+    } catch { /* columns don't exist yet */ }
+
+    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null }[]).map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
+      const loc = locationMap[p.id]
       return {
         id: p.id,
         body: p.body,
@@ -466,9 +479,9 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
         author_avatar: profile?.avatar_url ?? null,
         likes_count: likesMap[p.id]?.count ?? 0,
         liked_by_me: likesMap[p.id]?.byMe ?? false,
-        latitude: p.latitude ?? null,
-        longitude: p.longitude ?? null,
-        location_name: p.location_name ?? null,
+        latitude: loc?.latitude ?? null,
+        longitude: loc?.longitude ?? null,
+        location_name: loc?.location_name ?? null,
       }
     })
 
