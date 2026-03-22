@@ -29,6 +29,7 @@ export default function Header({ activePage }: Props) {
   const [dashDropdown, setDashDropdown] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [showLogin, setShowLogin] = useState(false)
+  const [loginMode, setLoginMode] = useState<'login' | 'register'>('login')
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { user, role, slug, avatarUrl, fullName, loading } = useAuth()
@@ -255,12 +256,12 @@ export default function Header({ activePage }: Props) {
             </>
           ) : (
             <>
-              <button onClick={() => setShowLogin(true)} className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
+              <button onClick={() => { setLoginMode('login'); setShowLogin(true) }} className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
                 Login
               </button>
-              <Link href="/auth/register" className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
+              <button onClick={() => { setLoginMode('register'); setShowLogin(true) }} className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
-              </Link>
+              </button>
             </>
           )}
         </div>
@@ -269,14 +270,14 @@ export default function Header({ activePage }: Props) {
         <div className="lg:hidden flex items-center gap-2 ml-auto">
           {!loading && !user && (
             <>
-              <button onClick={() => setShowLogin(true)}
+              <button onClick={() => { setLoginMode('login'); setShowLogin(true) }}
                 className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
                 Login
               </button>
-              <Link href="/auth/register"
+              <button onClick={() => { setLoginMode('register'); setShowLogin(true) }}
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
-              </Link>
+              </button>
             </>
           )}
           <button
@@ -309,6 +310,7 @@ export default function Header({ activePage }: Props) {
     <LoginModal
       isOpen={showLogin}
       onClose={() => setShowLogin(false)}
+      initialMode={loginMode}
     />
 
     {/* ── Mobile Nav Panel (outside header to avoid stacking context) ── */}
