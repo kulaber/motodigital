@@ -5,7 +5,7 @@ import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
-import QuickSearch from '@/components/landing/QuickSearch'
+import GlobalSearch from '@/components/search/GlobalSearch'
 import { BUILDERS } from '@/lib/data/builders'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
@@ -146,7 +146,7 @@ export default async function LandingPage() {
       {/* ── QUICK SEARCH ── */}
       <section className="bg-white py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <QuickSearch />
+          <GlobalSearch />
         </div>
       </section>
 
@@ -198,29 +198,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ── STATS ── */}
-      <div className="bg-white border-y border-[#222222]/5">
-        <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#222222]/8">
-            {[
-              { num: '47',   label: 'Builder' },
-              { num: '120+', label: 'Builds' },
-              { num: '8',    label: 'Städte' },
-              { num: 'Beta', label: 'Coming soon', accent: true },
-            ].map((s, i) => (
-              <AnimateIn key={s.label} delay={i * 80}>
-                <div className="py-7 px-6 text-center">
-                  <p className="font-bold leading-none mb-1.5"
-                     style={{ fontSize: '2rem', letterSpacing: '-0.04em', color: s.accent ? '#06a5a5' : '#1A1714' }}>
-                    {s.num}
-                  </p>
-                  <p className="text-xs text-[#222222]/30 uppercase tracking-widest font-medium">{s.label}</p>
-                </div>
-              </AnimateIn>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* ── FEATURED BUILDS ── */}
       <section className="py-20 lg:py-28 bg-white" id="builds">
