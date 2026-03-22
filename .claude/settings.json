@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(pnpm tsc:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(find /Users/kulaber/Desktop/motodigital/src -name *[Hh]eader* -o -name *[Nn]av* -type f)",
+      "Bash(npx --yes pnpm tsc --noEmit)",
+      "Bash(kill 807)"
+    ],
+    "additionalDirectories": [
+      "/Users/kulaber/Desktop/motodigital/src/app/riders"
     ]
   }
 }

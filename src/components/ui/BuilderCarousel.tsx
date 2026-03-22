@@ -124,10 +124,6 @@ export default function BuilderCarousel({ builders }: Props) {
                     </div>
                     <p className="text-[10px] text-[#222222]/35 truncate">{b.city} · {b.tags.slice(0, 2).join(' · ')}</p>
                   </div>
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    <svg width="10" height="10" viewBox="0 0 14 14" fill="#06a5a5"><path d="M7 1L8.5 5.5H13L9.5 8L11 12L7 9.5L3 12L4.5 8L1 5.5H5.5Z"/></svg>
-                    <span className="text-xs text-[#222222]/40 font-medium">{b.rating}</span>
-                  </div>
                 </div>
 
                 <p className="text-xs text-[#222222]/40 leading-relaxed line-clamp-2 mb-3">{b.bio}</p>

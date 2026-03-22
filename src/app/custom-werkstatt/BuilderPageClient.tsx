@@ -100,8 +100,8 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
 
   if (images.length === 0) {
     return (
-      <div className="w-full aspect-[4/3] bg-[#F7F7F7] flex items-center justify-center rounded-xl overflow-hidden">
-        <span className="text-2xl font-bold text-[#B0B0B0]">{b.initials}</span>
+      <div className="w-full aspect-[4/3] rounded-xl overflow-hidden relative">
+        <Image src="/images/workshop-default.png" alt={b.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
       </div>
     )
   }
@@ -174,9 +174,7 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
               )}
             </>
           ) : (
-            <div className="absolute inset-0 bg-[#F7F7F7] flex items-center justify-center">
-              <span className="text-3xl font-bold text-[#B0B0B0]">{b.initials}</span>
-            </div>
+            <Image src="/images/workshop-default.png" alt={b.name} fill sizes="360px" className="object-cover" />
           )}
 
           <button
@@ -198,12 +196,6 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
               <MapPin size={9} className="flex-shrink-0" />
               {b.city}{b.specialty ? ` · ${b.specialty}` : ''}
             </p>
-            {b.rating && (
-              <p className="text-xs text-[#222222] flex items-center gap-0.5 font-medium mt-0.5">
-                <Star size={10} className="fill-[#222222] text-[#222222]" />
-                {b.rating.toFixed(1)}
-              </p>
-            )}
           </div>
           <Link
             href={`/custom-werkstatt/${b.slug}`}
@@ -299,12 +291,6 @@ function BuilderList({
                 <MapPin size={9} className="flex-shrink-0" />
                 <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
               </p>
-              {b.rating && (
-                <p className="text-xs text-[#222222] flex items-center gap-0.5 font-medium">
-                  <Star size={10} className="fill-[#222222] text-[#222222]" />
-                  {b.rating.toFixed(1)}
-                </p>
-              )}
               {b.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1.5">
                   {b.tags.slice(0, 2).map(tag => (
@@ -356,7 +342,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [mapBounds,          setMapBounds]          = useState<mapboxgl.LngLatBounds | null>(null)
   const [mapReady,           setMapReady]           = useState(false)
   const [markerEpoch,        setMarkerEpoch]        = useState(0)
-  const [mobileView,         setMobileView]         = useState<'map' | 'list'>('map')
+  const [mobileView,         setMobileView]         = useState<'map' | 'list'>('list')
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
   const router = useRouter()
   const supabase = createClient()

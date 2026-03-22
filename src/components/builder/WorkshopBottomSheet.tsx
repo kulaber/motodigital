@@ -4,7 +4,7 @@
 import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Star, BadgeCheck, X } from 'lucide-react'
+import { MapPin, BadgeCheck, X } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
 
 interface Props {
@@ -100,12 +100,6 @@ export default function WorkshopBottomSheet({ builder, onClose }: Props) {
                 <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
               </p>
 
-              {b.rating && (
-                <p className="text-xs text-[#1A1A1A] flex items-center gap-0.5 font-medium">
-                  <Star size={10} className="fill-[#1A1A1A] text-[#1A1A1A]" />
-                  {b.rating.toFixed(1)}
-                </p>
-              )}
             </div>
           </div>
 

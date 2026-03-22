@@ -147,37 +147,6 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   }
 }
 
-function StarRating({ rating, light }: { rating: number; light?: boolean }) {
-  return (
-    <span className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map(i => {
-        const filled = rating >= i
-        const half = !filled && rating >= i - 0.5
-        return (
-          <svg key={i} width="13" height="13" viewBox="0 0 24 24" className={filled || half ? 'text-[#06a5a5]' : (light ? 'text-[#DDDDDD]' : 'text-white/25')}>
-            {half ? (
-              <>
-                <defs>
-                  <linearGradient id={`h${i}`}>
-                    <stop offset="50%" stopColor="currentColor" />
-                    <stop offset="50%" stopColor="transparent" />
-                  </linearGradient>
-                </defs>
-                <path fill={`url(#h${i})`} stroke="currentColor" strokeWidth="1.5"
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </>
-            ) : (
-              <path fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5"
-                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            )}
-          </svg>
-        )
-      })}
-      <span className={`ml-1 text-xs font-semibold ${light ? 'text-[#717171]' : 'text-white/80'}`}>{rating.toFixed(1)}</span>
-    </span>
-  )
-}
-
 type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -207,11 +176,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── MOBILE HERO ── */}
       <div className="sm:hidden relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
-        {coverImage ? (
-          <Image src={coverImage.url} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
-        ) : (
-          <div className="absolute inset-0 bg-[#1a1a1a]" />
-        )}
+        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
@@ -255,7 +220,6 @@ export default async function BuilderProfilePage({ params }: Props) {
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
-                <StarRating rating={builder.rating} />
               </div>
             </div>
           </div>
@@ -264,11 +228,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── DESKTOP HERO ── */}
       <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
-        {coverImage ? (
-          <Image src={coverImage.url} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
-        ) : (
-          <div className="absolute inset-0 bg-[#1a1a1a]" />
-        )}
+        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
         <div className="absolute top-0 left-0 right-0 pt-20 px-4 sm:px-5 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -306,7 +266,6 @@ export default async function BuilderProfilePage({ params }: Props) {
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
-                <StarRating rating={builder.rating} />
               </div>
             </div>
             <div className="hidden sm:block">
