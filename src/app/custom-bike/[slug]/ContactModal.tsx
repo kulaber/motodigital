@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, MessageCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   sellerId: string
@@ -132,6 +133,7 @@ function Modal({
 
 export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId, coverImage }: Props) {
   const [open, setOpen] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
 
   const isWerkstatt = sellerRole === 'custom-werkstatt'
@@ -139,7 +141,7 @@ export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId,
 
   function openModal() {
     if (!user) {
-      window.location.href = '/auth/login'
+      setShowLogin(true)
       return
     }
     setOpen(true)
@@ -167,6 +169,12 @@ export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId,
           onClose={() => setOpen(false)}
         />
       )}
+
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext={isWerkstatt ? 'contact_builder' : 'message'}
+      />
     </>
   )
 }

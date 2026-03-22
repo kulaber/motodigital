@@ -15,6 +15,7 @@ import { formatRelativeTime } from '@/lib/utils'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
+import { LoginModal } from '@/components/ui/LoginModal'
 import dynamic from 'next/dynamic'
 
 const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
@@ -191,7 +192,7 @@ interface Comment {
   user_avatar: string | null
 }
 
-function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void }) {
+function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void }) {
   const [commentInputOpen, setCommentInputOpen] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -402,8 +403,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       <div className="px-4 py-3 flex items-center gap-4">
         <button
           type="button"
-          onClick={onLike}
-          disabled={!loggedIn}
+          onClick={() => loggedIn ? onLike() : onLoginRequired?.('like')}
           className="flex items-center gap-1.5 group"
         >
           <Heart
@@ -416,25 +416,16 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             </span>
           )}
         </button>
-        {loggedIn ? (
-          <button
-            type="button"
-            onClick={() => setCommentInputOpen(prev => !prev)}
-            className="flex items-center gap-1.5 group"
-          >
-            <MessageCircle size={18} className={`transition-colors ${commentInputOpen ? 'text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`} />
-            {comments.length > 0 && (
-              <span className="text-xs font-semibold text-[#222222]/40">{comments.length}</span>
-            )}
-          </button>
-        ) : (
-          <span className="flex items-center gap-1.5">
-            <MessageCircle size={18} className="text-[#222222]/30" />
-            {comments.length > 0 && (
-              <span className="text-xs font-semibold text-[#222222]/40">{comments.length}</span>
-            )}
-          </span>
-        )}
+        <button
+          type="button"
+          onClick={() => loggedIn ? setCommentInputOpen(prev => !prev) : onLoginRequired?.('comment')}
+          className="flex items-center gap-1.5 group"
+        >
+          <MessageCircle size={18} className={`transition-colors ${commentInputOpen ? 'text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`} />
+          {comments.length > 0 && (
+            <span className="text-xs font-semibold text-[#222222]/40">{comments.length}</span>
+          )}
+        </button>
       </div>
 
       {/* Comments — only for logged-in users */}
@@ -557,6 +548,8 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [loginContext, setLoginContext] = useState<'like' | 'comment'>('like')
   const { toasts, success: showSuccess, error: showError } = useToast()
 
   // Composer state
@@ -968,9 +961,9 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
           ) : (
             <div className="bg-white rounded-2xl border border-[#222222]/6 p-4 text-center mb-4">
               <p className="text-sm text-[#222222]/40 mb-3">Melde dich an, um Beiträge zu teilen</p>
-              <a href="/auth/login" className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
+              <button onClick={() => { setLoginContext('comment'); setShowLogin(true) }} className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
                 Anmelden
-              </a>
+              </button>
             </div>
           )}
 
@@ -983,7 +976,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
             )}
 
             {filteredPosts.map(post => (
-              <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} />
+              <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} />
             ))}
           </div>
         </div>
@@ -999,6 +992,12 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       )}
 
       <ToastContainer toasts={toasts} />
+
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext={loginContext}
+      />
     </>
   )
 }

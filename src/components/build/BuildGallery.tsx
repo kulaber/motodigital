@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, ChevronLeft, ChevronRight, LayoutGrid, ArrowLeft, Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   images: string[]
@@ -26,6 +27,7 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
   const [userId, setUserId] = useState<string | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const shareRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
@@ -56,7 +58,7 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
   }, [])
 
   async function handleSave() {
-    if (!userId) { router.push('/auth/login'); return }
+    if (!userId) { setShowLogin(true); return }
     if (loadingSave) return
     if (!bikeId) return
     setLoadingSave(true)
@@ -123,6 +125,12 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
 
   return (
     <>
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext="bike_save"
+      />
+
       {/* ── Mobile slider (< md) — Instagram-style swipe ── */}
       <div className="md:hidden relative -mx-4 sm:-mx-6 overflow-hidden">
         <div

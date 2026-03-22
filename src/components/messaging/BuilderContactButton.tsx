@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   builderId: string
@@ -131,26 +132,23 @@ function Modal({
 
 export default function BuilderContactButton({ builderId, builderFirstName, builderName }: Props) {
   const [open, setOpen] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
 
-  if (!authLoading && !user) {
-    return (
-      <a
-        href="/auth/login"
-        className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl text-center hover:bg-[#058f8f] transition-all"
-      >
-        <MessageCircle size={14} />
-        {builderFirstName} kontaktieren
-      </a>
-    )
-  }
-
   if (!authLoading && user?.id === builderId) return null
+
+  function handleClick() {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
+    setOpen(true)
+  }
 
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={handleClick}
         disabled={authLoading}
         className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
       >
@@ -166,6 +164,12 @@ export default function BuilderContactButton({ builderId, builderFirstName, buil
           onClose={() => setOpen(false)}
         />
       )}
+
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext="contact_builder"
+      />
     </>
   )
 }

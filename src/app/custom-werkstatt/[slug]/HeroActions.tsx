@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   name: string
@@ -19,8 +19,8 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
   const [loadingSave, setLoadingSave] = useState(false)
   const [userId, setUserId]           = useState<string | null>(null)
   const [builderId, setBuilderId]     = useState<string | null>(initialBuilderId)
+  const [showLogin, setShowLogin]     = useState(false)
   const ref    = useRef<HTMLDivElement>(null)
-  const router = useRouter()
   const supabase = createClient()
 
   // Auth + ggf. builderId per slug nachschlagen + gespeichert-Status laden
@@ -66,7 +66,7 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
   }, [])
 
   async function handleSave() {
-    if (!userId) { router.push('/auth/login'); return }
+    if (!userId) { setShowLogin(true); return }
     if (!builderId || loadingSave) return
     setLoadingSave(true)
     if (saved) {
@@ -101,6 +101,11 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
 
   return (
     <div className={`flex items-center gap-2${iconOnly ? '' : ' flex-shrink-0 pb-1'}`} ref={ref}>
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext="bike_save"
+      />
       {/* Speichern */}
       <button
         onClick={handleSave}

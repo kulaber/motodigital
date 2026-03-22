@@ -108,12 +108,23 @@ button, [role="button"], a, label[for], summary {
   to   { opacity: 1; transform: scale(1); }
 }
 
+@keyframes slide-up-sheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes slide-down-sheet {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
 /* ─── Animation utilities ────────────────────────────────── */
 @theme {
   --animate-fade-in:     fade-in 0.35s ease-out forwards;
   --animate-slide-up:    slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-slide-up-sm: slide-up-sm 0.3s ease-out forwards;
   --animate-scale-in:    scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-up-sheet: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ─── Luxury easing & interactions ──────────────────────── */

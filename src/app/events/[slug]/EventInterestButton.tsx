@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Heart, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Participant {
   avatar_url: string | null
@@ -20,6 +21,7 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
   const [count, setCount] = useState(0)
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
+  const [showLogin, setShowLogin] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -111,28 +113,24 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
       )}
 
       {/* Button */}
-      {userId ? (
-        <button
-          type="button"
-          onClick={handleToggle}
-          className={`inline-flex items-center gap-2.5 text-sm font-semibold px-6 py-3 rounded-full transition-all ${
-            interested
-              ? 'bg-[#06a5a5] text-white hover:bg-[#058f8f]'
-              : 'border border-[#222222]/10 text-[#222222] hover:border-[#06a5a5] hover:text-[#06a5a5]'
-          }`}
-        >
-          <Heart size={16} className={interested ? 'fill-white' : ''} />
-          {interested ? 'Du nimmst teil!' : 'Ich habe Interesse und möchte teilnehmen'}
-        </button>
-      ) : (
-        <a
-          href="/auth/login"
-          className="inline-flex items-center gap-2.5 text-sm font-semibold px-6 py-3 rounded-full border border-[#222222]/10 text-[#222222] hover:border-[#06a5a5] hover:text-[#06a5a5] transition-all"
-        >
-          <Heart size={16} />
-          Anmelden um teilzunehmen
-        </a>
-      )}
+      <button
+        type="button"
+        onClick={() => userId ? handleToggle() : setShowLogin(true)}
+        className={`inline-flex items-center gap-2.5 text-sm font-semibold px-6 py-3 rounded-full transition-all ${
+          interested
+            ? 'bg-[#06a5a5] text-white hover:bg-[#058f8f]'
+            : 'border border-[#222222]/10 text-[#222222] hover:border-[#06a5a5] hover:text-[#06a5a5]'
+        }`}
+      >
+        <Heart size={16} className={interested ? 'fill-white' : ''} />
+        {interested ? 'Du nimmst teil!' : 'Ich habe Interesse und möchte teilnehmen'}
+      </button>
+
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext="event_interest"
+      />
     </div>
   )
 }

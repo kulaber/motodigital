@@ -11,6 +11,7 @@ import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
 import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import { createClient } from '@/lib/supabase/client'
+import { LoginModal } from '@/components/ui/LoginModal'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -344,6 +345,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [markerEpoch,        setMarkerEpoch]        = useState(0)
   const [mobileView,         setMobileView]         = useState<'map' | 'list'>('list')
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
+  const [showLogin, setShowLogin]                   = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -399,7 +401,7 @@ export default function BuilderPageClient({ builders }: Props) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function toggleSave(builderId: string | null) {
-    if (!userId) { router.push('/auth/login'); return }
+    if (!userId) { setShowLogin(true); return }
     if (!builderId) return
     const isSaved = savedIds.has(builderId)
     setSavedIds(prev => {
@@ -988,6 +990,12 @@ export default function BuilderPageClient({ builders }: Props) {
           />
         )}
       </div>
+
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        triggerContext="bike_save"
+      />
     </>
   )
 }

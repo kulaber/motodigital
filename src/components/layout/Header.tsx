@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import MobileNav from './MobileNav'
+import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   activePage?: 'bikes' | 'custom-werkstatt' | 'map' | 'landing' | 'magazine' | 'events' | 'sell' | 'builds' | 'explore'
@@ -27,6 +28,7 @@ export default function Header({ activePage }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dashDropdown, setDashDropdown] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [showLogin, setShowLogin] = useState(false)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { user, role, slug, avatarUrl, fullName, loading } = useAuth()
@@ -253,9 +255,9 @@ export default function Header({ activePage }: Props) {
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
+              <button onClick={() => setShowLogin(true)} className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
                 Login
-              </Link>
+              </button>
               <Link href="/auth/register" className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
               </Link>
@@ -267,10 +269,10 @@ export default function Header({ activePage }: Props) {
         <div className="lg:hidden flex items-center gap-2 ml-auto">
           {!loading && !user && (
             <>
-              <Link href="/auth/login"
+              <button onClick={() => setShowLogin(true)}
                 className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
                 Login
-              </Link>
+              </button>
               <Link href="/auth/register"
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
@@ -303,6 +305,11 @@ export default function Header({ activePage }: Props) {
 
       </div>
     </header>
+
+    <LoginModal
+      isOpen={showLogin}
+      onClose={() => setShowLogin(false)}
+    />
 
     {/* ── Mobile Nav Panel (outside header to avoid stacking context) ── */}
     <MobileNav
