@@ -5,9 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import MediaSlider from '@/components/bike/MediaSlider'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
+import PostImageItem from '@/components/explore/PostImageItem'
 import { RIDERS } from '@/lib/data/riders'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
 import { EVENTS } from '@/lib/data/events'
@@ -147,9 +147,7 @@ function PostMediaSlider({ items, alt }: { items: MediaItem[]; alt: string }) {
       {current.media_type === 'video' ? (
         <PostVideoPlayer url={current.url} thumbnail_url={current.thumbnail_url} alt={alt} />
       ) : (
-        <div className="relative w-full aspect-video">
-          <Image src={current.url} alt={alt} fill sizes="(max-width: 640px) 100vw, 560px" className="object-cover" />
-        </div>
+        <PostImageItem url={current.url} alt={alt} />
       )}
 
       {/* Navigation arrows */}
@@ -351,31 +349,25 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
       {imageUrls.length > 0 && (() => {
         const mediaItems = urlsToMediaItems(imageUrls)
-        const hasVideo = mediaItems.some(m => m.media_type === 'video')
 
-        // Single video → use PostVideoPlayer with 2:3 aspect ratio
-        if (mediaItems.length === 1 && hasVideo) {
+        // Single item → render directly with orientation-aware aspect
+        if (mediaItems.length === 1) {
           const item = mediaItems[0]
           return (
             <div className="mt-3 overflow-hidden">
-              <PostVideoPlayer url={item.url} thumbnail_url={item.thumbnail_url} alt={post.author_name} />
+              {item.media_type === 'video' ? (
+                <PostVideoPlayer url={item.url} thumbnail_url={item.thumbnail_url} alt={post.author_name} />
+              ) : (
+                <PostImageItem url={item.url} alt={post.author_name} />
+              )}
             </div>
           )
         }
 
-        // Mixed or multi-item with video → use MediaSlider but swap video items to PostVideoPlayer
-        if (hasVideo) {
-          return (
-            <div className="mt-3 overflow-hidden">
-              <PostMediaSlider items={mediaItems} alt={post.author_name} />
-            </div>
-          )
-        }
-
-        // Images only → use MediaSlider with 16:9
+        // Multiple items → slider with orientation-aware per-item aspect
         return (
-          <div className="mt-3 overflow-hidden group">
-            <MediaSlider items={mediaItems} alt={post.author_name} aspectClass="aspect-video" />
+          <div className="mt-3 overflow-hidden">
+            <PostMediaSlider items={mediaItems} alt={post.author_name} />
           </div>
         )
       })()}

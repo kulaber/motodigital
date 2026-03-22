@@ -12,6 +12,62 @@ interface PostVideoPlayerProps {
 export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
+  const [aspectClass, setAspectClass] = useState('aspect-video')
+  const [poster, setPoster] = useState<string | undefined>(thumbnail_url ?? undefined)
+
+  // Detect orientation from video dimensions + generate canvas poster if needed
+  useEffect(() => {
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    video.muted = true
+    video.playsInline = true
+    video.crossOrigin = 'anonymous'
+    video.src = url
+
+    video.onloadedmetadata = () => {
+      const { videoWidth, videoHeight } = video
+      if (videoWidth && videoHeight) {
+        // landscape → 16:9, portrait/square → 2:3
+        setAspectClass(videoWidth > videoHeight ? 'aspect-video' : 'aspect-[2/3]')
+      }
+
+      // Generate poster via canvas snapshot at t=0.1s if none provided
+      if (!thumbnail_url) {
+        video.currentTime = 0.1
+      }
+    }
+
+    video.onseeked = () => {
+      if (!thumbnail_url) {
+        try {
+          const canvas = document.createElement('canvas')
+          canvas.width = video.videoWidth
+          canvas.height = video.videoHeight
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.drawImage(video, 0, 0)
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+            setPoster(dataUrl)
+          }
+        } catch {
+          // CORS or other error — leave poster undefined
+        }
+      }
+      // Clean up the probe video
+      video.src = ''
+      video.load()
+    }
+
+    video.onerror = () => {
+      video.src = ''
+      video.load()
+    }
+
+    return () => {
+      video.src = ''
+      video.load()
+    }
+  }, [url, thumbnail_url])
 
   // Auto-pause when video leaves viewport
   useEffect(() => {
@@ -47,20 +103,19 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
     }
   }, [])
 
-  // Sync state if video ends naturally
   const handleEnded = useCallback(() => setPlaying(false), [])
   const handlePause = useCallback(() => setPlaying(false), [])
   const handlePlay = useCallback(() => setPlaying(true), [])
 
   return (
-    <div className="relative w-full aspect-[2/3] bg-black overflow-hidden">
+    <div className={`relative w-full ${aspectClass} bg-black overflow-hidden`}>
       <video
         ref={videoRef}
         src={url}
-        poster={thumbnail_url ?? undefined}
+        poster={poster}
         playsInline
         loop
-        preload={thumbnail_url ? 'none' : 'metadata'}
+        preload={poster ? 'none' : 'metadata'}
         className="w-full h-full object-cover"
         aria-label={alt}
         onEnded={handleEnded}
