@@ -17,7 +17,7 @@ export function useMessages(conversationId: string) {
     // Load existing messages
     supabase
       .from('messages')
-      .select('*')
+      .select('id, conversation_id, sender_id, body, read_at, created_at')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
       .then(({ data }) => {

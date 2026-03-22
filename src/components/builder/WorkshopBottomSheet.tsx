@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Star, BadgeCheck, X } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
@@ -76,11 +77,13 @@ export default function WorkshopBottomSheet({ builder, onClose }: Props) {
           <div className="flex gap-4">
             {/* Cover thumbnail */}
             {coverImage && (
-              <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                <img
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                <Image
                   src={coverImage}
                   alt={b.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
                 />
               </div>
             )}

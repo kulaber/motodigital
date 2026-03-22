@@ -47,8 +47,3 @@ export function cityFromAddress(address: string): string {
   }
   return address
 }
-
-/** Supabase Storage public URL helper */
-export function storageUrl(path: string): string {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${path}`
-}

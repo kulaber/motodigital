@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
@@ -91,10 +92,12 @@ export default function BuilderCarousel({ builders }: Props) {
               {/* Cover image */}
               <div className="relative h-36 overflow-hidden bg-[#F7F7F7]">
                 {coverImg ? (
-                  <img
+                  <Image
                     src={coverImg}
                     alt={b.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    fill
+                    sizes="288px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

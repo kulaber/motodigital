@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 
 interface Props {
   images: { url: string; alt?: string }[]
@@ -43,12 +44,15 @@ export default function SwipeableImages({ images, aspectClass = 'aspect-[4/3]' }
       onTouchEnd={onTouchEnd}
     >
       {images.map((img, i) => (
-        <img
+        <Image
           key={img.url}
           src={img.url}
           alt={img.alt ?? ''}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className={`object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
           draggable={false}
+          loading={i === 0 ? 'eager' : 'lazy'}
         />
       ))}
 

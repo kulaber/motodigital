@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
-import BuilderPageClient from './BuilderPageClient'
+import BuilderPageClientLoader from './BuilderPageClientLoader'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
 
@@ -103,7 +103,7 @@ export default async function BuilderPage() {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
-      <BuilderPageClient builders={shuffled} />
+      <BuilderPageClientLoader builders={shuffled} />
     </div>
   )
 }

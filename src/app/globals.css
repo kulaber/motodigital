@@ -1,14 +1,6 @@
 @import "tailwindcss";
 @source "../components/build";
 
-.scrollbar-none::-webkit-scrollbar { display: none; }
-
-@keyframes ping-once {
-  0%   { transform: scale(1);   opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.animate-ping-once { animation: ping-once 0.4s ease-out forwards; }
-
 @keyframes expand {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -81,7 +73,6 @@ button, [role="button"], a, label[for], summary {
   cursor: pointer;
 }
 
-
 /* ─── Utility: hide scrollbar ────────────────────────────── */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -112,18 +103,12 @@ button, [role="button"], a, label[for], summary {
   to   { opacity: 1; transform: scale(1); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-
 /* ─── Animation utilities ────────────────────────────────── */
 @theme {
   --animate-fade-in:     fade-in 0.35s ease-out forwards;
   --animate-slide-up:    slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-slide-up-sm: slide-up-sm 0.3s ease-out forwards;
   --animate-scale-in:    scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-float:       float 3s ease-in-out infinite;
 }
 
 /* ─── Luxury easing & interactions ──────────────────────── */
@@ -166,37 +151,6 @@ a, button, [role="button"] {
   box-shadow: var(--shadow-card-press);
 }
 
-/* ─── Button press scale ──────────────────────────────────── */
-.btn-press:active {
-  transform: scale(0.97);
-}
-
-/* ─── Ambient glow ────────────────────────────────────────── */
-.glow-teal {
-  box-shadow: 0 0 12px rgba(8, 101, 101, 0.25);
-}
-.glow-teal-md {
-  box-shadow: 0 0 24px rgba(8, 101, 101, 0.35);
-}
-
-/* ─── Underline link animation ────────────────────────────── */
-.link-underline {
-  position: relative;
-}
-.link-underline::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: #222222;
-  transition: width var(--transition-base);
-}
-.link-underline:hover::after {
-  width: 100%;
-}
-
 /* ─── Focus ring ──────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid #06a5a5;
@@ -212,7 +166,6 @@ textarea:focus-visible {
 }
 
 /* Kein Zoom beim Antippen auf iOS/Android — min. 16px font-size */
-/* !important nötig, damit Tailwind-Klassen (text-sm = 14px) nicht überschreiben */
 input, textarea, select {
   font-size: max(16px, 1em) !important;
 }

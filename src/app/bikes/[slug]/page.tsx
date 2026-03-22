@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ChevronLeft, ArrowLeft, Calendar, Euro } from 'lucide-react'
+import Image from 'next/image'
+import { BadgeCheck, MapPin, ArrowLeft, Calendar, Euro } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice, formatRelativeTime } from '@/lib/utils'
 import ContactButton from '@/components/messaging/ContactButton'
@@ -235,7 +235,8 @@ export default async function BikeSlugPage({ params }: Props) {
   const { data: bike } = await supabase
     .from('bikes')
     .select(`
-      *,
+      id, title, make, model, year, style, city, price, description,
+      cc, mileage_km, is_verified, view_count, created_at, seller_id, workshop_id, slug,
       bike_images ( id, url, position, is_cover ),
       profiles:seller_id ( id, username, full_name, avatar_url, is_verified, created_at ),
       workshops:workshop_id ( id, name, slug, logo_url, city, avg_rating )
@@ -432,7 +433,7 @@ export default async function BikeSlugPage({ params }: Props) {
                 className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                  <img src={b.coverImg} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                  <Image src={b.coverImg} alt={b.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>

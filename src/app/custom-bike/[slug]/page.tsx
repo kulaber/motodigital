@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, Calendar, Wrench, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
