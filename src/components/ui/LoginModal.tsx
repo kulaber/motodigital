@@ -643,7 +643,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       />
 
       {/* Desktop: centered modal / Mobile: bottom sheet */}
-      <div className="absolute inset-0 flex items-end sm:items-center sm:justify-center overflow-y-auto">
+      <div className="absolute inset-0 flex items-end sm:items-center sm:justify-center">
         <div
           ref={dialogRef}
           role="dialog"
@@ -651,10 +651,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           aria-labelledby="login-modal-title"
           className={[
             'relative z-10 w-full bg-[#1A1A1A] flex flex-col',
-            // Mobile: bottom sheet
-            'rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up-sheet',
+            // Mobile: bottom sheet — anchored to bottom, max height with internal scroll
+            'rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up-sheet max-h-[90vh]',
             // Desktop: centered modal
-            'sm:rounded-3xl sm:max-w-[420px] sm:pb-0 sm:animate-scale-in sm:my-8',
+            'sm:rounded-3xl sm:max-w-[420px] sm:pb-0 sm:animate-scale-in sm:max-h-[90vh]',
           ].join(' ')}
         >
           {/* Close button */}
@@ -667,8 +667,8 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             <X size={16} />
           </button>
 
-          {/* Content */}
-          <div className="px-6 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8 flex flex-col gap-3">
+          {/* Content — scrollable if needed */}
+          <div className="px-6 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8 flex flex-col gap-3 overflow-y-auto overscroll-contain">
             {/* Logo */}
             <div className="flex justify-center mb-2">
               <Image
