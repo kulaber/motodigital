@@ -3,12 +3,13 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin } from 'lucide-react'
+import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import MediaSlider from '@/components/bike/MediaSlider'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import { RIDERS } from '@/lib/data/riders'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
+import { EVENTS } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
@@ -51,6 +52,7 @@ interface CommunityPost {
   latitude: number | null
   longitude: number | null
   location_name: string | null
+  event_slug: string | null
 }
 
 /* ── Sidebar: Workshop list item ───────────────────────── */
@@ -259,6 +261,31 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         </div>
       )}
 
+      {/* Linked event */}
+      {post.event_slug && (() => {
+        const ev = EVENTS.find(e => e.slug === post.event_slug)
+        if (!ev) return null
+        return (
+          <div className="mx-4 mt-3">
+            <a
+              href={`/events/${ev.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#222222]/6 hover:border-[#06a5a5]/30 hover:bg-[#06a5a5]/3 transition-all group"
+            >
+              <div className="w-8 h-8 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
+                <Calendar size={14} className="text-[#06a5a5]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight group-hover:text-[#06a5a5] transition-colors">{ev.name}</p>
+                <p className="text-[10px] text-[#717171] truncate">{ev.date} · {ev.location}</p>
+              </div>
+              <ExternalLink size={12} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors flex-shrink-0" />
+            </a>
+          </div>
+        )
+      })()}
+
       {imageUrls.length > 0 && (
         <div className="mt-3 overflow-hidden group">
           <MediaSlider items={urlsToMediaItems(imageUrls)} alt={post.author_name} aspectClass="aspect-video" />
@@ -399,6 +426,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const [composerTag, setComposerTag] = useState<Category>('allgemein')
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
   const [composerLocation, setComposerLocation] = useState<{ lat: number; lng: number; address: string } | null>(null)
+  const [composerEventSlug, setComposerEventSlug] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [composerStuck, setComposerStuck] = useState(false)
   const composerSentinelRef = useRef<HTMLDivElement>(null)
@@ -422,7 +450,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const loadPosts = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -449,7 +477,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
-    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null }[]).map(p => {
+    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null }[]).map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
       return {
@@ -467,6 +495,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
         latitude: p.latitude ?? null,
         longitude: p.longitude ?? null,
         location_name: p.location_name ?? null,
+        event_slug: p.event_slug ?? null,
       }
     })
 
@@ -558,11 +587,15 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
         longitude: composerLocation.lng,
         location_name: composerLocation.address,
       } : {}),
+      ...(composerTag === 'events' && composerEventSlug ? {
+        event_slug: composerEventSlug,
+      } : {}),
     })
 
     setBody('')
     setComposerTag('allgemein')
     setComposerLocation(null)
+    setComposerEventSlug(null)
     setMediaFiles([])
     setComposerOpen(false)
     setSubmitting(false)
@@ -672,7 +705,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
                 <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
                   <button
                     type="button"
-                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setMediaFiles([]) }}
+                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setMediaFiles([]) }}
                     className="absolute top-3 right-3 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
                   >
                     <X size={15} />
@@ -718,6 +751,32 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
                           }
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Event selector for "Events" */}
+                  {composerTag === 'events' && (
+                    <div className="mt-3">
+                      <div className="flex flex-col gap-1.5">
+                        {EVENTS.map(ev => (
+                          <button
+                            key={ev.slug}
+                            type="button"
+                            onClick={() => setComposerEventSlug(composerEventSlug === ev.slug ? null : ev.slug)}
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left transition-all ${
+                              composerEventSlug === ev.slug
+                                ? 'border-[#06a5a5]/50 bg-[#06a5a5]/5'
+                                : 'border-[#222222]/6 hover:border-[#222222]/15'
+                            }`}
+                          >
+                            <Calendar size={13} className={composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]/25'} />
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-[13px] font-semibold leading-tight truncate ${composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]'}`}>{ev.name}</p>
+                              <p className="text-[10px] text-[#717171] truncate">{ev.date} · {ev.location}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
