@@ -14,60 +14,43 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
   const [playing, setPlaying] = useState(false)
   const [aspectClass, setAspectClass] = useState('aspect-video')
   const [poster, setPoster] = useState<string | undefined>(thumbnail_url ?? undefined)
+  const posterGenerated = useRef(false)
 
-  // Detect orientation from video dimensions + generate canvas poster if needed
-  useEffect(() => {
-    const video = document.createElement('video')
-    video.preload = 'metadata'
-    video.muted = true
-    video.playsInline = true
-    video.crossOrigin = 'anonymous'
-    video.src = url
+  // Detect orientation + generate canvas poster from the ACTUAL video element
+  const handleLoadedMetadata = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
 
-    video.onloadedmetadata = () => {
-      const { videoWidth, videoHeight } = video
-      if (videoWidth && videoHeight) {
-        // landscape → 16:9, portrait/square → 2:3
-        setAspectClass(videoWidth > videoHeight ? 'aspect-video' : 'aspect-[2/3]')
+    const { videoWidth, videoHeight } = video
+    if (videoWidth && videoHeight) {
+      setAspectClass(videoWidth > videoHeight ? 'aspect-video' : 'aspect-[2/3]')
+    }
+
+    // Generate poster via canvas snapshot at t=0.1s if none provided
+    if (!thumbnail_url && !posterGenerated.current) {
+      posterGenerated.current = true
+      video.currentTime = 0.1
+    }
+  }, [thumbnail_url])
+
+  const handleSeeked = useCallback(() => {
+    const video = videoRef.current
+    if (!video || thumbnail_url) return
+
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(video, 0, 0)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+        setPoster(dataUrl)
       }
-
-      // Generate poster via canvas snapshot at t=0.1s if none provided
-      if (!thumbnail_url) {
-        video.currentTime = 0.1
-      }
+    } catch {
+      // Canvas tainted or other error — leave poster as-is
     }
-
-    video.onseeked = () => {
-      if (!thumbnail_url) {
-        try {
-          const canvas = document.createElement('canvas')
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
-          const ctx = canvas.getContext('2d')
-          if (ctx) {
-            ctx.drawImage(video, 0, 0)
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
-            setPoster(dataUrl)
-          }
-        } catch {
-          // CORS or other error — leave poster undefined
-        }
-      }
-      // Clean up the probe video
-      video.src = ''
-      video.load()
-    }
-
-    video.onerror = () => {
-      video.src = ''
-      video.load()
-    }
-
-    return () => {
-      video.src = ''
-      video.load()
-    }
-  }, [url, thumbnail_url])
+  }, [thumbnail_url])
 
   // Auto-pause when video leaves viewport
   useEffect(() => {
@@ -76,7 +59,7 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) {
+        if (!entry.isIntersecting && !video.paused) {
           video.pause()
           setPlaying(false)
         }
@@ -95,15 +78,24 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
     if (!video) return
 
     if (video.paused) {
-      video.play()
-      setPlaying(true)
+      const playPromise = video.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Unmuted play blocked — try muted, then unmute after it starts
+          video.muted = true
+          video.play().then(() => {
+            video.muted = false
+          }).catch(() => {
+            // Truly blocked — nothing we can do
+            setPlaying(false)
+          })
+        })
+      }
     } else {
       video.pause()
-      setPlaying(false)
     }
   }, [])
 
-  const handleEnded = useCallback(() => setPlaying(false), [])
   const handlePause = useCallback(() => setPlaying(false), [])
   const handlePlay = useCallback(() => setPlaying(true), [])
 
@@ -113,12 +105,14 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
         ref={videoRef}
         src={url}
         poster={poster}
+        muted={false}
         playsInline
         loop
-        preload={poster ? 'none' : 'metadata'}
+        preload="metadata"
         className="w-full h-full object-cover"
         aria-label={alt}
-        onEnded={handleEnded}
+        onLoadedMetadata={handleLoadedMetadata}
+        onSeeked={handleSeeked}
         onPause={handlePause}
         onPlay={handlePlay}
       />
