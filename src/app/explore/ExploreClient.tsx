@@ -23,11 +23,11 @@ type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'alle', label: 'Alle' },
-  { value: 'projekte', label: 'Projekte' },
-  { value: 'events', label: 'Events' },
-  { value: 'hilfe', label: 'Hilfe' },
-  { value: 'biete-suche', label: 'Biete/Suche' },
+  { value: 'projekte', label: 'Projekt' },
   { value: 'in-der-naehe', label: 'In der Nähe' },
+  { value: 'events', label: 'Events' },
+  { value: 'biete-suche', label: 'Biete/Suche' },
+  { value: 'hilfe', label: 'Hilfe' },
 ]
 
 // Composer tags include "Allgemein" + all filter categories except "Alle"
