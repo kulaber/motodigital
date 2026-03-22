@@ -72,14 +72,20 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
   const closeRef = useRef<HTMLButtonElement>(null)
   const supabase = createClient()
 
-  // Sync initialMode when prop changes
+  // Sync initialMode + reset when modal opens/closes
+  const prevOpenRef = useRef(false)
   useEffect(() => {
-    if (isOpen) setMode(initialMode)
-  }, [isOpen, initialMode])
+    const wasOpen = prevOpenRef.current
+    prevOpenRef.current = isOpen
 
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && !wasOpen) {
+      // Modal just opened — sync mode
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMode(initialMode)
+    }
+
+    if (!isOpen && wasOpen) {
+      // Modal just closed — reset after animation
       const timer = setTimeout(() => {
         setEmail('')
         setPassword('')
@@ -96,7 +102,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       }, 300)
       return () => clearTimeout(timer)
     }
-  }, [isOpen])
+  }, [isOpen, initialMode])
 
   // Focus trap + keyboard handling
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
