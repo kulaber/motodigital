@@ -6,6 +6,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-expand { animation: expand 0.2s ease-out forwards; }
+.animate-blink  { animation: blink-caret 0.8s step-end infinite; }
 
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
 @theme {

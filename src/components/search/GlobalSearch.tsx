@@ -9,12 +9,13 @@ import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import SearchResult, { type SearchResultItem } from './SearchResult'
 
 // ---------------------------------------------------------------------------
-// Animated placeholder config
+// Typewriter placeholder config
 // ---------------------------------------------------------------------------
-const PLACEHOLDERS = ['Custom Bikes', 'Custom Werkstatt', 'Events']
-const DISPLAY_DURATION = 1800 // ms to show each placeholder
-const FADE_OUT = 100          // ms fade-out
-const FADE_IN = 200           // ms fade-in
+const PLACEHOLDERS = ['BMW R100 Cafe Racer', 'Superbikebox Werkstatt', 'Glemseck 101']
+const TYPE_SPEED = 80    // ms per character typing
+const DELETE_SPEED = 40  // ms per character deleting
+const PAUSE_FULL = 2000  // ms pause after fully typed
+const PAUSE_EMPTY = 300  // ms pause before typing next
 
 // ---------------------------------------------------------------------------
 // Types for raw Supabase rows
@@ -55,9 +56,10 @@ export default function GlobalSearch() {
 
   const [isFocused, setIsFocused] = useState(false)
 
-  // Animated placeholder state
-  const [placeholderIndex, setPlaceholderIndex] = useState(0)
-  const [placeholderVisible, setPlaceholderVisible] = useState(true)
+  // Typewriter placeholder state
+  const [tick, setTick] = useState(0)
+  const [displayText, setDisplayText] = useState('')
+  const placeholderRef = useRef({ index: 0, charIndex: 0, isDeleting: false })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -69,21 +71,42 @@ export default function GlobalSearch() {
     [bikes, workshops, events],
   )
 
-  // ─── Fade-cycle placeholder ────────────────────────────
+  // ─── Typewriter placeholder ────────────────────────────
   useEffect(() => {
-    if (isFocused) return
+    if (isFocused || query) return
 
-    // Show current word, then after DISPLAY_DURATION fade out → swap → fade in
-    const hold = setTimeout(() => {
-      setPlaceholderVisible(false) // start fade-out
-      setTimeout(() => {
-        setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length)
-        setPlaceholderVisible(true) // fade-in with new word
-      }, FADE_OUT)
-    }, DISPLAY_DURATION)
+    const state = placeholderRef.current
+    const currentWord = PLACEHOLDERS[state.index]
 
-    return () => clearTimeout(hold)
-  }, [isFocused, placeholderIndex])
+    const timer = setTimeout(() => {
+      if (!state.isDeleting) {
+        // Typing
+        if (state.charIndex < currentWord.length) {
+          state.charIndex++
+          setDisplayText(currentWord.slice(0, state.charIndex))
+        } else {
+          // Fully typed — pause then start deleting
+          state.isDeleting = true
+        }
+      } else {
+        // Deleting
+        if (state.charIndex > 0) {
+          state.charIndex--
+          setDisplayText(currentWord.slice(0, state.charIndex))
+        } else {
+          // Fully deleted — move to next word
+          state.isDeleting = false
+          state.index = (state.index + 1) % PLACEHOLDERS.length
+          setDisplayText('')
+        }
+      }
+      setTick((t) => t + 1)
+    }, state.isDeleting
+      ? (state.charIndex === currentWord.length ? PAUSE_FULL : DELETE_SPEED)
+      : (state.charIndex === 0 ? PAUSE_EMPTY : TYPE_SPEED))
+
+    return () => clearTimeout(timer)
+  }, [tick, isFocused, query])
 
   // ─── Search logic ────────────────────────────────────────
   const performSearch = useCallback(
@@ -323,16 +346,11 @@ export default function GlobalSearch() {
               }
             />
 
-            {/* Animated fade placeholder */}
+            {/* Typewriter placeholder */}
             {!query && (
-              <span
-                className="absolute left-1 sm:left-1.5 text-xs sm:text-sm text-[#222222]/30 pointer-events-none"
-                style={{
-                  opacity: placeholderVisible ? 1 : 0,
-                  transition: `opacity ${placeholderVisible ? FADE_IN : FADE_OUT}ms ease`,
-                }}
-              >
-                {PLACEHOLDERS[placeholderIndex]}
+              <span className="absolute left-1 sm:left-1.5 text-xs sm:text-sm text-[#222222]/30 pointer-events-none whitespace-nowrap">
+                {displayText}
+                <span className="inline-block w-[1px] h-[1em] bg-[#222222]/30 align-middle ml-[1px] animate-blink" />
               </span>
             )}
           </div>
