@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink } from 'lucide-react'
+import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import MediaSlider from '@/components/bike/MediaSlider'
 import type { MediaItem } from '@/components/bike/MediaSlider'
@@ -239,7 +239,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           <p className="text-[11px] text-[#717171]">{formatRelativeTime(post.created_at)}</p>
         </div>
         {tagLabel && (
-          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#222222] text-white flex-shrink-0">
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#222222]/8 text-[#222222]/50 flex-shrink-0">
             {tagLabel}
           </span>
         )}
@@ -299,10 +299,21 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             <MiniMap lat={post.latitude} lng={post.longitude} locationName={post.location_name} />
           </div>
           {post.location_name && (
-            <p className="flex items-center gap-1 text-[11px] text-[#717171] mt-1.5">
-              <MapPin size={11} className="flex-shrink-0" />
-              <span className="truncate">{post.location_name}</span>
-            </p>
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="flex items-center gap-1 text-[11px] text-[#717171] min-w-0">
+                <MapPin size={11} className="flex-shrink-0" />
+                <span className="truncate">{post.location_name}</span>
+              </p>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${post.latitude},${post.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[11px] text-[#06a5a5] hover:text-[#06a5a5]/70 transition-colors flex-shrink-0 ml-3"
+              >
+                <Navigation size={10} />
+                Route starten
+              </a>
+            </div>
           )}
         </div>
       )}
