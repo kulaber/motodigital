@@ -562,18 +562,30 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('community_posts') as any).insert({
+    const insertData: Record<string, unknown> = {
       user_id: userId,
       body: body.trim() || null,
       media_urls: uploadedUrls,
       topic: composerTag,
-      ...(composerTag === 'in-der-naehe' && composerLocation ? {
-        latitude: composerLocation.lat,
-        longitude: composerLocation.lng,
-        location_name: composerLocation.address,
-      } : {}),
-    })
+    }
+
+    if (composerTag === 'in-der-naehe' && composerLocation) {
+      insertData.latitude = composerLocation.lat
+      insertData.longitude = composerLocation.lng
+      insertData.location_name = composerLocation.address
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: insertError } = await (supabase.from('community_posts') as any).insert(insertData)
+
+    // If insert fails (e.g. location columns don't exist yet), retry without location
+    if (insertError && composerLocation) {
+      delete insertData.latitude
+      delete insertData.longitude
+      delete insertData.location_name
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('community_posts') as any).insert(insertData)
+    }
 
     setBody('')
     setComposerTag('allgemein')
