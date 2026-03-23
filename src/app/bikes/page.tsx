@@ -84,7 +84,6 @@ export default async function BikesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
             <div>
-              <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Motorcycles</p>
               <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
                 Handgefertigte Unikate.
               </h1>

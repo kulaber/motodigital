@@ -35,10 +35,9 @@ export default function SellPage() {
       {/* Hero */}
       <section className="pt-28 pb-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 text-center">
-          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-4">Inserieren</p>
           <h1 className="font-bold text-[#222222] leading-tight mb-6" style={{ fontSize: 'clamp(2.5rem,6vw,4.5rem)', letterSpacing: '-0.03em' }}>
             Dein Custom Bike.<br />
-            <span className="text-[#717171]">Weltweit sichtbar.</span>
+            Weltweit sichtbar.
           </h1>
           <p className="text-[#222222]/45 text-base max-w-[55ch] mx-auto leading-relaxed mb-10">
             Zeig der Welt, was du gebaut hast — MotoDigital bringt dein Unikat zu den richtigen Käufern.

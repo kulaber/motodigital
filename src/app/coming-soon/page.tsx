@@ -26,7 +26,7 @@ export default function ComingSoonPage() {
         <h1 className="font-bold text-[#222222] leading-tight mb-5"
           style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', letterSpacing: '-0.03em' }}>
           Die Plattform für<br />
-          <span className="text-[#222222]/25">Custom Motorcycle Builder.</span>
+          Custom Motorcycle Builder.
         </h1>
 
         <p className="text-[#222222]/45 text-base leading-relaxed mb-10 max-w-sm mx-auto">

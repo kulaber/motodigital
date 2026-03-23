@@ -75,11 +75,10 @@ export default function PreisePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(42,171,171,0.08) 0%, transparent 65%)' }} />
         <div className="max-w-2xl mx-auto relative">
-          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">Preise & Features</p>
           <h1 className="font-bold text-[#222222] leading-tight mb-4"
             style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.03em' }}>
             Einfach. Transparent.<br />
-            <span className="text-[#222222]/25">Kostenlos starten.</span>
+            Kostenlos starten.
           </h1>
           <p className="text-[#222222]/45 text-base leading-relaxed mb-8">
             MotoDigital ist für Custom Werkstätten und Rider kostenlos. Pro-Features kommen bald.
