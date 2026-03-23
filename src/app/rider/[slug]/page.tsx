@@ -223,14 +223,14 @@ export default async function RiderProfilePage({ params }: Props) {
               {/* Garage */}
               {rider.bikes.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                  <div className="flex items-end justify-between mb-5">
-                    <h2 className="text-base font-bold text-[#222222] tracking-tight">Meine Garage</h2>
+                  <div className="flex items-end justify-between mb-6">
+                    <h2 className="text-lg font-bold text-[#222222] tracking-tight">Meine Garage</h2>
                     <span className="text-xs text-[#B0B0B0]">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-5">
                     {rider.bikes.map(bike => (
                       <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
-                        <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#F7F7F7] mb-2 relative">
+                        <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
                           {bike.img ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={bike.img} alt={bike.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
