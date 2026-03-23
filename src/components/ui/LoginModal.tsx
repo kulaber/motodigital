@@ -146,7 +146,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
   if (!isOpen) return null
 
-  const redirectUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(window.location.pathname)}`
+  const redirectUrl = `${window.location.origin}/auth/callback?redirectTo=/explore`
 
   /* ─── Auth Handlers ──────────────────────────────────── */
 
@@ -215,7 +215,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       setLoading(null)
     } else {
       onClose()
-      window.location.reload()
+      window.location.href = '/explore'
     }
   }
 
