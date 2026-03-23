@@ -150,7 +150,11 @@ export default async function CustomBikePage({ params }: Props) {
 
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
-    const sellerProfileHref = sellerProfile?.slug ? `/custom-werkstatt/${sellerProfile.slug}` : null
+    const sellerProfileHref = sellerProfile?.slug
+      ? sellerProfile.role === 'rider'
+        ? `/rider/${sellerProfile.slug}`
+        : `/custom-werkstatt/${sellerProfile.slug}`
+      : null
     const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
     return (

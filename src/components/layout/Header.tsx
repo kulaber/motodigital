@@ -216,6 +216,12 @@ export default function Header({ activePage }: Props) {
                         <ExternalLink size={14} /> Werkstatt-Ansicht
                       </a>
                     )}
+                    {role === 'rider' && slug && (
+                      <a href={`/rider/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                        <ExternalLink size={14} /> Rider-Profil
+                      </a>
+                    )}
                     {role === 'superadmin' && (
                       <>
                         <div className="h-px bg-[#222222]/6 mx-3 my-1" />

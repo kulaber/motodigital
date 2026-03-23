@@ -9,13 +9,13 @@ import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
 import PostImageItem from '@/components/explore/PostImageItem'
 import { RIDERS } from '@/lib/data/riders'
-import { BUILDERS, type Builder } from '@/lib/data/builders'
 import { EVENTS } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { getProfileUrl } from '@/lib/utils/profileLink'
 import dynamic from 'next/dynamic'
 
 const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
@@ -55,51 +55,44 @@ interface CommunityPost {
   longitude: number | null
   location_name: string | null
   event_slug: string | null
-}
-
-/* ── Sidebar: Workshop list item ───────────────────────── */
-
-/* ── Sidebar: Workshop list item ───────────────────────── */
-
-function WorkshopItem({ builder }: { builder: Builder }) {
-  return (
-    <Link href={`/custom-werkstatt/${builder.slug}`} className="flex items-center gap-3 group py-2">
-      <div className="w-9 h-9 rounded-full bg-[#F0F0F0] flex items-center justify-center flex-shrink-0 overflow-hidden">
-        {builder.avatarUrl ? (
-          <Image src={builder.avatarUrl} alt={builder.name} width={36} height={36} className="object-cover w-full h-full" />
-        ) : (
-          <span className="text-[11px] font-bold text-[#222222]/40">{builder.initials}</span>
-        )}
-      </div>
-      <div className="min-w-0">
-        <p className="text-[13px] font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate leading-tight">
-          {builder.name}
-        </p>
-        <p className="text-[11px] text-[#717171] truncate">{builder.specialty} · {builder.city}</p>
-      </div>
-    </Link>
-  )
+  author_role: string | null
+  author_slug: string | null
 }
 
 /* ── Sidebar: Rider list item ──────────────────────────── */
 
-function RiderItem({ rider }: { rider: typeof RIDERS[number] }) {
+interface SidebarRider {
+  slug: string
+  name: string
+  initials: string
+  city: string
+  style: string
+  avatar?: string
+  isOnline: boolean
+}
+
+function RiderItem({ rider }: { rider: SidebarRider }) {
   return (
-    <div className="flex items-center gap-3 py-2">
-      <div className="w-9 h-9 rounded-full bg-[#F0F0F0] flex-shrink-0 overflow-hidden">
-        {rider.avatar ? (
-          <Image src={rider.avatar} alt={rider.name} width={36} height={36} className="object-cover w-full h-full" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[11px] font-bold text-[#222222]/40">
-            {rider.initials}
-          </div>
+    <Link href={`/rider/${rider.slug}`} className="flex items-center gap-3 group py-2">
+      <div className="relative flex-shrink-0">
+        <div className="w-9 h-9 rounded-full bg-[#F0F0F0] overflow-hidden">
+          {rider.avatar ? (
+            <Image src={rider.avatar} alt={rider.name} width={36} height={36} className="object-cover w-full h-full" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-[11px] font-bold text-[#222222]/40">
+              {rider.initials}
+            </div>
+          )}
+        </div>
+        {rider.isOnline && (
+          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
         )}
       </div>
       <div className="min-w-0">
-        <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight">{rider.name}</p>
+        <p className="text-[13px] font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate leading-tight">{rider.name}</p>
         <p className="text-[11px] text-[#717171] truncate">{rider.style} · {rider.city}</p>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -289,17 +282,31 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   return (
     <div className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden">
       <div className="flex items-center gap-3 p-4 pb-0">
-        <div className="w-10 h-10 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0">
-          {post.author_avatar ? (
-            <Image src={post.author_avatar} alt={post.author_name} width={40} height={40} className="object-cover w-full h-full" />
+        {(() => {
+          const profileHref = getProfileUrl(post.author_role, post.author_slug)
+          const avatar = (
+            <div className="w-10 h-10 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {post.author_avatar ? (
+                <Image src={post.author_avatar} alt={post.author_name} width={40} height={40} className="object-cover w-full h-full" />
+              ) : (
+                <span className="text-xs font-bold text-[#222222]/40">{post.author_initials}</span>
+              )}
+            </div>
+          )
+          const nameBlock = (
+            <div className="min-w-0 flex-1">
+              <p className={`text-sm font-semibold text-[#222222] truncate leading-tight ${profileHref ? 'group-hover/author:text-[#06a5a5] transition-colors' : ''}`}>{post.author_name}</p>
+              <p className="text-[11px] text-[#717171]">{formatRelativeTime(post.created_at)}</p>
+            </div>
+          )
+          return profileHref ? (
+            <Link href={profileHref} className="flex items-center gap-3 min-w-0 flex-1 group/author">
+              {avatar}{nameBlock}
+            </Link>
           ) : (
-            <span className="text-xs font-bold text-[#222222]/40">{post.author_initials}</span>
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[#222222] truncate leading-tight">{post.author_name}</p>
-          <p className="text-[11px] text-[#717171]">{formatRelativeTime(post.created_at)}</p>
-        </div>
+            <>{avatar}{nameBlock}</>
+          )
+        })()}
         {tagLabel && (
           <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#222222]/8 text-[#222222]/50 flex-shrink-0">
             {tagLabel}
@@ -565,6 +572,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const canPost = !!userId
+  const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
 
   // Detect when composer becomes sticky
   useEffect(() => {
@@ -591,10 +599,10 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
     const userIds = [...new Set((postsData as { user_id: string }[]).map(p => p.user_id))]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: profilesData } = await (supabase.from('profiles') as any)
-      .select('id, full_name, avatar_url')
+      .select('id, full_name, avatar_url, role, slug, username')
       .in('id', userIds)
 
-    const profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {}
+    const profileMap: Record<string, { full_name: string | null; avatar_url: string | null; role: string | null; slug: string | null; username: string | null }> = {}
     for (const prof of (profilesData ?? [])) profileMap[prof.id] = prof
 
     // Load likes
@@ -628,6 +636,10 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
         longitude: p.longitude ?? null,
         location_name: p.location_name ?? null,
         event_slug: p.event_slug ?? null,
+        author_role: profile?.role ?? null,
+        author_slug: profile?.slug
+          ?? profile?.username
+          ?? (profile?.role === 'rider' && name !== 'Unbekannt' ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null),
       }
     })
 
@@ -636,6 +648,63 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   }, [userId])
 
   useEffect(() => { loadPosts() }, [loadPosts])
+
+  // Load sidebar riders (DB + static, sorted by online status)
+  useEffect(() => {
+    async function loadSidebarRiders() {
+      const THREE_MIN_AGO = new Date(Date.now() - 3 * 60 * 1000).toISOString()
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: dbRiders } = await (supabase.from('profiles') as any)
+        .select('id, full_name, slug, username, city, avatar_url, tags, last_seen_at')
+        .eq('role', 'rider')
+        .order('last_seen_at', { ascending: false, nullsFirst: false })
+        .limit(20)
+
+      const dbItems: SidebarRider[] = (dbRiders ?? [])
+        .filter((r: Record<string, unknown>) => r.slug || r.username || r.full_name)
+        .map((r: Record<string, unknown>) => {
+          const name = (r.full_name as string | null) ?? 'Unbekannt'
+          const tags = (r.tags as string[] | null) ?? []
+          const lastSeen = r.last_seen_at as string | null
+          return {
+            slug: (r.slug as string | null) ?? (r.username as string | null) ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+            name,
+            initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+            city: (r.city as string | null) ?? '',
+            style: tags[0] ?? '',
+            avatar: (r.avatar_url as string | null) ?? undefined,
+            isOnline: !!lastSeen && lastSeen > THREE_MIN_AGO,
+          }
+        })
+
+      // Merge with static riders (deduplicate)
+      const dbSlugs = new Set(dbItems.map(r => r.slug))
+      const staticItems: SidebarRider[] = RIDERS
+        .filter(r => !dbSlugs.has(r.slug))
+        .map(r => ({
+          slug: r.slug,
+          name: r.name,
+          initials: r.initials,
+          city: r.city,
+          style: r.style,
+          avatar: r.avatar,
+          isOnline: false,
+        }))
+
+      const all = [...dbItems, ...staticItems]
+      // Sort: online first, then alphabetical
+      all.sort((a, b) => {
+        if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1
+        return a.name.localeCompare(b.name)
+      })
+
+      setSidebarRiders(all.slice(0, 5))
+    }
+
+    loadSidebarRiders()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleLike(postId: string) {
     if (!userId) return
@@ -744,44 +813,11 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
     return sorted.filter(p => p.topic === category)
   }, [category, communityPosts])
 
-  // Sort workshops: user's city first, then others
-  const nearbyWorkshops = useMemo(() => {
-    if (!userCity) return BUILDERS.slice(0, 3)
-    const city = userCity.toLowerCase()
-    return [...BUILDERS]
-      .sort((a, b) => {
-        const aMatch = a.city.toLowerCase() === city ? 0 : 1
-        const bMatch = b.city.toLowerCase() === city ? 0 : 1
-        return aMatch - bMatch
-      })
-      .slice(0, 3)
-  }, [userCity])
-
   return (
     <>
       {/* ── Sidebar ─────────────────────────────────── */}
       <div className="hidden lg:block">
         <aside className="w-80 flex-shrink-0 flex flex-col gap-3 pt-3 pb-3 pl-4 sm:pl-5 lg:pl-8 pr-3 sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto">
-
-          {/* Werkstätten in der Nähe — nur für eingeloggte Nutzer */}
-          {userId && (
-            <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-2">
-                Werkstätten in der Nähe
-              </p>
-              <div className="flex flex-col">
-                {nearbyWorkshops.map(b => (
-                  <WorkshopItem key={b.slug} builder={b} />
-                ))}
-              </div>
-              <Link
-                href="/custom-werkstatt"
-                className="flex items-center gap-1 text-xs font-medium text-[#06a5a5] mt-2 hover:text-[#058f8f] transition-colors"
-              >
-                Alle anzeigen <ChevronRight size={14} />
-              </Link>
-            </div>
-          )}
 
           {/* Aktive Rider */}
           <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
@@ -789,10 +825,16 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
               Aktive Rider
             </p>
             <div className="flex flex-col">
-              {RIDERS.slice(0, 3).map(r => (
+              {sidebarRiders.map(r => (
                 <RiderItem key={r.slug} rider={r} />
               ))}
             </div>
+            <Link
+              href="/rider"
+              className="flex items-center gap-1 text-xs font-medium text-[#06a5a5] mt-2 hover:text-[#058f8f] transition-colors"
+            >
+              Alle Rider entdecken <ChevronRight size={14} />
+            </Link>
           </div>
         </aside>
       </div>
