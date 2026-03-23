@@ -560,7 +560,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       showModeSwitch = false
     }
   } else {
-    title = 'Konto erstellen'
+    title = 'Kostenlos Registrieren'
     showModeSwitch = true
 
     if (registerDone) {
