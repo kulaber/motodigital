@@ -143,20 +143,13 @@ export default async function LandingPage() {
       {/* ── NAV ── */}
       <Header activePage="landing" />
 
-      {/* ── QUICK SEARCH ── */}
-      <section className="bg-white py-4 sm:py-6 lg:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <GlobalSearch />
-        </div>
-      </section>
-
       {/* ── HERO VIDEO ── */}
-      <section className="bg-white pb-8 sm:pb-12 lg:pb-16">
+      <section className="bg-white pt-4 sm:pt-5 lg:pt-6 pb-4 sm:pb-5 lg:pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-[#222222]/10">
             <video
               autoPlay muted loop playsInline preload="metadata"
-              className="w-full aspect-[9/11] sm:aspect-video lg:aspect-[21/9] object-cover"
+              className="w-full aspect-[9/12] sm:aspect-[16/9] lg:aspect-[21/9] object-cover"
             >
               <source src="/custombike_intro.mp4" type="video/mp4" />
             </video>
@@ -184,8 +177,8 @@ export default async function LandingPage() {
                 </p>
                 <div className="animate-slide-up flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center" style={{ animationDelay: '180ms' }}>
                   <Link href="/custom-werkstatt"
-                    className="bg-[#06a5a5] text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:bg-[#058f8f] transition-colors duration-200 hover:-translate-y-0.5 transform min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
-                    Werkstatt finden →
+                    className="bg-[#06a5a5] text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:bg-[#058f8f] transition-colors duration-200 min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
+                    Werkstatt finden
                   </Link>
                   <Link href="/bikes"
                     className="border border-white/25 text-white font-medium px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:border-white/60 hover:bg-white/10 transition-colors duration-200 min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
@@ -198,6 +191,12 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── QUICK SEARCH ── */}
+      <section className="bg-white py-3 sm:py-4 lg:py-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+          <GlobalSearch />
+        </div>
+      </section>
 
       {/* ── FEATURED BUILDS ── */}
       <section className="py-20 lg:py-28 bg-white" id="builds">

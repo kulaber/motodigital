@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -14,6 +14,7 @@ interface Props {
 export default function BuilderMap({ lat, lng, name, address }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const [activated, setActivated] = useState(false)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -28,7 +29,7 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
       style: 'mapbox://styles/mapbox/light-v11',
       center: [lng, lat],
       zoom: 13,
-      interactive: true,
+      interactive: false,
       attributionControl: false,
     })
 
@@ -74,14 +75,38 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
     }
   }, [lat, lng, name, address])
 
+  function handleActivate() {
+    setActivated(true)
+    const map = mapRef.current
+    if (!map) return
+    map.scrollZoom.enable()
+    map.dragPan.enable()
+    map.dragRotate.enable()
+    map.doubleClickZoom.enable()
+    map.touchZoomRotate.enable()
+    map.keyboard.enable()
+  }
+
   return (
     <>
       <style>{`.mapboxgl-ctrl-logo { display: none !important; } .mapboxgl-ctrl-attrib { display: none !important; }`}</style>
-      <div
-        ref={containerRef}
-        className="w-full h-72 rounded-t-none"
-        style={{ minHeight: '288px' }}
-      />
+      <div className="relative">
+        <div
+          ref={containerRef}
+          className="w-full h-72 rounded-t-none"
+          style={{ minHeight: '288px' }}
+        />
+        {!activated && (
+          <div
+            onClick={handleActivate}
+            className="absolute inset-0 cursor-pointer z-10 flex items-end justify-center pb-4 transition-opacity"
+          >
+            <span className="bg-white/90 backdrop-blur-sm text-[#222222] text-xs font-medium px-3 py-1.5 rounded-full border border-[#222222]/10 shadow-sm">
+              Klicken, um Karte zu bedienen
+            </span>
+          </div>
+        )}
+      </div>
     </>
   )
 }

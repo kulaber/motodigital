@@ -39,7 +39,7 @@ export default async function MeinBikePage() {
 
   const myBikes = bikes ?? []
 
-  const pageTitle    = isWerkstatt ? 'Custom Bikes' : 'Mein Bike'
+  const pageTitle    = isWerkstatt ? 'Custom Bikes' : 'Meine Garage'
   const pageSubtitle = isWerkstatt ? 'Deine Projekte — werden auf MotoDigital gelistet' : 'Dein persönliches Custom Bike'
   const addHref      = '/bikes/new'
   const emptyText    = 'Noch kein Custom Bike eingetragen'

@@ -357,8 +357,8 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       >
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
-            <Bike size={18} className="text-white/60" />
-            <p className="font-bold text-sm text-white">Rider</p>
+            <Bike size={18} className="text-accent" />
+            <p className="font-bold text-xl text-white">Rider</p>
           </div>
           <p className="text-xs text-white/40 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
           <ul className="flex flex-col gap-1.5">
@@ -381,8 +381,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <Wrench size={18} className="text-accent" />
-            <p className="font-bold text-sm text-white">Custom Werkstatt</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-accent text-white px-2 py-0.5 rounded-full">Beliebt</span>
+            <p className="font-bold text-xl text-white">Custom Werkstatt</p>
           </div>
           <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
           <ul className="flex flex-col gap-1.5">
@@ -551,7 +550,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
   /* ─── Determine content ──────────────────────────────── */
 
-  let title = 'Willkommen bei MotoDigital'
+  let title = 'Login'
   let content = loginView
   let showModeSwitch = true
 
@@ -568,7 +567,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       content = registerDoneView
       showModeSwitch = false
     } else if (regStep === 1) {
-      title = 'Wie möchtest du MotoDigital nutzen?'
+      title = 'Wähle Deine Rolle:'
       content = registerRoleView
     } else {
       content = registerFormView

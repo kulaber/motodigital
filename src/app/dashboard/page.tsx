@@ -251,8 +251,8 @@ export default async function DashboardPage() {
         {isRider ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
 
-            {/* Mein Bike */}
-            <Link href="/dashboard/meine-custom-bikes" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
+            {/* Meine Garage */}
+            <Link href="/dashboard/meine-garage" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
               <div className="relative w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 overflow-hidden">
                 {bikes?.[0]?.bike_images?.[0]?.url ? (
                   <Image src={bikes[0].bike_images[0].url} alt={bikes[0].title} fill sizes="48px" className="object-cover" />
@@ -263,7 +263,7 @@ export default async function DashboardPage() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Mein Bike</p>
+                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Meine Garage</p>
                 <p className="text-sm font-semibold text-[#222222] truncate">
                   {bikes?.[0]?.title ?? 'Noch kein Bike'}
                 </p>

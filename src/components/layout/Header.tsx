@@ -107,9 +107,9 @@ export default function Header({ activePage }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16">
 
         {/* Logo */}
-        <div className="flex-1 min-w-0">
-          <Link href="/" className="inline-block">
-            <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-14 w-auto" priority />
+        <div className="flex-1 min-w-0 flex items-center">
+          <Link href="/" className="inline-flex items-center">
+            <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
           </Link>
         </div>
 
@@ -188,9 +188,9 @@ export default function Header({ activePage }: Props) {
                     </Link>
                     {role === 'rider' && (
                       <>
-                        <Link href="/dashboard/meine-custom-bikes" onClick={() => setDashDropdown(false)}
+                        <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Bike size={14} /> Mein Bike
+                          <Bike size={14} /> Meine Garage
                         </Link>
                         <Link href="/dashboard/merkliste" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
@@ -204,7 +204,7 @@ export default function Header({ activePage }: Props) {
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                           <User size={14} /> Profil bearbeiten
                         </Link>
-                        <Link href="/dashboard/meine-custom-bikes" onClick={() => setDashDropdown(false)}
+                        <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                           <Wrench size={14} /> Custom Bikes
                         </Link>

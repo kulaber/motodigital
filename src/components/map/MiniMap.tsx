@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -13,6 +13,7 @@ interface Props {
 export default function MiniMap({ lat, lng, locationName }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const [activated, setActivated] = useState(false)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -27,9 +28,8 @@ export default function MiniMap({ lat, lng, locationName }: Props) {
       style: 'mapbox://styles/mapbox/light-v11',
       center: [lng, lat],
       zoom: 13,
-      interactive: true,
+      interactive: false,
       attributionControl: false,
-      scrollZoom: false,
     })
 
     mapRef.current = map
@@ -76,6 +76,18 @@ export default function MiniMap({ lat, lng, locationName }: Props) {
     }
   }, [lat, lng, locationName])
 
+  function handleActivate() {
+    setActivated(true)
+    const map = mapRef.current
+    if (!map) return
+    map.scrollZoom.enable()
+    map.dragPan.enable()
+    map.dragRotate.enable()
+    map.doubleClickZoom.enable()
+    map.touchZoomRotate.enable()
+    map.keyboard.enable()
+  }
+
   return (
     <>
       <style>{`
@@ -98,7 +110,19 @@ export default function MiniMap({ lat, lng, locationName }: Props) {
         .minimap-container .mapboxgl-ctrl button { background: #fff !important; }
       `}</style>
       <div className="minimap-container">
-        <div ref={containerRef} className="w-full" style={{ height: 200 }} />
+        <div className="relative">
+          <div ref={containerRef} className="w-full" style={{ height: 200 }} />
+          {!activated && (
+            <div
+              onClick={handleActivate}
+              className="absolute inset-0 cursor-pointer z-10 flex items-end justify-center pb-3 transition-opacity"
+            >
+              <span className="bg-white/90 backdrop-blur-sm text-[#222222] text-xs font-medium px-3 py-1.5 rounded-full border border-[#222222]/10 shadow-sm">
+                Klicken, um Karte zu bedienen
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

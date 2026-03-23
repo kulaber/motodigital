@@ -49,7 +49,7 @@ export default function DashboardNav({ role, userName, avatarUrl }: Props) {
   const mainItems: NavItem[] = [
     { label: 'Übersicht', href: '/dashboard', icon: <LayoutDashboard size={15} /> },
     ...(role === 'rider' || role === 'custom-werkstatt'
-      ? [{ label: role === 'rider' ? 'Mein Bike' : 'Custom Bikes', href: '/dashboard/meine-custom-bikes', icon: <Bike size={15} /> }]
+      ? [{ label: role === 'rider' ? 'Meine Garage' : 'Custom Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
       : []),
     ...(role !== 'superadmin'
       ? [
