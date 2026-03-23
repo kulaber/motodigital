@@ -42,7 +42,7 @@ interface BuilderRow {
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-export default function GlobalSearch() {
+export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
@@ -52,6 +52,7 @@ export default function GlobalSearch() {
   const [bikes, setBikes] = useState<SearchResultItem[]>([])
   const [workshops, setWorkshops] = useState<SearchResultItem[]>([])
   const [events, setEvents] = useState<SearchResultItem[]>([])
+  const [suggestions, setSuggestions] = useState<{ bikes: SearchResultItem[]; workshops: SearchResultItem[]; events: SearchResultItem[] } | null>(null)
   const [activeIndex, setActiveIndex] = useState(-1)
 
   const [isFocused, setIsFocused] = useState(false)
@@ -107,6 +108,72 @@ export default function GlobalSearch() {
 
     return () => clearTimeout(timer)
   }, [tick, isFocused, query])
+
+  // ─── Load random suggestions on focus ────────────────────
+  const loadSuggestions = useCallback(async () => {
+    if (suggestions) { setOpen(true); return }
+
+    try {
+      const [bikeRes, builderRes] = await Promise.all([
+        (supabase.from('bikes') as ReturnType<typeof supabase.from>)
+          .select('id, title, make, model, city, slug, bike_images(url, is_cover, position)')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(20),
+        (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+          .select('id, full_name, city, specialty, slug, avatar_url')
+          .eq('role', 'custom-werkstatt')
+          .not('slug', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ])
+
+      const bikeRows = (bikeRes.data ?? []) as unknown as BikeRow[]
+      const builderRows = (builderRes.data ?? []) as unknown as BuilderRow[]
+
+      const pick = <T,>(arr: T[]): T[] => {
+        if (arr.length === 0) return []
+        const i = Math.floor(Math.random() * arr.length)
+        return [arr[i]]
+      }
+
+      const pickedBike = pick(bikeRows)
+      const pickedBuilder = pick(builderRows)
+      const pickedEvent = pick(EVENTS)
+
+      const sugBikes: SearchResultItem[] = pickedBike.map((b) => {
+        const imgs = b.bike_images ?? []
+        const cover = imgs.find((i) => i.is_cover)?.url ?? imgs.sort((a, z) => a.position - z.position)[0]?.url
+        return {
+          id: b.id, type: 'bike' as const, title: b.title,
+          subtitle: [b.make, b.model, b.city].filter(Boolean).join(' · '),
+          href: `/custom-bike/${b.slug ?? generateBikeSlug(b.title, b.id)}`,
+          imageUrl: cover || undefined,
+        }
+      })
+
+      const sugWorkshops: SearchResultItem[] = pickedBuilder.map((w) => ({
+        id: w.id, type: 'workshop' as const, title: w.full_name ?? 'Unbekannt',
+        subtitle: [w.specialty, w.city].filter(Boolean).join(' · '),
+        href: `/custom-werkstatt/${w.slug}`,
+        imageUrl: w.avatar_url || undefined,
+      }))
+
+      const sugEvents: SearchResultItem[] = pickedEvent.map((e) => ({
+        id: String(e.id), type: 'event' as const, title: e.name,
+        subtitle: `${e.date} · ${e.location}`,
+        href: `/events/${e.slug}`,
+      }))
+
+      setSuggestions({ bikes: sugBikes, workshops: sugWorkshops, events: sugEvents })
+      setBikes(sugBikes)
+      setWorkshops(sugWorkshops)
+      setEvents(sugEvents)
+      setOpen(true)
+    } catch {
+      // Silently fail
+    }
+  }, [supabase, suggestions])
 
   // ─── Search logic ────────────────────────────────────────
   const performSearch = useCallback(
@@ -205,10 +272,17 @@ export default function GlobalSearch() {
       setQuery(value)
       if (debounceRef.current) clearTimeout(debounceRef.current)
       if (value.trim().length < 2) {
-        setBikes([])
-        setWorkshops([])
-        setEvents([])
-        setOpen(false)
+        if (suggestions) {
+          setBikes(suggestions.bikes)
+          setWorkshops(suggestions.workshops)
+          setEvents(suggestions.events)
+          setOpen(true)
+        } else {
+          setBikes([])
+          setWorkshops([])
+          setEvents([])
+          setOpen(false)
+        }
         return
       }
       debounceRef.current = setTimeout(() => performSearch(value), 300)
@@ -285,13 +359,10 @@ export default function GlobalSearch() {
   // ─── Render helpers ─────────────────────────────────────
   const hasResults = allResults.length > 0
 
-  function renderGroup(label: string, items: SearchResultItem[], startIdx: number) {
+  function renderGroup(items: SearchResultItem[], startIdx: number) {
     if (items.length === 0) return null
     return (
       <div>
-        <p className="px-4 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#222222]/30">
-          {label}
-        </p>
         {items.map((item, i) => (
           <SearchResult
             key={item.id}
@@ -325,7 +396,11 @@ export default function GlobalSearch() {
               onChange={(e) => handleChange(e.target.value)}
               onFocus={() => {
                 setIsFocused(true)
-                if (allResults.length > 0 && query.trim().length >= 2) setOpen(true)
+                if (query.trim().length >= 2 && allResults.length > 0) {
+                  setOpen(true)
+                } else if (query.trim().length < 2) {
+                  loadSuggestions()
+                }
               }}
               onBlur={(e) => {
                 if (containerRef.current?.contains(e.relatedTarget as Node)) return
@@ -361,10 +436,17 @@ export default function GlobalSearch() {
               type="button"
               onClick={() => {
                 setQuery('')
-                setBikes([])
-                setWorkshops([])
-                setEvents([])
-                setOpen(false)
+                if (suggestions) {
+                  setBikes(suggestions.bikes)
+                  setWorkshops(suggestions.workshops)
+                  setEvents(suggestions.events)
+                  setOpen(true)
+                } else {
+                  setBikes([])
+                  setWorkshops([])
+                  setEvents([])
+                  setOpen(false)
+                }
                 setActiveIndex(-1)
                 inputRef.current?.focus()
               }}
@@ -395,34 +477,43 @@ export default function GlobalSearch() {
         <div
           id="global-search-listbox"
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-2 bg-white border border-[#222222]/10 rounded-2xl shadow-lg overflow-hidden z-50 animate-expand"
+          className={`absolute left-0 right-0 bg-white border border-[#222222]/10 rounded-2xl shadow-lg overflow-hidden z-50 animate-expand ${
+            dropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+          }`}
         >
           {hasResults ? (
             <>
-              {renderGroup('Bikes', bikes, 0)}
-              {renderGroup('Custom Werkstätten', workshops, bikes.length)}
-              {renderGroup('Events', events, bikes.length + workshops.length)}
+              {query.trim().length < 2 && (
+                <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#222222]/25">
+                  Vorschläge
+                </p>
+              )}
+              {renderGroup(bikes, 0)}
+              {renderGroup(workshops, bikes.length)}
+              {renderGroup(events, bikes.length + workshops.length)}
 
-              {/* "Alle Ergebnisse anzeigen" */}
-              <div className="border-t border-[#222222]/6">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={activeIndex === allResults.length}
-                  onClick={() => {
-                    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
-                    setOpen(false)
-                    inputRef.current?.blur()
-                  }}
-                  className={`w-full text-center text-xs font-semibold py-3 transition-colors duration-100 ${
-                    activeIndex === allResults.length
-                      ? 'bg-[#222222]/5 text-[#06a5a5]'
-                      : 'text-[#06a5a5] hover:bg-[#222222]/3'
-                  }`}
-                >
-                  Alle Ergebnisse anzeigen
-                </button>
-              </div>
+              {/* "Alle Ergebnisse anzeigen" — only when searching */}
+              {query.trim().length >= 2 && (
+                <div className="border-t border-[#222222]/6">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={activeIndex === allResults.length}
+                    onClick={() => {
+                      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+                      setOpen(false)
+                      inputRef.current?.blur()
+                    }}
+                    className={`w-full text-center text-xs font-semibold py-3 transition-colors duration-100 ${
+                      activeIndex === allResults.length
+                        ? 'bg-[#222222]/5 text-[#06a5a5]'
+                        : 'text-[#06a5a5] hover:bg-[#222222]/3'
+                    }`}
+                  >
+                    Alle Ergebnisse anzeigen
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <p className="text-center text-sm text-[#222222]/30 py-6">
