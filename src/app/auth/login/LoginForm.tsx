@@ -14,7 +14,7 @@ function LoginFormInner() {
   const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/dashboard'
+  const redirectTo = searchParams.get('redirectTo') ?? '/explore'
   const supabase = createClient()
 
   async function handlePassword(e: React.FormEvent) {

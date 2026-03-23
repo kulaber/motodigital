@@ -51,7 +51,7 @@ export default function RegisterForm() {
       password,
       options: {
         data: { full_name: name, username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore`,
       },
     })
 

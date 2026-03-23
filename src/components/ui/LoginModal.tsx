@@ -236,7 +236,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       password,
       options: {
         data: { full_name: name.trim(), username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore`,
       },
     })
 
