@@ -45,6 +45,7 @@ interface BuilderRow {
 export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
+  const [resolvedDropUp, setResolvedDropUp] = useState(dropUp)
 
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -396,6 +397,10 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
               onChange={(e) => handleChange(e.target.value)}
               onFocus={() => {
                 setIsFocused(true)
+                if (dropUp && containerRef.current) {
+                  const rect = containerRef.current.getBoundingClientRect()
+                  setResolvedDropUp(rect.top > 250)
+                }
                 if (query.trim().length >= 2 && allResults.length > 0) {
                   setOpen(true)
                 } else if (query.trim().length < 2) {
@@ -405,6 +410,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
               onBlur={(e) => {
                 if (containerRef.current?.contains(e.relatedTarget as Node)) return
                 setIsFocused(false)
+                setResolvedDropUp(dropUp)
               }}
               onKeyDown={handleKeyDown}
               placeholder=""
@@ -477,9 +483,9 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
         <div
           id="global-search-listbox"
           role="listbox"
-          className={`absolute left-0 right-0 bg-white border border-[#222222]/10 rounded-2xl shadow-lg overflow-hidden z-50 animate-expand ${
-            dropUp ? 'bottom-full mb-2' : 'top-full mt-2'
-          }`}
+          className={`absolute left-0 right-0 bg-white border border-[#222222]/10 rounded-2xl shadow-lg z-50 animate-expand ${
+            resolvedDropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+          } max-h-[60vh] overflow-y-auto`}
         >
           {hasResults ? (
             <>
