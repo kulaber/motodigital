@@ -100,22 +100,27 @@ export default function MobileBottomNav() {
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
         style={{
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          background: "rgba(250, 250, 250, 0.92)",
-          backdropFilter: "saturate(180%) blur(24px)",
-          WebkitBackdropFilter: "saturate(180%) blur(24px)",
-          boxShadow: "0 -1px 12px rgba(0,0,0,0.06)",
-          borderTop: "1px solid rgba(0,0,0,0.05)",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+          paddingLeft: 16,
+          paddingRight: 16,
+          pointerEvents: "none",
         }}
       >
         <nav
           style={{
+            pointerEvents: "auto",
             width: "100%",
             maxWidth: 400,
+            background: "rgba(250, 250, 250, 0.92)",
+            backdropFilter: "saturate(180%) blur(24px)",
+            WebkitBackdropFilter: "saturate(180%) blur(24px)",
+            borderRadius: 28,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
+            border: "1px solid rgba(0,0,0,0.05)",
           }}
         >
           <div
-            className="relative flex items-center justify-around"
+            className="relative flex items-center justify-evenly"
             style={{ height: 68, padding: "0 4px" }}
           >
             {/* Sliding pill — pure CSS positioning, no DOM measurement */}
@@ -130,9 +135,7 @@ export default function MobileBottomNav() {
                   transform: `translateX(calc(${activeIndex} * (100% + 8px))) translateY(-50%)`,
                   borderRadius: 24,
                   background: "#111111",
-                  transition:
-                    "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  willChange: "transform",
+                  transition: "none",
                   zIndex: 0,
                 }}
               />
@@ -149,14 +152,13 @@ export default function MobileBottomNav() {
                     e.preventDefault();
                     handleTap(index, item.href);
                   }}
-                  className="relative flex flex-col items-center justify-center"
+                  className="relative flex items-center justify-center"
                   style={{
                     flex: 1,
                     height: 54,
                     borderRadius: 16,
                     WebkitTapHighlightColor: "transparent",
                     zIndex: 1,
-                    gap: 2,
                   }}
                   aria-label={item.label}
                 >
@@ -170,19 +172,6 @@ export default function MobileBottomNav() {
                     }}
                   >
                     {item.icon}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 600,
-                      letterSpacing: "0.01em",
-                      color: isActive ? "#FFFFFF" : INACTIVE_ICON,
-                      transition: "color 0.35s ease",
-                      lineHeight: 1,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {item.label}
                   </span>
                 </a>
               );
