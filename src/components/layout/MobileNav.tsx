@@ -119,8 +119,8 @@ export default function MobileNav({
           </div>
         )}
 
-        {/* ── 2. User Actions (logged in only) ── */}
-        {user && (
+        {/* ── 2. User Actions (logged in only, hidden for riders) ── */}
+        {user && role !== 'rider' && (
           <div className="px-3 pt-5 pb-2">
             <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
               Mein Bereich
