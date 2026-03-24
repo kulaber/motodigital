@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, ArrowLeft, Globe, Instagram, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, ChevronLeft, Globe, Instagram, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
@@ -184,8 +184,9 @@ export default async function BuilderProfilePage({ params }: Props) {
         <div className="absolute top-0 left-0 right-0 z-10 pt-4 px-4">
           <div className="flex items-center justify-between">
             <Link href="/custom-werkstatt"
-              className="inline-flex items-center gap-1.5 bg-black/50 text-white text-xs font-medium px-2.5 py-1.5 rounded-full backdrop-blur-sm hover:bg-black/60 transition-colors">
-              <ArrowLeft size={13} /> Zurück
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
+              aria-label="Zurück">
+              <ChevronLeft size={20} />
             </Link>
             <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
           </div>

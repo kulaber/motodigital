@@ -111,13 +111,13 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
         onClick={handleSave}
         disabled={loadingSave}
         className={iconOnly
-          ? `w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] text-white' : 'bg-black/50 text-white hover:bg-black/60'}`
+          ? `w-10 h-10 flex items-center justify-center rounded-full shadow-md transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] text-white' : 'bg-white/90 text-[#222] hover:bg-white'}`
           : `flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] border-[#06a5a5] text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`
         }
         aria-label={saved ? 'Gespeichert' : 'Speichern'}
       >
         {iconOnly
-          ? <Star size={15} className={saved ? 'fill-white' : ''} />
+          ? <Star size={17} className={saved ? 'fill-white' : ''} />
           : <><Star size={13} className={saved ? 'fill-white' : ''} />{saved ? 'Gespeichert' : 'Speichern'}</>
         }
       </button>
@@ -127,12 +127,12 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
         <button
           onClick={() => setShareOpen(v => !v)}
           className={iconOnly
-            ? 'w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/60 transition-all'
+            ? 'w-10 h-10 flex items-center justify-center rounded-full bg-white/90 text-[#222] shadow-md hover:bg-white transition-all'
             : 'flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all'
           }
           aria-label="Teilen"
         >
-          <Share2 size={iconOnly ? 15 : 13} />
+          <Share2 size={iconOnly ? 17 : 13} />
           {!iconOnly && ' Teilen'}
         </button>
 
