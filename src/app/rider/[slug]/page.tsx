@@ -133,7 +133,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
       const geo = await geocode(cityName)
       return geo ? { name: cityName, lat: geo.lat, lng: geo.lng, country: geo.country } : null
     }))
-    visitedCityCoords = results.filter((c): c is { name: string; lat: number; lng: number; country?: string } => c !== null)
+    visitedCityCoords = results.filter(Boolean) as typeof visitedCityCoords
   }
 
   return {
