@@ -127,7 +127,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   // Geocode visited cities in parallel
   const visitedRaw = (row.visited_cities as string[] | null) ?? []
-  let visitedCityCoords: { name: string; lat: number; lng: number }[] = []
+  let visitedCityCoords: { name: string; lat: number; lng: number; country?: string }[] = []
   if (visitedRaw.length > 0) {
     const results = await Promise.all(visitedRaw.map(async (cityName) => {
       const geo = await geocode(cityName)
