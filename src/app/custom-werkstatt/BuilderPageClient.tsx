@@ -222,6 +222,7 @@ function BuilderList({
   onHoverEnd,
   onReset,
   isMobile,
+  userId,
 }: {
   builders: Builder[]
   visible: Builder[]
@@ -233,6 +234,7 @@ function BuilderList({
   onHoverEnd?: () => void
   onReset: () => void
   isMobile?: boolean
+  userId?: string | null
 }) {
   if (!mapReady) {
     return (
@@ -304,24 +306,26 @@ function BuilderList({
         ))}
       </div>
 
-      {/* CTA card */}
-      <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
-        <div className="absolute inset-0">
-          <Image
-            src="/custom-werkstatt.png"
-            alt="Custom Werkstatt"
-            fill
-            sizes="400px"
-            className="object-cover opacity-30 scale-100 group-hover:scale-110 transition-transform duration-[1200ms] ease-in-out"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
-        </div>
-        <div className="relative z-10 p-5 pt-14">
-          <h3 className="text-sm font-bold text-white mb-1">Du betreibst eine Custom Werkstatt?</h3>
-          <p className="text-xs text-white/50 leading-relaxed mb-4">Registriere dich kostenlos und werde direkt von Riders gefunden.</p>
-          <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Als Custom Werkstatt registrieren</span>
-        </div>
-      </Link>
+      {/* CTA card — only for logged-out users */}
+      {!userId && (
+        <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
+          <div className="absolute inset-0">
+            <Image
+              src="/custom-werkstatt.png"
+              alt="Custom Werkstatt"
+              fill
+              sizes="400px"
+              className="object-cover opacity-30 scale-100 group-hover:scale-110 transition-transform duration-[1200ms] ease-in-out"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
+          </div>
+          <div className="relative z-10 p-5 pt-14">
+            <h3 className="text-sm font-bold text-white mb-1">Du betreibst eine Custom Werkstatt?</h3>
+            <p className="text-xs text-white/50 leading-relaxed mb-4">Registriere dich kostenlos und werde direkt von Riders gefunden.</p>
+            <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Als Custom Werkstatt registrieren</span>
+          </div>
+        </Link>
+      )}
 
       <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'} · MotoDigital</p>
     </div>
@@ -857,6 +861,7 @@ export default function BuilderPageClient({ builders }: Props) {
             onHover={setHoveredBuilder}
             onHoverEnd={() => setHoveredBuilder(null)}
             onReset={resetAndFitMap}
+            userId={userId}
           />
         </div>
 
@@ -893,6 +898,7 @@ export default function BuilderPageClient({ builders }: Props) {
             onToggleSave={toggleSave}
             onReset={resetAndFitMap}
             isMobile
+            userId={userId}
           />
         </div>
 
@@ -902,7 +908,7 @@ export default function BuilderPageClient({ builders }: Props) {
             setMobileView(v => v === 'map' ? 'list' : 'map')
             setMobileSheetBuilder(null)
           }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+          className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           {mobileView === 'map' ? (
