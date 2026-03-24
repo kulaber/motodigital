@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import './globals.css'
 
 const bodoniModa = Bodoni_Moda({
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="de" className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
         {children}
+        <MobileBottomNav />
         <Analytics />
       </body>
     </html>
