@@ -185,12 +185,12 @@ export default async function RiderProfilePage({ params }: Props) {
       {/* ── HERO ── */}
       <section className="bg-[#F7F7F7] border-b border-[#222222]/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 py-10 sm:py-14">
-          <Link href="/explore"
+          <Link href="/rider"
             className="inline-flex items-center gap-1.5 text-xs text-[#717171] hover:text-[#222222] transition-colors mb-6">
-            <ArrowLeft size={13} /> Zurück zum Feed
+            <ArrowLeft size={13} /> Alle Rider anzeigen
           </Link>
 
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-5">
             <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
               {rider.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -199,7 +199,7 @@ export default async function RiderProfilePage({ params }: Props) {
                 <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight">{rider.name}</h1>
               {rider.city && (
                 <p className="text-sm text-[#717171] flex items-center gap-1 mt-1">
@@ -209,12 +209,12 @@ export default async function RiderProfilePage({ params }: Props) {
               <span className="inline-flex items-center mt-2 text-[10px] font-semibold uppercase tracking-widest bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8 px-2.5 py-0.5 rounded-full">
                 Rider
               </span>
+            </div>
 
-              {/* Actions */}
-              <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
-                <RiderContactButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} riderName={rider.name} />
-              </div>
+            {/* Actions — right-aligned on desktop, below on mobile */}
+            <div className="flex items-center gap-2.5 sm:ml-auto">
+              <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+              <RiderContactButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} riderName={rider.name} />
             </div>
           </div>
         </div>

@@ -738,10 +738,10 @@ export default function BuilderPageClient({ builders }: Props) {
 
       {/* ── Sticky filter bar ── */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-        {/* Desktop filters */}
-        <div className="hidden lg:flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2">
+        {/* Filters — all screen sizes */}
+        <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Stil dropdown */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button
               onClick={() => setStyleOpen(v => !v)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
@@ -779,7 +779,7 @@ export default function BuilderPageClient({ builders }: Props) {
           </div>
 
           {/* Leistungen dropdown */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button
               onClick={() => setLeistungenOpen(v => !v)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
@@ -816,20 +816,10 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
-          {/* Verifiziert */}
-          <button onClick={() => setOnlyVerified(v => !v)}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-              onlyVerified
-                ? 'bg-[#222222] text-white'
-                : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-            }`}>
-            <BadgeCheck size={11} /> Verifiziert
-          </button>
-
           {/* Jetzt geöffnet */}
           {now && (
             <button onClick={() => setOnlyOpen(v => !v)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 onlyOpen
                   ? 'bg-emerald-600 text-white'
                   : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
@@ -851,60 +841,6 @@ export default function BuilderPageClient({ builders }: Props) {
           )}
         </div>
 
-        {/* Mobile filter chips */}
-        <div className="lg:hidden">
-          <div className="flex gap-2 px-4 py-2.5 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {availableSpecialties.map(spec => (
-              <button
-                key={spec}
-                onClick={() => setActiveSpecialty(spec)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border ${
-                  activeSpecialty === spec
-                    ? 'bg-[#2AABAB] text-white border-[#2AABAB]'
-                    : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
-                }`}
-              >
-                {spec === 'Alle' ? 'Alle Stile' : spec}
-              </button>
-            ))}
-
-            <div className="flex-shrink-0 w-px bg-[#E5E5E5] my-1" />
-
-            <button
-              onClick={() => setOnlyVerified(v => !v)}
-              className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border flex items-center gap-1 ${
-                onlyVerified
-                  ? 'bg-[#2AABAB] text-white border-[#2AABAB]'
-                  : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
-              }`}
-            >
-              <BadgeCheck size={11} /> Verifiziert
-            </button>
-
-            {now && (
-              <button
-                onClick={() => setOnlyOpen(v => !v)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap border flex items-center gap-1.5 ${
-                  onlyOpen
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-[#1A1A1A] border-[#E5E5E5]'
-                }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-[#717171]'}`} />
-                Geöffnet
-              </button>
-            )}
-
-            {hasActiveFilter && (
-              <button
-                onClick={resetAllFilters}
-                className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[#1A1A1A] border border-[#E5E5E5] flex items-center gap-1"
-              >
-                <X size={11} /> Reset
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* ── Desktop: Split layout (List left 50% | Map right 50%) ── */}
