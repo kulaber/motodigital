@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 const NAV_ITEMS = [
   {
@@ -31,7 +32,7 @@ const NAV_ITEMS = [
   },
   {
     id: "werkstatt",
-    label: "Werkstatt",
+    label: "Suche",
     href: "/custom-werkstatt",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -64,28 +65,62 @@ const NAV_ITEMS = [
   },
 ];
 
-const TEAL = "#2AABAB";
-const TEAL_BG = "rgba(42, 171, 171, 0.13)";
-const INACTIVE = "#6B7280";
+const ACTIVE_ICON = "#111111";
+const INACTIVE_ICON = "#B0B0B8";
 
 export default function MobileBottomNav() {
+  const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [ripple, setRipple] = useState(null);
-  const rippleTimeout = useRef(null);
+  const containerRef = useRef(null);
+  const itemRefs = useRef([]);
+  const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
+  const [optimisticIndex, setOptimisticIndex] = useState(-1);
 
-  const handleTap = (id, href) => {
-    if (rippleTimeout.current) clearTimeout(rippleTimeout.current);
-    setRipple(id);
-    rippleTimeout.current = setTimeout(() => setRipple(null), 500);
+  const routeIndex = NAV_ITEMS.findIndex(
+    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+  );
+
+  const activeIndex = optimisticIndex >= 0 ? optimisticIndex : routeIndex;
+
+  // Sync optimistic state back when pathname catches up
+  useEffect(() => {
+    if (optimisticIndex >= 0 && routeIndex === optimisticIndex) {
+      setOptimisticIndex(-1);
+    }
+  }, [routeIndex, optimisticIndex]);
+
+  const updatePill = useCallback(() => {
+    const idx = activeIndex >= 0 ? activeIndex : -1;
+    if (idx === -1) {
+      setPill((prev) => ({ ...prev, ready: false }));
+      return;
+    }
+    const el = itemRefs.current[idx];
+    const container = containerRef.current;
+    if (el && container) {
+      const cRect = container.getBoundingClientRect();
+      const eRect = el.getBoundingClientRect();
+      setPill({
+        left: eRect.left - cRect.left,
+        width: eRect.width,
+        ready: true,
+      });
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    updatePill();
+    window.addEventListener("resize", updatePill);
+    return () => window.removeEventListener("resize", updatePill);
+  }, [updatePill]);
+
+  const handleTap = (index, href) => {
+    setOptimisticIndex(index);
     router.push(href);
   };
 
-  useEffect(() => {
-    return () => {
-      if (rippleTimeout.current) clearTimeout(rippleTimeout.current);
-    };
-  }, []);
+  if (loading || !user) return null;
 
   return (
     <>
@@ -105,86 +140,87 @@ export default function MobileBottomNav() {
         <nav
           style={{
             pointerEvents: "auto",
-            background: "rgba(243, 243, 243, 0.94)",
+            background: "rgba(250, 250, 250, 0.92)",
             backdropFilter: "saturate(180%) blur(24px)",
             WebkitBackdropFilter: "saturate(180%) blur(24px)",
             borderRadius: 28,
             boxShadow:
-              "0 8px 40px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.06)",
-            border: "1px solid rgba(0,0,0,0.06)",
+              "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
+            border: "1px solid rgba(0,0,0,0.05)",
             width: "100%",
             maxWidth: 400,
           }}
         >
           <div
-            className="flex items-center justify-around"
-            style={{ height: 62, padding: "0 6px" }}
+            ref={containerRef}
+            className="relative flex items-center justify-around"
+            style={{ height: 68, padding: "0 4px" }}
           >
-            {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-              const isRippling = ripple === item.id;
+            {/* Sliding pill */}
+            {pill.ready && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: pill.left,
+                  width: pill.width,
+                  height: 54,
+                  transform: "translateY(-50%)",
+                  borderRadius: 24,
+                  background: "#111111",
+                  transition:
+                    "left 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                  zIndex: 0,
+                }}
+              />
+            )}
+
+            {NAV_ITEMS.map((item, index) => {
+              const isActive = activeIndex === index;
 
               return (
                 <a
                   key={item.id}
+                  ref={(el) => (itemRefs.current[index] = el)}
                   href={item.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    handleTap(item.id, item.href);
+                    handleTap(index, item.href);
                   }}
-                  className="relative flex items-center justify-center"
+                  className="relative flex flex-col items-center justify-center"
                   style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 18,
+                    flex: 1,
+                    height: 54,
+                    borderRadius: 16,
                     WebkitTapHighlightColor: "transparent",
-                    overflow: "hidden",
+                    zIndex: 1,
+                    gap: 2,
                   }}
                   aria-label={item.label}
                 >
-                  {/* Animated active background */}
                   <span
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      borderRadius: 18,
-                      background: TEAL_BG,
-                      transition:
-                        "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease",
-                      transform: isActive ? "scale(1)" : "scale(0.5)",
-                      opacity: isActive ? 1 : 0,
-                    }}
-                  />
-
-                  {/* Ripple on tap */}
-                  {isRippling && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        borderRadius: 18,
-                        background: "rgba(42, 171, 171, 0.2)",
-                        animation: "mdNavRipple 0.5s ease-out forwards",
-                      }}
-                    />
-                  )}
-
-                  {/* Icon with animated color + scale */}
-                  <span
-                    className="mobileNavIcon"
-                    style={{
-                      position: "relative",
-                      zIndex: 1,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      stroke: isActive ? TEAL : INACTIVE,
-                      transition:
-                        "stroke 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      transform: isActive ? "scale(1.12)" : "scale(1)",
+                      stroke: isActive ? "#FFFFFF" : INACTIVE_ICON,
+                      transition: "stroke 0.35s ease",
                     }}
                   >
                     {item.icon}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 600,
+                      letterSpacing: "0.01em",
+                      color: isActive ? "#FFFFFF" : INACTIVE_ICON,
+                      transition: "color 0.35s ease",
+                      lineHeight: 1,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.label}
                   </span>
                 </a>
               );
@@ -192,13 +228,6 @@ export default function MobileBottomNav() {
           </div>
         </nav>
       </div>
-
-      <style>{`
-        @keyframes mdNavRipple {
-          0% { transform: scale(0.4); opacity: 1; }
-          100% { transform: scale(1.2); opacity: 0; }
-        }
-      `}</style>
     </>
   );
 }
