@@ -32,9 +32,10 @@ interface Props {
   initialValue?: string
   onSelect: (place: SelectedPlace | null) => void
   placeholder?: string
+  types?: string
 }
 
-export default function MapboxAddressInput({ initialValue = '', onSelect, placeholder = 'Straße, Stadt, Land…' }: Props) {
+export default function MapboxAddressInput({ initialValue = '', onSelect, placeholder = 'Straße, Stadt, Land…', types = 'address,place,locality,neighborhood' }: Props) {
   const [query,       setQuery]       = useState(initialValue)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loading,     setLoading]     = useState(false)
@@ -78,7 +79,7 @@ export default function MapboxAddressInput({ initialValue = '', onSelect, placeh
 
     setLoading(true)
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&autocomplete=true&language=de&limit=5&types=address,place,locality,neighborhood`
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&autocomplete=true&language=de&limit=5&types=${types}`
       const res  = await fetch(url)
       const json = await res.json()
       const results: Suggestion[] = (json.features ?? []).map((f: Record<string, unknown>) => {

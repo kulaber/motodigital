@@ -6,13 +6,14 @@ import { useAuth } from "@/hooks/useAuth";
 
 const NAV_ITEMS = [
   {
-    id: "explore",
-    label: "Explore",
-    href: "/explore",
+    id: "werkstatt",
+    label: "Suche",
+    href: "/custom-werkstatt",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <circle cx="11" cy="11" r="3" />
       </svg>
     ),
   },
@@ -31,14 +32,13 @@ const NAV_ITEMS = [
     ),
   },
   {
-    id: "werkstatt",
-    label: "Suche",
-    href: "/custom-werkstatt",
+    id: "explore",
+    label: "Explore",
+    href: "/explore",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        <circle cx="11" cy="11" r="3" />
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
       </svg>
     ),
   },

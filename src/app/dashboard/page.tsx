@@ -7,6 +7,7 @@ import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
 import { Plus, Eye, MessageCircle, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, Search, User } from 'lucide-react'
 import type { Database } from '@/types/database'
+import SignOutButton from './SignOutButton'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
@@ -100,15 +101,14 @@ export default async function DashboardPage() {
   const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
+    <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
 
         {/* Header row */}
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Übersicht</h1>
-            {profile?.full_name && (
-              <p className="text-sm text-[#222222]/40 mt-1">Hallo, {profile.full_name.split(' ')[0]}</p>
-            )}
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">
+              {profile?.full_name ? `Hallo ${profile.full_name.split(' ')[0]}` : 'Hallo'}
+            </h1>
           </div>
           {!isRider && !isSuperAdmin && (
             <Link
@@ -249,77 +249,64 @@ export default async function DashboardPage() {
 
         {/* ── RIDER DASHBOARD ── */}
         {isRider ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+          <div className="grid grid-cols-2 gap-3 max-w-2xl">
 
-            {/* Meine Garage */}
-            <Link href="/dashboard/meine-garage" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
-              <div className="relative w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 overflow-hidden">
-                {bikes?.[0]?.bike_images?.[0]?.url ? (
-                  <Image src={bikes[0].bike_images[0].url} alt={bikes[0].title} fill sizes="48px" className="object-cover" />
+            {/* Rider Profil */}
+            <Link href="/dashboard/profile" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex flex-col items-center justify-center aspect-square transition-colors group">
+              <div className="relative w-14 h-14 rounded-full bg-[#F7F7F7] flex-shrink-0 overflow-hidden mb-2">
+                {profile?.avatar_url ? (
+                  <Image src={profile.avatar_url} alt={profile.full_name ?? 'Profil'} fill sizes="56px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Bike size={18} className="text-[#222222]/15" />
+                    <User size={20} className="text-[#222222]/25" />
                   </div>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Meine Garage</p>
-                <p className="text-sm font-semibold text-[#222222] truncate">
+              <p className="text-[10px] font-semibold text-[#222222]/35 uppercase tracking-wider mb-0.5">Rider Profil</p>
+              <p className="text-xs font-semibold text-[#222222] truncate max-w-full text-center">
+                {profile?.full_name ?? 'Profil bearbeiten'}
+              </p>
+            </Link>
+
+            {/* Meine Garage */}
+            <Link href="/dashboard/meine-garage" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl overflow-hidden flex flex-col aspect-square transition-colors group">
+              <div className="relative flex-1 bg-[#F3F3F3]">
+                {bikes?.[0]?.bike_images?.[0]?.url ? (
+                  <Image src={bikes[0].bike_images[0].url} alt={bikes[0].title} fill sizes="(max-width: 640px) 50vw, 320px" className="object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Bike size={24} className="text-[#222222]/10" />
+                  </div>
+                )}
+              </div>
+              <div className="p-3">
+                <p className="text-[10px] font-semibold text-[#222222]/35 uppercase tracking-wider mb-0.5">Meine Garage</p>
+                <p className="text-xs font-semibold text-[#222222] truncate">
                   {bikes?.[0]?.title ?? 'Noch kein Bike'}
                 </p>
               </div>
-              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
-            </Link>
-
-            {/* Nachrichten */}
-            <Link href="/dashboard/messages" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
-              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 flex items-center justify-center relative">
-                <MessageCircle size={18} className="text-[#222222]/25" />
-                {(conversations?.length ?? 0) > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {conversations!.length > 9 ? '9+' : conversations!.length}
-                  </span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Nachrichten</p>
-                <p className="text-sm font-semibold text-[#222222]">
-                  {conversations?.length ?? 0} Konversationen
-                </p>
-              </div>
-              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
             </Link>
 
             {/* Merkliste */}
-            <Link href="/dashboard/merkliste" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex items-center gap-3 transition-colors group">
-              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex-shrink-0 flex items-center justify-center">
-                <Star size={18} className="text-[#222222]/25" />
+            <Link href="/dashboard/merkliste" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex flex-col items-center justify-center aspect-square transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex items-center justify-center mb-2">
+                <Star size={20} className="text-[#222222]/25" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#222222]/40 mb-0.5">Merkliste</p>
-                <p className="text-sm font-semibold text-[#222222]">
-                  {(savedBikesCount ?? 0) + (savedBuildersCount ?? 0)} gespeichert
-                </p>
-              </div>
-              <ChevronRight size={13} className="text-[#222222]/20 flex-shrink-0" />
+              <p className="text-[10px] font-semibold text-[#222222]/35 uppercase tracking-wider mb-0.5">Merkliste</p>
+              <p className="text-xs font-semibold text-[#222222]">
+                {(savedBikesCount ?? 0) + (savedBuildersCount ?? 0)} gespeichert
+              </p>
             </Link>
 
-            {/* Schnellzugriff */}
-            <div className="bg-white border border-[#222222]/6 rounded-2xl p-4">
-              <p className="text-[10px] text-[#222222]/25 uppercase tracking-widest font-semibold mb-2">Entdecken</p>
-              {[
-                { label: 'Custom-Werkstatt', href: '/custom-werkstatt', icon: <Search size={12}/> },
-                { label: 'Custom Bikes',     href: '/bikes',            icon: <Bike size={12}/> },
-                { label: 'Konto',            href: '/dashboard/account', icon: <Settings size={12}/> },
-              ].map(l => (
-                <Link key={l.href} href={l.href}
-                  className="flex items-center gap-2 py-2 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors border-b border-[#222222]/5 last:border-0">
-                  <span className="text-[#222222]/25">{l.icon}</span>
-                  {l.label}
-                  <ChevronRight size={10} className="ml-auto text-[#222222]/20" />
-                </Link>
-              ))}
-            </div>
+            {/* Einstellungen */}
+            <Link href="/dashboard/account" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex flex-col items-center justify-center aspect-square transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-[#F7F7F7] flex items-center justify-center mb-2">
+                <Settings size={20} className="text-[#222222]/25" />
+              </div>
+              <p className="text-[10px] font-semibold text-[#222222]/35 uppercase tracking-wider mb-0.5">Einstellungen</p>
+              <p className="text-xs font-semibold text-[#222222]">Kontoeinstellungen</p>
+            </Link>
+
 
           </div>
 

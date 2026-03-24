@@ -48,6 +48,7 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
 
 export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentFullName, currentAvatarUrl, currentBio, currentAddress, role }: Props) {
   const isWerkstatt = role === 'custom-werkstatt'
+  const isRider = role === 'rider'
   const supabase = createClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -227,7 +228,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     <div className="flex flex-col gap-5">
 
       {/* ── Profilbild ── */}
-      {!isWerkstatt && <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      {!isWerkstatt && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profilbild</h2>
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
@@ -277,7 +278,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       </div>}
 
       {/* ── Name ── */}
-      <form onSubmit={handleName} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      {!isRider && <form onSubmit={handleName} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Name</h2>
         <div className="flex flex-col gap-4">
           <Field label="Vollständiger Name" hint="Wird auf deinem Profil angezeigt">
@@ -286,10 +287,10 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
           </Field>
           <SaveRow saving={nameSaving} saved={nameSaved} error={nameError} />
         </div>
-      </form>
+      </form>}
 
       {/* ── Bio ── */}
-      {!isWerkstatt && (
+      {!isWerkstatt && !isRider && (
         <form onSubmit={handleBio} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
           <h2 className="text-sm font-semibold text-[#222222] mb-5">Kurze Bio</h2>
           <div className="flex flex-col gap-4">
@@ -310,7 +311,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       )}
 
       {/* ── Adresse ── */}
-      <form onSubmit={handleAddress} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      {!isRider && <form onSubmit={handleAddress} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-1">Standort</h2>
         <p className="text-xs text-[#222222]/35 mb-5">Wird für die Kartenansicht der Rider-Community verwendet</p>
         <div className="flex flex-col gap-4">
@@ -324,7 +325,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
           </div>
           <SaveRow saving={addressSaving} saved={addressSaved} error={addressError} />
         </div>
-      </form>
+      </form>}
 
       {/* ── Benutzername ── */}
       <form onSubmit={handleUsername} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">

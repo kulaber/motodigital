@@ -283,9 +283,8 @@ export default async function BuilderProfilePage({ params }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
             <div className="flex items-end justify-between mb-5">
               <div>
-                <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-1">Custom Bikes</p>
                 <h2 className="text-base font-bold text-[#222222] tracking-tight">
-                  Projekte von {builder.name}
+                  Custom Bike Projekte von {builder.name}
                 </h2>
               </div>
               <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>

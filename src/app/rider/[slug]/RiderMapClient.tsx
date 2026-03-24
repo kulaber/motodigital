@@ -8,8 +8,10 @@ interface Props {
   lat: number
   lng: number
   city: string
+  visitedCities?: { name: string; lat: number; lng: number }[]
+  riderName?: string
 }
 
-export default function RiderMapClient({ lat, lng, city }: Props) {
-  return <MiniMap lat={lat} lng={lng} locationName={city} />
+export default function RiderMapClient({ lat, lng, city, visitedCities, riderName }: Props) {
+  return <MiniMap lat={lat} lng={lng} locationName={city} visitedCities={visitedCities} riderName={riderName} />
 }

@@ -142,6 +142,7 @@ export default function MobileNav({
           {navItem('/explore', <Users size={20} />, 'Explore', isActive('explore'))}
           {navItem('/bikes', <Bike size={20} />, 'Custom Bikes', isActive('bikes'))}
           {navItem('/custom-werkstatt', <MapPin size={20} />, 'Werkstattsuche', isActive('custom-werkstatt'))}
+          {navItem('/rider', <Users size={20} />, 'Rider', isActive('rider'))}
         </div>
 
         {/* ── 4. More links ── */}

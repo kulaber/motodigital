@@ -188,6 +188,10 @@ export default function Header({ activePage }: Props) {
                     </Link>
                     {role === 'rider' && (
                       <>
+                        <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <User size={14} /> Profil
+                        </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                           <Bike size={14} /> Meine Garage

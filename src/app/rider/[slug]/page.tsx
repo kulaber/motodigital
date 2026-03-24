@@ -23,6 +23,9 @@ interface RiderProfile {
   lat?: number
   lng?: number
   tags: string[]
+  ridingStyle?: string
+  visitedCities: string[]
+  visitedCityCoords: { name: string; lat: number; lng: number; country?: string }[]
   instagram?: string
   tiktok?: string
   website?: string
@@ -35,18 +38,22 @@ interface RiderProfile {
   }[]
 }
 
-async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
+async function geocode(query: string): Promise<{ lat: number; lng: number; country?: string } | null> {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   if (!token) return null
   try {
     const res = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1&types=place,address&language=de`,
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1&types=place,address,region&language=de`,
       { next: { revalidate: 86400 } }
     )
     if (!res.ok) return null
     const json = await res.json()
-    const [lng, lat] = json.features?.[0]?.center ?? []
-    return lng && lat ? { lat, lng } : null
+    const feature = json.features?.[0]
+    const [lng, lat] = feature?.center ?? []
+    if (!lng || !lat) return null
+    const ctx = (feature?.context as { id: string; text: string }[] | undefined) ?? []
+    const country = ctx.find((c: { id: string }) => c.id.startsWith('country.'))?.text ?? undefined
+    return { lat, lng, country }
   } catch { return null }
 }
 
@@ -56,7 +63,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   // Try slug first, then username
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, instagram_url, tiktok_url, website_url')
+    .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
     .eq('slug', slug)
     .eq('role', 'rider')
     .maybeSingle()
@@ -65,7 +72,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     // Fallback: try matching by username
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: fallback } = await (supabase.from('profiles') as any)
-      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, instagram_url, tiktok_url, website_url')
+      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
       .eq('username', slug)
       .eq('role', 'rider')
       .maybeSingle()
@@ -76,7 +83,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     // Fallback: try matching by generated slug from full_name
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: allRiders } = await (supabase.from('profiles') as any)
-      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, instagram_url, tiktok_url, website_url')
+      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
       .eq('role', 'rider')
       .limit(100)
 
@@ -118,6 +125,17 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     if (coords) { lat = coords.lat; lng = coords.lng }
   }
 
+  // Geocode visited cities in parallel
+  const visitedRaw = (row.visited_cities as string[] | null) ?? []
+  let visitedCityCoords: { name: string; lat: number; lng: number }[] = []
+  if (visitedRaw.length > 0) {
+    const results = await Promise.all(visitedRaw.map(async (cityName) => {
+      const geo = await geocode(cityName)
+      return geo ? { name: cityName, lat: geo.lat, lng: geo.lng, country: geo.country } : null
+    }))
+    visitedCityCoords = results.filter((c): c is { name: string; lat: number; lng: number; country?: string } => c !== null)
+  }
+
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -129,6 +147,9 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     lat,
     lng,
     tags: (row.tags as string[] | null) ?? [],
+    ridingStyle: (row.riding_style as string | null) ?? undefined,
+    visitedCities: visitedRaw,
+    visitedCityCoords,
     instagram: (row.instagram_url as string | null) ?? undefined,
     tiktok: (row.tiktok_url as string | null) ?? undefined,
     website: (row.website_url as string | null) ?? undefined,
@@ -193,8 +214,8 @@ export default async function RiderProfilePage({ params }: Props) {
 
       {/* ── CONTENT ── */}
       <section className="py-10 sm:py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
             {/* LEFT — main content */}
             <div>
@@ -203,6 +224,18 @@ export default async function RiderProfilePage({ params }: Props) {
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name}</h2>
                   <p className="text-sm text-[#717171] leading-relaxed">{rider.bio}</p>
+                </div>
+              )}
+
+              {/* Fahrstil */}
+              {rider.ridingStyle && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Fahrstil</h2>
+                  <span className="text-sm text-[#222222]">
+                    {rider.ridingStyle === 'cruiser' && '☀️ Ruhiger Cruiser'}
+                    {rider.ridingStyle === 'flott' && '💨☀️ Flotter Fahrer'}
+                    {rider.ridingStyle === 'legende' && '🏍💨☀️ Lebensmüde Legende'}
+                  </span>
                 </div>
               )}
 
@@ -254,14 +287,34 @@ export default async function RiderProfilePage({ params }: Props) {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* RIGHT — visited cities + map */}
+            <div className="flex flex-col gap-4 lg:sticky lg:top-24">
+              {/* Visited Cities Badges */}
+              {rider.visitedCityCoords.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">{rider.name} war mit dem Motorrad hier:</h2>
+                  <div className="grid grid-cols-3 gap-3">
+                    {rider.visitedCityCoords.map(city => (
+                      <div key={city.name} className="bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square">
+                        <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">★ ★ ★ ★ ★</div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/pin-logo.svg" alt="MotoDigital" className="w-7 h-7 mb-1.5 opacity-80" />
+                        <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
+                        {city.country && (
+                          <span className="text-[8px] text-white/40 mt-0.5 truncate w-full text-center">{city.country}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Map */}
               {rider.lat && rider.lng && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden mb-4">
-                  <div className="px-5 pt-4 pb-3">
-                    <h2 className="text-base font-bold text-[#222222] tracking-tight">Standort</h2>
-                  </div>
-                  <RiderMapClient lat={rider.lat} lng={rider.lng} city={rider.city} />
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden">
+                  <RiderMapClient lat={rider.lat} lng={rider.lng} city={rider.city} visitedCities={rider.visitedCityCoords} riderName={rider.name} />
                   {rider.city && (
                     <div className="px-5 py-3 border-t border-[#EBEBEB]">
                       <div className="flex items-center gap-2">
@@ -272,10 +325,7 @@ export default async function RiderProfilePage({ params }: Props) {
                   )}
                 </div>
               )}
-            </div>
 
-            {/* RIGHT — sidebar */}
-            <div className="flex flex-col gap-4 lg:sticky lg:top-24">
               {/* Links */}
               {(rider.instagram || rider.website) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
