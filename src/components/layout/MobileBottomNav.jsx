@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -65,55 +65,24 @@ const NAV_ITEMS = [
   },
 ];
 
-const ACTIVE_ICON = "#111111";
+const ITEM_COUNT = NAV_ITEMS.length;
 const INACTIVE_ICON = "#B0B0B8";
 
 export default function MobileBottomNav() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const containerRef = useRef(null);
-  const itemRefs = useRef([]);
-  const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
   const [optimisticIndex, setOptimisticIndex] = useState(-1);
 
   const routeIndex = NAV_ITEMS.findIndex(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
   );
 
-  const activeIndex = optimisticIndex >= 0 ? optimisticIndex : routeIndex;
-
-  // Sync optimistic state back when pathname catches up
-  useEffect(() => {
-    if (optimisticIndex >= 0 && routeIndex === optimisticIndex) {
-      setOptimisticIndex(-1);
-    }
-  }, [routeIndex, optimisticIndex]);
-
-  const updatePill = useCallback(() => {
-    const idx = activeIndex >= 0 ? activeIndex : -1;
-    if (idx === -1) {
-      setPill((prev) => ({ ...prev, ready: false }));
-      return;
-    }
-    const el = itemRefs.current[idx];
-    const container = containerRef.current;
-    if (el && container) {
-      const cRect = container.getBoundingClientRect();
-      const eRect = el.getBoundingClientRect();
-      setPill({
-        left: eRect.left - cRect.left,
-        width: eRect.width,
-        ready: true,
-      });
-    }
-  }, [activeIndex]);
-
-  useEffect(() => {
-    updatePill();
-    window.addEventListener("resize", updatePill);
-    return () => window.removeEventListener("resize", updatePill);
-  }, [updatePill]);
+  // Use optimistic index until route catches up, then fall back to route
+  const activeIndex =
+    optimisticIndex >= 0 && optimisticIndex !== routeIndex
+      ? optimisticIndex
+      : routeIndex;
 
   const handleTap = (index, href) => {
     setOptimisticIndex(index);
@@ -146,18 +115,17 @@ export default function MobileBottomNav() {
           }}
         >
           <div
-            ref={containerRef}
             className="relative flex items-center justify-around"
             style={{ height: 68, padding: "0 4px" }}
           >
-            {/* Sliding pill */}
-            {pill.ready && (
+            {/* Sliding pill — pure CSS positioning, no DOM measurement */}
+            {activeIndex >= 0 && (
               <span
                 style={{
                   position: "absolute",
                   top: "50%",
-                  left: pill.left,
-                  width: pill.width,
+                  left: `calc(${(activeIndex / ITEM_COUNT) * 100}% + 4px)`,
+                  width: `calc(${100 / ITEM_COUNT}% - 8px)`,
                   height: 54,
                   transform: "translateY(-50%)",
                   borderRadius: 24,
@@ -175,7 +143,6 @@ export default function MobileBottomNav() {
               return (
                 <a
                   key={item.id}
-                  ref={(el) => (itemRefs.current[index] = el)}
                   href={item.href}
                   onClick={(e) => {
                     e.preventDefault();
