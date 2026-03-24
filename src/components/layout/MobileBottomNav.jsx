@@ -124,14 +124,15 @@ export default function MobileBottomNav() {
                 style={{
                   position: "absolute",
                   top: "50%",
-                  left: `calc(${(activeIndex / ITEM_COUNT) * 100}% + 4px)`,
+                  left: 4,
                   width: `calc(${100 / ITEM_COUNT}% - 8px)`,
                   height: 54,
-                  transform: "translateY(-50%)",
+                  transform: `translateX(calc(${activeIndex} * (100% + 8px))) translateY(-50%)`,
                   borderRadius: 24,
                   background: "#111111",
                   transition:
-                    "left 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                  willChange: "transform",
                   zIndex: 0,
                 }}
               />
