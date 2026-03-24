@@ -127,26 +127,20 @@ export default function MobileBottomNav() {
       {/* Spacer so page content isn't hidden */}
       <div className="block md:hidden" style={{ height: 96 }} />
 
-      {/* Floating nav wrapper */}
+      {/* Docked nav wrapper */}
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
         style={{
-          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
-          paddingLeft: 16,
-          paddingRight: 16,
-          pointerEvents: "none",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          background: "rgba(250, 250, 250, 0.92)",
+          backdropFilter: "saturate(180%) blur(24px)",
+          WebkitBackdropFilter: "saturate(180%) blur(24px)",
+          boxShadow: "0 -1px 12px rgba(0,0,0,0.06)",
+          borderTop: "1px solid rgba(0,0,0,0.05)",
         }}
       >
         <nav
           style={{
-            pointerEvents: "auto",
-            background: "rgba(250, 250, 250, 0.92)",
-            backdropFilter: "saturate(180%) blur(24px)",
-            WebkitBackdropFilter: "saturate(180%) blur(24px)",
-            borderRadius: 28,
-            boxShadow:
-              "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
-            border: "1px solid rgba(0,0,0,0.05)",
             width: "100%",
             maxWidth: 400,
           }}
