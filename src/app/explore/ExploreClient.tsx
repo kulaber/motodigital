@@ -22,21 +22,20 @@ const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false }
 
 /* ── Types ─────────────────────────────────────────────── */
 
-type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-suche' | 'in-der-naehe'
+type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-suche' | 'in-der-naehe' | 'freunde'
 
 const CATEGORIES: { value: Category; label: string }[] = [
-  { value: 'alle', label: 'Alle' },
-  { value: 'projekte', label: 'Projekt' },
+  { value: 'alle', label: 'Explore' },
+  { value: 'freunde', label: 'Freunde' },
   { value: 'in-der-naehe', label: 'In der Nähe' },
   { value: 'events', label: 'Events' },
-  { value: 'biete-suche', label: 'Biete/Suche' },
-  { value: 'hilfe', label: 'Hilfe' },
 ]
 
-// Composer tags include "Allgemein" + all filter categories except "Alle"
+// Composer tags: categories the user can post in
 const COMPOSER_TAGS: { value: Category; label: string }[] = [
   { value: 'allgemein', label: 'Allgemein' },
-  ...CATEGORIES.filter(c => c.value !== 'alle'),
+  { value: 'in-der-naehe', label: 'In der Nähe' },
+  { value: 'events', label: 'Events' },
 ]
 
 interface CommunityPost {
@@ -573,6 +572,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   const supabase = createClient()
   const canPost = !!userId
   const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
 
   // Detect when composer becomes sticky
   useEffect(() => {
@@ -648,6 +648,19 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
   }, [userId])
 
   useEffect(() => { loadPosts() }, [loadPosts])
+
+  // Load IDs of users the current user follows
+  useEffect(() => {
+    if (!userId) return
+    async function loadFollowing() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from('followers') as any)
+        .select('following_id')
+        .eq('follower_id', userId)
+      if (data) setFollowingIds(new Set(data.map((r: { following_id: string }) => r.following_id)))
+    }
+    loadFollowing()
+  }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load sidebar riders (DB + static, sorted by online status)
   useEffect(() => {
@@ -809,9 +822,10 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
     if (category === 'alle') return sorted
+    if (category === 'freunde') return sorted.filter(p => followingIds.has(p.user_id))
     if (category === 'in-der-naehe') return sorted.filter(p => p.latitude != null && p.longitude != null)
     return sorted.filter(p => p.topic === category)
-  }, [category, communityPosts])
+  }, [category, communityPosts, followingIds])
 
   return (
     <>

@@ -2,81 +2,78 @@
 
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X, MessageCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { MessageCircle, X, CheckCircle } from 'lucide-react'
 import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
-  sellerId: string
-  sellerName: string
-  sellerRole: string | null
-  bikeId: string
-  bikeTitle: string
-  coverImage: string | null
-  fullWidth?: boolean
+  riderId: string
+  riderFirstName: string
+  riderName: string
 }
 
 function Modal({
-  sellerId,
-  sellerName,
-  bikeId,
+  riderId,
+  riderName,
   userId,
-  coverImage,
   onClose,
 }: {
-  sellerId: string
-  sellerName: string
-  bikeId: string
+  riderId: string
+  riderName: string
   userId: string
-  coverImage: string | null
   onClose: () => void
 }) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
+
+  const initials = riderName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
   async function handleSend() {
     const trimmed = text.trim()
     if (!trimmed || sending) return
     setSending(true)
+    setError(null)
 
-    // Find or create conversation
+    // Find or create conversation (rider-to-rider, no bike)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
-      .eq('seller_id', sellerId)
+      .eq('seller_id', riderId)
       .eq('buyer_id', userId)
-      .limit(1)
+      .is('bike_id', null)
       .maybeSingle()
 
     if (!conv?.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: created } = await (supabase.from('conversations') as any)
-        .insert({ seller_id: sellerId, buyer_id: userId, bike_id: bikeId })
+      const { data: created, error: insertError } = await (supabase.from('conversations') as any)
+        .insert({ seller_id: riderId, buyer_id: userId })
         .select('id')
         .maybeSingle()
+      if (insertError) {
+        setError('Fehler beim Senden.')
+        setSending(false)
+        return
+      }
       conv = created
     }
 
     if (conv?.id) {
-      const body = coverImage ? `${trimmed}\n[img:${coverImage}]` : trimmed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('messages') as any)
-        .insert({ conversation_id: conv.id, sender_id: userId, body })
+        .insert({ conversation_id: conv.id, sender_id: userId, body: trimmed })
     }
 
     setSending(false)
     setSent(true)
   }
 
-  const initials = sellerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
-
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-
       <div className="relative z-10 bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
@@ -85,7 +82,7 @@ function Modal({
               {initials}
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#222222] leading-tight">{sellerName}</p>
+              <p className="text-sm font-semibold text-[#222222] leading-tight">{riderName}</p>
               <p className="text-[10px] text-[#717171]">Nachricht senden</p>
             </div>
           </div>
@@ -100,7 +97,7 @@ function Modal({
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <CheckCircle size={36} className="text-[#06a5a5]" />
               <p className="text-sm font-semibold text-[#222222]">Nachricht wurde gesendet</p>
-              <p className="text-xs text-[#717171]">{sellerName} wird sich bei dir melden.</p>
+              <p className="text-xs text-[#717171]">{riderName.split(' ')[0]} wird sich bei dir melden.</p>
               <button
                 onClick={onClose}
                 className="mt-2 text-xs font-semibold px-5 py-2 rounded-full bg-[#F7F7F7] hover:bg-[#EBEBEB] text-[#222222] transition-colors"
@@ -113,10 +110,11 @@ function Modal({
               <textarea
                 value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder={`Hallo ${sellerName.split(' ')[0]}, ich interessiere mich für dein Bike…`}
+                placeholder={`Hallo ${riderName.split(' ')[0]}, …`}
                 rows={5}
                 className="w-full bg-[#F7F7F7] rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:ring-2 focus:ring-[#06a5a5]/30 transition-all resize-none"
               />
+              {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
               <button
                 onClick={handleSend}
                 disabled={!text.trim() || sending}
@@ -133,15 +131,14 @@ function Modal({
   )
 }
 
-export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId, coverImage, fullWidth }: Props) {
+export default function RiderContactButton({ riderId, riderFirstName, riderName }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
 
-  const isWerkstatt = sellerRole === 'custom-werkstatt'
-  const ctaLabel = isWerkstatt ? 'Werkstatt kontaktieren' : 'Rider kontaktieren'
+  if (!authLoading && user?.id === riderId) return null
 
-  function openModal() {
+  function handleClick() {
     if (!user) {
       setShowLogin(true)
       return
@@ -149,25 +146,22 @@ export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId,
     setOpen(true)
   }
 
-  if (!authLoading && user?.id === sellerId) return null
-
   return (
     <>
       <button
-        onClick={openModal}
-        className={`flex items-center justify-center gap-2 w-full bg-[#06a5a5] hover:bg-[#058f8f] text-white text-sm font-semibold py-3 transition-all ${fullWidth ? 'rounded-full shadow-lg' : 'rounded-xl'}`}
+        onClick={handleClick}
+        disabled={authLoading}
+        className="flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-5 rounded-full bg-white border border-[#EBEBEB] text-[#222222] hover:bg-[#F7F7F7] disabled:opacity-50 transition-all"
       >
         <MessageCircle size={14} />
-        {ctaLabel}
+        Nachricht senden
       </button>
 
       {open && user && typeof document !== 'undefined' && createPortal(
         <Modal
-          sellerId={sellerId}
-          sellerName={sellerName}
-          bikeId={bikeId}
+          riderId={riderId}
+          riderName={riderName}
           userId={user.id}
-          coverImage={coverImage}
           onClose={() => setOpen(false)}
         />,
         document.body
@@ -176,7 +170,7 @@ export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId,
       <LoginModal
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
-        triggerContext={isWerkstatt ? 'contact_builder' : 'message'}
+        triggerContext="message"
       />
     </>
   )

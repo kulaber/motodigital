@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import ProfileEditForm from './ProfileEditForm'
 import RiderProfileEditForm from './RiderProfileEditForm'
@@ -25,8 +27,15 @@ export default async function ProfileEditPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#222222]">Rider Profil</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+              <ArrowLeft size={18} className="text-[#222222]" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-[#222222]">Rider Profil</h1>
+              <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
+            </div>
+          </div>
         </div>
         <RiderProfileEditForm profile={profile} />
       </div>
@@ -42,8 +51,15 @@ export default async function ProfileEditPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#222222]">Custom Werkstatt Profil</h1>
-        <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+            <ArrowLeft size={18} className="text-[#222222]" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-[#222222]">Custom Werkstatt Profil</h1>
+            <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
+          </div>
+        </div>
       </div>
       <ProfileEditForm profile={profile} media={media ?? []} />
     </div>

@@ -7,6 +7,8 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
 import AuthGate from './AuthGate'
+import FollowButton from '@/components/rider/FollowButton'
+import RiderContactButton from '@/components/rider/RiderContactButton'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
@@ -207,6 +209,12 @@ export default async function RiderProfilePage({ params }: Props) {
               <span className="inline-flex items-center mt-2 text-[10px] font-semibold uppercase tracking-widest bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8 px-2.5 py-0.5 rounded-full">
                 Rider
               </span>
+
+              {/* Actions */}
+              <div className="flex flex-wrap items-center gap-2.5 mt-3">
+                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                <RiderContactButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} riderName={rider.name} />
+              </div>
             </div>
           </div>
         </div>

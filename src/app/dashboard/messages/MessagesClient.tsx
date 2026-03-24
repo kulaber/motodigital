@@ -72,20 +72,95 @@ function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boole
   )
 }
 
+/* ─── Profile search result type ─── */
+type ProfileResult = {
+  id: string
+  full_name: string | null
+  username: string | null
+  avatar_url: string | null
+  role: string
+}
+
 /* ─── Conversation List ─── */
 function ConversationList({
   conversations,
   selectedId,
+  userId,
   onSelect,
   onDelete,
+  onNewConversation,
 }: {
   conversations: Conversation[]
   selectedId: string | null
+  userId: string
   onSelect: (id: string) => void
   onDelete: (id: string) => void
+  onNewConversation: (conv: Conversation) => void
 }) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'alle' | 'ungelesen'>('alle')
+  const [profileResults, setProfileResults] = useState<ProfileResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const supabase = createClient()
+
+  // Search profiles when query >= 2 chars
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (value.trim().length < 2) { setProfileResults([]); return }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from('profiles') as any)
+        .select('id, full_name, username, avatar_url, role')
+        .or(`full_name.ilike.%${value}%,username.ilike.%${value}%`)
+        .in('role', ['rider', 'custom-werkstatt'])
+        .neq('id', userId)
+        .limit(8)
+      setProfileResults((data ?? []) as ProfileResult[])
+      setSearching(false)
+    }, 300)
+  }
+
+  async function startConversation(profile: ProfileResult) {
+    // Check if conversation already exists
+    const existingConv = conversations.find(c => c.other?.id === profile.id)
+    if (existingConv) {
+      setSearch('')
+      setProfileResults([])
+      onSelect(existingConv.id)
+      return
+    }
+
+    // Create new conversation (current user = buyer, selected profile = seller)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: created } = await (supabase.from('conversations') as any)
+      .insert({ seller_id: profile.id, buyer_id: userId })
+      .select('id')
+      .maybeSingle()
+
+    if (created?.id) {
+      const newConv: Conversation = {
+        id: created.id,
+        last_message_at: null,
+        unread_count: 0,
+        bike: null,
+        other: {
+          id: profile.id,
+          full_name: profile.full_name,
+          username: profile.username,
+          avatar_url: profile.avatar_url,
+        },
+      }
+      onNewConversation(newConv)
+      setSearch('')
+      setProfileResults([])
+      onSelect(created.id)
+    }
+  }
+
+  const showProfileResults = search.trim().length >= 2
 
   const filtered = conversations.filter(c => {
     const name = c.other?.full_name ?? c.other?.username ?? ''
@@ -108,94 +183,138 @@ function ConversationList({
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
           <input
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Suchen…"
-            className="w-full bg-[#F7F7F7] rounded-full pl-8 pr-3 py-2 text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none focus:outline-none focus:ring-0"
+            onChange={e => handleSearchChange(e.target.value)}
+            placeholder="Person suchen…"
+            className="w-full bg-[#F7F7F7] rounded-full pl-8 pr-8 py-2 text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none focus:outline-none focus:ring-0"
           />
-        </div>
-
-        {/* Filter pills */}
-        <div className="flex gap-2">
-          {(['alle', 'ungelesen'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-colors ${
-                filter === f
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-[#F7F7F7] text-[#222222]/60 hover:bg-[#EEEEEE]'
-              }`}
-            >
-              {f === 'alle' ? 'Alle' : 'Ungelesen'}
+          {search && (
+            <button onClick={() => { setSearch(''); setProfileResults([]) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#222222]/25 hover:text-[#222222]/50">
+              <X size={13} />
             </button>
-          ))}
+          )}
         </div>
-      </div>
 
-      {/* List */}
-      <div className="flex-1 overflow-y-auto">
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <MessageCircle size={28} className="text-[#222222]/10 mb-2" />
-            <p className="text-sm text-[#222222]/30">Keine Nachrichten</p>
+        {/* Filter pills (hidden during profile search) */}
+        {!showProfileResults && (
+          <div className="flex gap-2">
+            {(['alle', 'ungelesen'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                  filter === f
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-[#F7F7F7] text-[#222222]/60 hover:bg-[#EEEEEE]'
+                }`}
+              >
+                {f === 'alle' ? 'Alle' : 'Ungelesen'}
+              </button>
+            ))}
           </div>
         )}
-        {filtered.map(conv => {
-          const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
-          const isSelected = conv.id === selectedId
-          const hasUnread = conv.unread_count > 0
-          return (
-            <div
-              key={conv.id}
-              className={`group relative flex items-center gap-3 px-5 py-4 transition-colors cursor-pointer ${
-                isSelected ? 'bg-[#F7F7F7]' : 'hover:bg-[#FAFAFA]'
-              }`}
-              onClick={() => onSelect(conv.id)}
-            >
-              {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
-                {hasUnread && !isSelected && (
-                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#06a5a5] rounded-full border-2 border-white" />
-                )}
-              </div>
-
-              {/* Text */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2 mb-0.5">
-                  <p className={`text-sm truncate ${hasUnread && !isSelected ? 'font-bold' : 'font-semibold'} text-[#222222]`}>
-                    {name}
-                  </p>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {conv.last_message_at && (
-                      <span className={`text-[11px] ${hasUnread && !isSelected ? 'text-[#06a5a5] font-semibold' : 'text-[#222222]/30'}`}>
-                        {formatRelativeTime(conv.last_message_at)}
-                      </span>
-                    )}
-                    {hasUnread && !isSelected && (
-                      <span className="min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                        {conv.unread_count > 9 ? '9+' : conv.unread_count}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {conv.bike && (
-                  <p className="text-xs text-[#222222]/40 truncate">{conv.bike.title}</p>
-                )}
-              </div>
-
-              {/* Delete */}
-              <button
-                onClick={e => { e.stopPropagation(); onDelete(conv.id) }}
-                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-[#222222]/20 hover:text-red-400"
-                title="Löschen"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
-          )
-        })}
       </div>
+
+      {/* Profile search results */}
+      {showProfileResults && (
+        <div className="flex-1 overflow-y-auto">
+          {searching && (
+            <div className="px-5 py-8 text-center">
+              <p className="text-xs text-[#222222]/30">Suche…</p>
+            </div>
+          )}
+          {!searching && profileResults.length === 0 && (
+            <div className="px-5 py-8 text-center">
+              <p className="text-xs text-[#222222]/30">Keine Personen gefunden</p>
+            </div>
+          )}
+          {!searching && profileResults.map(p => {
+            const name = p.full_name ?? p.username ?? 'Unbekannt'
+            return (
+              <div
+                key={p.id}
+                onClick={() => startConversation(p)}
+                className="flex items-center gap-3 px-5 py-3.5 hover:bg-[#FAFAFA] transition-colors cursor-pointer"
+              >
+                <Avatar name={name} avatarUrl={p.avatar_url} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#222222] truncate">{name}</p>
+                  <p className="text-[11px] text-[#222222]/35">
+                    {p.role === 'rider' ? 'Rider' : 'Custom Werkstatt'}
+                  </p>
+                </div>
+                <Plus size={14} className="text-[#222222]/20 flex-shrink-0" />
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Conversation list */}
+      {!showProfileResults && (
+        <div className="flex-1 overflow-y-auto">
+          {filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <MessageCircle size={28} className="text-[#222222]/10 mb-2" />
+              <p className="text-sm text-[#222222]/30">Keine Nachrichten</p>
+            </div>
+          )}
+          {filtered.map(conv => {
+            const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
+            const isSelected = conv.id === selectedId
+            const hasUnread = conv.unread_count > 0
+            return (
+              <div
+                key={conv.id}
+                className={`group relative flex items-center gap-3 px-5 py-4 transition-colors cursor-pointer ${
+                  isSelected ? 'bg-[#F7F7F7]' : 'hover:bg-[#FAFAFA]'
+                }`}
+                onClick={() => onSelect(conv.id)}
+              >
+                {/* Avatar */}
+                <div className="relative flex-shrink-0">
+                  <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
+                  {hasUnread && !isSelected && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#06a5a5] rounded-full border-2 border-white" />
+                  )}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <p className={`text-sm truncate ${hasUnread && !isSelected ? 'font-bold' : 'font-semibold'} text-[#222222]`}>
+                      {name}
+                    </p>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {conv.last_message_at && (
+                        <span className={`text-[11px] ${hasUnread && !isSelected ? 'text-[#06a5a5] font-semibold' : 'text-[#222222]/30'}`}>
+                          {formatRelativeTime(conv.last_message_at)}
+                        </span>
+                      )}
+                      {hasUnread && !isSelected && (
+                        <span className="min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                          {conv.unread_count > 9 ? '9+' : conv.unread_count}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {conv.bike && (
+                    <p className="text-xs text-[#222222]/40 truncate">{conv.bike.title}</p>
+                  )}
+                </div>
+
+                {/* Delete */}
+                <button
+                  onClick={e => { e.stopPropagation(); onDelete(conv.id) }}
+                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-[#222222]/20 hover:text-red-400"
+                  title="Löschen"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -517,7 +636,7 @@ function MessageThread({
       </div>
 
       {/* Input area */}
-      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white">
+      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white pb-24 md:pb-0">
 
         {/* Image preview */}
         {previewFile && (
@@ -601,7 +720,7 @@ function MessageThread({
 
       {/* Plus-Menü Bottom Sheet (mobil) */}
       {plusMenuOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:hidden" onClick={() => setPlusMenuOpen(false)}>
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end sm:hidden" onClick={() => setPlusMenuOpen(false)}>
           <div className="absolute inset-0 bg-black/30" />
           <div
             className="relative bg-white rounded-t-2xl pb-8 pt-2 animate-slide-up-sm"
@@ -757,8 +876,10 @@ export default function MessagesClient({ conversations: initial, userId }: Props
             <ConversationList
               conversations={conversations}
               selectedId={selectedId}
+              userId={userId}
               onSelect={setSelectedId}
               onDelete={handleDelete}
+              onNewConversation={conv => setConversations(prev => [conv, ...prev])}
             />
           </div>
 

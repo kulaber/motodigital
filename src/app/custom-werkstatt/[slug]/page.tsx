@@ -462,7 +462,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA */}
-              <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+              <div className="hidden sm:block bg-white border border-[#DDDDDD] rounded-2xl p-5">
                 <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
                 <p className="text-xs text-[#717171] leading-relaxed mb-4">
                   Schreib direkt an {builder.name}.
@@ -528,12 +528,14 @@ export default async function BuilderProfilePage({ params }: Props) {
       </section>
 
       {/* Sticky CTA */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3">
-        <div className="max-w-md mx-auto">
-          <a href="#contact"
-            className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full py-3 shadow-lg transition-colors">
-            {builder.name} kontaktieren
-          </a>
+      <div className="sm:hidden fixed bottom-28 left-0 right-0 z-40 flex justify-center px-4">
+        <div className="w-full max-w-[400px]">
+          <BuilderContactButton
+            builderId={builder.id ?? ''}
+            builderFirstName={builder.name.split(' ')[0]}
+            builderName={builder.name}
+            fullWidth
+          />
         </div>
       </div>
 

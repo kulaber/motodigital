@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
@@ -11,6 +12,7 @@ interface Props {
   builderFirstName: string
   builderName: string
   bikeId?: string
+  fullWidth?: boolean
 }
 
 function Modal({
@@ -71,7 +73,7 @@ function Modal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md shadow-2xl overflow-hidden">
         {/* Header */}
@@ -130,7 +132,7 @@ function Modal({
   )
 }
 
-export default function BuilderContactButton({ builderId, builderFirstName, builderName }: Props) {
+export default function BuilderContactButton({ builderId, builderFirstName, builderName, fullWidth }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -150,19 +152,20 @@ export default function BuilderContactButton({ builderId, builderFirstName, buil
       <button
         onClick={handleClick}
         disabled={authLoading}
-        className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 rounded-xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
+        className={`flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white text-sm font-semibold py-3 hover:bg-[#058f8f] disabled:opacity-50 transition-all ${fullWidth ? 'rounded-full shadow-lg' : 'rounded-xl'}`}
       >
         <MessageCircle size={14} />
         {builderFirstName} kontaktieren
       </button>
 
-      {open && user && (
+      {open && user && typeof document !== 'undefined' && createPortal(
         <Modal
           builderId={builderId}
           builderName={builderName}
           userId={user.id}
           onClose={() => setOpen(false)}
-        />
+        />,
+        document.body
       )}
 
       <LoginModal

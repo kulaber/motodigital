@@ -183,6 +183,15 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['saved_builders']['Row'], 'created_at'>
         Update: never
       }
+      followers: {
+        Row: {
+          follower_id: string
+          following_id: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['followers']['Row'], 'created_at'>
+        Update: never
+      }
       reviews: {
         Row: {
           id: string

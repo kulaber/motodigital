@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Instagram } from 'lucide-react'
+import FooterWrapper from './FooterWrapper'
 
 const NAV = [
   {
@@ -48,6 +49,7 @@ const NAV = [
 
 export default function Footer() {
   return (
+    <FooterWrapper>
     <footer className="bg-[#222222] border-t border-white/8 text-white">
 
       {/* Main footer */}
@@ -103,5 +105,6 @@ export default function Footer() {
       </div>
 
     </footer>
+    </FooterWrapper>
   )
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AccountSettingsForm from './AccountSettingsForm'
 
@@ -19,8 +21,15 @@ export default async function AccountSettingsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#222222]">Konto-Einstellungen</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">Profil, E-Mail und Passwort verwalten</p>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+              <ArrowLeft size={18} className="text-[#222222]" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-[#222222]">Konto-Einstellungen</h1>
+              <p className="text-sm text-[#222222]/40 mt-1">Profil, E-Mail und Passwort verwalten</p>
+            </div>
+          </div>
         </div>
         <AccountSettingsForm
           userId={user.id}

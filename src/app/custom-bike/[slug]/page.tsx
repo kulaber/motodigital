@@ -9,6 +9,7 @@ import BuildGallery from '@/components/build/BuildGallery'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import ContactModal from './ContactModal'
+import MobileCTAWrapper from './MobileCTAWrapper'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -260,14 +261,16 @@ export default async function CustomBikePage({ params }: Props) {
 
                 {/* CTA */}
                 <div className="px-5 py-4 flex flex-col gap-2">
-                  <ContactModal
-                    sellerId={bike.seller_id}
-                    sellerName={sellerName}
-                    sellerRole={sellerProfile?.role ?? null}
-                    bikeId={bike.id}
-                    bikeTitle={bike.title}
-                    coverImage={imageUrls[0] ?? null}
-                  />
+                  <div className="hidden sm:block">
+                    <ContactModal
+                      sellerId={bike.seller_id}
+                      sellerName={sellerName}
+                      sellerRole={sellerProfile?.role ?? null}
+                      bikeId={bike.id}
+                      bikeTitle={bike.title}
+                      coverImage={imageUrls[0] ?? null}
+                    />
+                  </div>
                   {sellerProfileHref && (
                     <Link href={sellerProfileHref} className="w-full text-center text-xs font-medium text-[#222222]/35 hover:text-[#222222] transition-colors py-1.5">
                       Profil ansehen →
@@ -299,17 +302,17 @@ export default async function CustomBikePage({ params }: Props) {
           <RelatedBikes excludeId={bike.id} />
         </div>
 
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
-          {sellerProfileHref ? (
-            <Link href={sellerProfileHref} className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors">
-              Werkstatt kontaktieren
-            </Link>
-          ) : (
-            <button className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors">
-              Werkstatt kontaktieren
-            </button>
-          )}
-        </div>
+        <MobileCTAWrapper>
+          <ContactModal
+            sellerId={bike.seller_id}
+            sellerName={sellerName}
+            sellerRole={sellerProfile?.role ?? null}
+            bikeId={bike.id}
+            bikeTitle={bike.title}
+            coverImage={imageUrls[0] ?? null}
+            fullWidth
+          />
+        </MobileCTAWrapper>
 
         <Footer />
       </div>
@@ -454,14 +457,14 @@ export default async function CustomBikePage({ params }: Props) {
       </div>
 
       {/* Mobile floating CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 flex justify-center">
+      <MobileCTAWrapper>
         <Link
           href={`/custom-werkstatt/${build.builder.slug}`}
-          className="inline-flex items-center justify-center text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full px-8 py-3 shadow-lg transition-colors"
+          className="flex items-center justify-center w-full text-sm font-semibold bg-[#06a5a5] hover:bg-[#058f8f] text-white rounded-full py-3 shadow-lg transition-colors"
         >
           {build.builder.name} kontaktieren
         </Link>
-      </div>
+      </MobileCTAWrapper>
 
       <Footer />
     </div>
