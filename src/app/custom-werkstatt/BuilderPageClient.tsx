@@ -739,84 +739,36 @@ export default function BuilderPageClient({ builders }: Props) {
       `}</style>
 
       {/* ── Sticky filter bar ── */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5 relative">
         {/* Filters — all screen sizes */}
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Stil dropdown */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setStyleOpen(v => !v)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeSpecialty !== 'Alle'
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-              }`}
-            >
-              <SlidersHorizontal size={11} />
-              {activeSpecialty === 'Alle' ? 'Umbaustil' : activeSpecialty}
-              <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
-            </button>
+          {/* Stil button */}
+          <button
+            onClick={() => setStyleOpen(v => !v)}
+            className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeSpecialty !== 'Alle'
+                ? 'bg-[#222222] text-white'
+                : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+            }`}
+          >
+            <SlidersHorizontal size={11} />
+            {activeSpecialty === 'Alle' ? 'Umbaustil' : activeSpecialty}
+            <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
+          </button>
 
-            {styleOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
-                <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
-                  {availableSpecialties.map(spec => (
-                    <button
-                      key={spec}
-                      onClick={() => { setActiveSpecialty(spec); setStyleOpen(false) }}
-                      className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
-                        activeSpecialty === spec
-                          ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
-                          : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
-                      }`}
-                    >
-                      {spec}
-                      {activeSpecialty === spec && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Leistungen dropdown */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setLeistungenOpen(v => !v)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeLeistung !== 'Alle'
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-              }`}
-            >
-              <Wrench size={11} />
-              {activeLeistung === 'Alle' ? 'Leistungen' : activeLeistung}
-              <ChevronDown size={11} className={`transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {leistungenOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
-                <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {['Alle', ...availableLeistungen].map(l => (
-                    <button
-                      key={l}
-                      onClick={() => { setActiveLeistung(l); setLeistungenOpen(false) }}
-                      className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
-                        activeLeistung === l
-                          ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
-                          : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
-                      }`}
-                    >
-                      {l}
-                      {activeLeistung === l && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          {/* Leistungen button */}
+          <button
+            onClick={() => setLeistungenOpen(v => !v)}
+            className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeLeistung !== 'Alle'
+                ? 'bg-[#222222] text-white'
+                : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+            }`}
+          >
+            <Wrench size={11} />
+            {activeLeistung === 'Alle' ? 'Leistungen' : activeLeistung}
+            <ChevronDown size={11} className={`transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
+          </button>
 
           {/* Jetzt geöffnet */}
           {now && (
@@ -842,6 +794,50 @@ export default function BuilderPageClient({ builders }: Props) {
             </button>
           )}
         </div>
+
+        {/* Dropdown panels — außerhalb des overflow-x-auto divs damit sie nicht geclippt werden */}
+        {styleOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
+            <div className="absolute left-4 sm:left-5 lg:left-6 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
+              {availableSpecialties.map(spec => (
+                <button
+                  key={spec}
+                  onClick={() => { setActiveSpecialty(spec); setStyleOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
+                    activeSpecialty === spec
+                      ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
+                      : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
+                  }`}
+                >
+                  {spec}
+                  {activeSpecialty === spec && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        {leistungenOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
+            <div className="absolute left-[140px] sm:left-[148px] top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {['Alle', ...availableLeistungen].map(l => (
+                <button
+                  key={l}
+                  onClick={() => { setActiveLeistung(l); setLeistungenOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
+                    activeLeistung === l
+                      ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
+                      : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
+                  }`}
+                >
+                  {l}
+                  {activeLeistung === l && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
       </div>
 
