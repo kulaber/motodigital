@@ -325,10 +325,7 @@ export default async function DashboardPage() {
           </div>
         ) : null}
 
-        {!isRider && !isSuperAdmin && <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start mt-0">
-
-          {/* LEFT */}
-          <div className="flex flex-col gap-5">
+        {!isRider && !isSuperAdmin && <div className="flex flex-col gap-5 mt-0">
 
             {/* Builder profile card — only for builders, not superadmin (uses /admin/custom-werkstatt) */}
             {isBuilder && !isSuperAdmin && (
@@ -453,11 +450,8 @@ export default async function DashboardPage() {
               </div>
             </div>}
 
-          </div>
-
-          {/* RIGHT — Messages */}
-          <div className="flex flex-col gap-5">
-            <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
+            {/* Nachrichten */}
+            {!isSuperAdmin && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
               <div className="px-5 py-4 border-b border-[#222222]/5">
                 <h2 className="text-sm font-semibold text-[#222222]">Nachrichten</h2>
               </div>
@@ -466,7 +460,7 @@ export default async function DashboardPage() {
                   <Link
                     key={conv.id}
                     href={`/dashboard?conversation=${conv.id}`}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-white transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors"
                   >
                     <div className="w-8 h-8 rounded-full bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-xs font-bold text-[#717171] flex-shrink-0 mt-0.5">
                       {(conv.profiles?.full_name ?? conv.profiles?.username ?? '?').charAt(0).toUpperCase()}
@@ -484,27 +478,7 @@ export default async function DashboardPage() {
                   <p className="px-5 py-8 text-sm text-[#222222]/30 text-center">Keine Nachrichten</p>
                 )}
               </div>
-            </div>
-
-            {/* Quick links */}
-            {!isSuperAdmin && <div className="bg-white border border-[#222222]/6 rounded-2xl p-4">
-              <p className="text-xs text-[#222222]/25 uppercase tracking-widest font-semibold mb-3">Schnellzugriff</p>
-              {[
-                ...(!isRider ? [{ label: 'Neues Custom-Bike hinzufügen', href: '/bikes/new',              icon: <Plus size={13}/> }] : []),
-                { label: 'Merkliste',                   href: '/dashboard/merkliste',  icon: <Star size={13}/> },
-                { label: 'Werkstätten entdecken',       href: '/custom-werkstatt',     icon: <Eye size={13}/> },
-                ...(isBuilder ? [{ label: 'Profil bearbeiten',           href: '/dashboard/profile',      icon: <User size={13}/> }] : []),
-                { label: 'Konto-Einstellungen',         href: '/dashboard/account',    icon: <Settings size={13}/> },
-              ].map(l => (
-                <Link key={l.href} href={l.href}
-                  className="flex items-center gap-2.5 py-2.5 text-xs text-[#222222]/50 hover:text-[#222222] transition-colors border-b border-[#222222]/5 last:border-0">
-                  <span className="text-[#222222]/25">{l.icon}</span>
-                  {l.label}
-                  <ChevronRight size={11} className="ml-auto text-[#222222]/20" />
-                </Link>
-              ))}
             </div>}
-          </div>
 
         </div>}
     </div>
