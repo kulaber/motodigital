@@ -64,7 +64,7 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
             )}
           </div>
         ) : (
-          <div className="aspect-[4/5] bg-[#F7F7F7] flex items-center justify-center rounded-t-2xl">
+          <div className="aspect-[16/9] bg-[#F7F7F7] flex items-center justify-center rounded-t-2xl">
             <svg width="48" height="34" viewBox="0 0 48 34" fill="none">
               <circle cx="8" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>
               <circle cx="40" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>
