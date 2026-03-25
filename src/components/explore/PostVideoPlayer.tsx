@@ -36,7 +36,7 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt, className, on
       posterGenerated.current = true
       video.currentTime = 0.1
     }
-  }, [thumbnail_url])
+  }, [thumbnail_url, onRatio])
 
   const handleSeeked = useCallback(() => {
     const video = videoRef.current
