@@ -37,13 +37,12 @@ function Modal({
     setSending(true)
     setError(null)
 
-    // Find or create conversation (rider-to-rider, no bike)
+    // Find existing conversation (check both directions)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
-      .eq('seller_id', riderId)
-      .eq('buyer_id', userId)
-      .is('bike_id', null)
+      .or(`and(seller_id.eq.${riderId},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${riderId})`)
+      .limit(1)
       .maybeSingle()
 
     if (!conv?.id) {

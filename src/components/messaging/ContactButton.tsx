@@ -27,18 +27,25 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
 
     setLoading(true)
 
-    // Upsert conversation (unique constraint: bike_id + buyer_id)
+    // Find existing conversation (check both directions)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('conversations') as any)
-      .upsert(
-        { bike_id: bikeId, buyer_id: user.id, seller_id: sellerId },
-        { onConflict: 'bike_id,buyer_id', ignoreDuplicates: false }
-      )
+    let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
+      .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${user.id}),and(seller_id.eq.${user.id},buyer_id.eq.${sellerId})`)
+      .limit(1)
       .maybeSingle()
 
-    if (!error && data) {
-      router.push(`/dashboard/messages?conv=${data.id}`)
+    if (!conv?.id) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: created } = await (supabase.from('conversations') as any)
+        .insert({ seller_id: sellerId, buyer_id: user.id, bike_id: bikeId })
+        .select('id')
+        .maybeSingle()
+      conv = created
+    }
+
+    if (conv?.id) {
+      router.push(`/dashboard/messages?conv=${conv.id}`)
     }
 
     setLoading(false)

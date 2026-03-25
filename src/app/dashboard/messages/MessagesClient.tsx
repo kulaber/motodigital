@@ -126,12 +126,27 @@ function ConversationList({
   }
 
   async function startConversation(profile: ProfileResult) {
-    // Check if conversation already exists
+    // Check if conversation already exists (local list)
     const existingConv = conversations.find(c => c.other?.id === profile.id)
     if (existingConv) {
       setSearch('')
       setProfileResults([])
       onSelect(existingConv.id)
+      return
+    }
+
+    // Check DB for existing conversation in either direction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existing } = await (supabase.from('conversations') as any)
+      .select('id')
+      .or(`and(seller_id.eq.${profile.id},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${profile.id})`)
+      .limit(1)
+      .maybeSingle()
+
+    if (existing?.id) {
+      setSearch('')
+      setProfileResults([])
+      onSelect(existing.id)
       return
     }
 

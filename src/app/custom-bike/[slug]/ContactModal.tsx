@@ -42,12 +42,11 @@ function Modal({
     if (!trimmed || sending) return
     setSending(true)
 
-    // Find or create conversation
+    // Find existing conversation (check both directions)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
-      .eq('seller_id', sellerId)
-      .eq('buyer_id', userId)
+      .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${sellerId})`)
       .limit(1)
       .maybeSingle()
 
