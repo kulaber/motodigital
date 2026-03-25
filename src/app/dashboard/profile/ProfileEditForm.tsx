@@ -344,7 +344,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setUploading(true)
 
     for (const rawFile of Array.from(files)) {
-      const file = type === 'image' ? await compressImage(rawFile) : rawFile
+      const file = type === 'image' ? await compressImage(rawFile, 1200) : rawFile
       const ext = file.name.split('.').pop()
       // eslint-disable-next-line react-hooks/purity
       const path = `${profile.id}/${Date.now()}.${ext}`

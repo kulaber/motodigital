@@ -11,6 +11,7 @@ import PostImageItem from '@/components/explore/PostImageItem'
 import { RIDERS } from '@/lib/data/riders'
 import { EVENTS } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
+import { compressImage } from '@/lib/utils/compressImage'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
@@ -493,54 +494,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   )
 }
 
-/* ── Image compression (Canvas API) ────────────────────── */
-
-const MAX_LONG_EDGE = 1920
-const QUALITY = 0.82
-
-function compressImage(file: File): Promise<File> {
-  return new Promise((resolve) => {
-    // Skip non-image files
-    if (!file.type.startsWith('image/')) { resolve(file); return }
-
-    const img = new window.Image()
-    const objectUrl = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl)
-
-      let { width, height } = img
-      const longEdge = Math.max(width, height)
-
-      // Only resize if larger than max
-      if (longEdge > MAX_LONG_EDGE) {
-        const scale = MAX_LONG_EDGE / longEdge
-        width = Math.round(width * scale)
-        height = Math.round(height * scale)
-      }
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, width, height)
-
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }))
-          } else {
-            resolve(file)
-          }
-        },
-        'image/webp',
-        QUALITY
-      )
-    }
-    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
-    img.src = objectUrl
-  })
-}
-
 /* ── Main component ────────────────────────────────────── */
 
 interface Props {
@@ -552,6 +505,7 @@ interface Props {
 export default function ExploreClient({ userId, userCity, isSuperadmin }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
+  const [loadingPosts, setLoadingPosts] = useState(true)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
@@ -594,7 +548,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
       .order('created_at', { ascending: false })
       .limit(50)
 
-    if (!postsData || postsData.length === 0) { setCommunityPosts([]); return }
+    if (!postsData || postsData.length === 0) { setCommunityPosts([]); setLoadingPosts(false); return }
 
     const userIds = [...new Set((postsData as { user_id: string }[]).map(p => p.user_id))]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -644,6 +598,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
     })
 
     setCommunityPosts(mapped)
+    setLoadingPosts(false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
@@ -777,7 +732,7 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
 
     const uploadedUrls: string[] = []
     for (const { file: rawFile } of mediaFiles) {
-      const file = await compressImage(rawFile)
+      const file = await compressImage(rawFile, 1200)
       const ext = file.name.split('.').pop() ?? 'jpg'
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1025,15 +980,19 @@ export default function ExploreClient({ userId, userCity, isSuperadmin }: Props)
 
           {/* Card stream */}
           <div className="flex flex-col gap-4">
-            {filteredPosts.length === 0 && (
+            {loadingPosts ? (
+              <div className="flex justify-center py-16">
+                <div className="w-7 h-7 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />
+              </div>
+            ) : filteredPosts.length === 0 ? (
               <div className="text-center py-16 text-[#B0B0B0] text-sm">
                 Keine Einträge in dieser Kategorie.
               </div>
+            ) : (
+              filteredPosts.map(post => (
+                <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} />
+              ))
             )}
-
-            {filteredPosts.map(post => (
-              <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} />
-            ))}
           </div>
         </div>
       </main>

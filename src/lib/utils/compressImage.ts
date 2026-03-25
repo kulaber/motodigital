@@ -1,14 +1,21 @@
 /**
  * Komprimiert ein Bild-File im Browser via Canvas API.
- * - Skaliert auf max. 1400px Breite (Seitenverhältnis bleibt erhalten)
- * - Exportiert als JPEG mit 78% Qualität
+ * - Skaliert auf maxWidth (Breite) bzw. maxHeight (Höhe) – jeweils die engere Grenze
+ * - Exportiert als WebP (bessere Kompression als JPEG, ~95% Browser-Support)
  * - Überspringt GIFs (Animation würde verloren gehen)
  * - Gibt das Original zurück wenn das Bild nach Kompression größer wäre
+ *
+ * Empfohlene maxWidth-Werte je Kontext:
+ *   avatar / profilbild : 400
+ *   feed / community    : 1200  (600px CSS × 2× retina)
+ *   galerie / builder   : 1200
+ *   bike-listing        : 1600  (800px CSS × 2× retina)
  */
 export async function compressImage(
   file: File,
   maxWidth = 1400,
-  quality = 0.78,
+  quality = 0.82,
+  maxHeight = 0,   // 0 = unbegrenzt
 ): Promise<File> {
   if (!file.type.startsWith('image/') || file.type === 'image/gif') return file
 
@@ -20,9 +27,15 @@ export async function compressImage(
       URL.revokeObjectURL(objectUrl)
 
       let { width, height } = img
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width)
-        width = maxWidth
+
+      // Skaliere so, dass weder Breite noch Höhe überschritten wird
+      const scaleW = width  > maxWidth               ? maxWidth  / width  : 1
+      const scaleH = maxHeight > 0 && height > maxHeight ? maxHeight / height : 1
+      const scale  = Math.min(scaleW, scaleH)
+
+      if (scale < 1) {
+        width  = Math.round(width  * scale)
+        height = Math.round(height * scale)
       }
 
       const canvas = document.createElement('canvas')
@@ -39,11 +52,11 @@ export async function compressImage(
         }
         const compressed = new File(
           [blob],
-          file.name.replace(/\.[^.]+$/, '.jpg'),
-          { type: 'image/jpeg' },
+          file.name.replace(/\.[^.]+$/, '.webp'),
+          { type: 'image/webp' },
         )
         resolve(compressed)
-      }, 'image/jpeg', quality)
+      }, 'image/webp', quality)
     }
 
     img.onerror = () => {

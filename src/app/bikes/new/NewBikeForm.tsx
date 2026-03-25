@@ -127,7 +127,7 @@ export default function NewBikeForm() {
         continue
       }
 
-      const processed = isVideo ? file : await compressImage(file)
+      const processed = isVideo ? file : await compressImage(file, 1600)
       const preview = URL.createObjectURL(processed)
       let thumbFile: File | undefined
       if (isVideo) {

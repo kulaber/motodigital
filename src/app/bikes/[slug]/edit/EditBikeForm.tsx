@@ -141,7 +141,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         toastError(`Bild "${file.name}" ist zu groß (max. 10 MB)`)
         continue
       }
-      const processed = isVideo ? file : await compressImage(file)
+      const processed = isVideo ? file : await compressImage(file, 1600)
       let thumbFile: File | undefined
       if (isVideo) {
         try { thumbFile = await generateVideoThumbnail(file) } catch { /* ignore */ }
