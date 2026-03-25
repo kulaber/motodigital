@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Plus, Bike, ArrowLeft } from 'lucide-react'
@@ -94,11 +95,12 @@ export default async function MeinBikePage() {
                   {/* Cover */}
                   <div className="relative aspect-[16/9] sm:aspect-auto sm:w-52 md:w-64 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
                     {coverImg ? (
-                      <img
+                      <Image
                         src={coverImg}
                         alt={bike.title}
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        fill
+                        sizes="(max-width: 640px) 100vw, 256px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

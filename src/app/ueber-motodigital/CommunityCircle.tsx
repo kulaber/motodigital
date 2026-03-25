@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 
 const LOGO_PATH =
@@ -111,8 +112,8 @@ export default function CommunityCircle() {
 
           {/* Werkstatt — left */}
           <div className="md-node md-n0 absolute flex flex-col items-center gap-2" style={{ left: 0, top: 120 }}>
-            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
-              <img src="/custom-werkstatt.png" alt="Werkstatt" className="w-full h-full object-contain" />
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2 relative">
+              <Image src="/custom-werkstatt.png" alt="Werkstatt" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">01</p>
@@ -122,8 +123,8 @@ export default function CommunityCircle() {
 
           {/* Bike Käufer — right */}
           <div className="md-node md-n1 absolute flex flex-col items-center gap-2" style={{ right: 0, top: 120 }}>
-            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
-              <img src="/custom-bikes.png" alt="Bike Käufer" className="w-full h-full object-contain" />
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2 relative">
+              <Image src="/custom-bikes.png" alt="Bike Käufer" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">02</p>
@@ -133,8 +134,8 @@ export default function CommunityCircle() {
 
           {/* Rider — bottom center */}
           <div className="md-node md-n2 absolute flex flex-col items-center gap-2" style={{ left: 'calc(50% - 64px)', top: 312 }}>
-            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2">
-              <img src="/rider.png" alt="Rider" className="w-full h-full object-contain" />
+            <div className="w-32 h-24 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-2 relative">
+              <Image src="/rider.png" alt="Rider" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#06a5a5]">03</p>
@@ -190,8 +191,8 @@ export default function CommunityCircle() {
 
           {/* Werkstatt — top left */}
           <div className="md-node md-n0 absolute flex flex-col items-center gap-3" style={{ left: 18, top: 12 }}>
-            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
-              <img src="/custom-werkstatt.png" alt="Werkstatt" className="w-full h-full object-contain" />
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3 relative">
+              <Image src="/custom-werkstatt.png" alt="Werkstatt" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#06a5a5]">01</p>
@@ -201,8 +202,8 @@ export default function CommunityCircle() {
 
           {/* Käufer — top right */}
           <div className="md-node md-n1 absolute flex flex-col items-center gap-3" style={{ right: 18, top: 12 }}>
-            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
-              <img src="/custom-bikes.png" alt="Käufer" className="w-full h-full object-contain" />
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3 relative">
+              <Image src="/custom-bikes.png" alt="Käufer" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#06a5a5]">02</p>
@@ -212,8 +213,8 @@ export default function CommunityCircle() {
 
           {/* Rider — bottom center, top=371 centers card on dot y=435 */}
           <div className="md-node md-n2 absolute flex flex-col items-center gap-3" style={{ left: 'calc(50% - 96px)', top: 363 }}>
-            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3">
-              <img src="/rider.png" alt="Rider" className="w-full h-full object-contain" />
+            <div className="w-48 h-36 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden p-3 relative">
+              <Image src="/rider.png" alt="Rider" fill className="object-contain" />
             </div>
             <div className="text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#06a5a5]">03</p>

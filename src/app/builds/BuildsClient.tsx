@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, ChevronDown, X } from 'lucide-react'
 import type { Build } from '@/lib/data/builds'
@@ -131,10 +132,12 @@ export default function BuildsClient({ builds }: Props) {
                   style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    <img
+                    <Image
                       src={build.coverImg}
                       alt={build.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                     />
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}

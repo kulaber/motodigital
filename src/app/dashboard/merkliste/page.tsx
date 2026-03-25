@@ -148,11 +148,12 @@ export default async function MerklistePage({
                     >
                       <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
                         {coverImg ? (
-                          <img
+                          <Image
                             src={coverImg}
                             alt={bike.title}
-                            loading="lazy"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center opacity-10">
