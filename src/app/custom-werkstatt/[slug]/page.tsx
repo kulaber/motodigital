@@ -174,13 +174,6 @@ export default async function BuilderProfilePage({ params }: Props) {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
-      {/* Back link — desktop only, matches custom-bike page position */}
-      <div className="hidden sm:block max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-6">
-        <Link href="/custom-werkstatt" className="inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors">
-          <ArrowLeft size={13} /> Alle Custom Werkstätten
-        </Link>
-      </div>
-
       {/* ── MOBILE HERO ── */}
       <div className="sm:hidden relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
@@ -238,6 +231,14 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+        <div className="absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <Link href="/custom-werkstatt"
+              className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
+              <ArrowLeft size={13} /> Alle Custom Werkstätten
+            </Link>
+          </div>
+        </div>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
           <div className="max-w-7xl mx-auto flex items-end gap-4">
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
