@@ -172,6 +172,14 @@ function ConversationList({
       (c.bike?.title ?? '').toLowerCase().includes(search.toLowerCase())
     const matchesFilter = filter === 'alle' || c.unread_count > 0
     return matchesSearch && matchesFilter
+  }).sort((a, b) => {
+    // Unread conversations always on top
+    if (a.unread_count > 0 && b.unread_count === 0) return -1
+    if (a.unread_count === 0 && b.unread_count > 0) return 1
+    // Then by last_message_at descending
+    const aTime = a.last_message_at ?? ''
+    const bTime = b.last_message_at ?? ''
+    return bTime.localeCompare(aTime)
   })
 
   return (
@@ -270,7 +278,7 @@ function ConversationList({
               <div
                 key={conv.id}
                 className={`group relative flex items-center gap-3 px-5 py-4 transition-colors cursor-pointer ${
-                  isSelected ? 'bg-[#F7F7F7]' : 'hover:bg-[#FAFAFA]'
+                  isSelected ? 'bg-[#F7F7F7]' : hasUnread ? 'bg-[#06a5a5]/[0.04] hover:bg-[#06a5a5]/[0.07]' : 'hover:bg-[#FAFAFA]'
                 }`}
                 onClick={() => onSelect(conv.id)}
               >

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   {
@@ -73,6 +74,47 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [optimisticIndex, setOptimisticIndex] = useState(-1);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const supabase = createClient();
+  const fetchUnreadRef = useRef(() => {});
+
+  // Fetch unread count + realtime subscription
+  useEffect(() => {
+    if (!user) { setUnreadCount(0); return; }
+    const uid = user.id;
+
+    async function fetchUnread() {
+      const { data: convs } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`);
+      if (!convs?.length) { setUnreadCount(0); return; }
+      const ids = convs.map((c) => c.id);
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("conversation_id", ids)
+        .neq("sender_id", uid)
+        .is("read_at", null);
+      setUnreadCount(count ?? 0);
+    }
+
+    fetchUnreadRef.current = fetchUnread;
+    fetchUnread();
+
+    const stableListener = () => fetchUnreadRef.current();
+    window.addEventListener("messages-read", stableListener);
+
+    const channel = supabase
+      .channel("mobile-unread-badge")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, stableListener)
+      .subscribe();
+
+    return () => {
+      window.removeEventListener("messages-read", stableListener);
+      supabase.removeChannel(channel);
+    };
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const routeIndex = NAV_ITEMS.findIndex(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
@@ -143,6 +185,7 @@ export default function MobileBottomNav() {
 
             {NAV_ITEMS.map((item, index) => {
               const isActive = activeIndex === index;
+              const showBadge = item.id === "nachrichten" && unreadCount > 0;
 
               return (
                 <a
@@ -169,9 +212,34 @@ export default function MobileBottomNav() {
                       justifyContent: "center",
                       stroke: isActive ? "#FFFFFF" : INACTIVE_ICON,
                       transition: "stroke 0.35s ease",
+                      position: "relative",
                     }}
                   >
                     {item.icon}
+                    {showBadge && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: -4,
+                          right: -8,
+                          minWidth: 16,
+                          height: 16,
+                          padding: "0 3px",
+                          background: "#06a5a5",
+                          color: "#FFFFFF",
+                          fontSize: 8,
+                          fontWeight: 700,
+                          borderRadius: 999,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          lineHeight: 1,
+                          border: isActive ? "2px solid #111111" : "2px solid rgba(250,250,250,0.92)",
+                        }}
+                      >
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
                   </span>
                 </a>
               );

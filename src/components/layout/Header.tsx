@@ -168,6 +168,11 @@ export default function Header({ activePage }: Props) {
                     ) : (
                       <CircleUserRound size={19} />
                     )}
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-0.5 bg-[#06a5a5] text-white text-[8px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-white">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
                   </span>
                   <ChevronDown size={12} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
                 </button>
@@ -181,7 +186,7 @@ export default function Header({ activePage }: Props) {
                       className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                       <MessageCircle size={14} /> Nachrichten
                       {unreadCount > 0 && (
-                        <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                        <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                       )}
