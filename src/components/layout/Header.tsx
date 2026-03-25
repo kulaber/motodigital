@@ -108,7 +108,7 @@ export default function Header({ activePage }: Props) {
 
         {/* Logo */}
         <div className="flex-1 min-w-0 flex items-center">
-          <Link href="/" className="inline-flex items-center">
+          <Link href={user && role === 'rider' ? '/explore' : '/'} className="inline-flex items-center">
             <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
           </Link>
         </div>
