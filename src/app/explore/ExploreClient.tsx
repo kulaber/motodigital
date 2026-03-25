@@ -6,8 +6,7 @@ import Link from 'next/link'
 import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
-import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
-import PostImageItem from '@/components/explore/PostImageItem'
+import PostImageCarousel from '@/components/explore/PostImageCarousel'
 import { RIDERS } from '@/lib/data/riders'
 import { EVENTS } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
@@ -112,66 +111,6 @@ function urlsToMediaItems(urls: string[]): MediaItem[] {
       position: i,
     }
   })
-}
-
-/* ── Mixed media slider (images + videos) ──────────────── */
-
-function PostMediaSlider({ items, alt }: { items: MediaItem[]; alt: string }) {
-  const [idx, setIdx] = useState(0)
-  const startX = useRef<number | null>(null)
-
-  const current = items[idx]
-  const multi = items.length > 1
-
-  function onTouchStart(e: React.TouchEvent) { startX.current = e.touches[0].clientX }
-  function onTouchEnd(e: React.TouchEvent) {
-    if (startX.current === null) return
-    const dx = e.changedTouches[0].clientX - startX.current
-    startX.current = null
-    if (Math.abs(dx) < 40) return
-    setIdx(i => Math.max(0, Math.min(i + (dx < 0 ? 1 : -1), items.length - 1)))
-  }
-
-  return (
-    <div
-      className="relative w-full overflow-hidden bg-black select-none"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
-      {current.media_type === 'video' ? (
-        <PostVideoPlayer url={current.url} thumbnail_url={current.thumbnail_url} alt={alt} />
-      ) : (
-        <PostImageItem url={current.url} alt={alt} />
-      )}
-
-      {/* Navigation arrows */}
-      {multi && (
-        <>
-          {idx > 0 && (
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx(i => i - 1) }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full shadow flex items-center justify-center z-10"
-            >
-              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M6.5 2L3.5 5l3 3" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-            </button>
-          )}
-          {idx < items.length - 1 && (
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx(i => i + 1) }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full shadow flex items-center justify-center z-10"
-            >
-              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3.5 2L6.5 5l-3 3" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-            </button>
-          )}
-          <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1 pointer-events-none z-10">
-            {items.map((item, i) => (
-              <span key={item.id} className={`rounded-full transition-all ${i === idx ? 'w-[7px] h-[7px] bg-white' : 'w-[5px] h-[5px] bg-white/50'}`} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  )
 }
 
 /* ── Feed: Community Post Card (user-generated) ────────── */
@@ -355,30 +294,11 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         )
       })()}
 
-      {imageUrls.length > 0 && (() => {
-        const mediaItems = urlsToMediaItems(imageUrls)
-
-        // Single item → render directly with orientation-aware aspect
-        if (mediaItems.length === 1) {
-          const item = mediaItems[0]
-          return (
-            <div className="mt-3 overflow-hidden">
-              {item.media_type === 'video' ? (
-                <PostVideoPlayer url={item.url} thumbnail_url={item.thumbnail_url} alt={post.author_name} />
-              ) : (
-                <PostImageItem url={item.url} alt={post.author_name} />
-              )}
-            </div>
-          )
-        }
-
-        // Multiple items → slider with orientation-aware per-item aspect
-        return (
-          <div className="mt-3 overflow-hidden">
-            <PostMediaSlider items={mediaItems} alt={post.author_name} />
-          </div>
-        )
-      })()}
+      {imageUrls.length > 0 && (
+        <div className="mt-3">
+          <PostImageCarousel items={urlsToMediaItems(imageUrls)} alt={post.author_name} />
+        </div>
+      )}
 
       {/* Location map */}
       {post.latitude != null && post.longitude != null && (

@@ -7,9 +7,11 @@ interface PostVideoPlayerProps {
   url: string
   thumbnail_url: string | null
   alt: string
+  /** Override the aspect-ratio class on the container (e.g. "h-full" for carousel use) */
+  className?: string
 }
 
-export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPlayerProps) {
+export default function PostVideoPlayer({ url, thumbnail_url, alt, className }: PostVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
   const [aspectClass, setAspectClass] = useState('aspect-video')
@@ -100,7 +102,7 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt }: PostVideoPl
   const handlePlay = useCallback(() => setPlaying(true), [])
 
   return (
-    <div className={`relative w-full ${aspectClass} bg-black overflow-hidden`}>
+    <div className={`relative w-full ${className ?? aspectClass} bg-black overflow-hidden`}>
       <video
         ref={videoRef}
         src={url}
