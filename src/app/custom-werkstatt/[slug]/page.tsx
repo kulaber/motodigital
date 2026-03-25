@@ -343,23 +343,25 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* LEFT */}
             <div>
               {/* About */}
-              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {builder.name}</h2>
-                <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>
+              {(builder.bioLong || builder.bases.length > 0) && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {builder.name}</h2>
+                  {builder.bioLong && <p className="text-sm text-[#717171] leading-relaxed">{builder.bioLong}</p>}
 
-                {builder.bases.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-[#EBEBEB]">
-                    <p className="text-xs text-[#B0B0B0] mb-2">Bevorzugte Basis-Bikes</p>
-                    <div className="flex flex-wrap gap-2">
-                      {builder.bases.map(base => (
-                        <span key={base} className="text-xs text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full font-medium">
-                          {base}
-                        </span>
-                      ))}
+                  {builder.bases.length > 0 && (
+                    <div className={`${builder.bioLong ? 'mt-4 pt-4 border-t border-[#EBEBEB]' : ''}`}>
+                      <p className="text-xs text-[#B0B0B0] mb-2">Bevorzugte Basis-Bikes</p>
+                      <div className="flex flex-wrap gap-2">
+                        {builder.bases.map(base => (
+                          <span key={base} className="text-xs text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full font-medium">
+                            {base}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
               {/* Werkstatt-Insights Galerie */}
               {builder.galleryImages && builder.galleryImages.length > 0 && (
@@ -370,29 +372,31 @@ export default async function BuilderProfilePage({ params }: Props) {
               )}
 
               {/* Leistungen */}
-              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4 sm:mb-5">Leistungen</h2>
-                {/* Mobile: chip row */}
-                <div className="flex flex-wrap gap-2 sm:hidden">
-                  {builder.tags.map(tag => (
-                    <span key={tag} className="flex items-center gap-1.5 text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
+              {builder.tags.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4 sm:mb-5">Leistungen</h2>
+                  {/* Mobile: chip row */}
+                  <div className="flex flex-wrap gap-2 sm:hidden">
+                    {builder.tags.map(tag => (
+                      <span key={tag} className="flex items-center gap-1.5 text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Desktop: grid cards */}
+                  <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {builder.tags.map(tag => {
+                      const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
+                      return (
+                        <div key={tag} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
+                          <span className="text-[#06a5a5] flex-shrink-0">{icon}</span>
+                          <span className="text-xs font-semibold text-[#222222] leading-snug">{tag}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-                {/* Desktop: grid cards */}
-                <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {builder.tags.map(tag => {
-                    const icon = TAG_ICON_MAP[tag] ?? <Check size={14} />
-                    return (
-                      <div key={tag} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
-                        <span className="text-[#06a5a5] flex-shrink-0">{icon}</span>
-                        <span className="text-xs font-semibold text-[#222222] leading-snug">{tag}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+              )}
 
               {/* Team */}
               {builder.team && builder.team.length > 0 && (
