@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import Image from 'next/image'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
@@ -8,14 +8,21 @@ import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
 interface PostImageCarouselProps {
   items: MediaItem[]
   alt: string
-  /** 'fixed' = 360/468 px; '16:9' = aspect-video responsive */
-  aspect?: '16:9' | 'fixed'
 }
 
-export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: PostImageCarouselProps) {
+// Portrait max = 4:3, meaning width/height ratio = 0.75
+const PORTRAIT_MAX = 3 / 4
+
+export default function PostImageCarousel({ items, alt }: PostImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const multi = items.length > 1
+
+  // Default: 16:9 for video-first posts, square (1:1) for image posts.
+  // Updates to the actual ratio once the first image loads.
+  const [ratio, setRatio] = useState<number>(
+    items[0]?.media_type === 'video' ? 16 / 9 : 1
+  )
 
   function handleScroll() {
     const el = scrollRef.current
@@ -30,69 +37,13 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
     el.scrollTo({ left: idx * el.offsetWidth, behavior: 'smooth' })
   }
 
-  // On iOS, a horizontal overflow container captures ALL touch events — including
-  // vertical swipes — and prevents the page from scrolling.
-  // Fix: detect swipe direction on first movement; if vertical, set overflow-x:hidden
-  // so the container releases the touch and the page scroll takes over.
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-
-    let startX = 0
-    let startY = 0
-    let direction: 'x' | 'y' | null = null
-
-    function onTouchStart(e: TouchEvent) {
-      startX = e.touches[0].clientX
-      startY = e.touches[0].clientY
-      direction = null
-    }
-
-    function onTouchMove(e: TouchEvent) {
-      if (!el || direction) return
-      const dx = Math.abs(e.touches[0].clientX - startX)
-      const dy = Math.abs(e.touches[0].clientY - startY)
-      if (dx < 4 && dy < 4) return // too small to determine yet
-
-      direction = dy > dx ? 'y' : 'x'
-      if (direction === 'y') {
-        // Release horizontal scroll so the browser can scroll the page
-        el.style.overflowX = 'hidden'
-      }
-    }
-
-    function onTouchEnd() {
-      if (direction === 'y') {
-        // Restore after paint — instant enough to not glitch
-        requestAnimationFrame(() => {
-          if (el) el.style.overflowX = ''
-        })
-      }
-      direction = null
-    }
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true })
-    el.addEventListener('touchmove', onTouchMove, { passive: true })
-    el.addEventListener('touchend', onTouchEnd, { passive: true })
-    el.addEventListener('touchcancel', onTouchEnd, { passive: true })
-
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
-      el.removeEventListener('touchend', onTouchEnd)
-      el.removeEventListener('touchcancel', onTouchEnd)
-    }
-  }, [])
-
   return (
-    <div className="relative w-full group">
-      {/* Scroll container — CSS scroll-snap, no scrollbar */}
+    // Outer div height is driven by aspect-ratio; absolute scroll container fills it.
+    <div className="relative w-full group" style={{ aspectRatio: ratio }}>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className={`flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden ${
-          aspect === '16:9' ? 'aspect-video' : 'h-[360px] sm:h-[468px]'
-        }`}
+        className="absolute inset-0 flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none' }}
       >
         {items.map((item, i) => (
@@ -115,6 +66,13 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
                 sizes="(max-width: 640px) 100vw, 468px"
                 className="object-cover object-center"
                 priority={i === 0}
+                onLoad={i === 0 ? (e) => {
+                  const img = e.currentTarget as HTMLImageElement
+                  const r = img.naturalWidth / img.naturalHeight
+                  // Portrait: show as-is but cap at 4:3 (ratio 0.75)
+                  // Landscape: show at natural ratio
+                  setRatio(Math.max(PORTRAIT_MAX, r))
+                } : undefined}
               />
             )}
           </div>
@@ -137,7 +95,7 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
             ))}
           </div>
 
-          {/* Desktop arrow buttons — visible on group-hover */}
+          {/* Desktop arrow buttons */}
           {activeIndex > 0 && (
             <button
               type="button"
