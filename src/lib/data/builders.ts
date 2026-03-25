@@ -41,6 +41,7 @@ export type Builder = {
   website?: string
   avatarUrl?: string
   media: BuilderMedia[]
+  galleryImages?: BuilderMedia[]
   team?: TeamMember[]
   openingHours?: OpeningHours[]
   paymentMethods?: string[]

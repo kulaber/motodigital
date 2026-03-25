@@ -10,6 +10,7 @@ import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
 import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
+import GallerySlider from './GallerySlider'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -81,7 +82,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: mediaRows }, { data: bikeRows }] = await Promise.all([
     (supabase.from('builder_media') as any)
-      .select('url, type, title')
+      .select('url, type, title, position')
       .eq('builder_id', row.id)
       .order('position', { ascending: true }),
     (supabase.from('bikes') as any)
@@ -92,11 +93,13 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
-  const media: BuilderMedia[] = (mediaRows ?? []).map((m: Record<string, unknown>) => ({
+  const allMedia: BuilderMedia[] = (mediaRows ?? []).map((m: Record<string, unknown>) => ({
     url:   m.url as string,
     type:  m.type as 'image' | 'video',
     title: (m.title as string | null) ?? undefined,
   }))
+  const media         = allMedia.filter(m => m.title === 'cover')
+  const galleryImages = allMedia.filter(m => m.title !== 'cover')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const featuredBuilds = (bikeRows ?? []).map((b: any) => {
@@ -125,7 +128,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
-    city:        (row.city as string | null) ?? '',
+    city:        ((row.city as string | null) ?? '').replace(/\b\w/g, c => c.toUpperCase()),
     address:     (row.address as string | null) ?? undefined,
     lat,
     lng,
@@ -143,6 +146,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     website:     (row.website_url as string | null) ?? undefined,
     avatarUrl:   (row.avatar_url as string | null) ?? undefined,
     media,
+    galleryImages,
     featuredBuilds,
   }
 }
@@ -305,12 +309,12 @@ export default async function BuilderProfilePage({ params }: Props) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-2xl font-bold text-[#DDDDDD]">{build.style || 'Build'}</span>
+                          <span className="text-2xl font-bold text-[#DDDDDD]">{build.style.replace(/_/g, ' ') || 'Build'}</span>
                         </div>
                       )}
                       {/* Style badge overlay */}
                       <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
-                        {build.style}
+                        {build.style.replace(/_/g, ' ')}
                       </span>
                     </div>
                     {/* Info */}
@@ -356,6 +360,14 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </div>
                 )}
               </div>
+
+              {/* Werkstatt-Insights Galerie */}
+              {builder.galleryImages && builder.galleryImages.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Werkstatt-Insights</h2>
+                  <GallerySlider images={builder.galleryImages} />
+                </div>
+              )}
 
               {/* Leistungen */}
               <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">

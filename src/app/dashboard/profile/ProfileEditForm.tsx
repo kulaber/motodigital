@@ -3,7 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Play, Image as ImageIcon, Trash2, MapPin } from 'lucide-react'
+import { Upload, Image as ImageIcon, Trash2, MapPin } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 
@@ -258,31 +258,14 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [media, setMedia]           = useState<MediaItem[]>(initialMedia)
   const [uploading, setUploading]   = useState(false)
   const [saving, setSaving]         = useState(false)
-  const dragId = useRef<string | null>(null)
-  const [dragOverId, setDragOverId] = useState<string | null>(null)
 
-  async function handleDrop(targetId: string) {
-    if (!dragId.current || dragId.current === targetId) { setDragOverId(null); return }
-    const from = media.findIndex(m => m.id === dragId.current)
-    const to   = media.findIndex(m => m.id === targetId)
-    if (from === -1 || to === -1) { setDragOverId(null); return }
-    const reordered = [...media]
-    const [moved] = reordered.splice(from, 1)
-    reordered.splice(to, 0, moved)
-    const updated = reordered.map((m, i) => ({ ...m, position: i }))
-    setMedia(updated)
-    setDragOverId(null)
-    dragId.current = null
-    // persist positions
-    await Promise.all(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updated.map(m => (supabase.from('builder_media') as any).update({ position: m.position }).eq('id', m.id))
-    )
-  }
-  const fileInput = useRef<HTMLInputElement>(null)
+  const fileInput    = useRef<HTMLInputElement>(null)
+  const galleryInput = useRef<HTMLInputElement>(null)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
-  const videoInput = useRef<HTMLInputElement>(null)
-  const avatarInput = useRef<HTMLInputElement>(null)
+  const avatarInput  = useRef<HTMLInputElement>(null)
+
+  const coverImage   = media.find(m => m.title === 'cover') ?? null
+  const galleryImages = media.filter(m => m.title !== 'cover')
 
   function toggleLeistung(item: string) {
     setLeistungen(prev =>
@@ -349,15 +332,57 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setSaving(false)
   }
 
-  async function handleMediaUpload(files: FileList | null, type: 'image' | 'video') {
+  async function handleCoverUpload(files: FileList | null) {
     if (!files || files.length === 0) return
     setUploading(true)
 
+    // Replace existing cover image if present
+    const existingCover = media.find(m => m.title === 'cover')
+    if (existingCover) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('builder_media') as any).delete().eq('id', existingCover.id)
+      setMedia(prev => prev.filter(m => m.id !== existingCover.id))
+    }
+
+    const rawFile = files[0]
+    const file = await compressImage(rawFile, 1600)
+    const ext = rawFile.name.split('.').pop()
+    const path = `${profile.id}/${Date.now()}.${ext}`
+
+    const { data: upload, error: uploadErr } = await supabase.storage
+      .from('builder-media')
+      .upload(path, file, { upsert: false })
+
+    if (uploadErr) { toastError(uploadErr.message); setUploading(false); return }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('builder-media')
+      .getPublicUrl(upload.path)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: row, error: insertErr } = await (supabase.from('builder_media') as any).insert({
+      builder_id: profile.id,
+      url:        publicUrl,
+      type:       'image',
+      title:      'cover',
+      position:   0,
+    }).select().maybeSingle()
+
+    if (insertErr) { toastError(insertErr.message); setUploading(false); return }
+    setMedia(prev => [...prev.filter(m => m.title !== 'cover'), row as MediaItem])
+    setUploading(false)
+  }
+
+  async function handleGalleryUpload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setUploading(true)
+
+    const currentGalleryCount = media.filter(m => m.title !== 'cover').length
+
     for (const rawFile of Array.from(files)) {
-      const file = type === 'image' ? await compressImage(rawFile, 1200) : rawFile
-      const ext = file.name.split('.').pop()
-      // eslint-disable-next-line react-hooks/purity
-      const path = `${profile.id}/${Date.now()}.${ext}`
+      const file = await compressImage(rawFile, 1400)
+      const ext  = rawFile.name.split('.').pop()
+      const path = `${profile.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
       const { data: upload, error: uploadErr } = await supabase.storage
         .from('builder-media')
@@ -373,9 +398,9 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       const { data: row, error: insertErr } = await (supabase.from('builder_media') as any).insert({
         builder_id: profile.id,
         url:        publicUrl,
-        type,
+        type:       'image',
         title:      null,
-        position:   media.length,
+        position:   currentGalleryCount,
       }).select().maybeSingle()
 
       if (insertErr) { toastError(insertErr.message); continue }
@@ -432,6 +457,52 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
               onChange={e => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f) }}
             />
           </div>
+        </Field>
+
+        {/* Titelbild */}
+        <Field label="Titelbild" className="mb-5">
+          <input ref={fileInput} type="file" accept="image/*" className="hidden"
+            onChange={e => { handleCoverUpload(e.target.files); e.target.value = '' }} />
+          {!coverImage ? (
+            <div
+              className="border-2 border-dashed border-[#222222]/8 rounded-xl p-8 text-center cursor-pointer hover:border-[#DDDDDD]/30 transition-colors"
+              onClick={() => fileInput.current?.click()}
+            >
+              <ImageIcon size={24} className="text-[#222222]/15 mx-auto mb-2" />
+              <p className="text-sm text-[#222222]/30">Titelbild hinzufügen</p>
+              <p className="text-xs text-[#222222]/15 mt-1">JPG, PNG · max. 50 MB</p>
+            </div>
+          ) : (
+            <div className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/6">
+              <div className="relative aspect-[16/9] w-full overflow-hidden">
+                <NextImage src={coverImage.url} alt="Titelbild" fill sizes="100vw" className="object-cover" />
+              </div>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={uploading}
+                  className="flex items-center gap-1.5 text-xs font-semibold bg-white text-[#222222] px-4 py-2 rounded-full hover:bg-white/90 transition-colors disabled:opacity-50"
+                >
+                  <Upload size={12} /> Ersetzen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteMedia(coverImage)}
+                  disabled={uploading}
+                  className="flex items-center gap-1.5 text-xs font-semibold bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={12} /> Entfernen
+                </button>
+              </div>
+              {uploading && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                  <span className="w-4 h-4 rounded-full border-2 border-[#222222]/20 border-t-[#222222]/60 animate-spin" />
+                </div>
+              )}
+            </div>
+          )}
+          <p className="text-[10px] text-[#222222]/25 mt-1">Wird als breites Titelbild auf deinem Profil angezeigt</p>
         </Field>
 
         {/* Name */}
@@ -508,86 +579,52 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
       </form>
 
-      {/* ── MEDIA ── */}
+      {/* ── GALLERIEBILDER ── */}
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#222222]">Fotos & Videos</h2>
-            <p className="text-xs text-[#222222]/35 mt-0.5">Werden auf deinem öffentlichen Profil angezeigt</p>
+            <h2 className="text-sm font-semibold text-[#222222]">Werkstatt-Insights</h2>
+            <p className="text-xs text-[#222222]/35 mt-0.5">Galleriebilder für dein öffentliches Profil</p>
           </div>
-          <div className="flex items-center gap-2">
-            <input ref={fileInput} type="file" accept="image/*" multiple className="hidden"
-              onChange={e => handleMediaUpload(e.target.files, 'image')} />
-            <input ref={videoInput} type="file" accept="video/*" className="hidden"
-              onChange={e => handleMediaUpload(e.target.files, 'video')} />
-            <button type="button" onClick={() => videoInput.current?.click()} disabled={uploading}
-              className="flex items-center gap-1.5 text-xs text-[#222222]/50 border border-[#222222]/10 px-3 py-2 rounded-full hover:border-[#222222]/25 hover:text-[#222222] transition-all disabled:opacity-40">
-              <Play size={12} /> Video
-            </button>
-            <button type="button" onClick={() => fileInput.current?.click()} disabled={uploading}
-              className="flex items-center gap-1.5 text-xs bg-[#222222]/10 border border-[#DDDDDD]/25 text-[#717171] px-3 py-2 rounded-full hover:bg-[#222222]/20 transition-all disabled:opacity-40">
-              <Upload size={12} /> {uploading ? 'Lädt...' : 'Fotos hochladen'}
-            </button>
-          </div>
+          <button type="button" onClick={() => galleryInput.current?.click()} disabled={uploading}
+            className="flex items-center gap-1.5 text-xs bg-[#222222]/10 border border-[#DDDDDD]/25 text-[#717171] px-3 py-2 rounded-full hover:bg-[#222222]/20 transition-all disabled:opacity-40">
+            <Upload size={12} /> {uploading ? 'Lädt...' : 'Bilder hochladen'}
+          </button>
         </div>
 
-        {media.length === 0 ? (
+        <input ref={galleryInput} type="file" accept="image/*" multiple className="hidden"
+          onChange={e => { handleGalleryUpload(e.target.files); e.target.value = '' }} />
+
+        {galleryImages.length === 0 ? (
           <div
-            className="border-2 border-dashed border-[#222222]/8 rounded-xl p-10 text-center cursor-pointer hover:border-[#DDDDDD]/30 transition-colors"
-            onClick={() => fileInput.current?.click()}
+            className="border-2 border-dashed border-[#222222]/8 rounded-xl p-8 text-center cursor-pointer hover:border-[#DDDDDD]/30 transition-colors"
+            onClick={() => galleryInput.current?.click()}
           >
-            <ImageIcon size={28} className="text-[#222222]/15 mx-auto mb-3" />
-            <p className="text-sm text-[#222222]/30">Fotos oder Videos hinzufügen</p>
-            <p className="text-xs text-[#222222]/15 mt-1">JPG, PNG, MP4 · max. 50 MB</p>
+            <ImageIcon size={24} className="text-[#222222]/15 mx-auto mb-2" />
+            <p className="text-sm text-[#222222]/30">Bilder hinzufügen</p>
+            <p className="text-xs text-[#222222]/15 mt-1">JPG, PNG · max. 50 MB · mehrere möglich</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {media.map(item => (
-              <div
-                key={item.id}
-                draggable
-                onDragStart={() => { dragId.current = item.id }}
-                onDragOver={e => { e.preventDefault(); setDragOverId(item.id) }}
-                onDragLeave={() => setDragOverId(null)}
-                onDrop={() => handleDrop(item.id)}
-                onDragEnd={() => { dragId.current = null; setDragOverId(null) }}
-                className={`group relative rounded-xl overflow-hidden bg-white border transition-all cursor-grab active:cursor-grabbing ${
-                  dragOverId === item.id ? 'border-[#06a5a5] scale-[0.97] opacity-70' : 'border-[#222222]/6'
-                }`}
-              >
-                {item.type === 'video' ? (
-                  <div className="relative aspect-[4/3]">
-                    <video src={item.url} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-                      <Play size={22} className="text-[#222222]/70" />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <NextImage src={item.url} alt={item.title ?? ''} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
-                  </div>
-                )}
-                {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
+            {galleryImages.map(item => (
+              <div key={item.id} className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/6 aspect-[4/3]">
+                <NextImage src={item.url} alt="" fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
                   <button
+                    type="button"
                     onClick={() => handleDeleteMedia(item)}
                     className="w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
                   >
                     <Trash2 size={12} className="text-white" />
                   </button>
                 </div>
-                {item.type === 'video' && (
-                  <span className="absolute top-2 left-2 bg-[#222222]/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase">
-                    Video
-                  </span>
-                )}
               </div>
             ))}
-            {/* Add more button */}
             <button
               type="button"
-              onClick={() => fileInput.current?.click()}
-              className="aspect-[4/3] rounded-xl border-2 border-dashed border-[#222222]/8 flex flex-col items-center justify-center gap-2 text-[#222222]/20 hover:border-[#DDDDDD]/30 hover:text-[#717171]/40 transition-colors"
+              onClick={() => galleryInput.current?.click()}
+              disabled={uploading}
+              className="aspect-[4/3] rounded-xl border-2 border-dashed border-[#222222]/8 flex flex-col items-center justify-center gap-2 text-[#222222]/20 hover:border-[#DDDDDD]/30 hover:text-[#717171]/40 transition-colors disabled:opacity-40"
             >
               <Upload size={18} />
               <span className="text-xs">Hinzufügen</span>
