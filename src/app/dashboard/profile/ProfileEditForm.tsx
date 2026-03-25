@@ -88,104 +88,9 @@ function AddressAutocomplete({
   )
 }
 
-/* ── BaseBike Autocomplete ──────────────────────────────────────── */
-type SuggestionItem =
-  | { type: 'make'; label: string }
-  | { type: 'model'; make: string; model: string; label: string }
-
-function BaseBikeAutocomplete({
-  value,
-  onChange,
-}: {
-  value: string[]
-  onChange: (v: string[]) => void
-}) {
-  const supabase = createClient()
-  const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
-  const [open, setOpen] = useState(false)
-  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  function handleInput(val: string) {
-    setQuery(val)
-    if (debounce.current) clearTimeout(debounce.current)
-    if (!val.trim()) { setSuggestions([]); setOpen(false); return }
-    debounce.current = setTimeout(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase.from('base_bikes') as any)
-        .select('make')
-        .ilike('make', `%${val}%`)
-        .order('make')
-        .limit(20)
-
-      const rows: { make: string }[] = data ?? []
-      const seenMakes = new Set<string>()
-      const makeItems: SuggestionItem[] = []
-      for (const r of rows) {
-        if (!seenMakes.has(r.make)) {
-          seenMakes.add(r.make)
-          makeItems.push({ type: 'make', label: r.make })
-        }
-      }
-
-      setSuggestions(makeItems)
-      setOpen(true)
-    }, 250)
-  }
-
-  function select(label: string) {
-    if (!value.includes(label)) onChange([...value, label])
-    setQuery('')
-    setSuggestions([])
-    setOpen(false)
-  }
-
-  function remove(item: string) {
-    onChange(value.filter(v => v !== item))
-  }
-
-  return (
-    <div>
-      {value.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-2.5">
-          {value.map(v => (
-            <span key={v} className="inline-flex items-center gap-1.5 text-xs font-medium bg-[#F7F7F7] border border-[#222222]/10 px-3 py-1.5 rounded-full text-[#222222]/70">
-              {v}
-              <button type="button" onClick={() => remove(v)} className="text-[#222222]/30 hover:text-[#222222] leading-none text-base">×</button>
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="relative">
-        <input
-          value={query}
-          onChange={e => handleInput(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
-          onKeyDown={e => { if (e.key === 'Enter') e.preventDefault() }}
-          placeholder="Marke suchen, z. B. Honda, BMW, Yamaha…"
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/20 outline-none focus:border-[#DDDDDD] transition-colors"
-        />
-        {open && suggestions.length > 0 && (
-          <ul className="absolute z-50 top-full mt-1 w-full bg-white border border-[#222222]/10 rounded-xl shadow-lg overflow-hidden">
-            {suggestions.map((s, i) => (
-              <li key={i}>
-                <button
-                  type="button"
-                  onMouseDown={() => select(s.label)}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
-                >
-                  <span className="font-medium text-[#222222]">{s.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <p className="text-[10px] text-[#222222]/25 mt-1">Mehrere Bikes möglich</p>
-    </div>
-  )
-}
+const UMBAUSTILE = [
+  'Cafe-Racer', 'Scrambler', 'Bobber', 'Tracker', 'Flat Track', 'Enduro', 'Chopper', 'Street',
+]
 
 const LEISTUNGEN = [
   'Komplettumbau', 'Teileumbau', 'Elektrik', 'Lackierung', 'Folierung',
@@ -240,7 +145,9 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [leistungen, setLeistungen] = useState<string[]>(
     (profile.tags ?? []).filter(t => LEISTUNGEN.includes(t))
   )
-  const [bases, setBases] = useState<string[]>(profile.bases ?? [])
+  const [umbaustile, setUmbaustile] = useState<string[]>(
+    (profile.specialty ?? '').split('·').map(s => s.trim()).filter(s => UMBAUSTILE.includes(s))
+  )
   const [addressData, setAddressData] = useState({
     address: profile.address ?? '',
     lat: profile.lat ?? null,
@@ -270,6 +177,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   function toggleLeistung(item: string) {
     setLeistungen(prev =>
       prev.includes(item) ? prev.filter(l => l !== item) : [...prev, item]
+    )
+  }
+
+  function toggleUmbaustil(item: string) {
+    setUmbaustile(prev =>
+      prev.includes(item) ? prev.filter(s => s !== item) : [...prev, item]
     )
   }
 
@@ -312,7 +225,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       bio_long:     bioLong || null,
       avatar_url:   avatarUrl || null,
       tags:         leistungen.length ? leistungen : null,
-      bases:        bases.length ? bases : null,
+      specialty:    umbaustile.length ? umbaustile.join(' · ') : null,
       address:      addressData.address || null,
       lat:          addressData.lat ?? null,
       lng:          addressData.lng ?? null,
@@ -554,8 +467,31 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           </p>
         </Field>
 
-        <Field label="Bevorzugte Basis-Bikes für Umbauten" className="mb-4">
-          <BaseBikeAutocomplete value={bases} onChange={setBases} />
+        <Field label="Umbaustile" className="mb-4">
+          <div className="flex flex-wrap gap-2 mt-1">
+            {UMBAUSTILE.map(item => {
+              const checked = umbaustile.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleUmbaustil(item)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                    checked
+                      ? 'bg-[#222222] border-[#222222] text-white'
+                      : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            })}
+          </div>
+          <p className="text-[10px] text-[#222222]/25 mt-2">
+            {umbaustile.length > 0
+              ? `${umbaustile.length} ausgewählt`
+              : 'Wähle die Umbaustile, auf die du spezialisiert bist'}
+          </p>
         </Field>
 
         <Field label="Vollständige Anschrift" className="mb-4">
