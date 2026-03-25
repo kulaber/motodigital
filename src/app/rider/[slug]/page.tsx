@@ -222,146 +222,147 @@ export default async function RiderProfilePage({ params }: Props) {
       {/* ── CONTENT ── */}
       <section className="py-10 sm:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/*
+            Flat grid: mobile order controlled via order-*, desktop columns via lg:col-start-*.
+            Mobile: Garage → VisitedCities → Map → Bio → Fahrstil → Interessen → Links
+            Desktop col1: Garage, Bio, Fahrstil, Interessen
+            Desktop col2: VisitedCities, Map, Links
+          */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
 
-            {/* LEFT — main content */}
-            <div>
-              {/* Bio */}
-              {rider.bio && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name}</h2>
-                  <p className="text-sm text-[#717171] leading-relaxed">{rider.bio}</p>
+            {/* Garage — mobile:1, desktop:col1 */}
+            {rider.bikes.length > 0 && (
+              <div className="order-1 lg:col-start-1 bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                <div className="flex items-end justify-between mb-6">
+                  <h2 className="text-lg font-bold text-[#222222] tracking-tight">Meine Garage</h2>
+                  <span className="text-xs text-[#B0B0B0]">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                 </div>
-              )}
-
-              {/* Fahrstil */}
-              {rider.ridingStyle && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Fahrstil</h2>
-                  <span className="text-sm text-[#222222]">
-                    {rider.ridingStyle === 'cruiser' && '☀️ Ruhiger Cruiser'}
-                    {rider.ridingStyle === 'flott' && '💨☀️ Flotter Fahrer'}
-                    {rider.ridingStyle === 'legende' && '🏍💨☀️ Lebensmüde Legende'}
-                  </span>
-                </div>
-              )}
-
-              {/* Tags / Styles */}
-              {rider.tags.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Interessen</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {rider.tags.map(tag => (
-                      <span key={tag} className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Garage */}
-              {rider.bikes.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
-                  <div className="flex items-end justify-between mb-6">
-                    <h2 className="text-lg font-bold text-[#222222] tracking-tight">Meine Garage</h2>
-                    <span className="text-xs text-[#B0B0B0]">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-5">
-                    {rider.bikes.map(bike => (
-                      <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
-                        <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
-                          {bike.img ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={bike.img} alt={bike.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-lg font-bold text-[#DDDDDD]">{bike.style || 'Bike'}</span>
-                            </div>
-                          )}
-                          {bike.style && (
-                            <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2 py-0.5 rounded-full">
-                              {bike.style}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5">
-                          {bike.title}
-                        </p>
-                        <p className="text-xs text-[#717171]">{bike.base}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT — visited cities + map */}
-            <div className="flex flex-col gap-4 lg:sticky lg:top-24">
-              {/* Visited Cities Badges */}
-              {rider.visitedCityCoords.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">{rider.name} war mit dem Motorrad hier:</h2>
-                  <div className="grid grid-cols-3 gap-3">
-                    {rider.visitedCityCoords.map(city => (
-                      <div key={city.name} className="bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square">
-                        <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">★ ★ ★ ★ ★</div>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/pin-logo.svg" alt="MotoDigital" className="w-7 h-7 mb-1.5 opacity-80" />
-                        <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
-                        {city.country && (
-                          <span className="text-[8px] text-white/40 mt-0.5 truncate w-full text-center">{city.country}</span>
+                <div className="grid grid-cols-1 gap-5">
+                  {rider.bikes.map(bike => (
+                    <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
+                      <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
+                        {bike.img ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bike.img} alt={bike.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-lg font-bold text-[#DDDDDD]">{bike.style || 'Bike'}</span>
+                          </div>
+                        )}
+                        {bike.style && (
+                          <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2 py-0.5 rounded-full">
+                            {bike.style}
+                          </span>
                         )}
                       </div>
-                    ))}
-                  </div>
+                      <p className="text-sm font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5">
+                        {bike.title}
+                      </p>
+                      <p className="text-xs text-[#717171]">{bike.base}</p>
+                    </Link>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Map */}
-              {rider.lat && rider.lng && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden">
-                  <RiderMapClient lat={rider.lat} lng={rider.lng} city={rider.city} visitedCities={rider.visitedCityCoords} riderName={rider.name} />
-                  {rider.city && (
-                    <div className="px-5 py-3 border-t border-[#EBEBEB]">
-                      <div className="flex items-center gap-2">
-                        <MapPin size={12} className="text-[#717171] flex-shrink-0" />
-                        <p className="text-xs text-[#717171]">{rider.city}</p>
-                      </div>
+            {/* Visited Cities — mobile:2, desktop:col2 */}
+            {rider.visitedCityCoords.length > 0 && (
+              <div className="order-2 lg:col-start-2 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">{rider.name} war mit dem Motorrad hier:</h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {rider.visitedCityCoords.map(city => (
+                    <div key={city.name} className="bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square">
+                      <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">★ ★ ★ ★ ★</div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/pin-logo.svg" alt="MotoDigital" className="w-7 h-7 mb-1.5 opacity-80" />
+                      <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
+                      {city.country && (
+                        <span className="text-[8px] text-white/40 mt-0.5 truncate w-full text-center">{city.country}</span>
+                      )}
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Map — mobile:3, desktop:col2 */}
+            {rider.lat && rider.lng && (
+              <div className="order-3 lg:col-start-2 bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden">
+                <RiderMapClient lat={rider.lat} lng={rider.lng} city={rider.city} visitedCities={rider.visitedCityCoords} riderName={rider.name} />
+                {rider.city && (
+                  <div className="px-5 py-3 border-t border-[#EBEBEB]">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={12} className="text-[#717171] flex-shrink-0" />
+                      <p className="text-xs text-[#717171]">{rider.city}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bio — mobile:4, desktop:col1 */}
+            {rider.bio && (
+              <div className="order-4 lg:col-start-1 bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name}</h2>
+                <p className="text-sm text-[#717171] leading-relaxed">{rider.bio}</p>
+              </div>
+            )}
+
+            {/* Fahrstil — mobile:5, desktop:col1 */}
+            {rider.ridingStyle && (
+              <div className="order-5 lg:col-start-1 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Fahrstil</h2>
+                <span className="text-sm text-[#222222]">
+                  {rider.ridingStyle === 'cruiser' && '☀️ Ruhiger Cruiser'}
+                  {rider.ridingStyle === 'flott' && '💨☀️ Flotter Fahrer'}
+                  {rider.ridingStyle === 'legende' && '🏍💨☀️ Lebensmüde Legende'}
+                </span>
+              </div>
+            )}
+
+            {/* Interessen — mobile:6, desktop:col1 */}
+            {rider.tags.length > 0 && (
+              <div className="order-6 lg:col-start-1 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Interessen</h2>
+                <div className="flex flex-wrap gap-2">
+                  {rider.tags.map(tag => (
+                    <span key={tag} className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Links — mobile:7, desktop:col2 */}
+            {(rider.instagram || rider.website) && (
+              <div className="order-7 lg:col-start-2 bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
+                <div className="flex flex-col gap-2.5">
+                  {rider.instagram && (
+                    <a
+                      href={`https://instagram.com/${rider.instagram.replace('@', '')}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
+                    >
+                      <Instagram size={13} className="flex-shrink-0" />
+                      <span>{rider.instagram}</span>
+                    </a>
+                  )}
+                  {rider.website && (
+                    <a
+                      href={rider.website.startsWith('http') ? rider.website : `https://${rider.website}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
+                    >
+                      <Globe size={13} className="flex-shrink-0" />
+                      <span>{rider.website}</span>
+                    </a>
                   )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Links */}
-              {(rider.instagram || rider.website) && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
-                  <div className="flex flex-col gap-2.5">
-                    {rider.instagram && (
-                      <a
-                        href={`https://instagram.com/${rider.instagram.replace('@', '')}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
-                      >
-                        <Instagram size={13} className="flex-shrink-0" />
-                        <span>{rider.instagram}</span>
-                      </a>
-                    )}
-                    {rider.website && (
-                      <a
-                        href={rider.website.startsWith('http') ? rider.website : `https://${rider.website}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
-                      >
-                        <Globe size={13} className="flex-shrink-0" />
-                        <span>{rider.website}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
