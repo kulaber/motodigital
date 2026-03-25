@@ -9,9 +9,11 @@ interface PostVideoPlayerProps {
   alt: string
   /** Override the aspect-ratio class on the container (e.g. "h-full" for carousel use) */
   className?: string
+  /** Called once with the video's natural width/height ratio after metadata loads */
+  onRatio?: (ratio: number) => void
 }
 
-export default function PostVideoPlayer({ url, thumbnail_url, alt, className }: PostVideoPlayerProps) {
+export default function PostVideoPlayer({ url, thumbnail_url, alt, className, onRatio }: PostVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
   const [aspectClass, setAspectClass] = useState('aspect-video')
@@ -26,6 +28,7 @@ export default function PostVideoPlayer({ url, thumbnail_url, alt, className }: 
     const { videoWidth, videoHeight } = video
     if (videoWidth && videoHeight) {
       setAspectClass(videoWidth > videoHeight ? 'aspect-video' : 'aspect-[2/3]')
+      onRatio?.(videoWidth / videoHeight)
     }
 
     // Generate poster via canvas snapshot at t=0.1s if none provided

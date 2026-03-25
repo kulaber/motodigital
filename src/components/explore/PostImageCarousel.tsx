@@ -10,19 +10,18 @@ interface PostImageCarouselProps {
   alt: string
 }
 
-// Portrait max = 4:3, meaning width/height ratio = 0.75
-const PORTRAIT_MAX = 3 / 4
+// Clamp ratio: min 16:9 (landscape floor), max 4:3 portrait (0.75)
+function clampRatio(r: number) {
+  return Math.min(16 / 9, Math.max(3 / 4, r))
+}
 
 export default function PostImageCarousel({ items, alt }: PostImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const multi = items.length > 1
 
-  // Default: 16:9 for video-first posts, square (1:1) for image posts.
-  // Updates to the actual ratio once the first image loads.
-  const [ratio, setRatio] = useState<number>(
-    items[0]?.media_type === 'video' ? 16 / 9 : 1
-  )
+  // Default 16:9 until first media loads and reports its natural ratio.
+  const [ratio, setRatio] = useState<number>(16 / 9)
 
   function handleScroll() {
     const el = scrollRef.current
@@ -57,6 +56,7 @@ export default function PostImageCarousel({ items, alt }: PostImageCarouselProps
                 thumbnail_url={item.thumbnail_url}
                 alt={alt}
                 className="h-full"
+                onRatio={i === 0 ? (r) => setRatio(clampRatio(r)) : undefined}
               />
             ) : (
               <Image
@@ -68,10 +68,7 @@ export default function PostImageCarousel({ items, alt }: PostImageCarouselProps
                 priority={i === 0}
                 onLoad={i === 0 ? (e) => {
                   const img = e.currentTarget as HTMLImageElement
-                  const r = img.naturalWidth / img.naturalHeight
-                  // Portrait: show as-is but cap at 4:3 (ratio 0.75)
-                  // Landscape: show at natural ratio
-                  setRatio(Math.max(PORTRAIT_MAX, r))
+                  setRatio(clampRatio(img.naturalWidth / img.naturalHeight))
                 } : undefined}
               />
             )}
