@@ -32,6 +32,7 @@ type SavedBuilder = {
   builders: {
     id: string
     full_name: string | null
+    slug: string | null
     username: string
     city: string | null
     specialty: string | null
@@ -60,13 +61,13 @@ export default async function MerklistePage({
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBike[] | null }>),
     (supabase
       .from('saved_builders')
-      .select('builder_id, created_at, builders:builder_id(id, full_name, username, city, specialty, is_verified, avatar_url)')
+      .select('builder_id, created_at, builders:builder_id(id, full_name, slug, username, city, specialty, is_verified, avatar_url)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBuilder[] | null }>),
   ])
 
-  const savedBikes = savedBikesResult.data ?? []
-  const savedBuilders = savedBuildersResult.data ?? []
+  const savedBikes = (savedBikesResult.data ?? []).filter(e => e.bikes != null)
+  const savedBuilders = (savedBuildersResult.data ?? []).filter(e => e.builders != null)
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -137,8 +138,7 @@ export default async function MerklistePage({
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {savedBikes.map(entry => {
-                  const bike = entry.bikes
-                  if (!bike) return null
+                  const bike = entry.bikes!
                   const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
                   return (
                     <Link
@@ -204,15 +204,12 @@ export default async function MerklistePage({
             ) : (
               <div className="flex flex-col gap-4">
                 {savedBuilders.map(entry => {
-                  const builder = entry.builders
-                  if (!builder) return null
+                  const builder = entry.builders!
                   const initials = (builder.full_name ?? builder.username).charAt(0).toUpperCase()
-                  const slug = (builder.full_name ?? builder.username)
-                    .toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
                   return (
                     <Link
                       key={entry.builder_id}
-                      href={`/custom-werkstatt/${slug}`}
+                      href={builder.slug ? `/custom-werkstatt/${builder.slug}` : '/custom-werkstatt'}
                       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex flex-col sm:flex-row sm:items-stretch"
                     >
                       {/* Avatar / cover */}
