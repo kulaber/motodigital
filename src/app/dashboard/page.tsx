@@ -31,9 +31,9 @@ export default async function DashboardPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('full_name, role, city, specialty, bio, is_verified, avatar_url')
+    .select('full_name, role, city, specialty, bio, is_verified, avatar_url, slug')
     .eq('id', user.id)
-    .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null } | null }
+    .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null } | null }
 
   const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }] = await Promise.all([
     supabase
@@ -359,7 +359,7 @@ export default async function DashboardPage() {
                       Profil bearbeiten
                     </Link>
                     <Link
-                      href={profile?.full_name ? `/custom-werkstatt/${profile.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '/custom-werkstatt'}
+                      href={profile?.slug ? `/custom-werkstatt/${profile.slug}` : '/custom-werkstatt'}
                       className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
                     >
                       <ExternalLink size={11} /> Vorschau
