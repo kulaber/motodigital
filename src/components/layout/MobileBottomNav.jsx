@@ -80,6 +80,7 @@ export default function MobileBottomNav() {
 
   // Fetch unread count + realtime subscription
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!user) { setUnreadCount(0); return; }
     const uid = user.id;
 
