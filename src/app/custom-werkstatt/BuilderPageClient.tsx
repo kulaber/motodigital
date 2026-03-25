@@ -347,6 +347,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [mapReady,           setMapReady]           = useState(false)
   const [markerEpoch,        setMarkerEpoch]        = useState(0)
   const [mobileView,         setMobileView]         = useState<'map' | 'list'>('list')
+  const [listExiting,        setListExiting]        = useState(false)
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
   const [showLogin, setShowLogin]                   = useState(false)
   const supabase = createClient()
@@ -736,6 +737,10 @@ export default function BuilderPageClient({ builders }: Props) {
         .mapboxgl-ctrl button { background: #fff !important; }
         .mapboxgl-ctrl-logo { display: none !important; }
         .mapboxgl-ctrl-attrib { display: none !important; }
+        @keyframes slideDown {
+          from { transform: translateY(0); }
+          to { transform: translateY(100%); }
+        }
       `}</style>
 
       {/* ── Sticky filter bar ── */}
@@ -867,64 +872,69 @@ export default function BuilderPageClient({ builders }: Props) {
         </div>
       </div>
 
-      {/* ── Mobile: Toggle between Map and List ── */}
-      <div className="lg:hidden relative" style={{ height: mapHeight }}>
-        {/* Map slot */}
-        <div
-          ref={mobileMapSlot}
-          className="absolute inset-0"
-          style={{ visibility: mobileView === 'map' ? 'visible' : 'hidden' }}
-        />
+      {/* ── Mobile: Map view ── */}
+      <div className={`lg:hidden relative ${mobileView === 'map' || listExiting ? '' : 'hidden'}`} style={{ height: mapHeight }}>
+        <div ref={mobileMapSlot} className="absolute inset-0" />
 
-        {/* List overlay (slides over map when in list view) */}
-        <div
-          className="absolute inset-0 bg-white overflow-y-auto transition-transform duration-300 ease-in-out z-10"
-          style={{
-            transform: mobileView === 'list' ? 'translateY(0)' : 'translateY(100%)',
-          }}
-        >
-          <BuilderList
-            builders={builders}
-            visible={visible}
-            mapReady={mapReady}
-            selectedBuilder={null}
-            savedIds={savedIds}
-            onToggleSave={toggleSave}
-            onReset={resetAndFitMap}
-            isMobile
-            userId={userId}
+        {/* White overlay that slides down to reveal map */}
+        {listExiting && (
+          <div
+            className="absolute inset-0 bg-white z-10"
+            style={{ animation: 'slideDown 300ms ease-in-out forwards' }}
           />
-        </div>
+        )}
 
-        {/* Floating toggle button */}
-        <button
-          onClick={() => {
-            setMobileView(v => v === 'map' ? 'list' : 'map')
-            setMobileSheetBuilder(null)
-          }}
-          className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-        >
-          {mobileView === 'map' ? (
-            <>
-              <ListIcon size={16} className="text-[#1A1A1A]" />
-              <span className="text-sm font-semibold text-[#1A1A1A]">Liste anzeigen</span>
-            </>
-          ) : (
-            <>
-              <MapIcon size={16} className="text-[#1A1A1A]" />
-              <span className="text-sm font-semibold text-[#1A1A1A]">Karte anzeigen</span>
-            </>
-          )}
-        </button>
+        {mobileView === 'map' && (
+          <button
+            onClick={() => { setMobileView('list'); setMobileSheetBuilder(null) }}
+            className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            <ListIcon size={16} className="text-[#1A1A1A]" />
+            <span className="text-sm font-semibold text-[#1A1A1A]">Liste anzeigen</span>
+          </button>
+        )}
 
-        {/* Mobile bottom sheet on marker tap */}
         {mobileSheetBuilder && mobileView === 'map' && (
           <WorkshopBottomSheet
             builder={mobileSheetBuilder}
             onClose={() => setMobileSheetBuilder(null)}
           />
         )}
+      </div>
+
+      {/* ── Mobile: List view (normal page flow) ── */}
+      <div className={`lg:hidden ${mobileView === 'list' && !listExiting ? '' : 'hidden'}`}>
+        <BuilderList
+          builders={builders}
+          visible={visible}
+          mapReady={mapReady}
+          selectedBuilder={null}
+          savedIds={savedIds}
+          onToggleSave={toggleSave}
+          onReset={resetAndFitMap}
+          isMobile
+          userId={userId}
+        />
+
+        <div className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <button
+            onClick={() => {
+              window.scrollTo({ top: 0 })
+              setListExiting(true)
+              setMobileSheetBuilder(null)
+              setTimeout(() => {
+                setMobileView('map')
+                setListExiting(false)
+              }, 300)
+            }}
+            className="flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            <MapIcon size={16} className="text-[#1A1A1A]" />
+            <span className="text-sm font-semibold text-[#1A1A1A]">Karte anzeigen</span>
+          </button>
+        </div>
       </div>
 
       <LoginModal

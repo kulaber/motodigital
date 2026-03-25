@@ -103,6 +103,10 @@ export default async function BuilderPage() {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
+      <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
+        <h1 className="text-xl font-bold text-[#222222] text-center">Custom Werkstatt</h1>
+      </div>
+
       <BuilderPageClientLoader builders={shuffled} />
     </div>
   )

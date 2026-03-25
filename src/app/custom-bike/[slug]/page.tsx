@@ -261,7 +261,7 @@ export default async function CustomBikePage({ params }: Props) {
 
                 {/* CTA */}
                 <div className="px-5 py-4 flex flex-col gap-2">
-                  <div className="hidden sm:block">
+                  <div>
                     <ContactModal
                       sellerId={bike.seller_id}
                       sellerName={sellerName}
@@ -301,18 +301,6 @@ export default async function CustomBikePage({ params }: Props) {
 
           <RelatedBikes excludeId={bike.id} />
         </div>
-
-        <MobileCTAWrapper>
-          <ContactModal
-            sellerId={bike.seller_id}
-            sellerName={sellerName}
-            sellerRole={sellerProfile?.role ?? null}
-            bikeId={bike.id}
-            bikeTitle={bike.title}
-            coverImage={imageUrls[0] ?? null}
-            fullWidth
-          />
-        </MobileCTAWrapper>
 
         <Footer />
       </div>

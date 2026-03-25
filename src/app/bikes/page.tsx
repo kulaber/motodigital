@@ -80,18 +80,9 @@ export default async function BikesPage() {
       <Header activePage="bikes" />
 
       {/* PAGE HEADER */}
-      <section className="pt-28 pb-10 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="flex items-end justify-between gap-4 animate-slide-up">
-            <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
-              Custom Bikes
-            </h1>
-            <p className="text-xs text-[#222222]/30 flex-shrink-0">
-              <span className="text-[#222222]/60 font-semibold">{allBuilds.length} Bikes</span> · täglich aktualisiert
-            </p>
-          </div>
-        </div>
-      </section>
+      <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
+        <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
+      </div>
 
       <BikesClient builds={allBuilds} />
 

@@ -202,9 +202,7 @@ function ConversationList({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-5 pt-5 pb-3 flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-[#222222]">Nachrichten</h1>
-        </div>
+        <h1 className="text-xl font-bold text-[#222222] text-center lg:text-left mb-4">Nachrichten</h1>
 
         {/* Search */}
         <div className="relative mb-3">

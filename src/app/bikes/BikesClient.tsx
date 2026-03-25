@@ -120,10 +120,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="relative flex-shrink-0">
               <button
                 onClick={() => setCountryOpen(v => !v)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                   activeCountry !== 'Alle'
-                    ? 'bg-[#222222] text-white border-[#222222]'
-                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
                 }`}
               >
                 {activeCountry === 'Alle' ? 'Land' : activeCountry}
@@ -148,10 +148,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="relative flex-shrink-0">
               <button
                 onClick={() => setMakeOpen(v => !v)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                   activeMake !== 'Alle'
-                    ? 'bg-[#222222] text-white border-[#222222]'
-                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
                 }`}
               >
                 {activeMake === 'Alle' ? 'Marke' : activeMake}
@@ -177,10 +177,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <div className="relative flex-shrink-0">
                 <button
                   onClick={() => setModelOpen(v => !v)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                  className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                     activeModel !== 'Alle'
-                      ? 'bg-[#222222] text-white border-[#222222]'
-                      : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                      ? 'bg-[#222222] text-white'
+                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
                   }`}
                 >
                   {activeModel === 'Alle' ? 'Modell' : activeModel}
@@ -204,17 +204,15 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
             </div>{/* end dropdowns wrapper */}
 
-            {/* Divider */}
-            <div className="w-px h-4 bg-[#222222]/10 flex-shrink-0" />
 
             {/* Umbau-Stil dropdown */}
             <div className="relative flex-shrink-0">
               <button
                 onClick={() => setStyleOpen(v => !v)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all ${
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                   activeStyle !== 'Alle'
-                    ? 'bg-[#222222] text-white border-[#222222]'
-                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
                 }`}
               >
                 {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
@@ -253,7 +251,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="relative flex-shrink-0">
               <button
                 onClick={() => setSortOpen(v => !v)}
-                className="flex items-center gap-1.5 text-xs font-semibold p-2 sm:px-4 sm:py-2 rounded-full border border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222] transition-all"
+                className="flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold p-2 sm:px-3 sm:py-1.5 rounded-full bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30 transition-all cursor-pointer"
               >
                 <ArrowUpDown size={13} className="sm:size-[11px]" />
                 <span className="hidden sm:inline">{SORT_LABELS[activeSort]}</span>
