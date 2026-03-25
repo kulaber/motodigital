@@ -10,7 +10,7 @@ export type Conversation = {
   last_message_at: string | null
   unread_count: number
   bike: { id: string; title: string } | null
-  other: { id: string; full_name: string | null; username: string | null; avatar_url: string | null } | null
+  other: { id: string; full_name: string | null; username: string | null; avatar_url: string | null; role: string | null; slug: string | null } | null
 }
 
 export default async function MessagesPage() {
@@ -28,8 +28,8 @@ export default async function MessagesPage() {
         buyer_id,
         deleted_for,
         bikes ( id, title ),
-        seller:profiles!conversations_seller_id_fkey ( id, full_name, username, avatar_url ),
-        buyer:profiles!conversations_buyer_id_fkey  ( id, full_name, username, avatar_url )
+        seller:profiles!conversations_seller_id_fkey ( id, full_name, username, avatar_url, role, slug ),
+        buyer:profiles!conversations_buyer_id_fkey  ( id, full_name, username, avatar_url, role, slug )
       `)
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
       .not('deleted_for', 'cs', `{${user.id}}`)
@@ -50,8 +50,8 @@ export default async function MessagesPage() {
   const conversations: Conversation[] = (rows ?? []).map((r: Record<string, unknown>) => {
     const isSeller = (r.seller_id as string) === user.id
     const other = isSeller
-      ? (r.buyer  as { id: string; full_name: string | null; username: string | null; avatar_url: string | null } | null)
-      : (r.seller as { id: string; full_name: string | null; username: string | null; avatar_url: string | null } | null)
+      ? (r.buyer  as { id: string; full_name: string | null; username: string | null; avatar_url: string | null; role: string | null; slug: string | null } | null)
+      : (r.seller as { id: string; full_name: string | null; username: string | null; avatar_url: string | null; role: string | null; slug: string | null } | null)
     const bike = r.bikes as { id: string; title: string } | null
     return {
       id: r.id as string,

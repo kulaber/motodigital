@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X, Plus, Camera } from 'lucide-react'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
@@ -79,6 +80,7 @@ type ProfileResult = {
   username: string | null
   avatar_url: string | null
   role: string
+  slug: string | null
 }
 
 /* ─── Conversation List ─── */
@@ -113,7 +115,7 @@ function ConversationList({
       setSearching(true)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
-        .select('id, full_name, username, avatar_url, role')
+        .select('id, full_name, username, avatar_url, role, slug')
         .or(`full_name.ilike.%${value}%,username.ilike.%${value}%`)
         .in('role', ['rider', 'custom-werkstatt'])
         .neq('id', userId)
@@ -151,6 +153,8 @@ function ConversationList({
           full_name: profile.full_name,
           username: profile.username,
           avatar_url: profile.avatar_url,
+          role: profile.role,
+          slug: profile.slug,
         },
       }
       onNewConversation(newConv)
@@ -353,6 +357,12 @@ function MessageThread({
   const initialLoadRef = useRef(true)
   const supabase = createClient()
   const name = conv.other?.full_name ?? conv.other?.username ?? 'Unbekannt'
+  const profileSlug = conv.other?.slug ?? conv.other?.username
+  const profileHref = profileSlug
+    ? conv.other?.role === 'custom-werkstatt'
+      ? `/custom-werkstatt/${profileSlug}`
+      : `/rider/${profileSlug}`
+    : null
 
   useEffect(() => {
     initialLoadRef.current = false
@@ -522,11 +532,23 @@ function MessageThread({
         >
           <ArrowLeft size={16} />
         </button>
-        <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#222222]">{name}</p>
-          {conv.bike && <p className="text-xs text-[#222222]/35 truncate">{conv.bike.title}</p>}
-        </div>
+        {profileHref ? (
+          <Link href={profileHref} className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+            <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#222222]">{name}</p>
+              {conv.bike && <p className="text-xs text-[#222222]/35 truncate">{conv.bike.title}</p>}
+            </div>
+          </Link>
+        ) : (
+          <>
+            <Avatar name={name} avatarUrl={conv.other?.avatar_url} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-[#222222]">{name}</p>
+              {conv.bike && <p className="text-xs text-[#222222]/35 truncate">{conv.bike.title}</p>}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Messages */}
