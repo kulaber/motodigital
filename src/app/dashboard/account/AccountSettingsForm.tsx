@@ -10,7 +10,6 @@ type Props = {
   userId: string
   currentEmail: string
   currentUsername: string
-  currentFullName: string
   currentAvatarUrl: string | null
   currentBio: string | null
   currentAddress: string | null
@@ -46,7 +45,7 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
   )
 }
 
-export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentFullName, currentAvatarUrl, currentBio, currentAddress, role }: Props) {
+export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentAvatarUrl, currentBio, currentAddress, role }: Props) {
   const isWerkstatt = role === 'custom-werkstatt'
   const isRider = role === 'rider'
   const supabase = createClient()
@@ -143,24 +142,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     if (error) setAddressError(error.message)
     else setAddressSaved(true)
     setAddressSaving(false)
-  }
-
-  // ── Full Name ──
-  const [fullName, setFullName] = useState(currentFullName)
-  const [nameSaving, setNameSaving] = useState(false)
-  const [nameSaved, setNameSaved] = useState(false)
-  const [nameError, setNameError] = useState<string | null>(null)
-
-  async function handleName(e: React.FormEvent) {
-    e.preventDefault()
-    setNameSaving(true); setNameError(null); setNameSaved(false)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('profiles') as any)
-      .update({ full_name: fullName.trim() || null })
-      .eq('id', userId)
-    if (error) setNameError(error.message)
-    else setNameSaved(true)
-    setNameSaving(false)
   }
 
   // ── Username ──
@@ -276,18 +257,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
         </div>
         <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
       </div>}
-
-      {/* ── Name ── */}
-      {!isRider && <form onSubmit={handleName} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-5">Name</h2>
-        <div className="flex flex-col gap-4">
-          <Field label="Vollständiger Name" hint="Wird auf deinem Profil angezeigt">
-            <input value={fullName} onChange={e => setFullName(e.target.value)}
-              placeholder="Dein Name" className={input} />
-          </Field>
-          <SaveRow saving={nameSaving} saved={nameSaved} error={nameError} />
-        </div>
-      </form>}
 
       {/* ── Bio ── */}
       {!isWerkstatt && !isRider && (
