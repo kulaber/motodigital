@@ -43,7 +43,17 @@ export function useAuth() {
       }
     )
 
-    return () => subscription.unsubscribe()
+    function handleProfileUpdated(e: Event) {
+      const detail = (e as CustomEvent<{ avatarUrl?: string; fullName?: string }>).detail
+      if (detail.avatarUrl !== undefined) setAvatarUrl(detail.avatarUrl || null)
+      if (detail.fullName  !== undefined) setFullName(detail.fullName  || null)
+    }
+    window.addEventListener('profile-updated', handleProfileUpdated)
+
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener('profile-updated', handleProfileUpdated)
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { user, role, slug, avatarUrl, fullName, loading }

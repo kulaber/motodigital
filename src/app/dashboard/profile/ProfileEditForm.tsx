@@ -334,8 +334,14 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       website_url:   website || null,
     }).eq('id', profile.id)
 
-    if (err) toastError(err.message)
-    else toastSuccess('Profil gespeichert')
+    if (err) {
+      toastError(err.message)
+    } else {
+      toastSuccess('Profil gespeichert')
+      window.dispatchEvent(new CustomEvent('profile-updated', {
+        detail: { avatarUrl, fullName: fullName || null },
+      }))
+    }
     setSaving(false)
   }
 

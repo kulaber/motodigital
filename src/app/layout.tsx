@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -42,6 +42,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['/og-image.jpg'],
   },
+}
+
+export const viewport: Viewport = {
   themeColor: '#2AABAB',
 }
 

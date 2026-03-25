@@ -68,6 +68,7 @@ export default function RiderProfileEditForm({ profile }: Props) {
     setAvatarUrl('')
     setAvatarDeleting(false)
     setAvatarSaved(true)
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: null } }))
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -87,6 +88,7 @@ export default function RiderProfileEditForm({ profile }: Props) {
     setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
     setAvatarSaved(true)
     setAvatarUploading(false)
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: publicUrl } }))
   }
 
   // ── Name ──
