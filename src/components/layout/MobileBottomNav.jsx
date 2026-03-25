@@ -57,6 +57,7 @@ const NAV_ITEMS = [
     id: "profil",
     label: "Profil",
     href: "/dashboard",
+    dynamicHref: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -70,7 +71,7 @@ const ITEM_COUNT = NAV_ITEMS.length;
 const INACTIVE_ICON = "#B0B0B8";
 
 export default function MobileBottomNav() {
-  const { user, loading } = useAuth();
+  const { user, role, slug, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [optimisticIndex, setOptimisticIndex] = useState(-1);
@@ -117,7 +118,15 @@ export default function MobileBottomNav() {
     };
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const routeIndex = NAV_ITEMS.findIndex(
+  // Resolve dynamic profile href for riders
+  const navItems = NAV_ITEMS.map((item) => {
+    if (item.dynamicHref && role === "rider" && slug) {
+      return { ...item, href: `/rider/${slug}` };
+    }
+    return item;
+  });
+
+  const routeIndex = navItems.findIndex(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
   );
 
@@ -184,7 +193,7 @@ export default function MobileBottomNav() {
               />
             )}
 
-            {NAV_ITEMS.map((item, index) => {
+            {navItems.map((item, index) => {
               const isActive = activeIndex === index;
               const showBadge = item.id === "nachrichten" && unreadCount > 0;
 

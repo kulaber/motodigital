@@ -8,6 +8,7 @@ import RiderMapClient from './RiderMapClient'
 import AuthGate from './AuthGate'
 import FollowButton from '@/components/rider/FollowButton'
 import RiderContactButton from '@/components/rider/RiderContactButton'
+import { Pencil, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
@@ -177,6 +178,8 @@ export default async function RiderProfilePage({ params }: Props) {
   const rider = await getRiderBySlug(slug)
   if (!rider) notFound()
 
+  const isOwnProfile = user?.id === rider.id
+
   const content = (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="explore" />
@@ -212,8 +215,29 @@ export default async function RiderProfilePage({ params }: Props) {
 
             {/* Actions — right-aligned on desktop, below on mobile */}
             <div className="flex items-center gap-2.5 sm:ml-auto">
-              <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
-              <RiderContactButton riderId={rider.id} riderName={rider.name} />
+              {isOwnProfile ? (
+                <>
+                  <Link
+                    href="/dashboard/profile"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                  >
+                    <Pencil size={13} />
+                    Profil bearbeiten
+                  </Link>
+                  <Link
+                    href="/dashboard/meine-garage"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                  >
+                    <Wrench size={13} />
+                    Garage bearbeiten
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                  <RiderContactButton riderId={rider.id} riderName={rider.name} />
+                </>
+              )}
             </div>
           </div>
         </div>

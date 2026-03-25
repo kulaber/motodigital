@@ -134,16 +134,18 @@ export default function MobileNav({
           </div>
         )}
 
-        {/* ── 3. Navigation ── */}
-        <div className="px-3 pt-4 pb-2">
-          <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
-            Entdecken
-          </p>
-          {navItem('/explore', <Users size={20} />, 'Explore', isActive('explore'))}
-          {navItem('/bikes', <Bike size={20} />, 'Custom Bikes', isActive('bikes'))}
-          {navItem('/custom-werkstatt', <MapPin size={20} />, 'Werkstattsuche', isActive('custom-werkstatt'))}
-          {navItem('/rider', <Users size={20} />, 'Rider', isActive('rider'))}
-        </div>
+        {/* ── 3. Navigation (hidden for logged-in riders — they use bottom nav) ── */}
+        {!(user && role === 'rider') && (
+          <div className="px-3 pt-4 pb-2">
+            <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+              Entdecken
+            </p>
+            {navItem('/explore', <Users size={20} />, 'Explore', isActive('explore'))}
+            {navItem('/bikes', <Bike size={20} />, 'Custom Bikes', isActive('bikes'))}
+            {navItem('/custom-werkstatt', <MapPin size={20} />, 'Werkstattsuche', isActive('custom-werkstatt'))}
+            {navItem('/rider', <Users size={20} />, 'Rider', isActive('rider'))}
+          </div>
+        )}
 
         {/* ── 4. More links ── */}
         <div className="px-3 pb-2">
