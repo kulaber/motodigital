@@ -1,17 +1,14 @@
 import Header from './Header'
 import DashboardNav from '@/app/dashboard/DashboardNav'
-import OnboardingAddressModal from '@/components/dashboard/OnboardingAddressModal'
 
 interface Props {
   children: React.ReactNode
   role: string | null
   userName: string | null
   avatarUrl: string | null
-  showOnboarding?: boolean
-  userId?: string
 }
 
-export default function DashboardShell({ children, role, userName, avatarUrl, showOnboarding, userId }: Props) {
+export default function DashboardShell({ children, role, userName, avatarUrl }: Props) {
   return (
     <div className="min-h-dvh flex flex-col bg-[#F7F7F7]">
       <Header />
@@ -25,7 +22,6 @@ export default function DashboardShell({ children, role, userName, avatarUrl, sh
           </main>
         </div>
       </div>
-      {showOnboarding && userId && <OnboardingAddressModal userId={userId} />}
     </div>
   )
 }
