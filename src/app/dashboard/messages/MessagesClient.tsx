@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X, Plus, Camera } from 'lucide-react'
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -831,6 +832,8 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   const selectedConv = conversations.find(c => c.id === selectedId) ?? null
   const supabase = createClient()
   const selectedIdRef = useRef(selectedId)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   async function handleDelete(convId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -927,7 +930,7 @@ export default function MessagesClient({ conversations: initial, userId }: Props
               selectedId={selectedId}
               userId={userId}
               onSelect={setSelectedId}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               onNewConversation={conv => setConversations(prev => [conv, ...prev])}
             />
           </div>
@@ -966,6 +969,20 @@ export default function MessagesClient({ conversations: initial, userId }: Props
 
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        loading={deleteLoading}
+        title="Möchtest du die Nachrichten wirklich löschen?"
+        onConfirm={async () => {
+          if (!deleteTarget) return
+          setDeleteLoading(true)
+          await handleDelete(deleteTarget)
+          setDeleteLoading(false)
+          setDeleteTarget(null)
+        }}
+      />
     </div>
   )
 }
