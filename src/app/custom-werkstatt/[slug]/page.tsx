@@ -128,7 +128,15 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
-    city:        ((row.city as string | null) ?? '').replace(/\b\w/g, c => c.toUpperCase()),
+    city:        (() => {
+      const c = (row.city as string | null) ?? ''
+      if (c) return c.replace(/\b\w/g, (ch: string) => ch.toUpperCase())
+      // Fallback: aus Adresse city extrahieren (Mapbox: "Straße, PLZ Stadt, Land")
+      const addr = (row.address as string | null) ?? ''
+      if (!addr) return ''
+      const parts = addr.split(',').map((p: string) => p.trim())
+      return parts.length >= 2 ? parts[parts.length - 2] : parts[0]
+    })(),
     address:     (row.address as string | null) ?? undefined,
     lat,
     lng,
@@ -224,7 +232,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
-                <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
+                {(builder.city || builder.address) && (
+                  <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city || builder.address}</span>
+                )}
               </div>
             </div>
           </div>
@@ -270,7 +280,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/75">
-                <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city}</span>
+                {(builder.city || builder.address) && (
+                  <span className="flex items-center gap-1"><MapPin size={11} /> {builder.city || builder.address}</span>
+                )}
               </div>
             </div>
             <div className="hidden sm:block">
