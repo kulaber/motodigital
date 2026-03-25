@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import DashboardShell from '@/components/layout/DashboardShell'
 
@@ -14,12 +13,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .maybeSingle()
 
-  // Werkstatt ohne Adresse → Onboarding erzwingen (server-side, nicht bypassbar)
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') ?? ''
-  const needsOnboarding = profile?.role === 'custom-werkstatt' && !profile?.address
-  if (needsOnboarding && !pathname.startsWith('/dashboard/onboarding')) {
-    redirect('/dashboard/onboarding')
+  // Werkstatt ohne Adresse → Onboarding erzwingen (außerhalb des Dashboard-Layouts)
+  if (profile?.role === 'custom-werkstatt' && !profile?.address) {
+    redirect('/onboarding')
   }
 
   return (
