@@ -131,27 +131,27 @@ export default function OnboardingAddressForm({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-lg">
 
       {/* Logo */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-8">
         <Link href="/">
-          <Image src="/logo-dark.svg" alt="MotoDigital" width={150} height={56} className="h-8 w-auto" priority />
+          <Image src="/logo-dark.svg" alt="MotoDigital" width={200} height={76} className="h-12 w-auto" priority />
         </Link>
       </div>
 
-      <div className="bg-white border border-[#222222]/6 rounded-2xl p-6">
+      <div className="bg-white border border-[#222222]/6 rounded-2xl p-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-base font-bold text-[#222222]">Fast geschafft!</h2>
-            <p className="text-xs text-[#222222]/40 mt-0.5">Damit Rider dich auf der Karte finden können</p>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-xl font-bold text-[#222222]">Fast geschafft!</h2>
+            <div className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-semibold border bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20">
+              <Wrench size={10} />
+              Custom Werkstatt
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20">
-            <Wrench size={11} />
-            Custom Werkstatt
-          </div>
+          <p className="text-sm text-[#222222]/40">Damit Rider dich auf der Karte finden können</p>
         </div>
 
         <form onSubmit={handleSave} className="flex flex-col gap-4">
