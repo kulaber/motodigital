@@ -305,6 +305,10 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         .getPublicUrl(path)
       setAvatarUrl(publicUrl)
       setAvatarCacheBust(`?t=${Date.now()}`)
+      // Sofort in DB speichern & Header aktualisieren
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', profile.id)
+      window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: publicUrl } }))
     } catch (e: unknown) {
       toastError(e instanceof Error ? e.message : 'Logo-Upload fehlgeschlagen')
     } finally {
