@@ -98,7 +98,7 @@ export default function MapboxAddressInput({ initialValue = '', onSelect, placeh
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [types])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value

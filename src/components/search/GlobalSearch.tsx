@@ -288,7 +288,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
       }
       debounceRef.current = setTimeout(() => performSearch(value), 300)
     },
-    [performSearch],
+    [performSearch, suggestions],
   )
 
   // ─── Submit (Enter on empty selection / button click) ────
