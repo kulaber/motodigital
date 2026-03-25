@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
@@ -30,13 +30,67 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
     el.scrollTo({ left: idx * el.offsetWidth, behavior: 'smooth' })
   }
 
+  // On iOS, a horizontal overflow container captures ALL touch events — including
+  // vertical swipes — and prevents the page from scrolling.
+  // Fix: detect swipe direction on first movement; if vertical, set overflow-x:hidden
+  // so the container releases the touch and the page scroll takes over.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    let startX = 0
+    let startY = 0
+    let direction: 'x' | 'y' | null = null
+
+    function onTouchStart(e: TouchEvent) {
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+      direction = null
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (direction) return
+      const dx = Math.abs(e.touches[0].clientX - startX)
+      const dy = Math.abs(e.touches[0].clientY - startY)
+      if (dx < 4 && dy < 4) return // too small to determine yet
+
+      direction = dy > dx ? 'y' : 'x'
+      if (direction === 'y') {
+        // Release horizontal scroll so the browser can scroll the page
+        el.style.overflowX = 'hidden'
+      }
+    }
+
+    function onTouchEnd() {
+      if (direction === 'y') {
+        // Restore after paint — instant enough to not glitch
+        requestAnimationFrame(() => {
+          el.style.overflowX = ''
+        })
+      }
+      direction = null
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true })
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [])
+
   return (
     <div className="relative w-full group">
       {/* Scroll container — CSS scroll-snap, no scrollbar */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className={`flex overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden ${
+        className={`flex overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden ${
           aspect === '16:9' ? 'aspect-video' : 'h-[360px] sm:h-[468px]'
         }`}
         style={{ scrollbarWidth: 'none' }}
