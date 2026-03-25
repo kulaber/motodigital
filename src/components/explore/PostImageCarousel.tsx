@@ -49,7 +49,7 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
     }
 
     function onTouchMove(e: TouchEvent) {
-      if (direction) return
+      if (!el || direction) return
       const dx = Math.abs(e.touches[0].clientX - startX)
       const dy = Math.abs(e.touches[0].clientY - startY)
       if (dx < 4 && dy < 4) return // too small to determine yet
@@ -65,7 +65,7 @@ export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: Post
       if (direction === 'y') {
         // Restore after paint — instant enough to not glitch
         requestAnimationFrame(() => {
-          el.style.overflowX = ''
+          if (el) el.style.overflowX = ''
         })
       }
       direction = null
