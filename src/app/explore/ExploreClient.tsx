@@ -296,7 +296,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
       {imageUrls.length > 0 && (
         <div className="mt-3">
-          <PostImageCarousel items={urlsToMediaItems(imageUrls)} alt={post.author_name} />
+          <PostImageCarousel items={urlsToMediaItems(imageUrls)} alt={post.author_name} aspect="16:9" />
         </div>
       )}
 

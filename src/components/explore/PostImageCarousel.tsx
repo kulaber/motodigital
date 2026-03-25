@@ -8,9 +8,11 @@ import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
 interface PostImageCarouselProps {
   items: MediaItem[]
   alt: string
+  /** 'fixed' = 360/468 px; '16:9' = aspect-video responsive */
+  aspect?: '16:9' | 'fixed'
 }
 
-export default function PostImageCarousel({ items, alt }: PostImageCarouselProps) {
+export default function PostImageCarousel({ items, alt, aspect = 'fixed' }: PostImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const multi = items.length > 1
@@ -30,11 +32,13 @@ export default function PostImageCarousel({ items, alt }: PostImageCarouselProps
 
   return (
     <div className="relative w-full group">
-      {/* Scroll container — CSS scroll-snap, fixed height, no scrollbar */}
+      {/* Scroll container — CSS scroll-snap, no scrollbar */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory h-[360px] sm:h-[468px] [&::-webkit-scrollbar]:hidden"
+        className={`flex overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden ${
+          aspect === '16:9' ? 'aspect-video' : 'h-[360px] sm:h-[468px]'
+        }`}
         style={{ scrollbarWidth: 'none' }}
       >
         {items.map((item, i) => (
