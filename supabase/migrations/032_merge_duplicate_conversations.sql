@@ -42,7 +42,7 @@ BEGIN
   FOR rec IN
     SELECT
       seller_id, buyer_id,
-      MIN(id) AS keep_id
+      MIN(id::text)::uuid AS keep_id
     FROM conversations
     GROUP BY seller_id, buyer_id
     HAVING COUNT(*) > 1
