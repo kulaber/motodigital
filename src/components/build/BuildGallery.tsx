@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { X, ChevronLeft, ChevronRight, LayoutGrid, ArrowLeft, Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, LayoutGrid, Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 

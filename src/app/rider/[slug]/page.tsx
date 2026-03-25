@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, ArrowLeft, Instagram, Globe } from 'lucide-react'
@@ -214,7 +213,7 @@ export default async function RiderProfilePage({ params }: Props) {
             {/* Actions — right-aligned on desktop, below on mobile */}
             <div className="flex items-center gap-2.5 sm:ml-auto">
               <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
-              <RiderContactButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} riderName={rider.name} />
+              <RiderContactButton riderId={rider.id} riderName={rider.name} />
             </div>
           </div>
         </div>

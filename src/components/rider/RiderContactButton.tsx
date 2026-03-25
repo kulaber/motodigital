@@ -9,7 +9,6 @@ import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   riderId: string
-  riderFirstName: string
   riderName: string
 }
 
@@ -131,7 +130,7 @@ function Modal({
   )
 }
 
-export default function RiderContactButton({ riderId, riderFirstName, riderName }: Props) {
+export default function RiderContactButton({ riderId, riderName }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()

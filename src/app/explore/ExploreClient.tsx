@@ -498,11 +498,10 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
 interface Props {
   userId: string | null
-  userCity: string | null
   isSuperadmin?: boolean
 }
 
-export default function ExploreClient({ userId, userCity, isSuperadmin }: Props) {
+export default function ExploreClient({ userId, isSuperadmin }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)

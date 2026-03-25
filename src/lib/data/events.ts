@@ -66,10 +66,6 @@ export const EVENTS: Event[] = [
   },
 ]
 
-export function getEventById(id: number): Event | undefined {
-  return EVENTS.find(e => e.id === id)
-}
-
 export function getEventBySlug(slug: string): Event | undefined {
   return EVENTS.find(e => e.slug === slug)
 }

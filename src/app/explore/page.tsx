@@ -12,15 +12,13 @@ export default async function ExplorePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  let userCity: string | null = null
   let isSuperadmin = false
   if (user) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase.from('profiles') as any)
-      .select('city, role')
+      .select('role')
       .eq('id', user.id)
       .maybeSingle()
-    userCity = data?.city ?? null
     isSuperadmin = data?.role === 'superadmin'
   }
 
@@ -29,7 +27,7 @@ export default async function ExplorePage() {
       <Header activePage="explore" />
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
-          <ExploreClient userId={user?.id ?? null} userCity={userCity} isSuperadmin={isSuperadmin} />
+          <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} />
         </div>
       </div>
     </div>

@@ -381,12 +381,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     setMedia(prev => prev.filter(m => m.id !== item.id))
   }
 
-  async function handleUpdateTitle(id: string, title: string) {
-    setMedia(prev => prev.map(m => m.id === id ? { ...m, title } : m))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('builder_media') as any).update({ title }).eq('id', id)
-  }
-
   return (
     <div className="flex flex-col gap-6 pb-28">
       <ToastContainer toasts={toasts} />

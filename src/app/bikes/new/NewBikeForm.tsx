@@ -54,7 +54,6 @@ export default function NewBikeForm() {
   const [style, setStyle]           = useState('')
   const [cc, setCc]                 = useState('')
   const [mileage, setMileage]       = useState('')
-  const [price]                     = useState('')
   const [description, setDescription] = useState('')
   const [modifications, setModifications] = useState<string[]>([''])
   const [status, setStatus]         = useState<'active' | 'draft'>('active')

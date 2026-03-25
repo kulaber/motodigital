@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { MapPin, Loader2, X } from 'lucide-react'
 import {
   useFloating,

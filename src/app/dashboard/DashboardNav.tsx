@@ -76,7 +76,6 @@ export default function DashboardNav({ role, userName, avatarUrl }: Props) {
     { label: 'Einstellungen', href: '/dashboard/account', icon: <Settings size={15} /> },
   ]
 
-  const initials = userName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
   const roleLabel =
     role === 'custom-werkstatt' ? 'Custom Werkstatt'
     : role === 'superadmin' ? 'Admin'

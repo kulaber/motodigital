@@ -34,7 +34,7 @@ function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | nu
 }
 
 /* ─── Message body renderer (text, image, or combined) ─── */
-function MessageBody({ body, isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
+function MessageBody({ body, isOwn: _isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
   // Pure image
   if (body.startsWith('[img:') && body.endsWith(']')) {
     const url = body.slice(5, -1)

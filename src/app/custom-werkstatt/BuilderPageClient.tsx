@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
 import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
@@ -212,7 +211,7 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
 
 /* ── Builder card list (shared between desktop & mobile) ── */
 function BuilderList({
-  builders: allBuilders,
+  builders: _builders,
   visible,
   mapReady,
   selectedBuilder,
@@ -350,7 +349,6 @@ export default function BuilderPageClient({ builders }: Props) {
   const [mobileView,         setMobileView]         = useState<'map' | 'list'>('list')
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
   const [showLogin, setShowLogin]                   = useState(false)
-  const router = useRouter()
   const supabase = createClient()
 
   const listRef          = useRef<HTMLDivElement>(null)

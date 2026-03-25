@@ -5,9 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, Search, User } from 'lucide-react'
+import { Plus, Eye, MessageCircle, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import type { Database } from '@/types/database'
-import SignOutButton from './SignOutButton'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']

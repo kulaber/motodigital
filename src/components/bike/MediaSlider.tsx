@@ -31,7 +31,6 @@ export default function MediaSlider({ items, alt, aspectClass = 'aspect-[4/5]' }
 
   if (items.length === 0) return null
 
-  const current = items[idx]
   const multi = items.length > 1
 
   function onTouchStart(e: React.TouchEvent) {
