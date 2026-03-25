@@ -28,7 +28,6 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'alle', label: 'Explore' },
   { value: 'freunde', label: 'Freunde' },
   { value: 'in-der-naehe', label: 'In der Nähe' },
-  { value: 'events', label: 'Events' },
 ]
 
 // Composer tags: categories the user can post in
