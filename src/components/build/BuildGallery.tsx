@@ -285,7 +285,7 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
         <button
           onClick={() => openLightbox(0)}
           className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
-          style={{ gridRow: '1 / 3', gridColumn: '1 / 2' }}
+          style={{ gridRow: '1 / 3', gridColumn: images.length === 1 ? '1 / 4' : '1 / 2' }}
         >
           <img src={i1} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
@@ -296,7 +296,7 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
           <button
             onClick={() => openLightbox(1)}
             className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
-            style={{ gridRow: '1 / 2', gridColumn: '2 / 4' }}
+            style={{ gridRow: images.length === 2 ? '1 / 3' : '1 / 2', gridColumn: '2 / 4' }}
           >
             <img src={i2} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
@@ -308,7 +308,7 @@ export default function BuildGallery({ images, title, bikeId }: Props) {
           <button
             onClick={() => openLightbox(2)}
             className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
-            style={{ gridRow: '2 / 3', gridColumn: '2 / 3' }}
+            style={{ gridRow: '2 / 3', gridColumn: images.length === 3 ? '2 / 4' : '2 / 3' }}
           >
             <img src={i3} alt={`${title} 3`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
