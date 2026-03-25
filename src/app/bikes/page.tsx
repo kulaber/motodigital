@@ -82,15 +82,10 @@ export default async function BikesPage() {
       {/* PAGE HEADER */}
       <section className="pt-28 pb-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
-            <div>
-              <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
-                Handgefertigte Unikate.
-              </h1>
-              <p className="text-[#222222]/40 text-sm mt-2 max-w-[55ch] leading-relaxed">
-                Durchstöbere alle Custom Bikes — von Cafe Racern bis zum Chopper.
-              </p>
-            </div>
+          <div className="flex items-end justify-between gap-4 animate-slide-up">
+            <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
+              Custom Bikes
+            </h1>
             <p className="text-xs text-[#222222]/30 flex-shrink-0">
               <span className="text-[#222222]/60 font-semibold">{allBuilds.length} Bikes</span> · täglich aktualisiert
             </p>

@@ -401,7 +401,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
                 disabled={submittingComment || !commentText.trim()}
                 className="text-[#06a5a5] hover:text-[#058f8f] disabled:opacity-30 transition-colors text-xs font-semibold"
               >
-                Veröffentlichen
+                Posten
               </button>
             </div>
           ) : (
@@ -728,9 +728,12 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
 
       {/* ── Feed ────────────────────────────────────── */}
       <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[560px]">
+        <div className="max-w-[560px] mx-auto lg:mx-0">
+          {/* Mobile heading */}
+          <h1 className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</h1>
+
           {/* Filter pills */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1">
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
             {CATEGORIES.map(cat => (
               <button
                 key={cat.value}
@@ -751,14 +754,14 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
 
           {/* Composer */}
           {canPost ? (
-            <div className={`sticky top-[73px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck ? 'mx-2 shadow-md' : 'mx-0 shadow-sm'}`}>
+            <div className={`sticky top-[73px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck && !composerOpen ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
               {!composerOpen ? (
                 <button
                   type="button"
                   onClick={() => setComposerOpen(true)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
                 >
-                  <span className="text-sm text-[#222222]/30 flex-1">Was fährst du gerade? Teile es mit der Community…</span>
+                  <span className="text-sm text-[#222222]/30 flex-1">Poste, was dich bewegt…</span>
                   <span className="w-8 h-8 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
                     <Plus size={16} className="text-white" />
                   </span>
@@ -776,7 +779,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
                     autoFocus
                     value={body}
                     onChange={e => setBody(e.target.value)}
-                    placeholder="Was fährst du gerade? Teile es mit der Community…"
+                    placeholder="Poste, was dich bewegt…"
                     rows={4}
                     style={{ resize: 'none' }}
                     className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
@@ -881,7 +884,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
                       className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
                     >
                       <Send size={12} />
-                      {submitting ? 'Wird gepostet…' : 'Veröffentlichen'}
+                      {submitting ? 'Wird gepostet…' : 'Posten'}
                     </button>
                   </div>
                 </form>

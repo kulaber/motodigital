@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, ArrowLeft, Instagram, Globe } from 'lucide-react'
+import { MapPin, Instagram, Globe } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
@@ -187,10 +187,6 @@ export default async function RiderProfilePage({ params }: Props) {
       {/* ── HERO ── */}
       <section className="bg-[#F7F7F7] border-b border-[#222222]/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 py-10 sm:py-14">
-          <Link href="/rider"
-            className="inline-flex items-center gap-1.5 text-xs text-[#717171] hover:text-[#222222] transition-colors mb-6">
-            <ArrowLeft size={13} /> Alle Rider anzeigen
-          </Link>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-5">
             <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
