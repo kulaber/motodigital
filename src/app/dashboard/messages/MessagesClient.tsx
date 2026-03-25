@@ -884,6 +884,10 @@ export default function MessagesClient({ conversations: initial, userId }: Props
 
   useEffect(() => {
     if (!selectedId) return
+    // Sofort lokal als gelesen markieren
+    setConversations(prev => prev.map(c =>
+      c.id === selectedId ? { ...c, unread_count: 0 } : c
+    ))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('messages') as any)
       .update({ read_at: new Date().toISOString() })
