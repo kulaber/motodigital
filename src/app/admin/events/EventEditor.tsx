@@ -11,13 +11,14 @@ const labelCls = 'block text-xs font-semibold text-[#222222]/40 uppercase tracki
 function formatEventAsTs(event: Event): string {
   const tagsStr = event.tags.map(t => JSON.stringify(t)).join(', ')
   const urlLine = event.url ? `\n    url: ${JSON.stringify(event.url)},` : ''
+  const imageLine = event.image ? `\n    image: ${JSON.stringify(event.image)},` : ''
   return `  {
     id: ${event.id},
     name: ${JSON.stringify(event.name)},
     date: ${JSON.stringify(event.date)},
     location: ${JSON.stringify(event.location)},
     description: ${JSON.stringify(event.description)},
-    tags: [${tagsStr}],${urlLine}
+    tags: [${tagsStr}],${urlLine}${imageLine}
   },`
 }
 
@@ -30,6 +31,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
   const [description, setDescription] = useState(initialEvent?.description ?? '')
   const [tags, setTags]               = useState(initialEvent?.tags.join(', ') ?? '')
   const [url, setUrl]                 = useState(initialEvent?.url ?? '')
+  const [image, setImage]             = useState(initialEvent?.image ?? '')
   const [copied, setCopied]           = useState(false)
   const [successBanner, setSuccessBanner] = useState(false)
 
@@ -43,6 +45,7 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
       description,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       ...(url ? { url } : {}),
+      ...(image ? { image } : {}),
     }
     const code = formatEventAsTs(event)
     try {
@@ -171,6 +174,18 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
                     ))}
                   </div>
                 )}
+              </div>
+
+              <div>
+                <label className={labelCls}>Bild-URL (optional)</label>
+                <input
+                  type="text"
+                  value={image}
+                  onChange={e => setImage(e.target.value)}
+                  className={inputCls}
+                  placeholder="https://images.unsplash.com/photo-..."
+                />
+                <p className="text-[10px] text-[#222222]/20 mt-1">Unsplash- oder Cloudinary-URL für Thumbnail und Titelbild</p>
               </div>
 
               <div>
