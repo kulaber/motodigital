@@ -5,9 +5,26 @@ import BuilderPageClientLoader from './BuilderPageClientLoader'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
 
+const BASE_URL = 'https://motodigital.vercel.app'
+
+const seoTitle = 'Custom Werkstatt finden — Verzeichnis'
+const seoDescription = 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt — kostenlos auf MotoDigital.'
+
 export const metadata: Metadata = {
-  title: 'Custom Werkstatt finden — Verzeichnis | MotoDigital',
-  description: 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt — kostenlos auf MotoDigital.',
+  title: seoTitle,
+  description: seoDescription,
+  alternates: { canonical: `${BASE_URL}/custom-werkstatt` },
+  openGraph: {
+    title: seoTitle,
+    description: seoDescription,
+    url: `${BASE_URL}/custom-werkstatt`,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: seoTitle,
+    description: seoDescription,
+  },
 }
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {
@@ -99,8 +116,21 @@ export default async function BuilderPage() {
   const rest = nonSponsored.map(b => ({ b, r: Math.random() })).sort((a, z) => a.r - z.r).map(({ b }) => b)
   const shuffled = [...sponsored, ...rest]
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Custom Werkstatt' },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <Header activePage="custom-werkstatt" />
 
       <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">

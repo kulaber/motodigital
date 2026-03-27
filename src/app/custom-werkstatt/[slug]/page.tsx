@@ -161,13 +161,35 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
 type Props = { params: Promise<{ slug: string }> }
 
+const BASE_URL = 'https://motodigital.vercel.app'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
   if (!builder) return {}
+
+  const title = `${builder.name} — Custom Werkstatt auf MotoDigital`
+  const description = builder.bioLong || builder.bio || `${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}. Builds, Leistungen und Direktkontakt auf MotoDigital.`
+  const url = `${BASE_URL}/custom-werkstatt/${slug}`
+  const coverImage = builder.media.find(m => m.type === 'image')?.url
+
   return {
-    title: `${builder.name} — Builder auf MotoDigital`,
-    description: builder.bioLong || builder.bio,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'profile',
+      ...(coverImage && { images: [{ url: coverImage, width: 1200, height: 630, alt: `${builder.name} — Custom Werkstatt${builder.city ? ` in ${builder.city}` : ''}` }] }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(coverImage && { images: [coverImage] }),
+    },
   }
 }
 
@@ -182,13 +204,41 @@ export default async function BuilderProfilePage({ params }: Props) {
 
   const coverImage = builder.media.find(m => m.type === 'image')
 
+  // JSON-LD: LocalBusiness
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AutoRepair',
+    name: builder.name,
+    description: builder.bioLong || builder.bio || undefined,
+    url: `${BASE_URL}/custom-werkstatt/${slug}`,
+    ...(coverImage && { image: coverImage.url }),
+    ...(builder.address && { address: { '@type': 'PostalAddress', streetAddress: builder.address } }),
+    ...(builder.lat && builder.lng && { geo: { '@type': 'GeoCoordinates', latitude: builder.lat, longitude: builder.lng } }),
+    ...(builder.instagram && { sameAs: [`https://instagram.com/${builder.instagram.replace('@', '')}`] }),
+  }
+
+  // JSON-LD: BreadcrumbList
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Custom Werkstatt', item: `${BASE_URL}/custom-werkstatt` },
+      { '@type': 'ListItem', position: 3, name: builder.name },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([localBusinessJsonLd, breadcrumbJsonLd]) }}
+      />
       <Header activePage="custom-werkstatt" />
 
       {/* ── MOBILE HERO ── */}
       <div className="sm:hidden relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
-        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
+        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={`${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}`} fill sizes="100vw" className="object-cover" priority />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
@@ -210,9 +260,9 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
               {builder.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={builder.avatarUrl} alt={builder.name} className="w-full h-full object-cover" />
+                <img src={builder.avatarUrl} alt={`Logo von ${builder.name}`} className="w-full h-full object-cover" />
               ) : (
-                <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 opacity-90" />
+                <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={36} height={36} className="w-8 h-8 opacity-90" />
               )}
             </div>
             <div className="flex-1 min-w-0 pb-1">
@@ -243,7 +293,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
       {/* ── DESKTOP HERO ── */}
       <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
-        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={builder.name} fill sizes="100vw" className="object-cover" priority />
+        <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={`${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}`} fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
         <div className="absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -258,9 +308,9 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
               {builder.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={builder.avatarUrl} alt={builder.name} className="w-full h-full object-cover" />
+                <img src={builder.avatarUrl} alt={`Logo von ${builder.name}`} className="w-full h-full object-cover" />
               ) : (
-                <Image src="/pin-logo.svg" alt="Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
+                <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
               )}
             </div>
             <div className="flex-1 min-w-0 pb-1">
@@ -316,7 +366,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                       {build.img ? (
                         <img
                           src={build.img}
-                          alt={build.title}
+                          alt={`${build.title} — Custom Bike von ${builder.name}`}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                         />
                       ) : (
