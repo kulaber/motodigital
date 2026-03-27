@@ -25,6 +25,7 @@ type ProfileData = {
   bio: string | null
   instagram_url: string | null
   website_url: string | null
+  youtube_url: string | null
   tags: string[] | null
   is_verified: boolean
   since_year: number | null
@@ -131,6 +132,7 @@ export default function EditBuilderPage() {
     bio: staticBuilder?.bio ?? '',
     instagram_url: staticBuilder?.instagram ?? '',
     website_url: staticBuilder?.website ?? '',
+    youtube_url: staticBuilder?.youtube ?? '',
     tags: (staticBuilder?.tags ?? []).join(', '),
     is_verified: staticBuilder?.verified ?? false,
     since_year: staticBuilder?.since ? parseInt(staticBuilder.since) : new Date().getFullYear(),
@@ -153,7 +155,7 @@ export default function EditBuilderPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
-        .select('id, full_name, city, specialty, bio, instagram_url, website_url, tags, is_verified, since_year, opening_hours')
+        .select('id, full_name, city, specialty, bio, instagram_url, website_url, youtube_url, tags, is_verified, since_year, opening_hours')
         .or(`username.eq.${slug},slug.eq.${slug}`)
         .maybeSingle() as { data: ProfileData | null }
 
@@ -166,6 +168,7 @@ export default function EditBuilderPage() {
           bio: data.bio ?? staticBuilder?.bio ?? '',
           instagram_url: data.instagram_url ?? staticBuilder?.instagram ?? '',
           website_url: data.website_url ?? staticBuilder?.website ?? '',
+          youtube_url: data.youtube_url ?? staticBuilder?.youtube ?? '',
           tags: (data.tags ?? staticBuilder?.tags ?? []).join(', '),
           is_verified: data.is_verified,
           since_year: data.since_year ?? (staticBuilder?.since ? parseInt(staticBuilder.since) : new Date().getFullYear()),
@@ -199,6 +202,7 @@ export default function EditBuilderPage() {
         bio: form.bio || null,
         instagram_url: form.instagram_url || null,
         website_url: form.website_url || null,
+        youtube_url: form.youtube_url || null,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : null,
         is_verified: form.is_verified,
         since_year: form.since_year || null,
@@ -296,6 +300,7 @@ export default function EditBuilderPage() {
             <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 space-y-4">
               <h2 className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest">Links & Tags</h2>
               {field('Instagram (@handle)', 'instagram_url')}
+              {field('YouTube (URL oder @handle)', 'youtube_url')}
               {field('Website', 'website_url')}
               {field('Tags (kommagetrennt)', 'tags')}
             </div>

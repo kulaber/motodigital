@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, ArrowLeft, ChevronLeft, Globe, Instagram, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, ChevronLeft, Globe, Instagram, Youtube, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
@@ -72,7 +72,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, avatar_url')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
@@ -152,6 +152,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     bases:       (row.bases as string[] | null) ?? [],
     instagram:   (row.instagram_url as string | null) ?? undefined,
     website:     (row.website_url as string | null) ?? undefined,
+    youtube:     (row.youtube_url as string | null) ?? undefined,
     avatarUrl:   (row.avatar_url as string | null) ?? undefined,
     media,
     galleryImages,
@@ -214,7 +215,10 @@ export default async function BuilderProfilePage({ params }: Props) {
     ...(coverImage && { image: coverImage.url }),
     ...(builder.address && { address: { '@type': 'PostalAddress', streetAddress: builder.address } }),
     ...(builder.lat && builder.lng && { geo: { '@type': 'GeoCoordinates', latitude: builder.lat, longitude: builder.lng } }),
-    ...(builder.instagram && { sameAs: [`https://instagram.com/${builder.instagram.replace('@', '')}`] }),
+    ...((builder.instagram || builder.youtube) && { sameAs: [
+      ...(builder.instagram ? [`https://instagram.com/${builder.instagram.replace('@', '')}`] : []),
+      ...(builder.youtube ? [builder.youtube.startsWith('http') ? builder.youtube : `https://youtube.com/${builder.youtube}`] : []),
+    ] }),
   }
 
   // JSON-LD: BreadcrumbList
@@ -573,9 +577,9 @@ export default async function BuilderProfilePage({ params }: Props) {
               )}
 
               {/* Links */}
-              {(builder.instagram || builder.website) && (
+              {(builder.instagram || builder.youtube || builder.website) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
+                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Social Media</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
                       <a
@@ -585,6 +589,16 @@ export default async function BuilderProfilePage({ params }: Props) {
                       >
                         <Instagram size={13} className="flex-shrink-0 transition-colors" />
                         <span>{builder.instagram}</span>
+                      </a>
+                    )}
+                    {builder.youtube && (
+                      <a
+                        href={builder.youtube.startsWith('http') ? builder.youtube : `https://youtube.com/${builder.youtube}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
+                      >
+                        <Youtube size={13} className="flex-shrink-0 transition-colors" />
+                        <span>{builder.youtube.startsWith('http') ? builder.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '') : builder.youtube}</span>
                       </a>
                     )}
                     {builder.website && (

@@ -116,6 +116,7 @@ type Profile = {
   instagram_url: string | null
   tiktok_url: string | null
   website_url: string | null
+  youtube_url: string | null
   avatar_url: string | null
 }
 
@@ -156,6 +157,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [instagram, setInstagram]   = useState(profile.instagram_url ?? '')
   const [tiktok, setTiktok]         = useState(profile.tiktok_url ?? '')
   const [website, setWebsite]       = useState(profile.website_url ?? '')
+  const [youtube, setYoutube]       = useState(profile.youtube_url ?? '')
   const [avatarUrl, setAvatarUrl]   = useState(profile.avatar_url ?? '')
   const [avatarCacheBust, setAvatarCacheBust] = useState('')
 
@@ -232,6 +234,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       instagram_url: instagram || null,
       tiktok_url:    tiktok || null,
       website_url:   website || null,
+      youtube_url:   youtube || null,
     }).eq('id', profile.id)
 
     if (err) {
@@ -498,22 +501,26 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
           <AddressAutocomplete value={addressData} onChange={setAddressData} />
         </Field>
 
-        <div className="mb-5">
-          <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-3">Weiterführende Links</label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input value={instagram} onChange={e => setInstagram(e.target.value)}
-              placeholder="Instagram @handle"
-              className={input} />
-            <input value={tiktok} onChange={e => setTiktok(e.target.value)}
-              placeholder="TikTok @handle"
-              className={input} />
-            <input value={website} onChange={e => setWebsite(e.target.value)}
-              placeholder="Website"
-              className={input} />
-          </div>
-        </div>
-
       </form>
+
+      {/* ── SOCIAL MEDIA ── */}
+      <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#222222] mb-5">Social Media</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input value={instagram} onChange={e => setInstagram(e.target.value)}
+            placeholder="Instagram @handle"
+            className={input} />
+          <input value={tiktok} onChange={e => setTiktok(e.target.value)}
+            placeholder="TikTok @handle"
+            className={input} />
+          <input value={youtube} onChange={e => setYoutube(e.target.value)}
+            placeholder="YouTube URL oder @handle"
+            className={input} />
+          <input value={website} onChange={e => setWebsite(e.target.value)}
+            placeholder="Website"
+            className={input} />
+        </div>
+      </div>
 
       {/* ── GALLERIEBILDER ── */}
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">

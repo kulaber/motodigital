@@ -15,7 +15,7 @@ export default async function ProfileEditPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, avatar_url, riding_style, visited_cities')
+    .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')
     .eq('id', user.id)
     .maybeSingle()
 

@@ -38,6 +38,7 @@ export type Builder = {
   bioLong: string
   bases: string[]
   instagram?: string
+  youtube?: string
   website?: string
   avatarUrl?: string
   media: BuilderMedia[]

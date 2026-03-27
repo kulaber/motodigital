@@ -69,5 +69,5 @@ END $$;
 -- This prevents both (A,B) and (B,A) from existing
 ALTER TABLE conversations DROP CONSTRAINT IF EXISTS conversations_seller_buyer_unique;
 
-CREATE UNIQUE INDEX conversations_pair_unique
+CREATE UNIQUE INDEX IF NOT EXISTS conversations_pair_unique
   ON conversations (LEAST(seller_id, buyer_id), GREATEST(seller_id, buyer_id));

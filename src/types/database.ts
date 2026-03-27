@@ -39,6 +39,7 @@ export interface Database {
           instagram_url: string | null
           tiktok_url: string | null
           website_url: string | null
+          youtube_url: string | null
           city: string | null
           specialty: string | null
           since_year: number | null
