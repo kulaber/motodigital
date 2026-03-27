@@ -43,7 +43,7 @@ export default function DatenschutzPage() {
                 <br />
                 Die Datenverarbeitung auf dieser Website erfolgt durch den
                 Websitebetreiber. Dessen Kontaktdaten können Sie dem
-                Abschnitt „Hinweis zur verantwortlichen Stelle" in dieser
+                Abschnitt &bdquo;Hinweis zur verantwortlichen Stelle&ldquo; in dieser
                 Datenschutzerklärung entnehmen.
               </p>
               <p>
@@ -194,7 +194,7 @@ export default function DatenschutzPage() {
 
               <h3>Cookies</h3>
               <p>
-                Unsere Internetseiten verwenden so genannte „Cookies".
+                Unsere Internetseiten verwenden so genannte &bdquo;Cookies&ldquo;.
                 Cookies sind kleine Datenpakete und richten auf Ihrem
                 Endgerät keinen Schaden an. Sie werden entweder
                 vorübergehend für die Dauer einer Sitzung

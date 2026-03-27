@@ -27,9 +27,9 @@ export default function NutzungsbedingungenPage() {
               <p>
                 Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung
                 der Plattform MotoDigital, erreichbar unter motodigital.io
-                (nachfolgend „Plattform"), betrieben von [Dein vollständiger
+                (nachfolgend &bdquo;Plattform&ldquo;), betrieben von [Dein vollständiger
                 Name / Firmenname], [Adresse], [PLZ Stadt] (nachfolgend
-                „Betreiber").
+                &bdquo;Betreiber&ldquo;).
               </p>
               <p>
                 Mit der Registrierung oder der Nutzung der Plattform erklärt
