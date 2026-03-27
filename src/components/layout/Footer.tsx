@@ -42,7 +42,7 @@ const NAV = [
       { label: 'Impressum',           href: '/impressum' },
       { label: 'Datenschutz',         href: '/datenschutz' },
       { label: 'Nutzungsbedingungen', href: '/nutzungsbedingungen' },
-      { label: 'Kontakt',             href: '/kontakt' },
+      { label: 'Support',             href: '/support' },
     ],
   },
 ]
