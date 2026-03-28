@@ -1,7 +1,12 @@
+import Header from '@/components/layout/Header'
+
 export default function ExploreLoading() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2AABAB] border-t-transparent" />
-    </div>
+    <>
+      <Header activePage="explore" />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2AABAB] border-t-transparent" />
+      </div>
+    </>
   )
 }

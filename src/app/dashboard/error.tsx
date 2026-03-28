@@ -15,8 +15,8 @@ export default function DashboardError({
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
-      <h2 className="text-xl font-bold text-[#F0EDE4] mb-2">Dashboard-Fehler</h2>
-      <p className="text-[#F0EDE4]/60 mb-6 max-w-md">
+      <h2 className="text-xl font-bold text-[#222222] mb-2">Dashboard-Fehler</h2>
+      <p className="text-[#717171] mb-6 max-w-md">
         Beim Laden des Dashboards ist ein Fehler aufgetreten.
       </p>
       <button
