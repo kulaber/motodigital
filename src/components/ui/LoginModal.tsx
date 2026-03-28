@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -56,6 +57,7 @@ interface LoginModalProps {
 /* ─── Component ──────────────────────────────────────────── */
 
 export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'login' }: LoginModalProps) {
+  const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -217,7 +219,8 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       setLoading(null)
     } else {
       onClose()
-      window.location.href = '/explore'
+      router.push('/explore')
+      router.refresh()
     }
   }
 
