@@ -182,7 +182,7 @@ export default async function RiderProfilePage({ params }: Props) {
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 py-10 sm:py-14">
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-            <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
+            <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
               {rider.avatarUrl ? (
                 <Image src={rider.avatarUrl} alt={rider.name} fill sizes="96px" className="object-cover" />
               ) : (
