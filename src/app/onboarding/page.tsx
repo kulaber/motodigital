@@ -13,6 +13,11 @@ export default async function OnboardingPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  // Email muss bestätigt sein, bevor Onboarding startet
+  if (!user.email_confirmed_at) {
+    redirect(`/verify-email?email=${encodeURIComponent(user.email ?? '')}`)
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, address')
