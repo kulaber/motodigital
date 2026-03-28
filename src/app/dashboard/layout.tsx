@@ -7,6 +7,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  // Email verification gate (belt-and-suspenders — middleware handles this too)
+  if (!user.email_confirmed_at) {
+    redirect(`/verify-email?email=${encodeURIComponent(user.email ?? '')}`)
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, full_name, avatar_url, address')

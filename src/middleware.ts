@@ -2,9 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile']
+const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile', '/inserat-aufgeben', '/werkstatt-dashboard']
 // Routes only accessible when NOT logged in
 const AUTH_ROUTES = ['/auth/login', '/auth/register']
+// Routes that require a confirmed email (subset of PROTECTED_ROUTES)
+const EMAIL_CONFIRMED_ROUTES = PROTECTED_ROUTES
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -46,6 +48,14 @@ export async function middleware(request: NextRequest) {
     loginUrl.pathname = '/auth/login'
     loginUrl.searchParams.set('redirectTo', path)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Redirect unverified users to /verify-email for protected routes
+  if (user && !user.email_confirmed_at && EMAIL_CONFIRMED_ROUTES.some(r => path.startsWith(r))) {
+    const verifyUrl = request.nextUrl.clone()
+    verifyUrl.pathname = '/verify-email'
+    verifyUrl.searchParams.set('email', user.email ?? '')
+    return NextResponse.redirect(verifyUrl)
   }
 
   // Redirect authenticated users away from auth pages
