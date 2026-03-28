@@ -12,10 +12,12 @@ export async function POST() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  await admin
+  const { error } = await admin
     .from('profiles')
     .update({ last_seen_at: new Date().toISOString() })
     .eq('id', user.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })
 }

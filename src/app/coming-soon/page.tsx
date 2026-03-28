@@ -1,4 +1,15 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
+
+export const metadata: Metadata = {
+  title: 'Coming Soon — MotoDigital',
+  description: 'MotoDigital kommt bald. Die erste Plattform für Custom Motorrad Kultur.',
+  openGraph: {
+    title: 'Coming Soon — MotoDigital',
+    description: 'MotoDigital kommt bald. Die erste Plattform für Custom Motorrad Kultur.',
+  },
+}
+
 export default function ComingSoonPage() {
   return (
     <div className="min-h-screen bg-white text-[#222222] flex flex-col items-center justify-center px-5 relative overflow-hidden">

@@ -25,7 +25,8 @@ async function deleteBikeStorage(supabase: Awaited<ReturnType<typeof createClien
     .filter(Boolean) as string[]
 
   if (storagePaths.length > 0) {
-    await (supabase.storage as any).from('bike-images').remove(storagePaths)
+    const { error: storageErr } = await (supabase.storage as any).from('bike-images').remove(storagePaths)
+    if (storageErr) console.error('Storage remove bike-images failed:', storageErr.message)
   }
 }
 

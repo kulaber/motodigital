@@ -12,6 +12,7 @@ import { BUILDERS } from '@/lib/data/builders'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BuildGallery from '@/components/build/BuildGallery'
+import { sortBikeImages, sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
@@ -252,11 +253,7 @@ export default async function BikeSlugPage({ params }: Props) {
     .eq('id', slug)
     .then(() => {})
 
-  const rawImages = [...(bike.bike_images ?? [])].sort((a, b) => {
-    if (a.is_cover) return -1
-    if (b.is_cover) return 1
-    return a.position - b.position
-  })
+  const rawImages = sortBikeImages(bike.bike_images ?? [])
   const imageUrls = rawImages.map(i => i.url).filter(Boolean)
   const seller = bike.profiles
   const workshop = bike.workshops

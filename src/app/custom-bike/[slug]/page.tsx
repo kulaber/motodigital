@@ -8,6 +8,7 @@ import { BUILDS, getBuildBySlug } from '@/lib/data/builds'
 import BuildGallery from '@/components/build/BuildGallery'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 import ContactModal from './ContactModal'
 import MobileCTAWrapper from './MobileCTAWrapper'
 
@@ -140,14 +141,7 @@ export default async function CustomBikePage({ params }: Props) {
     }
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
-    const imageUrls = rawImages
-      .sort((a: any, b: any) => {
-        if (a.is_cover) return -1
-        if (b.is_cover) return 1
-        return a.position - b.position
-      })
-      .map((i: any) => i.url)
-      .filter(Boolean)
+    const imageUrls = sortedBikeImageUrls(rawImages)
 
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'

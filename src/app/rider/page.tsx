@@ -51,10 +51,12 @@ export default async function RiderOverviewPage() {
   const riderIds = filteredRiders.map((r: Record<string, unknown>) => r.id as string)
 
   // Fetch bikes per rider (count + styles)
-  const { data: bikeRows } = await supabase
-    .from('bikes')
-    .select('seller_id, style')
-    .in('seller_id', riderIds)
+  const { data: bikeRows } = riderIds.length > 0
+    ? await supabase
+        .from('bikes')
+        .select('seller_id, style')
+        .in('seller_id', riderIds)
+    : { data: [] }
 
   const countMap = new Map<string, number>()
   const styleMap = new Map<string, Set<string>>()

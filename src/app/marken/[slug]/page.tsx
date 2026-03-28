@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BRANDS, getBrandBySlug } from '@/lib/data/brands'
+import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { BUILDS } from '@/lib/data/builds'
 import { createClient } from '@/lib/supabase/server'
 
@@ -61,11 +62,7 @@ export default async function MarkeDetailPage({ params }: Props) {
   // Map DB bikes to a renderable format
   const dbBuilds = (dbBikes ?? []).map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
-    const cover = images.sort((a: any, b: any) => {
-      if (a.is_cover) return -1
-      if (b.is_cover) return 1
-      return a.position - b.position
-    })[0]
+    const cover = sortBikeImages(images)[0]
     return {
       slug: bike.slug ?? bike.id,
       title: bike.title,

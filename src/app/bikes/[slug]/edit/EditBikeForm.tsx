@@ -9,6 +9,7 @@ import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
 import { generateVideoThumbnail } from '@/lib/utils/videoThumbnail'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { sortBikeImages } from '@/lib/utils/bikeImages'
 
 const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
@@ -114,11 +115,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   }
 
   // ── Step 3: Photos ─────────────────────────────────
-  const sorted = [...bike.bike_images].sort((a, b) => {
-    if (a.is_cover) return -1
-    if (b.is_cover) return 1
-    return a.position - b.position
-  })
+  const sorted = sortBikeImages(bike.bike_images)
   type GalleryItem = { type: 'existing'; img: ExistingImage } | { type: 'new'; file: File; preview: string; isVideo: boolean; thumbFile?: File }
   const [gallery, setGallery] = useState<GalleryItem[]>(sorted.map(img => ({ type: 'existing', img })))
   const [status, setStatus] = useState<'active' | 'draft'>(bike.status)
@@ -496,9 +493,9 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                     {isVideo ? (
                       <>
                         {isExisting && item.img.thumbnail_url ? (
-                          <img src={item.img.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                          <img src={item.img.thumbnail_url} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : !isExisting && item.thumbFile ? (
-                          <img src={URL.createObjectURL(item.thumbFile)} alt="" className="w-full h-full object-cover" />
+                          <img src={URL.createObjectURL(item.thumbFile)} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : (
                           <video src={src} className="w-full h-full object-cover" muted preload="metadata" />
                         )}
@@ -509,7 +506,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                         </div>
                       </>
                     ) : (
-                      <img src={src} alt="" className="w-full h-full object-cover" />
+                      <img src={src} alt={`Bild ${i + 1}`} className="w-full h-full object-cover" />
                     )}
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">

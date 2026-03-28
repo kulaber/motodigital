@@ -51,7 +51,7 @@ function Lightbox({ src, onClose }: { src: string; onClose: () => void }) {
       </button>
       <img
         src={src}
-        alt=""
+        alt="Bild vergrößert"
         style={{ maxWidth: '92vw', maxHeight: '92vh', borderRadius: 8, objectFit: 'contain' }}
       />
     </div>
@@ -74,7 +74,7 @@ function ImageGrid({ urls, onTap }: { urls: string[]; onTap: (url: string) => vo
   if (urls.length === 1) {
     return (
       <div style={{ aspectRatio: '16/9', overflow: 'hidden', borderRadius: '12px 12px 0 0' }}>
-        <img src={urls[0]} alt="" style={imgStyle()} onClick={() => onTap(urls[0])} />
+        <img src={urls[0]} alt="Beitragsbild" style={imgStyle()} onClick={() => onTap(urls[0])} />
       </div>
     )
   }
@@ -82,9 +82,9 @@ function ImageGrid({ urls, onTap }: { urls: string[]; onTap: (url: string) => vo
   if (urls.length === 2) {
     return (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, borderRadius: '12px 12px 0 0', overflow: 'hidden' }}>
-        {urls.map(u => (
+        {urls.map((u, idx) => (
           <div key={u} style={{ aspectRatio: '1', overflow: 'hidden' }}>
-            <img src={u} alt="" style={imgStyle()} onClick={() => onTap(u)} />
+            <img src={u} alt={`Beitragsbild ${idx + 1}`} style={imgStyle()} onClick={() => onTap(u)} />
           </div>
         ))}
       </div>
@@ -96,11 +96,11 @@ function ImageGrid({ urls, onTap }: { urls: string[]; onTap: (url: string) => vo
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2, borderRadius: '12px 12px 0 0', overflow: 'hidden' }}>
       <div style={{ gridRow: '1 / span 2', overflow: 'hidden' }}>
-        <img src={urls[0]} alt="" style={imgStyle({ height: '100%' })} onClick={() => onTap(urls[0])} />
+        <img src={urls[0]} alt="Beitragsbild 1" style={imgStyle({ height: '100%' })} onClick={() => onTap(urls[0])} />
       </div>
-      {right.map(u => (
+      {right.map((u, idx) => (
         <div key={u} style={{ overflow: 'hidden' }}>
-          <img src={u} alt="" style={imgStyle({ aspectRatio: '1' })} onClick={() => onTap(u)} />
+          <img src={u} alt={`Beitragsbild ${idx + 2}`} style={imgStyle({ aspectRatio: '1' })} onClick={() => onTap(u)} />
         </div>
       ))}
     </div>

@@ -48,7 +48,8 @@ export async function DELETE(
       })
       .filter(Boolean) as string[]
     if (storagePaths.length > 0) {
-      await admin.storage.from('community-media').remove(storagePaths)
+      const { error: storageErr } = await admin.storage.from('community-media').remove(storagePaths)
+      if (storageErr) console.error('Storage remove community-media failed:', storageErr.message)
     }
   }
 

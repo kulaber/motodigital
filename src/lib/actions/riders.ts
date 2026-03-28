@@ -24,15 +24,19 @@ export async function deleteRider(riderId: string) {
   if (me?.role !== 'superadmin') return { error: 'Keine Berechtigung' }
 
   // 1. Clean up avatar files (avatars bucket)
-  const { data: avatarFiles } = await supabase.storage.from('avatars').list(riderId)
+  const { data: avatarFiles, error: avatarListErr } = await supabase.storage.from('avatars').list(riderId)
+  if (avatarListErr) console.error('Storage list avatars failed:', avatarListErr.message)
   if (avatarFiles?.length) {
-    await supabase.storage.from('avatars').remove(avatarFiles.map(f => `${riderId}/${f.name}`))
+    const { error: avatarRemoveErr } = await supabase.storage.from('avatars').remove(avatarFiles.map(f => `${riderId}/${f.name}`))
+    if (avatarRemoveErr) console.error('Storage remove avatars failed:', avatarRemoveErr.message)
   }
 
   // 2. Clean up builder-media files (cover, gallery, workshop avatar)
-  const { data: builderFiles } = await supabase.storage.from('builder-media').list(riderId)
+  const { data: builderFiles, error: builderListErr } = await supabase.storage.from('builder-media').list(riderId)
+  if (builderListErr) console.error('Storage list builder-media failed:', builderListErr.message)
   if (builderFiles?.length) {
-    await supabase.storage.from('builder-media').remove(builderFiles.map(f => `${riderId}/${f.name}`))
+    const { error: builderRemoveErr } = await supabase.storage.from('builder-media').remove(builderFiles.map(f => `${riderId}/${f.name}`))
+    if (builderRemoveErr) console.error('Storage remove builder-media failed:', builderRemoveErr.message)
   }
 
   // 3. Clean up bike-images (user's bikes → bike_images)
@@ -56,7 +60,8 @@ export async function deleteRider(riderId: string) {
           ])
           .filter(Boolean) as string[]
         if (paths.length > 0) {
-          await (supabase.storage as any).from('bike-images').remove(paths)
+          const { error: bikeImgErr } = await (supabase.storage as any).from('bike-images').remove(paths)
+          if (bikeImgErr) console.error('Storage remove bike-images failed:', bikeImgErr.message)
         }
       }
     }
@@ -74,14 +79,17 @@ export async function deleteRider(riderId: string) {
       .map((url: string) => extractStoragePath(url))
       .filter(Boolean) as string[]
     if (mediaPaths.length > 0) {
-      await supabase.storage.from('community-media').remove(mediaPaths)
+      const { error: communityErr } = await supabase.storage.from('community-media').remove(mediaPaths)
+      if (communityErr) console.error('Storage remove community-media failed:', communityErr.message)
     }
   }
 
   // 5. Clean up chat-images
-  const { data: chatFiles } = await supabase.storage.from('chat-images').list(riderId)
+  const { data: chatFiles, error: chatListErr } = await supabase.storage.from('chat-images').list(riderId)
+  if (chatListErr) console.error('Storage list chat-images failed:', chatListErr.message)
   if (chatFiles?.length) {
-    await supabase.storage.from('chat-images').remove(chatFiles.map(f => `${riderId}/${f.name}`))
+    const { error: chatRemoveErr } = await supabase.storage.from('chat-images').remove(chatFiles.map(f => `${riderId}/${f.name}`))
+    if (chatRemoveErr) console.error('Storage remove chat-images failed:', chatRemoveErr.message)
   }
 
   // 6. Delete profile — cascades to bikes, bike_images, builder_media, community_posts, etc.

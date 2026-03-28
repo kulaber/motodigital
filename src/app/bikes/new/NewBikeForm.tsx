@@ -526,7 +526,7 @@ export default function NewBikeForm() {
                     {item.isVideo ? (
                       <>
                         {item.thumbFile ? (
-                          <img src={URL.createObjectURL(item.thumbFile)} alt="" className="w-full h-full object-cover" />
+                          <img src={URL.createObjectURL(item.thumbFile)} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : (
                           <video src={item.preview} className="w-full h-full object-cover" muted preload="metadata" />
                         )}
@@ -537,7 +537,7 @@ export default function NewBikeForm() {
                         </div>
                       </>
                     ) : (
-                      <img src={item.preview} alt="" className="w-full h-full object-cover" />
+                      <img src={item.preview} alt={`Bild ${i + 1}`} className="w-full h-full object-cover" />
                     )}
                     {i === 0 && (
                       <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-[#06a5a5] text-white px-1.5 py-0.5 rounded-full">

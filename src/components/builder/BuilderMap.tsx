@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+  return text.replace(/[&<>"']/g, m => map[m])
+}
+
 interface Props {
   lat: number
   lng: number
@@ -41,7 +46,7 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
     const el = document.createElement('div')
     el.style.cssText = `
       width: 36px; height: 36px;
-      background: #06a5a5;
+      background: var(--color-accent);
       border: 3px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 0 4px rgba(8,101,101,0.15), 0 4px 12px rgba(0,0,0,0.15);
@@ -62,8 +67,8 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
         new mapboxgl.Popup({ offset: 20, closeButton: false })
           .setHTML(`
             <div style="font-family: Inter, system-ui, sans-serif; padding: 4px 2px;">
-              <p style="font-weight: 700; font-size: 13px; color: #222222; margin: 0 0 2px;">${name}</p>
-              ${address ? `<p style="font-size: 11px; color: #717171; margin: 0;">${address}</p>` : ''}
+              <p style="font-weight: 700; font-size: 13px; color: var(--color-text); margin: 0 0 2px;">${escapeHtml(name)}</p>
+              ${address ? `<p style="font-size: 11px; color: var(--color-text-2); margin: 0;">${escapeHtml(address)}</p>` : ''}
             </div>
           `)
       )

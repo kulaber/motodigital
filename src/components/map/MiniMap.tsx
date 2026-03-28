@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+  return text.replace(/[&<>"']/g, m => map[m])
+}
+
 interface VisitedCity {
   name: string
   lat: number
@@ -48,7 +53,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
     const el = document.createElement('div')
     el.style.cssText = `
       width: 32px; height: 32px;
-      background: #06a5a5;
+      background: var(--color-accent);
       border: 3px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 0 3px rgba(6,165,165,0.2), 0 3px 8px rgba(0,0,0,0.15);
@@ -70,7 +75,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
         new mapboxgl.Popup({ offset: 18, closeButton: false })
           .setHTML(`
             <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 2px 0;">
-              <p style="font-size: 12px; font-weight: 600; color: #222222; margin: 0;">${locationName}</p>
+              <p style="font-size: 12px; font-weight: 600; color: var(--color-text); margin: 0;">${escapeHtml(locationName)}</p>
             </div>
           `)
       )
@@ -103,7 +108,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
           new mapboxgl.Popup({ offset: 20, closeButton: false })
             .setHTML(`
               <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 2px 0;">
-                <p style="font-size: 11px; font-weight: 600; color: #222222; margin: 0;">${riderName ?? 'Rider'} war in ${city.name}</p>
+                <p style="font-size: 11px; font-weight: 600; color: var(--color-text); margin: 0;">${escapeHtml(riderName ?? 'Rider')} war in ${escapeHtml(city.name)}</p>
               </div>
             `)
         )
