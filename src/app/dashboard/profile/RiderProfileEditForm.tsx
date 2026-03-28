@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, Camera, User, Trash2 } from 'lucide-react'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
+import { compressImage } from '@/lib/utils/compressImage'
 
 type Profile = {
   id: string
@@ -76,11 +77,12 @@ export default function RiderProfileEditForm({ profile }: Props) {
     if (!file) return
     if (file.size > 5 * 1024 * 1024) { setAvatarError('Maximale Dateigröße: 5 MB'); return }
     setAvatarUploading(true); setAvatarError(null); setAvatarSaved(false)
-    const ext = file.name.split('.').pop()
+    const compressed = await compressImage(file, 400, 0.82, 400)
+    const ext = compressed.name.split('.').pop()
     const path = `${profile.id}/avatar.${ext}`
     const { error: upErr } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true, contentType: file.type })
+      .upload(path, compressed, { upsert: true, contentType: compressed.type })
     if (upErr) { setAvatarError(upErr.message); setAvatarUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
