@@ -127,7 +127,10 @@ export default function OnboardingAddressForm({ userId }: { userId: string }) {
       return
     }
 
-    router.push('/dashboard')
+    // Full page reload to bypass Next.js Router Cache —
+    // ohne das liest das Dashboard-Layout gecachte Profildaten (address=null)
+    // und leitet zurück zum Onboarding → Loop
+    window.location.href = '/dashboard'
   }
 
   return (

@@ -51,7 +51,7 @@ export default function RegisterForm() {
       password,
       options: {
         data: { full_name: name, username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
       },
     })
 
@@ -65,7 +65,7 @@ export default function RegisterForm() {
       .update({ invited_at: new Date().toISOString() })
       .eq('email', email)
 
-    router.push('/auth/verify?email=' + encodeURIComponent(email))
+    router.push('/verify-email?email=' + encodeURIComponent(email))
   }
 
   // ── Step 1 — Role selection ─────────────────────────────────────────────
