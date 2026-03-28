@@ -255,6 +255,11 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     // Replace existing cover image if present
     const existingCover = media.find(m => m.title === 'cover')
     if (existingCover) {
+      // Delete old cover from storage
+      const match = existingCover.url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
+      if (match) {
+        await supabase.storage.from('builder-media').remove([match[1]])
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('builder_media') as any).delete().eq('id', existingCover.id)
       setMedia(prev => prev.filter(m => m.id !== existingCover.id))
@@ -327,6 +332,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   }
 
   async function handleDeleteMedia(item: MediaItem) {
+    // Delete file from storage
+    const match = item.url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
+    if (match) {
+      await supabase.storage.from('builder-media').remove([match[1]])
+    }
+    // Delete DB row
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('builder_media') as any).delete().eq('id', item.id)
     setMedia(prev => prev.filter(m => m.id !== item.id))

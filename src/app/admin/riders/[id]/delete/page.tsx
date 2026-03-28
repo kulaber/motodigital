@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Shield, Trash2, AlertTriangle } from 'lucide-react'
+import { deleteRider } from '@/lib/actions/riders'
 
 type RiderProfile = {
   id: string
@@ -51,15 +52,11 @@ export default function AdminDeleteRiderPage() {
     if (!rider) return
     setDeleting(true)
     setError(null)
-    const supabase = createClient()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: deleteError } = await (supabase.from('profiles') as any)
-      .delete()
-      .eq('id', rider.id)
+    const result = await deleteRider(rider.id)
 
-    if (deleteError) {
-      setError(deleteError.message)
+    if (result.error) {
+      setError(result.error)
       setDeleting(false)
     } else {
       router.push('/admin/riders')

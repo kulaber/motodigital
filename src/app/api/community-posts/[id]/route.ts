@@ -20,7 +20,7 @@ export async function DELETE(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: post } = await (supabase.from('community_posts') as any)
-    .select('user_id')
+    .select('user_id, media_urls')
     .eq('id', id)
     .maybeSingle()
 
@@ -37,6 +37,20 @@ export async function DELETE(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+
+  // Delete media files from storage
+  const mediaUrls: string[] = post.media_urls ?? []
+  if (mediaUrls.length > 0) {
+    const storagePaths = mediaUrls
+      .map((url: string) => {
+        const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
+        return match ? match[1] : null
+      })
+      .filter(Boolean) as string[]
+    if (storagePaths.length > 0) {
+      await admin.storage.from('community-media').remove(storagePaths)
+    }
+  }
 
   const { error } = await admin.from('community_posts').delete().eq('id', id)
 

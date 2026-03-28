@@ -4,6 +4,7 @@ import { useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown, Plus, Play } from 'lucide-react'
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { compressImage } from '@/lib/utils/compressImage'
 import { generateVideoThumbnail } from '@/lib/utils/videoThumbnail'
@@ -120,8 +121,11 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   })
   type GalleryItem = { type: 'existing'; img: ExistingImage } | { type: 'new'; file: File; preview: string; isVideo: boolean; thumbFile?: File }
   const [gallery, setGallery] = useState<GalleryItem[]>(sorted.map(img => ({ type: 'existing', img })))
-  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([])
   const [status, setStatus] = useState<'active' | 'draft'>(bike.status)
+
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const dragIdx = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
@@ -152,10 +156,31 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     setGallery(p => [...p, ...newItems])
   }
 
-  function removeItem(i: number) {
-    const item = gallery[i]
-    if (item.type === 'existing') setDeletedImageIds(p => [...p, item.img.id])
-    setGallery(p => p.filter((_, idx) => idx !== i))
+  async function confirmRemoveItem() {
+    if (deleteTarget === null) return
+    const item = gallery[deleteTarget]
+
+    if (item.type === 'existing') {
+      setDeleteLoading(true)
+      // Delete from storage
+      const match = item.img.url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
+      if (match) {
+        await supabase.storage.from('bike-images').remove([match[1]])
+      }
+      if (item.img.thumbnail_url) {
+        const thumbMatch = item.img.thumbnail_url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
+        if (thumbMatch) {
+          await supabase.storage.from('bike-images').remove([thumbMatch[1]])
+        }
+      }
+      // Delete from DB
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('bike_images') as any).delete().eq('id', item.img.id)
+      setDeleteLoading(false)
+    }
+
+    setGallery(p => p.filter((_, idx) => idx !== deleteTarget))
+    setDeleteTarget(null)
   }
 
   function handleDrop(toIdx: number) {
@@ -192,12 +217,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     }).eq('id', bike.id)
 
     if (updateError) { toastError(updateError.message); setLoading(false); return }
-
-    // Delete removed images
-    for (const id of deletedImageIds) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('bike_images') as any).delete().eq('id', id)
-    }
 
     // Update positions for all remaining gallery items
     for (let i = 0; i < gallery.length; i++) {
@@ -245,6 +264,13 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   return (
     <div className="max-w-2xl mx-auto">
       <ToastContainer toasts={toasts} />
+      <DeleteConfirmModal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmRemoveItem}
+        loading={deleteLoading}
+        title="Möchtest du dieses Bild wirklich löschen?"
+      />
 
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-8">
@@ -495,7 +521,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                         Neu
                       </span>
                     )}
-                    <button type="button" onClick={() => removeItem(i)}
+                    <button type="button" onClick={() => setDeleteTarget(i)}
                       className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <X size={10} className="text-[#222222]" />
                     </button>
