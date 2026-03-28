@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
+import { translateAuthError } from '@/lib/auth/translateError'
 
 type Role = 'rider' | 'custom-werkstatt'
 
@@ -56,7 +57,7 @@ export default function RegisterForm() {
     })
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(translateAuthError(signUpError.message))
       setLoading(false)
       return
     }

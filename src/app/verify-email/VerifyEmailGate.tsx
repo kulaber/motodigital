@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { translateAuthError } from '@/lib/auth/translateError'
 
 const COOLDOWN_SECONDS = 60
 const POLL_INTERVAL_MS = 3000
@@ -47,7 +48,7 @@ export default function VerifyEmailGate({ email }: { email: string }) {
     })
 
     if (resendError) {
-      setError(resendError.message)
+      setError(translateAuthError(resendError.message))
     } else {
       setResendSuccess(true)
       setCooldown(COOLDOWN_SECONDS)

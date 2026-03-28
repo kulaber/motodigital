@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { translateAuthError } from '@/lib/auth/translateError'
 
 /* ─── Trigger Context ────────────────────────────────────── */
 
@@ -169,7 +170,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     })
 
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
       setLoading(null)
     } else {
       setMagicSent(true)
@@ -189,7 +190,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     })
 
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
     } else {
       setCooldown(60)
     }
@@ -215,7 +216,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     })
 
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
       setLoading(null)
     } else {
       onClose()
@@ -241,12 +242,12 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       password,
       options: {
         data: { full_name: name.trim(), username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
       },
     })
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(translateAuthError(signUpError.message))
       setLoading(null)
       return
     }

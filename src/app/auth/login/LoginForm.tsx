@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { translateAuthError } from '@/lib/auth/translateError'
 
 function LoginFormInner() {
   const [email, setEmail] = useState('')
@@ -24,7 +25,7 @@ function LoginFormInner() {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
       setLoading(false)
     } else {
       router.push(redirectTo)
