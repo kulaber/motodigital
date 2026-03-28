@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import { BUILDERS, type Builder } from '@/lib/data/builders'
@@ -78,7 +79,67 @@ async function geocode(query: string, token: string): Promise<{ lat: number; lng
   }
 }
 
-export default async function BuilderPage() {
+/* ── Skeleton shown inline while data streams ── */
+function BuilderSkeleton() {
+  return (
+    <>
+      {/* Sticky filter bar */}
+      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+        <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2">
+          <div className="h-[30px] w-[90px] rounded-full border border-[#DDDDDD] bg-white animate-pulse" />
+          <div className="h-[30px] w-[100px] rounded-full border border-[#DDDDDD] bg-white animate-pulse" />
+          <div className="h-[30px] w-[110px] rounded-full border border-[#DDDDDD] bg-white animate-pulse" />
+        </div>
+      </div>
+
+      {/* Desktop: Split layout */}
+      <div className="hidden lg:flex" style={{ height: 'calc(100dvh - 120px)' }}>
+        <div className="w-1/2 overflow-hidden border-r border-[#EBEBEB]">
+          <div className="p-4">
+            <div className="h-3 w-28 rounded bg-[#F0F0F0] mb-4 animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i}>
+                  <div className="w-full aspect-[4/3] rounded-xl bg-[#F0F0F0] animate-pulse" />
+                  <div className="pt-2.5 pb-1 animate-pulse">
+                    <div className="h-3.5 w-3/4 rounded bg-[#EBEBEB] mb-1.5" />
+                    <div className="h-3 w-1/2 rounded bg-[#F0F0F0] mb-2" />
+                    <div className="flex gap-1">
+                      <div className="h-[18px] w-16 rounded-full bg-[#F7F7F7] border border-[#EBEBEB]" />
+                      <div className="h-[18px] w-20 rounded-full bg-[#F7F7F7] border border-[#EBEBEB]" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="w-1/2 relative p-3">
+          <div className="absolute inset-3 rounded-2xl bg-[#f0fafa] animate-pulse" />
+        </div>
+      </div>
+
+      {/* Mobile: List view */}
+      <div className="lg:hidden p-4">
+        <div className="h-3 w-28 rounded bg-[#F0F0F0] mb-4 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i}>
+              <div className="w-full aspect-[4/3] rounded-xl bg-[#F0F0F0] animate-pulse" />
+              <div className="pt-2.5 pb-1 animate-pulse">
+                <div className="h-3.5 w-3/4 rounded bg-[#EBEBEB] mb-1.5" />
+                <div className="h-3 w-1/2 rounded bg-[#F0F0F0]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ── Async component that fetches data (streamed via Suspense) ── */
+async function BuilderContent() {
   const supabase = await createClient()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -118,6 +179,11 @@ export default async function BuilderPage() {
   const rest = nonSponsored.map(b => ({ b, r: Math.random() })).sort((a, z) => a.r - z.r).map(({ b }) => b)
   const shuffled = [...sponsored, ...rest]
 
+  return <BuilderPageClientLoader builders={shuffled} />
+}
+
+/* ── Page component — Header renders instantly, data streams in ── */
+export default function BuilderPage() {
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -139,7 +205,9 @@ export default async function BuilderPage() {
         <h1 className="text-xl font-bold text-[#222222] text-center">Custom Werkstatt</h1>
       </div>
 
-      <BuilderPageClientLoader builders={shuffled} />
+      <Suspense fallback={<BuilderSkeleton />}>
+        <BuilderContent />
+      </Suspense>
     </div>
   )
 }

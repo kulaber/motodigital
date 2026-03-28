@@ -3,6 +3,12 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
+  experimental: {
+    staleTimes: {
+      dynamic: 30,  // cache dynamic pages 30s client-side (back-nav = instant)
+      static: 180,  // cache static/ISR pages 3min client-side
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 Tage

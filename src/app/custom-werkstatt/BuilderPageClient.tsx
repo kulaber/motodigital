@@ -235,20 +235,6 @@ function BuilderList({
   isMobile?: boolean
   userId?: string | null
 }) {
-  if (!mapReady) {
-    return (
-      <div className={`p-4 grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="w-full aspect-[4/3] bg-[#F0F0F0] rounded-xl mb-2" />
-            <div className="h-3 bg-[#F0F0F0] rounded w-3/4 mb-1.5" />
-            <div className="h-2.5 bg-[#F0F0F0] rounded w-1/2" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   if (visible.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8">
@@ -458,7 +444,8 @@ export default function BuilderPageClient({ builders }: Props) {
   }, [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
-    if (!mapReady || !mapBounds) return []
+    // Show all filtered builders immediately; only apply map-bounds filter once map is ready
+    if (!mapReady || !mapBounds) return filtered
     const sw = mapBounds.getSouthWest()
     const ne = mapBounds.getNorthEast()
     const lngPad = (ne.lng - sw.lng) * 0.08

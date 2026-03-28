@@ -2,7 +2,7 @@ import Header from '@/components/layout/Header'
 
 export default function BuilderProfileLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
       {/* Hero skeleton — matches the actual 52vh hero */}

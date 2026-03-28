@@ -20,7 +20,7 @@ function RiderCardSkeleton() {
 
 export default function RiderListLoading() {
   return (
-    <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-[#F7F7F7] text-[#222222]">
       <Header activePage="explore" />
 
       <section className="pt-10 pb-6">

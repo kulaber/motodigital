@@ -15,7 +15,7 @@ function CardSkeleton() {
 
 export default function BikesLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
       <Header activePage="bikes" />
 
       <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">

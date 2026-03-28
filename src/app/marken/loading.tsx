@@ -2,7 +2,7 @@ import Header from '@/components/layout/Header'
 
 export default function MarkenLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222]">
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-12 pb-4 animate-pulse">

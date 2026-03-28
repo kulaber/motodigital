@@ -6,6 +6,17 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-expand { animation: expand 0.2s ease-out forwards; }
+
+/* Skeleton delay — only show loading skeleton after 200ms.
+   Fast page loads (ISR/cache) never show a skeleton at all. */
+@keyframes skeleton-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.skeleton-delayed {
+  opacity: 0;
+  animation: skeleton-fade-in 0.15s ease-out 0.2s forwards;
+}
 .animate-blink  { animation: blink-caret 0.8s step-end infinite; }
 
 /* ─── MotoDigital Design Tokens ─────────────────────────── */

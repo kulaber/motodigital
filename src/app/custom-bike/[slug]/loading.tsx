@@ -2,7 +2,7 @@ import Header from '@/components/layout/Header'
 
 export default function CustomBikeLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222]">
       <Header activePage="bikes" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-6 pb-24">

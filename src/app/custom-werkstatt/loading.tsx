@@ -20,7 +20,7 @@ function CardSkeleton() {
 
 export default function BuilderListLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222]">
       <Header activePage="custom-werkstatt" />
 
       <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">

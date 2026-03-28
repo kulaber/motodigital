@@ -2,7 +2,7 @@ import Header from '@/components/layout/Header'
 
 export default function RiderProfileLoading() {
   return (
-    <div className="min-h-screen bg-white text-[#222222]">
+    <div className="skeleton-delayed min-h-screen bg-white text-[#222222]">
       <Header activePage="explore" />
 
       {/* Hero section skeleton — matches real bg-[#F7F7F7] hero */}
