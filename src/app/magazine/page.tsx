@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { ARTICLES } from '@/lib/data/magazine'
@@ -111,12 +112,13 @@ export default function MagazinePage() {
 
                 {/* Image */}
                 <div className="relative h-[460px] sm:h-[540px] lg:h-[600px] overflow-hidden">
-                  <img
+                  <Image
                     src={heroArticle.coverImage}
                     alt={heroArticle.title}
-                    loading="eager"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    fill
+                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    priority
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
 
                   {/* Dark gradient overlay — schwarz statt weiß */}
@@ -179,12 +181,12 @@ export default function MagazinePage() {
                 <article>
                   {/* Image with dark overlay on hover */}
                   <div className="relative aspect-[16/9] overflow-hidden">
-                    <img
+                    <Image
                       src={article.coverImage}
                       alt={article.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-3 left-3">

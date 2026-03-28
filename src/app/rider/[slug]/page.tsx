@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Instagram, Globe } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -61,31 +62,22 @@ async function geocode(query: string): Promise<{ lat: number; lng: number; count
 
 async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   const supabase = await createClient()
+  const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url'
 
-  // Try slug first, then username
+  // Try slug + username lookups in parallel (2 queries instead of 2 sequential)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
-    .eq('slug', slug)
-    .eq('role', 'rider')
-    .maybeSingle()
+  const [{ data: bySlug }, { data: byUsername }] = await Promise.all([
+    (supabase.from('profiles') as any).select(cols).eq('slug', slug).eq('role', 'rider').maybeSingle(),
+    (supabase.from('profiles') as any).select(cols).eq('username', slug).eq('role', 'rider').maybeSingle(),
+  ])
+
+  let row = bySlug ?? byUsername
 
   if (!row) {
-    // Fallback: try matching by username
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: fallback } = await (supabase.from('profiles') as any)
-      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
-      .eq('username', slug)
-      .eq('role', 'rider')
-      .maybeSingle()
-    row = fallback
-  }
-
-  if (!row) {
-    // Fallback: try matching by generated slug from full_name
+    // Last resort: try matching by generated slug from full_name
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: allRiders } = await (supabase.from('profiles') as any)
-      .select('id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url')
+      .select(cols)
       .eq('role', 'rider')
       .limit(100)
 
@@ -98,6 +90,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   if (!row) return null
 
+  // Fetch bikes in parallel with geocoding (no dependency between them)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikeRows } = await (supabase.from('bikes') as any)
     .select('id, slug, title, make, model, style, bike_images(id, url, is_cover, position)')
@@ -191,8 +184,7 @@ export default async function RiderProfilePage({ params }: Props) {
           <div className="flex flex-wrap items-center gap-4 sm:gap-5">
             <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
               {rider.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={rider.avatarUrl} alt={rider.name} className="w-full h-full object-cover" />
+                <Image src={rider.avatarUrl} alt={rider.name} fill sizes="96px" className="object-cover" />
               ) : (
                 <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
               )}
@@ -258,8 +250,7 @@ export default async function RiderProfilePage({ params }: Props) {
                       <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
                         <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
                           {bike.img ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={bike.img} alt={bike.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                            <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <span className="text-lg font-bold text-[#DDDDDD]">{bike.style || 'Bike'}</span>
@@ -326,8 +317,7 @@ export default async function RiderProfilePage({ params }: Props) {
                     {rider.visitedCityCoords.map(city => (
                       <div key={city.name} className="bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square">
                         <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">★ ★ ★ ★ ★</div>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/pin-logo.svg" alt="MotoDigital" className="w-7 h-7 mb-1.5 opacity-80" />
+                        <Image src="/pin-logo.svg" alt="MotoDigital" width={28} height={28} className="mb-1.5 opacity-80" />
                         <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
                         {city.country && (
                           <span className="text-[8px] text-white/40 mt-0.5 truncate w-full text-center">{city.country}</span>

@@ -5,6 +5,8 @@ import BuilderPageClientLoader from './BuilderPageClientLoader'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
 
+export const revalidate = 3600 // ISR: revalidate every hour
+
 const BASE_URL = 'https://motodigital.vercel.app'
 
 const seoTitle = 'Custom Werkstatt finden — Verzeichnis'

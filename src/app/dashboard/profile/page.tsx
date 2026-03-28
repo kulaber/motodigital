@@ -13,11 +13,18 @@ export default async function ProfileEditPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  // Fetch profile + media in parallel (media only needed for builders, but cheap to fetch)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: profile } = await (supabase.from('profiles') as any)
-    .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')
-    .eq('id', user.id)
-    .maybeSingle()
+  const [{ data: profile }, { data: media }] = await Promise.all([
+    (supabase.from('profiles') as any)
+      .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')
+      .eq('id', user.id)
+      .maybeSingle(),
+    (supabase.from('builder_media') as any)
+      .select('id, url, type, title, position')
+      .eq('builder_id', user.id)
+      .order('position', { ascending: true }),
+  ])
 
   if (profile?.role === 'superadmin') redirect('/dashboard')
 
@@ -41,12 +48,6 @@ export default async function ProfileEditPage() {
       </div>
     )
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: media } = await (supabase.from('builder_media') as any)
-    .select('id, url, type, title, position')
-    .eq('builder_id', user.id)
-    .order('position', { ascending: true })
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">

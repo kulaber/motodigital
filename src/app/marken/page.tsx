@@ -7,7 +7,7 @@ import { BRANDS } from '@/lib/data/brands'
 import { BUILDS } from '@/lib/data/builds'
 import { createClient } from '@/lib/supabase/server'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: 'Custom Motorrad Marken — Honda, BMW, Triumph & mehr | MotoDigital',

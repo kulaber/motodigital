@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { BadgeCheck, MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -22,8 +23,8 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-// Force dynamic rendering — DB bikes need cookies() for Supabase auth
-export const dynamic = 'force-dynamic'
+// ISR: bike detail pages are public content, revalidate periodically
+export const revalidate = 1800 // 30 minutes
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -66,54 +67,26 @@ export default async function CustomBikePage({ params }: Props) {
   if (!build) {
     // Try loading from Supabase
     const supabase = await createClient()
-    const baseSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)'
+    const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bike: any = null
 
-    // Try with slug + modifications columns first (new schema)
+    // Try slug and UUID lookups in parallel (2 queries instead of up to 5 sequential)
     {
-      const { data } = await (supabase.from('bikes') as any)
-        .select(`${baseSelect}, modifications, slug`)
-        .eq('slug', slug)
-        .maybeSingle()
-      if (data) bike = data
+      const [{ data: bySlug }, { data: byId }] = await Promise.all([
+        (supabase.from('bikes') as any).select(fullSelect).eq('slug', slug).maybeSingle(),
+        (supabase.from('bikes') as any).select(fullSelect).eq('id', slug).maybeSingle(),
+      ])
+      bike = bySlug ?? byId
     }
 
-    // Fallback: try without new columns (old schema)
+    // Last resort: match by generated title slug (for bikes with null slug in DB)
     if (!bike) {
-      const { data } = await (supabase.from('bikes') as any)
-        .select(baseSelect)
-        .eq('slug', slug)
-        .maybeSingle()
-      if (data) bike = data
-    }
-
-    // Fallback: try as UUID with new columns
-    if (!bike) {
-      const { data } = await (supabase.from('bikes') as any)
-        .select(`${baseSelect}, modifications, slug`)
-        .eq('id', slug)
-        .maybeSingle()
-      if (data) bike = data
-    }
-
-    // Fallback: try as UUID with base columns only
-    if (!bike) {
-      const { data } = await (supabase.from('bikes') as any)
-        .select(baseSelect)
-        .eq('id', slug)
-        .maybeSingle()
-      if (data) bike = data
-    }
-
-    // Fallback: match by generated title slug (for bikes with null slug in DB)
-    if (!bike) {
-      const { generateBikeSlug } = await import('@/lib/utils/bikeSlug')
-      const { data: allBikes } = await (supabase.from('bikes') as any)
-        .select(`id, title, ${baseSelect}, modifications, slug`)
+      const { data: nullSlugBikes } = await (supabase.from('bikes') as any)
+        .select(fullSelect)
         .is('slug', null)
-      const match = (allBikes ?? []).find(
+      const match = (nullSlugBikes ?? []).find(
         (b: any) => generateBikeSlug(b.title) === slug
       )
       if (match) bike = match
@@ -121,24 +94,12 @@ export default async function CustomBikePage({ params }: Props) {
 
     if (!bike) notFound()
 
-    // Fetch seller profile — try with slug first, then without
+    // Fetch seller profile
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let sellerProfile: any = null
-    {
-      const { data } = await (supabase.from('profiles') as any)
-        .select('full_name, city, slug, role, avatar_url')
-        .eq('id', bike.seller_id)
-        .maybeSingle()
-      if (data) {
-        sellerProfile = data
-      } else {
-        const { data: fallback } = await (supabase.from('profiles') as any)
-          .select('full_name, city, role, avatar_url')
-          .eq('id', bike.seller_id)
-          .maybeSingle()
-        sellerProfile = fallback
-      }
-    }
+    const { data: sellerProfile } = await (supabase.from('profiles') as any)
+      .select('full_name, city, slug, role, avatar_url')
+      .eq('id', bike.seller_id)
+      .maybeSingle()
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = sortedBikeImageUrls(rawImages)
@@ -219,11 +180,12 @@ export default async function CustomBikePage({ params }: Props) {
                     {/* Avatar */}
                     <div className="relative w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-[#EBEBEB]">
                       {sellerProfile?.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={sellerProfile.avatar_url}
                           alt={sellerName}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="48px"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white">
@@ -456,9 +418,10 @@ export default async function CustomBikePage({ params }: Props) {
 async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; excludeSlug?: string }) {
   const supabase = await createClient()
 
+  // Single query with JOIN — fetch bikes + seller profiles together
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(4)
@@ -468,9 +431,10 @@ async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; ex
   const { data: rows } = await query
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let related: { href: string; title: string; style: string; base: string; city: string; img: string; role: string; slug: string }[] = (rows ?? []).map((r: any) => {
+  let related: { href: string; title: string; style: string; base: string; city: string; img: string; role: string; slug: string; builder: string; sellerId: string }[] = (rows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+    const profile = r.profiles
     return {
       slug:  r.id as string,
       href:  `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
@@ -479,26 +443,11 @@ async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; ex
       base:  `${r.make} ${r.model}`,
       city:  (r.city as string) ?? '',
       img:   cover,
-      role:  '',
+      role:  profile?.role ?? 'rider',
+      builder: profile?.full_name ?? '',
       sellerId: r.seller_id as string,
     }
   })
-
-  // Fetch seller roles
-  const sellerIds = [...new Set(related.map((r: any) => r.sellerId))]
-  if (sellerIds.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: profiles } = await (supabase.from('profiles') as any)
-      .select('id, full_name, role')
-      .in('id', sellerIds)
-    const roleMap: Record<string, string> = Object.fromEntries(
-      ((profiles ?? []) as { id: string; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
-    )
-    const nameMap: Record<string, string> = Object.fromEntries(
-      ((profiles ?? []) as { id: string; full_name: string | null }[]).map(p => [p.id, p.full_name ?? ''])
-    )
-    related = related.map((r: any) => ({ ...r, role: roleMap[r.sellerId] ?? 'rider', builder: nameMap[r.sellerId] ?? '' }))
-  }
 
   // Fill with static BUILDS if not enough DB bikes
   if (related.length < 3) {
@@ -539,8 +488,7 @@ async function RelatedBikes({ excludeId, excludeSlug }: { excludeId?: string; ex
             className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.img} alt={b.title} className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+              <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-500" />
               <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                 {b.style}
               </span>

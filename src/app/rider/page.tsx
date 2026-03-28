@@ -40,23 +40,24 @@ export default async function RiderOverviewPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return <AuthGate />
 
+  // Fetch riders + all rider bikes in parallel (avoids sequential waterfall)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: dbRiders } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, username, city, address, avatar_url, riding_style')
-    .eq('role', 'rider')
-    .order('created_at', { ascending: false })
-    .limit(50)
+  const [{ data: dbRiders }, { data: allBikeRows }] = await Promise.all([
+    (supabase.from('profiles') as any)
+      .select('id, full_name, slug, username, city, address, avatar_url, riding_style')
+      .eq('role', 'rider')
+      .order('created_at', { ascending: false })
+      .limit(50),
+    supabase
+      .from('bikes')
+      .select('seller_id, style'),
+  ])
 
   const filteredRiders = (dbRiders ?? []).filter((r: Record<string, unknown>) => r.slug || r.username || r.full_name)
-  const riderIds = filteredRiders.map((r: Record<string, unknown>) => r.id as string)
+  const riderIds = new Set(filteredRiders.map((r: Record<string, unknown>) => r.id as string))
 
-  // Fetch bikes per rider (count + styles)
-  const { data: bikeRows } = riderIds.length > 0
-    ? await supabase
-        .from('bikes')
-        .select('seller_id, style')
-        .in('seller_id', riderIds)
-    : { data: [] }
+  // Filter bike rows to only relevant riders (done in memory instead of second query)
+  const bikeRows = (allBikeRows ?? []).filter((b: { seller_id: string }) => riderIds.has(b.seller_id))
 
   const countMap = new Map<string, number>()
   const styleMap = new Map<string, Set<string>>()

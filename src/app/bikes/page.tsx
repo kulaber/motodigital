@@ -6,6 +6,8 @@ import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from './BikesClient'
 import { createClient } from '@/lib/supabase/server'
 
+export const revalidate = 1800 // ISR: revalidate every 30 minutes
+
 export const metadata: Metadata = {
   title: 'Custom Bikes kaufen — MotoDigital',
   description: 'Kaufe und verkaufe handgefertigte Custom Motorcycles — Cafe Racer, Bobber, Scrambler, Tracker und Chopper aus ganz Europa.',
@@ -20,32 +22,18 @@ const STYLE_LABELS: Record<string, string> = {
 export default async function BikesPage() {
   const supabase = await createClient()
 
-  // Fetch all active bikes (werkstatt + rider)
+  // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
-
-  // Fetch seller names for all bikes
-  const sellerIds: string[] = [...new Set<string>((rows ?? []).map((r: any) => r.seller_id))]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sellerProfiles } = sellerIds.length > 0
-    ? await (supabase.from('profiles') as any)
-        .select('id, full_name, role')
-        .in('id', sellerIds)
-    : { data: [] }
-  const sellerNameById: Record<string, string> = Object.fromEntries(
-    (sellerProfiles ?? []).map((p: any) => [p.id, p.full_name ?? ''])
-  )
-  const sellerRoleById: Record<string, string> = Object.fromEntries(
-    (sellerProfiles ?? []).map((p: any) => [p.id, p.role ?? 'rider'])
-  )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbBuilds: Build[] = (rows ?? []).map((r: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+    const profile = r.profiles
     return {
       slug:          r.id,
       href:          `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
@@ -64,11 +52,11 @@ export default async function BikesPage() {
       modifications: [],
       engine:        '',
       displacement:  '',
-      builder:       { name: sellerNameById[r.seller_id] ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
+      builder:       { name: profile?.full_name ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
       coverImg:      cover,
       images:        images.map((i: any) => i.url),
       publishedAt:   r.created_at,
-      role:          sellerRoleById[r.seller_id] ?? 'rider',
+      role:          profile?.role ?? 'rider',
       viewCount:     r.view_count ?? 0,
     }
   })

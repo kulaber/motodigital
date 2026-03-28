@@ -14,8 +14,7 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-// Need dynamic rendering for Supabase queries (cookies)
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // ISR: revalidate every hour
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
