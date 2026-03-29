@@ -43,12 +43,16 @@ export default async function AdminBuilderPage() {
   const { data: authData } = await supabase.auth.admin.listUsers()
   const authMap = new Map(authData?.users?.map(u => [u.id, u]) ?? [])
 
-  const dbRows: SupabaseBuilder[] = (dbBuilders ?? []).map(b => {
+  const UNCLAIMED_SUFFIX = '@motodigital.local'
+
+  const dbRows: (SupabaseBuilder & { is_unclaimed: boolean })[] = (dbBuilders ?? []).map(b => {
     const auth = authMap.get(b.id)
+    const isUnclaimed = !!auth?.email?.endsWith(UNCLAIMED_SUFFIX)
     return {
       ...b,
-      email: auth?.email ?? null,
-      email_confirmed: !!auth?.email_confirmed_at,
+      email: isUnclaimed ? null : (auth?.email ?? null),
+      email_confirmed: isUnclaimed ? false : !!auth?.email_confirmed_at,
+      is_unclaimed: isUnclaimed,
     }
   })
 
@@ -72,6 +76,7 @@ export default async function AdminBuilderPage() {
     email_confirmed: db.email_confirmed,
     is_verified: db.is_verified,
     bikeCount: bikeCountById.get(db.id) ?? 0,
+    is_unclaimed: db.is_unclaimed,
   }))
 
   const verifiedCount = rows.filter(r => r.is_verified).length

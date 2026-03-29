@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2 } from 'lucide-react'
+import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { deleteBuilder } from '@/lib/actions/builders'
 
@@ -19,6 +19,7 @@ export type BuilderRow = {
   email_confirmed: boolean
   is_verified: boolean
   bikeCount: number
+  is_unclaimed: boolean
 }
 
 interface Props {
@@ -29,6 +30,10 @@ export default function AdminBuilderClient({ builders }: Props) {
   const [filter, setFilter] = useState<VerifiedFilter>('alle')
   const [deleteTarget, setDeleteTarget] = useState<BuilderRow | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [emailTarget, setEmailTarget] = useState<BuilderRow | null>(null)
+  const [emailValue, setEmailValue] = useState('')
+  const [assigningEmail, setAssigningEmail] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleDelete() {
@@ -40,6 +45,29 @@ export default function AdminBuilderClient({ builders }: Props) {
     if (result.success) {
       router.refresh()
     }
+  }
+
+  async function handleAssignEmail() {
+    if (!emailTarget?.dbId || !emailValue.trim()) return
+    setAssigningEmail(true)
+    setEmailError(null)
+
+    const res = await fetch('/api/admin/werkstatt', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profileId: emailTarget.dbId, email: emailValue.trim() }),
+    })
+    const data = await res.json()
+    setAssigningEmail(false)
+
+    if (!res.ok) {
+      setEmailError(data.error ?? 'Fehler beim Zuweisen')
+      return
+    }
+
+    setEmailTarget(null)
+    setEmailValue('')
+    router.refresh()
   }
 
   const filtered = filter === 'alle'
@@ -56,8 +84,9 @@ export default function AdminBuilderClient({ builders }: Props) {
 
   return (
     <>
-      {/* Filter */}
-      <div className="flex items-center gap-2 mb-6">
+      {/* Top bar: Filter + Neue Werkstatt */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center gap-2">
         <span className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest mr-1">Status</span>
         {filters.map(f => (
           <button
@@ -75,6 +104,13 @@ export default function AdminBuilderClient({ builders }: Props) {
         {filter !== 'alle' && (
           <span className="text-xs text-[#222222]/30 ml-2">{filtered.length} Ergebnisse</span>
         )}
+      </div>
+      <Link
+        href="/admin/custom-werkstatt/neu"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#06a5a5] hover:bg-[#058f8f] px-4 py-2 rounded-full transition-all whitespace-nowrap"
+      >
+        <Plus size={12} /> Neue Werkstatt
+      </Link>
       </div>
 
       {/* Table */}
@@ -117,7 +153,14 @@ export default function AdminBuilderClient({ builders }: Props) {
                     )}
                   </td>
                   <td className="px-4 py-3.5 hidden md:table-cell">
-                    {b.email ? (
+                    {b.is_unclaimed ? (
+                      <button
+                        onClick={() => { setEmailTarget(b); setEmailValue(''); setEmailError(null) }}
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 hover:text-amber-600 border border-amber-300/40 hover:border-amber-400 bg-amber-50 px-2.5 py-1 rounded-full transition-all"
+                      >
+                        <UserPlus size={10} /> Zuweisen
+                      </button>
+                    ) : b.email ? (
                       <div className="flex items-center gap-1.5">
                         {b.email_confirmed
                           ? <Mail size={11} className="text-green-400 flex-shrink-0" />
@@ -182,6 +225,54 @@ export default function AdminBuilderClient({ builders }: Props) {
         loading={deleting}
         title={`Möchtest Du die Custom Werkstatt „${deleteTarget?.name}" wirklich löschen?`}
       />
+
+      {/* E-Mail zuweisen Modal */}
+      {emailTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#222222]/6 w-full max-w-md mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-[#222222]">E-Mail zuweisen</h3>
+              <button
+                onClick={() => setEmailTarget(null)}
+                className="text-[#222222]/30 hover:text-[#222222] transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <p className="text-xs text-[#222222]/50 mb-4">
+              Weise <span className="font-semibold text-[#222222]">{emailTarget.name}</span> eine E-Mail-Adresse zu, damit sich der Inhaber einloggen kann.
+            </p>
+            <input
+              type="email"
+              value={emailValue}
+              onChange={e => setEmailValue(e.target.value)}
+              placeholder="inhaber@example.com"
+              autoFocus
+              className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors mb-3"
+              onKeyDown={e => { if (e.key === 'Enter' && emailValue.trim()) handleAssignEmail() }}
+            />
+            {emailError && (
+              <p className="text-xs text-red-400 mb-3">{emailError}</p>
+            )}
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setEmailTarget(null)}
+                className="text-xs text-[#222222]/35 hover:text-[#222222] transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleAssignEmail}
+                disabled={assigningEmail || !emailValue.trim()}
+                className="inline-flex items-center gap-1.5 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <UserPlus size={11} />
+                {assigningEmail ? 'Wird zugewiesen...' : 'Zuweisen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
