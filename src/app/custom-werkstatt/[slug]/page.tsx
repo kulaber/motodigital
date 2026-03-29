@@ -72,12 +72,23 @@ async function geocode(query: string): Promise<{ lat: number; lng: number } | nu
 async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   const supabase = await createClient()
 
+  // Try slug first, then fall back to username
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: row } = await (supabase.from('profiles') as any)
+  let { data: row } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
+
+  if (!row) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: fallback } = await (supabase.from('profiles') as any)
+      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
+      .eq('username', slug)
+      .eq('role', 'custom-werkstatt')
+      .maybeSingle()
+    row = fallback
+  }
 
   if (!row) return null
 

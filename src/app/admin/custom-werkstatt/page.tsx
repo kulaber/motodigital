@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
 import { Shield } from 'lucide-react'
 import AdminBuilderClient, { type BuilderRow } from './AdminBuilderClient'
 
-export const metadata: Metadata = { title: 'Admin — Builder' }
+export const metadata: Metadata = { title: 'Admin — Custom Werkstatt' }
 
 type SupabaseBuilder = {
   id: string
@@ -39,9 +40,21 @@ export default async function AdminBuilderPage() {
     .eq('role', 'custom-werkstatt')
     .order('created_at', { ascending: false }) as { data: Omit<SupabaseBuilder, 'email' | 'email_confirmed'>[] | null }
 
-  // Enrich with auth data (email + confirmed)
-  const { data: authData } = await supabase.auth.admin.listUsers()
-  const authMap = new Map(authData?.users?.map(u => [u.id, u]) ?? [])
+  // Enrich with auth data (email + confirmed) — use service role key for admin API
+  const adminClient = createAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+  const authMap = new Map<string, { email?: string; email_confirmed_at?: string | null; last_sign_in_at?: string | null }>()
+  let authPage = 1
+  const perPage = 1000
+  while (true) {
+    const { data: authData } = await adminClient.auth.admin.listUsers({ page: authPage, perPage })
+    if (!authData?.users?.length) break
+    for (const u of authData.users) authMap.set(u.id, u)
+    if (authData.users.length < perPage) break
+    authPage++
+  }
 
   const UNCLAIMED_SUFFIX = '@motodigital.local'
 
@@ -50,7 +63,7 @@ export default async function AdminBuilderPage() {
     const isUnclaimed = !!auth?.email?.endsWith(UNCLAIMED_SUFFIX)
     return {
       ...b,
-      email: isUnclaimed ? null : (auth?.email ?? null),
+      email: auth?.email ?? null,
       email_confirmed: isUnclaimed ? false : !!auth?.email_confirmed_at,
       is_unclaimed: isUnclaimed,
     }
@@ -79,7 +92,7 @@ export default async function AdminBuilderPage() {
     is_unclaimed: db.is_unclaimed,
   }))
 
-  const verifiedCount = rows.filter(r => r.is_verified).length
+  const verifiedCount = rows.filter(r => r.email_confirmed).length
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -90,7 +103,7 @@ export default async function AdminBuilderPage() {
               <Shield size={14} className="text-amber-400" />
               <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Builder</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Custom Werkstatt</h1>
           </div>
           <span className="text-sm text-[#222222]/30">{rows.length} gesamt</span>
         </div>
@@ -98,7 +111,7 @@ export default async function AdminBuilderPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {[
-            { label: 'Builder gesamt',  value: rows.length },
+            { label: 'Werkstätten gesamt',  value: rows.length },
             { label: 'Verifiziert',     value: verifiedCount },
             { label: 'Nicht verifiziert', value: rows.length - verifiedCount },
           ].map(s => (

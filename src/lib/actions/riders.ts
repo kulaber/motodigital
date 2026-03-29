@@ -8,6 +8,26 @@ function extractStoragePath(url: string): string | null {
   return match ? match[1] : null
 }
 
+/** Resend verification / magic link email — superadmin only. */
+export async function resendVerificationEmail(email: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Nicht autorisiert' }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: me } = await (supabase.from('profiles') as any)
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (me?.role !== 'superadmin') return { error: 'Keine Berechtigung' }
+
+  const { error } = await supabase.auth.signInWithOtp({ email })
+
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
 /** Delete rider — superadmin only. Cleans up all storage files before cascade-deleting the profile. */
 export async function deleteRider(riderId: string) {
   const supabase = await createClient()

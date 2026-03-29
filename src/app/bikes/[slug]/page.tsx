@@ -12,6 +12,9 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BuildGallery from '@/components/build/BuildGallery'
 import { sortBikeImages, sortedBikeImageUrls } from '@/lib/utils/bikeImages'
+import type { Build } from '@/lib/data/builds'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import BikesClient from '../BikesClient'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
@@ -39,6 +42,8 @@ const STYLES: Record<string, { name: string; description: string; keywords: stri
   'street-fighter':{ name: 'Street Fighter',description: 'Custom Street Fighter Bikes',          keywords: 'Street fighter motorcycle custom' },
   'enduro':        { name: 'Enduro',        description: 'Custom Enduro & Adventure Bikes',      keywords: 'Custom enduro motorcycle' },
   'old-school':    { name: 'Old School',    description: 'Old School Custom Motorcycles',        keywords: 'Old school custom motorcycle' },
+  'street':        { name: 'Street',        description: 'Custom Street Motorräder',             keywords: 'Street motorcycle custom' },
+  'naked':         { name: 'Naked',         description: 'Custom Naked Bikes',                   keywords: 'Naked motorcycle custom' },
 }
 
 const STYLE_LABELS: Record<string, string> = {
@@ -80,202 +85,60 @@ export default async function BikeSlugPage({ params }: Props) {
   // ── Style category page ──────────────────────────────────────────────────
   const styleInfo = STYLES[slug]
   if (styleInfo) {
-    const styleDisplay = styleInfo.name
-    // Map display name to DB style key
-    const styleKeyMap: Record<string, string> = {
-      'Cafe Racer': 'cafe_racer', 'Bobber': 'bobber', 'Scrambler': 'scrambler',
-      'Tracker': 'tracker', 'Chopper': 'chopper', 'Brat Style': 'brat_style',
-      'Street Fighter': 'street_fighter', 'Enduro': 'enduro', 'Old School': 'old_school',
-    }
-    const dbStyleKey = styleKeyMap[styleDisplay] ?? slug.replace(/-/g, '_')
-
     const styleSupabase = await createSupabaseClient()
+
+    // Fetch ALL active bikes (same as /bikes page) so BikesClient filters work fully
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: styleBikes } = await (styleSupabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position)')
+    const { data: rows } = await (styleSupabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
       .eq('status', 'active')
-      .eq('style', dbStyleKey)
       .order('created_at', { ascending: false })
 
-    type StyleBike = { slug: string; title: string; style: string; base: string; year: number; city: string; coverImg: string; verified: boolean; builder: { name: string; slug: string; initials: string; city: string; specialty: string; verified: boolean } }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filtered: StyleBike[] = (styleBikes ?? []).map((r: any) => {
-      const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
+    const allBuilds: Build[] = (rows ?? []).map((r: any) => {
+      const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+      const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+      const profile = r.profiles
       return {
-        slug: r.slug ?? r.id,
-        title: r.title as string,
-        style: STYLE_LABELS[r.style] ?? (r.style as string),
-        base: `${r.make} ${r.model}`,
-        year: r.year as number,
-        city: (r.city as string) ?? '',
-        coverImg: cover,
-        verified: false,
-        builder: { name: '', slug: '', initials: '', city: '', specialty: '', verified: false },
+        slug:          r.id,
+        href:          `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
+        title:         r.title,
+        tagline:       '',
+        style:         STYLE_LABELS[r.style] ?? r.style,
+        base:          `${r.make} ${r.model}`,
+        year:          r.year,
+        price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',
+        city:          r.city ?? '',
+        country:       'Deutschland',
+        verified:      false,
+        buildYear:     r.year,
+        buildDuration: '',
+        description:   '',
+        modifications: [],
+        engine:        '',
+        displacement:  '',
+        builder:       { name: profile?.full_name ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
+        coverImg:      cover,
+        images:        images.map((i: any) => i.url), // eslint-disable-line @typescript-eslint/no-explicit-any
+        publishedAt:   r.created_at,
+        role:          profile?.role ?? 'rider',
+        viewCount:     r.view_count ?? 0,
       }
     })
 
-    // Builders who match this style via their tags (from DB)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: taggedBuilders } = await (styleSupabase.from('profiles') as any)
-      .select('slug, full_name, city, specialty, tags')
-      .eq('role', 'custom-werkstatt')
-      .not('slug', 'is', null)
-      .limit(20)
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const relatedBuilders: { slug: string; name: string; initials: string; city: string }[] = (taggedBuilders ?? [])
-      .filter((b: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        const tags: string[] = b.tags ?? []
-        return tags.some((t: string) =>
-          t.toLowerCase().replace(/\s+/g, '-') === slug ||
-          t.toLowerCase() === styleDisplay.toLowerCase()
-        )
-      })
-      .slice(0, 4)
-      .map((b: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        const name = b.full_name ?? b.slug
-        return {
-          slug: b.slug as string,
-          name: name as string,
-          initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
-          city: (b.city as string) ?? '',
-        }
-      })
-
-    const ALL_STYLES = ['cafe-racer','bobber','scrambler','tracker','chopper','street','enduro'] as const
-
     return (
-      <div className="min-h-screen bg-white text-[#222222]">
+      <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
         <Header activePage="bikes" />
 
-        {/* PAGE HEADER — wie /bikes */}
-        <section className="pt-28 pb-10 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-slide-up">
-              <div>
-                <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-2">Custom Motorcycles</p>
-                <h1 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.03em' }}>
-                  {styleInfo.name}
-                </h1>
-                <p className="text-[#222222]/40 text-sm mt-2 max-w-[55ch] leading-relaxed">
-                  {styleInfo.description} — kuratierte Custom Builds von verifizierten Buildern.
-                </p>
-              </div>
-              <p className="text-xs text-[#222222]/30 flex-shrink-0">
-                <span className="text-[#222222]/60 font-semibold">{filtered.length} Bikes</span>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* FILTER BAR — wie /bikes */}
-        <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
-            <div className="flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-              <Link
-                href="/bikes"
-                className="flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]"
-              >
-                Alle
-              </Link>
-              {ALL_STYLES.map(s => {
-                const label = STYLES[s]?.name ?? s
-                const isActive = s === slug
-                return (
-                  <Link
-                    key={s}
-                    href={`/bikes/${s}`}
-                    className={`flex-shrink-0 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all duration-200 ${
-                      isActive
-                        ? 'bg-[#06a5a5] text-white border-[#DDDDDD]'
-                        : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
+        {/* PAGE HEADER — same as /bikes */}
+        <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
+          <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
         </div>
 
-        {/* GRID — 4 Spalten wie /bikes */}
-        <section className="py-8 sm:py-10 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-            {filtered.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-[#222222]/25 text-sm">Noch keine {styleInfo.name} Bikes verfügbar.</p>
-                <Link href="/bikes" className="mt-4 inline-block text-xs text-[#717171] hover:text-[#06a5a5] transition-colors">
-                  Alle Bikes ansehen →
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {filtered.map((build, i) => (
-                  <Link
-                    key={build.slug}
-                    href={`/custom-bike/${build.slug}`}
-                    className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <img
-                        src={build.coverImg}
-                        alt={build.title}
-                        loading={i < 8 ? 'eager' : 'lazy'}
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                        <span className="text-[#222222] text-xs font-semibold">Ansehen →</span>
-                      </div>
-                      <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                        {build.style}
-                      </span>
-                      {build.verified && (
-                        <span className="absolute top-2 right-2 flex items-center gap-0.5 bg-[#222222]/90 text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full">
-                          <BadgeCheck size={8} /> Verified
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-3 sm:p-4">
-                      <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
-                      <p className="text-[10px] sm:text-xs text-[#222222]/35 mt-1 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
-                      <p className="text-[10px] text-[#222222]/25 mt-0.5 truncate">{build.builder.name}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+        <BikesClient builds={allBuilds} initialStyle={styleInfo.name} />
 
-            {/* Related builders */}
-            {relatedBuilders.length > 0 && (
-              <div className="mt-14 pt-10 border-t border-[#222222]/5">
-                <h2 className="text-xs font-bold text-[#222222]/40 uppercase tracking-widest mb-5">
-                  {styleInfo.name} Custom-Werkstätten
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {relatedBuilders.map(b => (
-                    <Link
-                      key={b.slug}
-                      href={`/custom-werkstatt/${b.slug}`}
-                      className="group bg-white border border-[#222222]/6 hover:border-[#222222]/20 rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-[#222222]/10 border border-[#222222]/8 flex items-center justify-center text-xs font-bold text-[#717171]">
-                        {b.initials}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-[#222222]">{b.name}</p>
-                        <p className="text-[10px] text-[#222222]/35 mt-0.5">{b.city}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
+        <Footer />
       </div>
     )
   }

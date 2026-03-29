@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { deleteBuilder } from '@/lib/actions/builders'
+import { resendVerificationEmail } from '@/lib/actions/riders'
 
 type VerifiedFilter = 'alle' | 'verified' | 'unverified'
 
@@ -70,11 +71,23 @@ export default function AdminBuilderClient({ builders }: Props) {
     router.refresh()
   }
 
+  const [resendingEmail, setResendingEmail] = useState<string | null>(null)
+  const [resendSuccess, setResendSuccess] = useState<Set<string>>(new Set())
+
+  async function handleResendEmail(email: string) {
+    setResendingEmail(email)
+    const result = await resendVerificationEmail(email)
+    setResendingEmail(null)
+    if (result.success) {
+      setResendSuccess(prev => new Set(prev).add(email))
+    }
+  }
+
   const filtered = filter === 'alle'
     ? builders
     : filter === 'verified'
-    ? builders.filter(b => b.is_verified)
-    : builders.filter(b => !b.is_verified)
+    ? builders.filter(b => b.email_confirmed)
+    : builders.filter(b => !b.email_confirmed)
 
   const filters: { value: VerifiedFilter; label: string }[] = [
     { value: 'alle', label: 'Alle' },
@@ -120,8 +133,7 @@ export default function AdminBuilderClient({ builders }: Props) {
             <thead>
               <tr className="border-b border-[#222222]/6">
                 <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Name</th>
-                <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Stadt</th>
-                <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden lg:table-cell">Spezialisierung</th>
+                <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Standort</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Bikes</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Verif.</th>
@@ -140,9 +152,6 @@ export default function AdminBuilderClient({ builders }: Props) {
                   <td className="px-4 py-3.5 hidden md:table-cell">
                     <span className="text-xs text-[#222222]/50">{b.city ?? '—'}</span>
                   </td>
-                  <td className="px-4 py-3.5 hidden lg:table-cell">
-                    <span className="text-xs text-[#222222]/50">{b.specialty ?? '—'}</span>
-                  </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell text-center">
                     {b.bikeCount > 0 ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-2 py-0.5 rounded-full">
@@ -153,33 +162,39 @@ export default function AdminBuilderClient({ builders }: Props) {
                     )}
                   </td>
                   <td className="px-4 py-3.5 hidden md:table-cell">
-                    {b.is_unclaimed ? (
-                      <button
-                        onClick={() => { setEmailTarget(b); setEmailValue(''); setEmailError(null) }}
-                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 hover:text-amber-600 border border-amber-300/40 hover:border-amber-400 bg-amber-50 px-2.5 py-1 rounded-full transition-all"
-                      >
-                        <UserPlus size={10} /> Zuweisen
-                      </button>
-                    ) : b.email ? (
-                      <div className="flex items-center gap-1.5">
-                        {b.email_confirmed
-                          ? <Mail size={11} className="text-green-400 flex-shrink-0" />
-                          : <MailX size={11} className="text-[#222222]/20 flex-shrink-0" />
-                        }
-                        <span className="text-xs text-[#222222]/50 truncate max-w-[160px]">{b.email}</span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[#222222]/20">—</span>
-                    )}
+                    <span className="text-xs text-[#222222]/50 truncate max-w-[160px] block">{b.email ?? '—'}</span>
                   </td>
                   <td className="px-4 py-3.5 text-center">
-                    {b.is_verified
-                      ? <BadgeCheck size={14} className="text-[#717171] mx-auto" />
+                    {b.email_confirmed
+                      ? <BadgeCheck size={14} className="text-green-500 mx-auto" />
                       : <span className="text-xs text-[#222222]/20">—</span>
                     }
                   </td>
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-2 flex-wrap">
+                      {!b.email_confirmed && (
+                        b.email && resendSuccess.has(b.email) ? (
+                          <span className="inline-flex items-center gap-1 text-xs text-green-500 px-3 py-1.5 whitespace-nowrap">
+                            <Mail size={10} /> Gesendet
+                          </span>
+                        ) : b.email ? (
+                          <button
+                            onClick={() => handleResendEmail(b.email!)}
+                            disabled={resendingEmail === b.email}
+                            className="inline-flex items-center gap-1 text-xs text-amber-500/80 hover:text-amber-600 border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-full transition-all whitespace-nowrap disabled:opacity-50"
+                          >
+                            <Mail size={10} />
+                            {resendingEmail === b.email ? 'Sende…' : 'Mail senden'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => { setEmailTarget(b); setEmailValue(''); setEmailError(null) }}
+                            className="inline-flex items-center gap-1 text-xs text-amber-500/80 hover:text-amber-600 border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
+                          >
+                            <Mail size={10} /> Mail zuweisen
+                          </button>
+                        )
+                      )}
                       <a
                         href={`/custom-werkstatt/${b.slug}`}
                         target="_blank"
@@ -209,7 +224,7 @@ export default function AdminBuilderClient({ builders }: Props) {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#222222]/25">
-                    Keine Builder gefunden
+                    Keine Werkstätten gefunden
                   </td>
                 </tr>
               )}

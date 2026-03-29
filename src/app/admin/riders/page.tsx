@@ -2,13 +2,16 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Shield, Mail, MailX, BadgeCheck, Trash2, Pencil } from 'lucide-react'
+import { createClient as createAdmin } from '@supabase/supabase-js'
+import { Shield, BadgeCheck, Trash2, Pencil, ExternalLink } from 'lucide-react'
+import ResendEmailButton from './ResendEmailButton'
 
 export const metadata: Metadata = { title: 'Admin — Rider' }
 
 type RiderRow = {
   id: string
   username: string | null
+  slug: string | null
   full_name: string | null
   city: string | null
   bio: string | null
@@ -34,13 +37,17 @@ export default async function AdminRidersPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRiders } = await (supabase.from('profiles') as any)
-    .select('id, username, full_name, city, bio, is_verified, created_at')
+    .select('id, username, slug, full_name, city, bio, is_verified, created_at')
     .eq('role', 'rider')
     .order('created_at', { ascending: false }) as {
       data: Omit<RiderRow, 'email' | 'email_confirmed' | 'last_sign_in_at'>[] | null
     }
 
-  const { data: authData } = await supabase.auth.admin.listUsers()
+  const adminClient = createAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+  const { data: authData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
   const authMap = new Map(authData?.users?.map(u => [u.id, u]) ?? [])
 
   const riders: RiderRow[] = (dbRiders ?? []).map(r => {
@@ -53,7 +60,6 @@ export default async function AdminRidersPage() {
     }
   })
 
-  const verifiedCount = riders.filter(r => r.is_verified).length
   const confirmedCount = riders.filter(r => r.email_confirmed).length
 
   const now = new Date().getTime()
@@ -86,9 +92,8 @@ export default async function AdminRidersPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
             { label: 'Rider gesamt',    value: riders.length },
-            { label: 'E-Mail bestätigt', value: confirmedCount },
-            { label: 'Verifiziert',     value: verifiedCount },
-            { label: 'Nicht bestätigt', value: riders.length - confirmedCount },
+            { label: 'Verifiziert',     value: confirmedCount },
+            { label: 'Nicht verifiziert', value: riders.length - confirmedCount },
           ].map(s => (
             <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
               <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
@@ -125,21 +130,11 @@ export default async function AdminRidersPage() {
                       <span className="text-xs text-[#222222]/50">{r.city ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell">
-                      {r.email ? (
-                        <div className="flex items-center gap-1.5">
-                          {r.email_confirmed
-                            ? <Mail size={11} className="text-green-400 flex-shrink-0" />
-                            : <MailX size={11} className="text-[#222222]/20 flex-shrink-0" />
-                          }
-                          <span className="text-xs text-[#222222]/50 truncate max-w-[180px]">{r.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-[#222222]/20">—</span>
-                      )}
+                      <span className="text-xs text-[#222222]/50 truncate max-w-[180px] block">{r.email ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5 text-center hidden sm:table-cell">
-                      {r.is_verified
-                        ? <BadgeCheck size={14} className="text-[#717171] mx-auto" />
+                      {r.email_confirmed
+                        ? <BadgeCheck size={14} className="text-green-500 mx-auto" />
                         : <span className="text-xs text-[#222222]/20">—</span>
                       }
                     </td>
@@ -150,7 +145,20 @@ export default async function AdminRidersPage() {
                       <span className="text-xs text-[#222222]/40">{timeAgo(r.last_sign_in_at)}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-2 flex-wrap">
+                        {(r.slug || r.username) && (
+                          <a
+                            href={`/rider/${r.slug ?? r.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-[#222222]/50 hover:text-[#222222] border border-[#222222]/10 hover:border-[#222222]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
+                          >
+                            <ExternalLink size={10} /> Profil
+                          </a>
+                        )}
+                        {r.email && (
+                          <ResendEmailButton email={r.email} />
+                        )}
                         <Link
                           href={`/admin/riders/${r.id}/edit`}
                           className="inline-flex items-center gap-1 text-xs text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
