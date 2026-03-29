@@ -323,7 +323,9 @@ export default function BuilderPageClient({ builders }: Props) {
   const [searchQuery,         setSearchQuery]        = useState('')
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
   const [styleOpen,          setStyleOpen]          = useState(false)
+  const [styleDropLeft,      setStyleDropLeft]      = useState(16)
   const [leistungenOpen,     setLeistungenOpen]     = useState(false)
+  const [leistungenDropLeft,  setLeistungenDropLeft] = useState(16)
   const [activeLeistung,     setActiveLeistung]     = useState('Alle')
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
@@ -779,7 +781,12 @@ export default function BuilderPageClient({ builders }: Props) {
           {/* Stil button */}
           <button
             ref={stilBtnRef}
-            onClick={() => setStyleOpen(v => !v)}
+            onClick={() => {
+              if (!styleOpen && stilBtnRef.current && filterBarRef.current) {
+                setStyleDropLeft(stilBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left)
+              }
+              setStyleOpen(v => !v)
+            }}
             className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeSpecialty !== 'Alle'
                 ? 'bg-[#222222] text-white'
@@ -794,7 +801,12 @@ export default function BuilderPageClient({ builders }: Props) {
           {/* Leistungen button */}
           <button
             ref={leistungenBtnRef}
-            onClick={() => setLeistungenOpen(v => !v)}
+            onClick={() => {
+              if (!leistungenOpen && leistungenBtnRef.current && filterBarRef.current) {
+                setLeistungenDropLeft(leistungenBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left)
+              }
+              setLeistungenOpen(v => !v)
+            }}
             className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeLeistung !== 'Alle'
                 ? 'bg-[#222222] text-white'
@@ -837,7 +849,7 @@ export default function BuilderPageClient({ builders }: Props) {
             <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
             <div
               className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1"
-              style={{ left: stilBtnRef.current && filterBarRef.current ? stilBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left : 16 }}
+              style={{ left: styleDropLeft }}
             >
               {availableSpecialties.map(spec => (
                 <button
@@ -861,7 +873,7 @@ export default function BuilderPageClient({ builders }: Props) {
             <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
             <div
               className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              style={{ left: leistungenBtnRef.current && filterBarRef.current ? leistungenBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left : 16 }}
+              style={{ left: leistungenDropLeft }}
             >
               {['Alle', ...availableLeistungen].map(l => (
                 <button
