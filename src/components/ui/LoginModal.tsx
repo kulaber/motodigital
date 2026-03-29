@@ -151,8 +151,6 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
   if (!isOpen) return null
 
-  const redirectUrl = `${window.location.origin}/auth/callback?redirectTo=/explore`
-
   /* ─── Auth Handlers ──────────────────────────────────── */
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -166,7 +164,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: redirectUrl },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore` },
     })
 
     if (error) {
@@ -186,7 +184,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: redirectUrl },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore` },
     })
 
     if (error) {

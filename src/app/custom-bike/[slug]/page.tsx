@@ -247,7 +247,7 @@ export default async function CustomBikePage({ params }: Props) {
             </div>
           </div>
 
-          <Suspense fallback={<RelatedBikesSkeleton />}>
+          <Suspense fallback={null}>
             <RelatedBikes excludeId={bike.id} />
           </Suspense>
         </div>
@@ -331,24 +331,3 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
   )
 }
 
-function RelatedBikesSkeleton() {
-  return (
-    <div className="mt-16 pt-10 border-t border-[#EBEBEB] animate-pulse">
-      <div className="flex items-center justify-between mb-6">
-        <div className="h-3.5 w-40 rounded bg-[#F0F0F0]" />
-        <div className="h-7 w-44 rounded-full bg-[#F0F0F0]" />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-xl sm:rounded-2xl border border-[#222222]/6 overflow-hidden">
-            <div className="aspect-[4/3] bg-[#F0F0F0]" />
-            <div className="p-3 sm:p-4 space-y-2">
-              <div className="h-3.5 w-3/4 rounded bg-[#F0F0F0]" />
-              <div className="h-3 w-1/2 rounded bg-[#F0F0F0]" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}

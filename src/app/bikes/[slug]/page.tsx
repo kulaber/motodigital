@@ -217,8 +217,7 @@ export default async function BikeSlugPage({ params }: Props) {
                   <Link
                     key={build.slug}
                     href={`/custom-bike/${build.slug}`}
-                    className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 opacity-0 animate-slide-up-sm"
-                    style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}
+                    className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img

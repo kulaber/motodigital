@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import AnimateIn from '@/components/ui/AnimateIn'
 import GlobalSearch from '@/components/search/GlobalSearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
@@ -185,7 +184,7 @@ export default async function LandingPage() {
       {/* ── FEATURED BUILDS ── */}
       <section className="py-20 lg:py-28 bg-white" id="builds">
         <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <AnimateIn className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
             <div>
               <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
                 Handgefertigte Unikate.<br />
@@ -195,11 +194,10 @@ export default async function LandingPage() {
             <Link href="/bikes" className="w-full sm:w-auto text-center flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
               Alle ansehen →
             </Link>
-          </AnimateIn>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {BUILDS.map((build, i) => (
-              <AnimateIn key={build.slug} delay={i * 60}>
-                <Link href={build.href ?? `/custom-bike/${build.slug}`}
+              <Link key={build.slug} href={build.href ?? `/custom-bike/${build.slug}`}
                   className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200 h-full">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image src={build.img} alt={build.title}
@@ -219,7 +217,6 @@ export default async function LandingPage() {
                     <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.builder} · {build.city}</p>
                   </div>
                 </Link>
-              </AnimateIn>
             ))}
           </div>
         </div>
@@ -228,22 +225,20 @@ export default async function LandingPage() {
       {/* ── USP ── */}
       <section className="py-20 lg:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <AnimateIn className="max-w-xl mb-12">
+          <div className="max-w-xl mb-12">
             <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
               Die Plattform, die Custom Culture verdient.
             </h2>
-          </AnimateIn>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {USPS.map((usp, i) => (
-              <AnimateIn key={usp.title} delay={i * 70}>
-                <div className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#DDDDDD]/20 transition-colors duration-200 h-full">
-                  <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center mb-4">
-                    {usp.icon}
-                  </div>
-                  <h3 className="text-sm font-semibold text-[#222222] mb-2">{usp.title}</h3>
-                  <p className="text-sm text-[#222222]/40 leading-relaxed">{usp.desc}</p>
+              <div key={usp.title} className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#DDDDDD]/20 transition-colors duration-200 h-full">
+                <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center mb-4">
+                  {usp.icon}
                 </div>
-              </AnimateIn>
+                <h3 className="text-sm font-semibold text-[#222222] mb-2">{usp.title}</h3>
+                <p className="text-sm text-[#222222]/40 leading-relaxed">{usp.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -251,7 +246,7 @@ export default async function LandingPage() {
 
       {/* ── BUILDER SPOTLIGHT ── */}
       <section className="py-20 lg:py-28 bg-white overflow-hidden" id="builder">
-        <AnimateIn className="max-w-6xl mx-auto px-5 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+        <div className="max-w-6xl mx-auto px-5 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
           <div>
             <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
               Finde die besten Werkstätten<br />
@@ -261,7 +256,7 @@ export default async function LandingPage() {
           <Link href="/custom-werkstatt" className="w-full sm:w-auto text-center flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
             Alle Custom Werkstätten →
           </Link>
-        </AnimateIn>
+        </div>
         <BuilderCarousel builders={builders} />
       </section>
 
@@ -273,7 +268,7 @@ export default async function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 relative z-10">
 
           {/* Headline */}
-          <AnimateIn className="text-center mb-16">
+          <div className="text-center mb-16">
             <p className="text-xs font-semibold text-[#06a5a5] uppercase tracking-widest mb-4">Für wen bist du hier?</p>
             <h2 className="font-bold text-white leading-tight mb-4" style={{ fontSize: 'clamp(2rem,4vw,3rem)' }}>
               Werde Teil unserer Community.
@@ -281,13 +276,13 @@ export default async function LandingPage() {
             <p className="text-sm text-white/35 max-w-md mx-auto leading-relaxed">
               Registriere dich kostenlos — als Rider oder als Custom Werkstatt.
             </p>
-          </AnimateIn>
+          </div>
 
           {/* Two cards */}
           <div className="flex flex-col lg:flex-row items-stretch gap-5 max-w-4xl mx-auto">
 
             {/* Card: Custom Werkstatt */}
-            <AnimateIn delay={0} className="flex-1">
+            <div className="flex-1">
               <Link href="/auth/register?role=custom-werkstatt"
                 className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
                 <Image src="/custom-werkstatt.png" alt="Custom Werkstatt"
@@ -309,10 +304,10 @@ export default async function LandingPage() {
                   </span>
                 </div>
               </Link>
-            </AnimateIn>
+            </div>
 
             {/* Card: Rider */}
-            <AnimateIn delay={120} className="flex-1">
+            <div className="flex-1">
               <Link href="/auth/register?role=rider"
                 className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
                 <Image src="/rider.png" alt="Rider"
@@ -334,7 +329,7 @@ export default async function LandingPage() {
                   </span>
                 </div>
               </Link>
-            </AnimateIn>
+            </div>
           </div>
         </div>
       </section>

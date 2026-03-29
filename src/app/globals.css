@@ -7,16 +7,6 @@
 }
 .animate-expand { animation: expand 0.2s ease-out forwards; }
 
-/* Skeleton delay — only show loading skeleton after 200ms.
-   Fast page loads (ISR/cache) never show a skeleton at all. */
-@keyframes skeleton-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.skeleton-delayed {
-  opacity: 0;
-  animation: skeleton-fade-in 0.15s ease-out 0.2s forwards;
-}
 .animate-blink  { animation: blink-caret 0.8s step-end infinite; }
 
 /* ─── MotoDigital Design Tokens ─────────────────────────── */
@@ -125,11 +115,6 @@ button, [role="button"], a, label[for], summary {
   to   { transform: translateY(0); }
 }
 
-@keyframes slide-down-sheet {
-  from { transform: translateY(0); }
-  to   { transform: translateY(100%); }
-}
-
 /* ─── Animation utilities ────────────────────────────────── */
 @theme {
   --animate-fade-in:     fade-in 0.35s ease-out forwards;
@@ -198,26 +183,10 @@ input, textarea, select {
   font-size: max(16px, 1em) !important;
 }
 
-/* ─── Scroll-reveal ──────────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ─── Reduced motion ─────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
