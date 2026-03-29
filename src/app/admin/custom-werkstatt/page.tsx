@@ -12,6 +12,7 @@ type SupabaseBuilder = {
   username: string
   full_name: string | null
   city: string | null
+  address: string | null
   specialty: string | null
   since_year: number | null
   is_verified: boolean
@@ -36,7 +37,7 @@ export default async function AdminBuilderPage() {
   // Fetch all builder profiles from Supabase
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbBuilders } = await (supabase.from('profiles') as any)
-    .select('id, username, full_name, city, specialty, since_year, is_verified, created_at')
+    .select('id, username, full_name, city, address, specialty, since_year, is_verified, created_at')
     .eq('role', 'custom-werkstatt')
     .order('created_at', { ascending: false }) as { data: Omit<SupabaseBuilder, 'email' | 'email_confirmed'>[] | null }
 
@@ -83,6 +84,7 @@ export default async function AdminBuilderPage() {
     slug: db.username,
     name: db.full_name ?? db.username,
     city: db.city,
+    address: db.address,
     specialty: db.specialty,
     dbId: db.id,
     email: db.email,

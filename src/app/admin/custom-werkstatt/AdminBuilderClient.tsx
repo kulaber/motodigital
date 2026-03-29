@@ -14,6 +14,7 @@ export type BuilderRow = {
   slug: string
   name: string
   city: string | null
+  address: string | null
   specialty: string | null
   dbId: string | null
   email: string | null
@@ -150,7 +151,7 @@ export default function AdminBuilderClient({ builders }: Props) {
                     </div>
                   </td>
                   <td className="px-4 py-3.5 hidden md:table-cell">
-                    <span className="text-xs text-[#222222]/50">{b.city ?? '—'}</span>
+                    <span className="text-xs text-[#222222]/50 truncate max-w-[200px] block">{b.address ?? b.city ?? '—'}</span>
                   </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell text-center">
                     {b.bikeCount > 0 ? (
