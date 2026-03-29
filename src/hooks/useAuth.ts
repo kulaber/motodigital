@@ -16,30 +16,31 @@ export function useAuth() {
   const supabase = createClient()
 
   useEffect(() => {
+    async function fetchProfile(userId: string) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from('profiles') as any)
+        .select('role, slug, username, avatar_url, full_name')
+        .eq('id', userId)
+        .maybeSingle() as { data: { role: UserRole; slug: string | null; username: string | null; avatar_url: string | null; full_name: string | null } | null }
+      setRole(data?.role ?? null)
+      setSlug(data?.slug ?? data?.username ?? null)
+      setAvatarUrl(data?.avatar_url ?? null)
+      setFullName(data?.full_name ?? null)
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         const currentUser = session?.user ?? null
         setUser(currentUser)
+        setLoading(false)
 
-        try {
-          if (currentUser) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data } = await (supabase.from('profiles') as any)
-              .select('role, slug, username, avatar_url, full_name')
-              .eq('id', currentUser.id)
-              .maybeSingle() as { data: { role: UserRole; slug: string | null; username: string | null; avatar_url: string | null; full_name: string | null } | null }
-            setRole(data?.role ?? null)
-            setSlug(data?.slug ?? data?.username ?? null)
-            setAvatarUrl(data?.avatar_url ?? null)
-            setFullName(data?.full_name ?? null)
-          } else {
-            setRole(null)
-            setSlug(null)
-            setAvatarUrl(null)
-            setFullName(null)
-          }
-        } finally {
-          setLoading(false)
+        if (currentUser) {
+          fetchProfile(currentUser.id)
+        } else {
+          setRole(null)
+          setSlug(null)
+          setAvatarUrl(null)
+          setFullName(null)
         }
       }
     )
