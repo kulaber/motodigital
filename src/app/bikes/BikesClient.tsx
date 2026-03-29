@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown, Search } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -29,6 +29,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [activeModel,   setActiveModel]   = useState('Alle')
   const [modelOpen,     setModelOpen]     = useState(false)
   const [styleOpen,     setStyleOpen]     = useState(false)
+  const [searchQuery,   setSearchQuery]   = useState('')
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
   const [sortOpen,      setSortOpen]      = useState(false)
   const [page,          setPage]          = useState(1)
@@ -45,41 +46,54 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     window.scrollTo({ top: offset, behavior: 'smooth' })
   }
 
-  const countries = useMemo(() => {
-    const unique = Array.from(new Set(builds.map(b => b.country))).sort()
-    return ['Alle', ...unique]
-  }, [builds])
-
-  const makes = useMemo(() => {
-    const pool = activeCountry === 'Alle' ? builds : builds.filter(b => b.country === activeCountry)
-    const unique = Array.from(new Set(pool.map(b => getMake(b.base)))).sort()
-    return ['Alle', ...unique]
-  }, [builds, activeCountry])
-
-  const models = useMemo(() => {
-    if (activeMake === 'Alle') return []
-    const pool = builds.filter(b =>
-      getMake(b.base) === activeMake &&
-      (activeCountry === 'Alle' || b.country === activeCountry)
+  // Pre-filter by search query — all dynamic filter lists and results are based on this
+  const searchFiltered = useMemo(() => {
+    if (!searchQuery.trim()) return builds
+    const q = searchQuery.toLowerCase().trim()
+    return builds.filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      b.base.toLowerCase().includes(q) ||
+      b.city.toLowerCase().includes(q) ||
+      b.builder.name.toLowerCase().includes(q) ||
+      b.style.toLowerCase().includes(q)
     )
-    const unique = Array.from(new Set(pool.map(b => getModel(b.base)))).sort()
+  }, [builds, searchQuery])
+
+  const countries = useMemo(() => {
+    const unique = Array.from(new Set(searchFiltered.map(b => b.country))).sort()
     return ['Alle', ...unique]
-  }, [builds, activeMake, activeCountry])
+  }, [searchFiltered])
 
   const styles = useMemo(() => {
-    const pool = builds.filter(b =>
-      (activeCountry === 'Alle' || b.country === activeCountry) &&
-      (activeMake === 'Alle' || getMake(b.base) === activeMake) &&
-      (activeModel === 'Alle' || getModel(b.base) === activeModel)
+    const pool = searchFiltered.filter(b =>
+      (activeCountry === 'Alle' || b.country === activeCountry)
     )
     const unique = Array.from(new Set(pool.map(b => b.style))).sort()
     return ['Alle', ...unique]
-  }, [builds, activeCountry, activeMake, activeModel])
+  }, [searchFiltered, activeCountry])
 
+  const makes = useMemo(() => {
+    const pool = searchFiltered.filter(b =>
+      (activeCountry === 'Alle' || b.country === activeCountry) &&
+      (activeStyle === 'Alle' || b.style === activeStyle)
+    )
+    const unique = Array.from(new Set(pool.map(b => getMake(b.base)))).sort()
+    return ['Alle', ...unique]
+  }, [searchFiltered, activeCountry, activeStyle])
 
+  const models = useMemo(() => {
+    if (activeMake === 'Alle') return []
+    const pool = searchFiltered.filter(b =>
+      getMake(b.base) === activeMake &&
+      (activeCountry === 'Alle' || b.country === activeCountry) &&
+      (activeStyle === 'Alle' || b.style === activeStyle)
+    )
+    const unique = Array.from(new Set(pool.map(b => getModel(b.base)))).sort()
+    return ['Alle', ...unique]
+  }, [searchFiltered, activeMake, activeCountry, activeStyle])
 
   const filtered = useMemo(() => {
-    const result = builds.filter(b => {
+    const result = searchFiltered.filter(b => {
       const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
       const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
       const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
@@ -94,7 +108,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
       result.sort((a, b) => new Date(a.publishedAt ?? '1970').getTime() - new Date(b.publishedAt ?? '1970').getTime())
     }
     return result
-  }, [builds, activeStyle, activeCountry, activeMake, activeModel, activeSort])
+  }, [searchFiltered, activeStyle, activeCountry, activeMake, activeModel, activeSort])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -113,7 +127,28 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
 
-            {/* Dropdowns — outside overflow container so they're not clipped */}
+            {/* Search field */}
+            <div className="relative flex-shrink-0 w-48 lg:w-56">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); setActiveCountry('Alle'); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
+                placeholder="Custom Bike suchen…"
+                className="w-full pl-8 pr-8 py-1.5 text-xs text-[#222222] placeholder-[#AAAAAA] bg-[#F7F7F7] border border-[#EBEBEB] rounded-full focus:outline-none focus:border-[#222222]/20 focus:bg-white transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => { setSearchQuery(''); setPage(1) }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#222222] transition-colors"
+                  aria-label="Suche löschen"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Dropdowns: Land → Umbau-Stil → Marke → Modell */}
             <div className="flex items-center gap-2 flex-shrink-0">
 
             {/* Land */}
@@ -132,11 +167,39 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               {countryOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
                     {countries.map(c => (
-                      <button key={c} onClick={() => { setActiveCountry(c); setActiveMake('Alle'); setActiveModel('Alle'); setActiveStyle('Alle'); setPage(1); setCountryOpen(false); scrollToFilter() }}
+                      <button key={c} onClick={() => { setActiveCountry(c); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); setCountryOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeCountry === c ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {c}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Umbau-Stil */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setStyleOpen(v => !v)}
+                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeStyle !== 'Alle'
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                }`}
+              >
+                {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
+                <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {styleOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
+                    {styles.map(s => (
+                      <button key={s} onClick={() => { setActiveStyle(s); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); setStyleOpen(false); scrollToFilter() }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeStyle === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
+                        {s}
                       </button>
                     ))}
                   </div>
@@ -162,7 +225,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="fixed inset-0 z-40" onClick={() => setMakeOpen(false)} />
                   <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
                     {makes.map(m => (
-                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setActiveStyle('Alle'); setPage(1); setMakeOpen(false); scrollToFilter() }}
+                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setPage(1); setMakeOpen(false); scrollToFilter() }}
                         className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeMake === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
                         {m}
                       </button>
@@ -204,39 +267,10 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
             </div>{/* end dropdowns wrapper */}
 
-
-            {/* Umbau-Stil dropdown */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setStyleOpen(v => !v)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeStyle !== 'Alle'
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                }`}
-              >
-                {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
-                <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {styleOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
-                    {styles.map(s => (
-                      <button key={s} onClick={() => { setActiveStyle(s); setPage(1); setStyleOpen(false); scrollToFilter() }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeStyle === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
             {/* Reset */}
-            {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle') && (
+            {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle' || searchQuery) && (
               <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
+                onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 aria-label="Filter zurücksetzen"
                 className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
               >
@@ -284,7 +318,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="text-center py-20">
               <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
-                onClick={() => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
+                onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen

@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X, Map as MapIcon, List as ListIcon, Search } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
 import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
 import { type Builder } from '@/lib/data/builders'
@@ -320,6 +320,7 @@ function BuilderList({
 }
 
 export default function BuilderPageClient({ builders }: Props) {
+  const [searchQuery,         setSearchQuery]        = useState('')
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
   const [styleOpen,          setStyleOpen]          = useState(false)
   const [leistungenOpen,     setLeistungenOpen]     = useState(false)
@@ -341,6 +342,9 @@ export default function BuilderPageClient({ builders }: Props) {
   const [showLogin, setShowLogin]                   = useState(false)
   const supabase = createClient()
 
+  const filterBarRef     = useRef<HTMLDivElement>(null)
+  const stilBtnRef       = useRef<HTMLButtonElement>(null)
+  const leistungenBtnRef = useRef<HTMLButtonElement>(null)
   const listRef          = useRef<HTMLDivElement>(null)
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const desktopMapSlot   = useRef<HTMLDivElement>(null)
@@ -412,31 +416,43 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }
 
+  // Pre-filter by search query
+  const searchFiltered = useMemo(() => {
+    if (!searchQuery.trim()) return builders
+    const q = searchQuery.toLowerCase().trim()
+    return builders.filter(b =>
+      b.name.toLowerCase().includes(q) ||
+      b.city.toLowerCase().includes(q) ||
+      b.specialty.toLowerCase().includes(q) ||
+      b.tags.some(t => t.toLowerCase().includes(q))
+    )
+  }, [builders, searchQuery])
+
   // Dynamic Stil options
   const availableSpecialties = useMemo(() => {
-    const pool = activeLeistung === 'Alle' ? builders : builders.filter(b => b.tags.includes(activeLeistung))
+    const pool = activeLeistung === 'Alle' ? searchFiltered : searchFiltered.filter(b => b.tags.includes(activeLeistung))
     const unique = Array.from(new Set(
       pool.flatMap(b => b.specialty.split('·').map(s => s.trim())).filter(Boolean)
     )).sort()
     return ['Alle', ...unique]
-  }, [builders, activeLeistung])
+  }, [searchFiltered, activeLeistung])
 
   // Dynamic Leistungen options
   const availableLeistungen = useMemo(() => {
     const pool = activeSpecialty === 'Alle'
-      ? builders
-      : builders.filter(b =>
+      ? searchFiltered
+      : searchFiltered.filter(b =>
           b.specialty.split('·').map(s => s.trim()).includes(activeSpecialty)
         )
     const unique = Array.from(new Set(pool.flatMap(b => b.tags))).sort()
     return unique.filter(l => LEISTUNGEN.includes(l))
-  }, [builders, activeSpecialty])
+  }, [searchFiltered, activeSpecialty])
 
   const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
   const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
 
   const filtered = useMemo(() => {
-    const results = builders.filter(b => {
+    const results = searchFiltered.filter(b => {
       const specOk     = effectiveSpecialty === 'Alle' ||
         b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
       const leistungOk = effectiveLeistung === 'Alle' || b.tags.includes(effectiveLeistung)
@@ -445,7 +461,7 @@ export default function BuilderPageClient({ builders }: Props) {
       return specOk && leistungOk && verifiedOk && openOk
     })
     return [...results.filter(b => b.featured), ...results.filter(b => !b.featured)]
-  }, [builders, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
+  }, [searchFiltered, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
 
   const visible = useMemo(() => {
     // Show all filtered builders immediately; only apply map-bounds filter once map is ready
@@ -670,7 +686,7 @@ export default function BuilderPageClient({ builders }: Props) {
   /* ── scroll list to top on filter change ── */
   useEffect(() => {
     listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [activeSpecialty, activeLeistung, onlyVerified, onlyOpen])
+  }, [searchQuery, activeSpecialty, activeLeistung, onlyVerified, onlyOpen])
 
   /* ── redraw markers on filter/hover/zoom change ── */
   useEffect(() => {
@@ -694,6 +710,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
 
   const resetAllFilters = useCallback(() => {
+    setSearchQuery('')
     setActiveSpecialty('Alle')
     setActiveLeistung('Alle')
     setOnlyVerified(false)
@@ -711,7 +728,7 @@ export default function BuilderPageClient({ builders }: Props) {
     map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 800 })
   }, [builders, resetAllFilters])
 
-  const hasActiveFilter = activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen
+  const hasActiveFilter = searchQuery !== '' || activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen
 
   return (
     <>
@@ -735,11 +752,33 @@ export default function BuilderPageClient({ builders }: Props) {
       `}</style>
 
       {/* ── Sticky filter bar ── */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5 relative">
+      <div ref={filterBarRef} className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5 relative">
         {/* Filters — all screen sizes */}
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Search field */}
+          <div className="relative flex-shrink-0 w-48 lg:w-56">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => { setSearchQuery(e.target.value); setActiveSpecialty('Alle'); setActiveLeistung('Alle') }}
+              placeholder="Werkstatt suchen…"
+              className="w-full pl-8 pr-8 py-1.5 text-xs text-[#222222] placeholder-[#AAAAAA] bg-[#F7F7F7] border border-[#EBEBEB] rounded-full focus:outline-none focus:border-[#222222]/20 focus:bg-white transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#222222] transition-colors"
+                aria-label="Suche löschen"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
           {/* Stil button */}
           <button
+            ref={stilBtnRef}
             onClick={() => setStyleOpen(v => !v)}
             className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeSpecialty !== 'Alle'
@@ -754,6 +793,7 @@ export default function BuilderPageClient({ builders }: Props) {
 
           {/* Leistungen button */}
           <button
+            ref={leistungenBtnRef}
             onClick={() => setLeistungenOpen(v => !v)}
             className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeLeistung !== 'Alle'
@@ -791,11 +831,14 @@ export default function BuilderPageClient({ builders }: Props) {
           )}
         </div>
 
-        {/* Dropdown panels — außerhalb des overflow-x-auto divs damit sie nicht geclippt werden */}
+        {/* Dropdown panels — positioned relative to their trigger buttons */}
         {styleOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
-            <div className="absolute left-4 sm:left-5 lg:left-6 top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1">
+            <div
+              className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1"
+              style={{ left: stilBtnRef.current && filterBarRef.current ? stilBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left : 16 }}
+            >
               {availableSpecialties.map(spec => (
                 <button
                   key={spec}
@@ -816,7 +859,10 @@ export default function BuilderPageClient({ builders }: Props) {
         {leistungenOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
-            <div className="absolute left-[140px] sm:left-[148px] top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div
+              className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              style={{ left: leistungenBtnRef.current && filterBarRef.current ? leistungenBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left : 16 }}
+            >
               {['Alle', ...availableLeistungen].map(l => (
                 <button
                   key={l}

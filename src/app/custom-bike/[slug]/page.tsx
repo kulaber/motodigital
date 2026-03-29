@@ -159,6 +159,27 @@ export default async function CustomBikePage({ params }: Props) {
                   </div>
                 </div>
               )}
+
+              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
+                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Technische Daten</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                  {[
+                    { label: 'Marke', value: bike.make },
+                    { label: 'Modell', value: bike.model },
+                    { label: 'Baujahr', value: bike.year ? `${bike.year}` : null },
+                    { label: 'Stil', value: styleLabel },
+                    { label: 'Standort', value: bike.city },
+                  ].filter((s): s is { label: string; value: string } => !!s.value).map((s, i, arr) => (
+                    <div key={s.label} className={`flex items-center justify-between py-2.5 ${
+                      /* border-bottom on all except last row; in 2-col layout last row = last 1–2 items */
+                      i < arr.length - (arr.length % 2 === 0 ? 2 : 1) ? 'border-b border-[#F7F7F7]' : ''
+                    }`}>
+                      <span className="text-xs text-[#AAAAAA]">{s.label}</span>
+                      <span className="text-xs font-medium text-[#222222]">{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
@@ -227,23 +248,6 @@ export default async function CustomBikePage({ params }: Props) {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Technische Daten</h2>
-                <div className="flex flex-col">
-                  {[
-                    { label: 'Marke', value: bike.make },
-                    { label: 'Modell', value: bike.model },
-                    { label: 'Baujahr', value: bike.year ? `${bike.year}` : null },
-                    { label: 'Stil', value: styleLabel },
-                    { label: 'Standort', value: bike.city },
-                  ].filter((s): s is { label: string; value: string } => !!s.value).map(s => (
-                    <div key={s.label} className="flex items-center justify-between py-2.5 border-b border-[#F7F7F7] last:border-0">
-                      <span className="text-xs text-[#AAAAAA]">{s.label}</span>
-                      <span className="text-xs font-medium text-[#222222]">{s.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
