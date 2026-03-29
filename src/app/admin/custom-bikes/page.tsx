@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Shield } from 'lucide-react'
+import { Shield, Plus } from 'lucide-react'
 import AdminBikesClient, { type AdminBike } from './AdminBikesClient'
 
 export const metadata: Metadata = { title: 'Admin — Custom Bikes' }
@@ -65,7 +66,12 @@ export default async function AdminCustomBikesPage() {
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">Custom Bikes</h1>
         </div>
-        <span className="text-sm text-[#222222]/30">{allBikes.length} gesamt</span>
+        <Link
+          href="/admin/custom-bikes/neu"
+          className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
+        >
+          <Plus size={14} /> Neues Bike
+        </Link>
       </div>
 
       {/* Stats */}
