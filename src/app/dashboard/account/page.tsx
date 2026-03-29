@@ -14,9 +14,9 @@ export default async function AccountSettingsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('username, avatar_url, bio, address, role')
+    .select('username, avatar_url, bio, role')
     .eq('id', user.id)
-    .maybeSingle() as { data: { username: string | null; avatar_url: string | null; bio: string | null; address: string | null; role: string | null } | null }
+    .maybeSingle() as { data: { username: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -37,7 +37,6 @@ export default async function AccountSettingsPage() {
           currentUsername={profile?.username ?? ''}
           currentAvatarUrl={profile?.avatar_url ?? null}
           currentBio={profile?.bio ?? null}
-          currentAddress={profile?.address ?? null}
           role={profile?.role ?? null}
         />
     </div>

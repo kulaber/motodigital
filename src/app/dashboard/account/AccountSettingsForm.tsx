@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
-import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 
 type Props = {
   userId: string
@@ -12,7 +11,6 @@ type Props = {
   currentUsername: string
   currentAvatarUrl: string | null
   currentBio: string | null
-  currentAddress: string | null
   role: string | null
 }
 
@@ -45,7 +43,7 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
   )
 }
 
-export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentAvatarUrl, currentBio, currentAddress, role }: Props) {
+export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentAvatarUrl, currentBio, role }: Props) {
   const isWerkstatt = role === 'custom-werkstatt'
   const isRider = role === 'rider'
   const supabase = createClient()
@@ -116,32 +114,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     if (error) setBioError(error.message)
     else setBioSaved(true)
     setBioSaving(false)
-  }
-
-  // ── Adresse ──
-  const [selectedPlace, setSelectedPlace] = useState<{ address: string; lat: number; lng: number; city: string | null } | null>(
-    currentAddress ? { address: currentAddress, lat: 0, lng: 0, city: null } : null
-  )
-  const [addressSaving, setAddressSaving] = useState(false)
-  const [addressSaved,  setAddressSaved]  = useState(false)
-  const [addressError,  setAddressError]  = useState<string | null>(null)
-
-  async function handleAddress(e: React.FormEvent) {
-    e.preventDefault()
-    if (!selectedPlace) { setAddressError('Bitte einen Standort aus den Vorschlägen auswählen'); return }
-    setAddressSaving(true); setAddressError(null); setAddressSaved(false)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('profiles') as any)
-      .update({
-        address: selectedPlace.address,
-        lat:     selectedPlace.lat || null,
-        lng:     selectedPlace.lng || null,
-        city:    selectedPlace.city || null,
-      })
-      .eq('id', userId)
-    if (error) setAddressError(error.message)
-    else setAddressSaved(true)
-    setAddressSaving(false)
   }
 
   // ── Username ──
@@ -278,23 +250,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
           </div>
         </form>
       )}
-
-      {/* ── Adresse ── */}
-      {!isRider && <form onSubmit={handleAddress} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-1">Standort</h2>
-        <p className="text-xs text-[#222222]/35 mb-5">Wird für die Kartenansicht der Rider-Community verwendet</p>
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="block text-[10px] font-semibold text-[#222222]/35 uppercase tracking-widest mb-1.5">Adresse</label>
-            <MapboxAddressInput
-              initialValue={currentAddress ?? ''}
-              onSelect={place => { setSelectedPlace(place); setAddressSaved(false) }}
-              placeholder="Straße, Stadt suchen…"
-            />
-          </div>
-          <SaveRow saving={addressSaving} saved={addressSaved} error={addressError} />
-        </div>
-      </form>}
 
       {/* ── Benutzername ── */}
       <form onSubmit={handleUsername} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
