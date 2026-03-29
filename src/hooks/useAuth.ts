@@ -20,26 +20,24 @@ export function useAuth() {
       async (event, session) => {
         const currentUser = session?.user ?? null
         setUser(currentUser)
-        setLoading(false)
 
         if (currentUser) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(supabase.from('profiles') as any)
+          const { data } = await (supabase.from('profiles') as any)
             .select('role, slug, avatar_url, full_name')
             .eq('id', currentUser.id)
-            .maybeSingle()
-            .then(({ data }: { data: { role: UserRole; slug: string | null; avatar_url: string | null; full_name: string | null } | null }) => {
-              setRole(data?.role ?? null)
-              setSlug(data?.slug ?? null)
-              setAvatarUrl(data?.avatar_url ?? null)
-              setFullName(data?.full_name ?? null)
-            })
+            .maybeSingle() as { data: { role: UserRole; slug: string | null; avatar_url: string | null; full_name: string | null } | null }
+          setRole(data?.role ?? null)
+          setSlug(data?.slug ?? null)
+          setAvatarUrl(data?.avatar_url ?? null)
+          setFullName(data?.full_name ?? null)
         } else {
           setRole(null)
           setSlug(null)
           setAvatarUrl(null)
           setFullName(null)
         }
+        setLoading(false)
       }
     )
 
