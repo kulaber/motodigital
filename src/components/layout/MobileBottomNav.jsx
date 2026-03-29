@@ -119,16 +119,20 @@ export default function MobileBottomNav() {
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Resolve dynamic profile href for riders
+  const riderProfileHref = role === "rider" && slug ? `/rider/${slug}` : null;
   const navItems = NAV_ITEMS.map((item) => {
-    if (item.dynamicHref && role === "rider" && slug) {
-      return { ...item, href: `/rider/${slug}` };
+    if (item.dynamicHref && riderProfileHref) {
+      return { ...item, href: riderProfileHref };
     }
     return item;
   });
 
-  const routeIndex = navItems.findIndex(
-    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-  );
+  const routeIndex = navItems.findIndex((item) => {
+    if (pathname === item.href || pathname.startsWith(item.href + "/")) return true;
+    // For riders: highlight profile button on /dashboard (exact) too
+    if (item.dynamicHref && role === "rider" && pathname === "/dashboard") return true;
+    return false;
+  });
 
   // Use optimistic index until route catches up, then fall back to route
   const activeIndex =
