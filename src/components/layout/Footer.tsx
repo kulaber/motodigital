@@ -43,6 +43,7 @@ const NAV = [
       { label: 'Datenschutz',         href: '/datenschutz' },
       { label: 'Nutzungsbedingungen', href: '/nutzungsbedingungen' },
       { label: 'Support',             href: '/support' },
+      { label: 'FAQs',               href: '/faq' },
     ],
   },
 ]
