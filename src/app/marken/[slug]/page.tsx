@@ -7,7 +7,6 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BRANDS, getBrandBySlug } from '@/lib/data/brands'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
-import { BUILDS } from '@/lib/data/builds'
 import { createClient } from '@/lib/supabase/server'
 
 interface Props {
@@ -31,12 +30,7 @@ export default async function MarkeDetailPage({ params }: Props) {
   const brand = getBrandBySlug(slug)
   if (!brand) notFound()
 
-  // Static builds filtered by base name
-  const staticBuilds = BUILDS.filter(b =>
-    b.base.toLowerCase().startsWith(brand.name.toLowerCase())
-  )
-
-  // DB bikes filtered by make column (as set in the form dropdown)
+  // DB bikes filtered by make column
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let dbBikes: any[] | null = null
@@ -73,10 +67,7 @@ export default async function MarkeDetailPage({ params }: Props) {
     }
   })
 
-  const builds = [
-    ...staticBuilds.map(b => ({ ...b, isDb: false })),
-    ...dbBuilds,
-  ]
+  const builds = dbBuilds
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">

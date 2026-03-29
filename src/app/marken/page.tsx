@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { BRANDS } from '@/lib/data/brands'
-import { BUILDS } from '@/lib/data/builds'
 import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 3600 // ISR: revalidate every hour
@@ -45,11 +44,7 @@ export default async function MarkenPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {BRANDS.map(brand => {
-            const staticCount = BUILDS.filter(b =>
-              b.base.toLowerCase().startsWith(brand.name.toLowerCase())
-            ).length
-            const dbCount = dbCountByMake[brand.name.toLowerCase()] ?? 0
-            const buildCount = staticCount + dbCount
+            const buildCount = dbCountByMake[brand.name.toLowerCase()] ?? 0
 
             return (
               <Link

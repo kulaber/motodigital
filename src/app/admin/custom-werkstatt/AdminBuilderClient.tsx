@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Database, FileText, Bike } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2 } from 'lucide-react'
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
+import { deleteBuilder } from '@/lib/actions/builders'
 
 type VerifiedFilter = 'alle' | 'verified' | 'unverified'
 
@@ -11,13 +14,11 @@ export type BuilderRow = {
   name: string
   city: string | null
   specialty: string | null
-  hasStaticProfile: boolean
-  hasDbProfile: boolean
+  dbId: string | null
   email: string | null
   email_confirmed: boolean
   is_verified: boolean
-  staticBikeCount: number
-  dbBikeCount: number
+  bikeCount: number
 }
 
 interface Props {
@@ -26,6 +27,20 @@ interface Props {
 
 export default function AdminBuilderClient({ builders }: Props) {
   const [filter, setFilter] = useState<VerifiedFilter>('alle')
+  const [deleteTarget, setDeleteTarget] = useState<BuilderRow | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const router = useRouter()
+
+  async function handleDelete() {
+    if (!deleteTarget?.dbId) return
+    setDeleting(true)
+    const result = await deleteBuilder(deleteTarget.dbId)
+    setDeleting(false)
+    setDeleteTarget(null)
+    if (result.success) {
+      router.refresh()
+    }
+  }
 
   const filtered = filter === 'alle'
     ? builders
@@ -73,7 +88,6 @@ export default function AdminBuilderClient({ builders }: Props) {
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden lg:table-cell">Spezialisierung</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Bikes</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
-                <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Quelle</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Verif.</th>
                 <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
               </tr>
@@ -94,21 +108,13 @@ export default function AdminBuilderClient({ builders }: Props) {
                     <span className="text-xs text-[#222222]/50">{b.specialty ?? '—'}</span>
                   </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell text-center">
-                    <div className="flex flex-col items-center gap-0.5">
-                      {b.staticBikeCount > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#222222]/50 bg-[#222222]/6 border border-[#222222]/10 px-2 py-0.5 rounded-full">
-                          <Bike size={8} /> {b.staticBikeCount} statisch
-                        </span>
-                      )}
-                      {b.dbBikeCount > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-2 py-0.5 rounded-full">
-                          <Bike size={8} /> {b.dbBikeCount} DB
-                        </span>
-                      )}
-                      {b.staticBikeCount === 0 && b.dbBikeCount === 0 && (
-                        <span className="text-xs text-[#222222]/20">—</span>
-                      )}
-                    </div>
+                    {b.bikeCount > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-2 py-0.5 rounded-full">
+                        <Bike size={8} /> {b.bikeCount}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#222222]/20">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3.5 hidden md:table-cell">
                     {b.email ? (
@@ -122,20 +128,6 @@ export default function AdminBuilderClient({ builders }: Props) {
                     ) : (
                       <span className="text-xs text-[#222222]/20">—</span>
                     )}
-                  </td>
-                  <td className="px-4 py-3.5 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {b.hasStaticProfile && (
-                        <span title="Statisches Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#222222]/40 bg-[#222222]/6 border border-[#222222]/10 px-1.5 py-0.5 rounded-full">
-                          <FileText size={8} /> Statisch
-                        </span>
-                      )}
-                      {b.hasDbProfile && (
-                        <span title="Supabase Profil" className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#717171] bg-[#222222]/8 border border-[#DDDDDD]/15 px-1.5 py-0.5 rounded-full">
-                          <Database size={8} /> DB
-                        </span>
-                      )}
-                    </div>
                   </td>
                   <td className="px-4 py-3.5 text-center">
                     {b.is_verified
@@ -159,13 +151,21 @@ export default function AdminBuilderClient({ builders }: Props) {
                       >
                         <Pencil size={10} /> Bearbeiten
                       </Link>
+                      {b.dbId && (
+                        <button
+                          onClick={() => setDeleteTarget(b)}
+                          className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-white hover:bg-red-500 border border-red-200 hover:border-red-500 px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap"
+                        >
+                          <Trash2 size={10} /> Löschen
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#222222]/25">
+                  <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#222222]/25">
                     Keine Builder gefunden
                   </td>
                 </tr>
@@ -174,6 +174,14 @@ export default function AdminBuilderClient({ builders }: Props) {
           </table>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title={`Möchtest Du die Custom Werkstatt „${deleteTarget?.name}" wirklich löschen?`}
+      />
     </>
   )
 }

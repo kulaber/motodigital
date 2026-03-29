@@ -7,8 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice, formatRelativeTime } from '@/lib/utils'
 import ContactButton from '@/components/messaging/ContactButton'
 import type { Database } from '@/types/database'
-import { BUILDS } from '@/lib/data/builds'
-import { BUILDERS } from '@/lib/data/builders'
+import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BuildGallery from '@/components/build/BuildGallery'
@@ -82,16 +81,68 @@ export default async function BikeSlugPage({ params }: Props) {
   const styleInfo = STYLES[slug]
   if (styleInfo) {
     const styleDisplay = styleInfo.name
-    const filtered = BUILDS.filter(
-      b => b.style.toLowerCase() === styleDisplay.toLowerCase() ||
-           b.style.toLowerCase().replace(/\s+/g, '-') === slug
-    )
+    // Map display name to DB style key
+    const styleKeyMap: Record<string, string> = {
+      'Cafe Racer': 'cafe_racer', 'Bobber': 'bobber', 'Scrambler': 'scrambler',
+      'Tracker': 'tracker', 'Chopper': 'chopper', 'Brat Style': 'brat_style',
+      'Street Fighter': 'street_fighter', 'Enduro': 'enduro', 'Old School': 'old_school',
+    }
+    const dbStyleKey = styleKeyMap[styleDisplay] ?? slug.replace(/-/g, '_')
 
-    // Builders who match this style via their tags
-    const relatedBuilders = BUILDERS.filter(b =>
-      b.tags?.some(t => t.toLowerCase().replace(/\s+/g, '-') === slug ||
-                        t.toLowerCase() === styleDisplay.toLowerCase())
-    ).slice(0, 4)
+    const styleSupabase = await createSupabaseClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: styleBikes } = await (styleSupabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position)')
+      .eq('status', 'active')
+      .eq('style', dbStyleKey)
+      .order('created_at', { ascending: false })
+
+    type StyleBike = { slug: string; title: string; style: string; base: string; year: number; city: string; coverImg: string; verified: boolean; builder: { name: string; slug: string; initials: string; city: string; specialty: string; verified: boolean } }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered: StyleBike[] = (styleBikes ?? []).map((r: any) => {
+      const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+      return {
+        slug: r.slug ?? r.id,
+        title: r.title as string,
+        style: STYLE_LABELS[r.style] ?? (r.style as string),
+        base: `${r.make} ${r.model}`,
+        year: r.year as number,
+        city: (r.city as string) ?? '',
+        coverImg: cover,
+        verified: false,
+        builder: { name: '', slug: '', initials: '', city: '', specialty: '', verified: false },
+      }
+    })
+
+    // Builders who match this style via their tags (from DB)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: taggedBuilders } = await (styleSupabase.from('profiles') as any)
+      .select('slug, full_name, city, specialty, tags')
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
+      .limit(20)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const relatedBuilders: { slug: string; name: string; initials: string; city: string }[] = (taggedBuilders ?? [])
+      .filter((b: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const tags: string[] = b.tags ?? []
+        return tags.some((t: string) =>
+          t.toLowerCase().replace(/\s+/g, '-') === slug ||
+          t.toLowerCase() === styleDisplay.toLowerCase()
+        )
+      })
+      .slice(0, 4)
+      .map((b: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const name = b.full_name ?? b.slug
+        return {
+          slug: b.slug as string,
+          name: name as string,
+          initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+          city: (b.city as string) ?? '',
+        }
+      })
 
     const ALL_STYLES = ['cafe-racer','bobber','scrambler','tracker','chopper','street','enduro'] as const
 
@@ -414,32 +465,8 @@ export default async function BikeSlugPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Related builds */}
-        <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
-            <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
-              Alle Custom Bikes ansehen →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {BUILDS.slice(0, 3).map(b => (
-              <Link
-                key={b.slug}
-                href={`/custom-bike/${b.slug}`}
-                className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                  <Image src={b.coverImg} alt={b.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
-                </div>
-                <div className="p-3">
-                  <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
-                  <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        {/* Related builds — rendered via RelatedBikesSection */}
+        <RelatedBikesSection excludeId={slug} />
       </div>
 
       {/* Mobile floating CTA */}
@@ -452,6 +479,53 @@ export default async function BikeSlugPage({ params }: Props) {
       )}
 
       <Footer />
+    </div>
+  )
+}
+
+async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
+  const supabase = await createSupabaseClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: rows } = await (supabase.from('bikes') as any)
+    .select('id, title, make, model, style, city, slug, bike_images(id, url, is_cover, position)')
+    .eq('status', 'active')
+    .neq('id', excludeId)
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  const related = (rows ?? []).map((r: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? '' // eslint-disable-line @typescript-eslint/no-explicit-any
+    return { slug: r.slug ?? r.id, title: r.title as string, base: `${r.make} ${r.model}`, city: (r.city as string) ?? '', img: cover }
+  })
+
+  if (related.length === 0) return null
+
+  return (
+    <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-sm font-semibold text-[#222222]">Weitere Custom Bikes</h2>
+        <Link href="/bikes" className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] hover:border-[#DDDDDD] hover:text-[#222222] px-3.5 py-1.5 rounded-full transition-all">
+          Alle Custom Bikes ansehen →
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {related.map((b: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+          <Link
+            key={b.slug}
+            href={`/custom-bike/${b.slug}`}
+            className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+              <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+            </div>
+            <div className="p-3">
+              <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
+              <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

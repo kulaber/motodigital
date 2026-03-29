@@ -10,8 +10,7 @@ import {
   getArticlesByCategory,
   type ArticleSection,
 } from '@/lib/data/magazine'
-import { BUILDERS } from '@/lib/data/builders'
-import { BUILDS } from '@/lib/data/builds'
+import { createClient } from '@/lib/supabase/server'
 
 const CATEGORY_SLUGS = ['build-story', 'interview', 'guide'] as const
 
@@ -145,13 +144,48 @@ export default async function ArticlePage({
   const article = getArticleBySlug(slug)
   if (!article) notFound()
 
-  const relatedBuilder = article.relatedBuilderSlug
-    ? BUILDERS.find(b => b.slug === article.relatedBuilderSlug)
-    : undefined
+  // Fetch related builder from DB
+  const supabase = await createClient()
+  let relatedBuilder: { slug: string; name: string; initials: string; city: string; specialty: string } | undefined
+  if (article.relatedBuilderSlug) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: bp } = await (supabase.from('profiles') as any)
+      .select('slug, full_name, city, specialty')
+      .eq('slug', article.relatedBuilderSlug)
+      .eq('role', 'custom-werkstatt')
+      .maybeSingle()
+    if (bp) {
+      const name = bp.full_name ?? bp.slug
+      relatedBuilder = {
+        slug: bp.slug,
+        name,
+        initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+        city: bp.city ?? '',
+        specialty: bp.specialty ?? '',
+      }
+    }
+  }
 
-  const relatedBuild = article.relatedBuildSlug
-    ? BUILDS.find(b => b.slug === article.relatedBuildSlug)
-    : undefined
+  // Fetch related build from DB
+  let relatedBuild: { slug: string; title: string; base: string; style: string; coverImg: string } | undefined
+  if (article.relatedBuildSlug) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: bike } = await (supabase.from('bikes') as any)
+      .select('id, title, make, model, style, slug, bike_images(url, is_cover, position)')
+      .eq('slug', article.relatedBuildSlug)
+      .maybeSingle()
+    if (bike) {
+      const imgs: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
+      const cover = imgs.find((i: { is_cover: boolean }) => i.is_cover)?.url ?? imgs[0]?.url ?? ''
+      relatedBuild = {
+        slug: bike.slug ?? bike.id,
+        title: bike.title,
+        base: `${bike.make} ${bike.model}`,
+        style: bike.style ?? '',
+        coverImg: cover,
+      }
+    }
+  }
 
   const moreArticles = getArticlesByCategory(article.category)
     .filter(a => a.slug !== article.slug)

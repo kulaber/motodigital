@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Save, Shield, BadgeCheck, ExternalLink, Clock } from 'lucide-react'
-import { BUILDERS } from '@/lib/data/builders'
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -69,55 +68,12 @@ function openingHoursToRows(stored: { day: string; hours: string }[]): DayRow[] 
   })
 }
 
-/* ── Seed from static builder (best-effort, expands ranges) ─────── */
-function seedFromStatic(staticHours: { day: string; hours: string }[] | undefined): DayRow[] {
-  if (!staticHours) return WEEK.map(d => ({ ...d }))
-  // Try to expand range labels ("Mo – Fr") into individual days
-  const DAY_IDX: Record<string, number> = {
-    Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5, So: 6,
-    Montag: 0, Dienstag: 1, Mittwoch: 2, Donnerstag: 3, Freitag: 4, Samstag: 5, Sonntag: 6,
-  }
-  const expanded: { day: string; hours: string }[] = []
-  for (const entry of staticHours) {
-    const range = entry.day.match(/^(\w+)\s*[–-]\s*(\w+)$/)
-    if (range) {
-      const start = DAY_IDX[range[1]], end = DAY_IDX[range[2]]
-      if (start !== undefined && end !== undefined) {
-        let d = start
-        while (true) {
-          expanded.push({ day: WEEK[d].key, hours: entry.hours })
-          if (d === end) break
-          d = (d + 1) % 7
-        }
-        continue
-      }
-    }
-    if (entry.day === 'Wochenende') {
-      expanded.push({ day: 'Sa', hours: entry.hours }, { day: 'So', hours: entry.hours })
-      continue
-    }
-    if (entry.day.includes('&')) {
-      for (const part of entry.day.split('&')) {
-        const i = DAY_IDX[part.trim()]
-        if (i !== undefined) expanded.push({ day: WEEK[i].key, hours: entry.hours })
-      }
-      continue
-    }
-    // Single day label or already a key
-    const i = DAY_IDX[entry.day]
-    expanded.push({ day: i !== undefined ? WEEK[i].key : entry.day, hours: entry.hours })
-  }
-  return openingHoursToRows(expanded)
-}
-
 /* ── Component ─────────────────────────────────────────────────────── */
 
 export default function EditBuilderPage() {
   const router = useRouter()
   const params = useParams()
   const slug = params.slug as string
-
-  const staticBuilder = BUILDERS.find(b => b.slug === slug)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -126,20 +82,20 @@ export default function EditBuilderPage() {
   const [dbProfile, setDbProfile] = useState<ProfileData | null>(null)
 
   const [form, setForm] = useState({
-    full_name: staticBuilder?.name ?? '',
-    city: staticBuilder?.city ?? '',
-    specialty: staticBuilder?.specialty ?? '',
-    bio: staticBuilder?.bio ?? '',
-    instagram_url: staticBuilder?.instagram ?? '',
-    website_url: staticBuilder?.website ?? '',
-    youtube_url: staticBuilder?.youtube ?? '',
-    tags: (staticBuilder?.tags ?? []).join(', '),
-    is_verified: staticBuilder?.verified ?? false,
-    since_year: staticBuilder?.since ? parseInt(staticBuilder.since) : new Date().getFullYear(),
+    full_name: '',
+    city: '',
+    specialty: '',
+    bio: '',
+    instagram_url: '',
+    website_url: '',
+    youtube_url: '',
+    tags: '',
+    is_verified: false,
+    since_year: new Date().getFullYear(),
   })
 
   const [hours, setHours] = useState<DayRow[]>(() =>
-    seedFromStatic(staticBuilder?.openingHours)
+    WEEK.map(d => ({ ...d }))
   )
 
   useEffect(() => {
@@ -162,27 +118,25 @@ export default function EditBuilderPage() {
       if (data) {
         setDbProfile(data)
         setForm({
-          full_name: data.full_name ?? staticBuilder?.name ?? '',
-          city: data.city ?? staticBuilder?.city ?? '',
-          specialty: data.specialty ?? staticBuilder?.specialty ?? '',
-          bio: data.bio ?? staticBuilder?.bio ?? '',
-          instagram_url: data.instagram_url ?? staticBuilder?.instagram ?? '',
-          website_url: data.website_url ?? staticBuilder?.website ?? '',
-          youtube_url: data.youtube_url ?? staticBuilder?.youtube ?? '',
-          tags: (data.tags ?? staticBuilder?.tags ?? []).join(', '),
+          full_name: data.full_name ?? '',
+          city: data.city ?? '',
+          specialty: data.specialty ?? '',
+          bio: data.bio ?? '',
+          instagram_url: data.instagram_url ?? '',
+          website_url: data.website_url ?? '',
+          youtube_url: data.youtube_url ?? '',
+          tags: (data.tags ?? []).join(', '),
           is_verified: data.is_verified,
-          since_year: data.since_year ?? (staticBuilder?.since ? parseInt(staticBuilder.since) : new Date().getFullYear()),
+          since_year: data.since_year ?? new Date().getFullYear(),
         })
         if (data.opening_hours?.length) {
           setHours(openingHoursToRows(data.opening_hours))
-        } else {
-          setHours(seedFromStatic(staticBuilder?.openingHours))
         }
       }
       setLoading(false)
     }
     load()
-  }, [slug, router, staticBuilder])
+  }, [slug, router])
 
   async function handleSave() {
     if (!dbProfile) {
@@ -264,7 +218,7 @@ export default function EditBuilderPage() {
           <Shield size={14} className="text-amber-400" />
           <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Superadmin</p>
         </div>
-        <h1 className="text-2xl font-bold text-[#222222] mb-1">{staticBuilder?.name ?? slug}</h1>
+        <h1 className="text-2xl font-bold text-[#222222] mb-1">{form.full_name || slug}</h1>
         <p className="text-xs text-[#222222]/30 mb-8">@{slug}</p>
 
         {loading ? (

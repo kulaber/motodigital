@@ -7,7 +7,7 @@ import Footer from '@/components/layout/Footer'
 import { BadgeCheck, MapPin, ArrowLeft, ChevronLeft, Globe, Instagram, Youtube, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
-import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
+import type { Builder, BuilderMedia } from '@/lib/data/builders'
 import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
 import OwnerEditButton from './OwnerEditButton'
@@ -168,7 +168,7 @@ const BASE_URL = 'https://motodigital.vercel.app'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
+  const builder = await getBuilderBySlugFromDB(slug)
   if (!builder) return {}
 
   const title = `${builder.name} — Custom Werkstatt auf MotoDigital`
@@ -196,13 +196,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export function generateStaticParams() {
-  return BUILDERS.map(b => ({ slug: b.slug }))
-}
-
 export default async function BuilderProfilePage({ params }: Props) {
   const { slug } = await params
-  const builder = (await getBuilderBySlugFromDB(slug)) ?? getBuilderBySlug(slug)
+  const builder = await getBuilderBySlugFromDB(slug)
   if (!builder) notFound()
 
   const coverImage = builder.media.find(m => m.type === 'image')

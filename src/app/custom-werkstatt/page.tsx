@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
-import { BUILDERS, type Builder } from '@/lib/data/builders'
+import type { Builder } from '@/lib/data/builders'
 import BuilderPageClientLoader from './BuilderPageClientLoader'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
@@ -167,14 +167,9 @@ async function BuilderContent() {
     )
   }
 
-  // Merge: DB takes precedence over static for matching slugs
-  const dbSlugs = new Set(dbBuilders.map(b => b.slug))
-  const staticOnly = BUILDERS.filter(b => !dbSlugs.has(b.slug))
-  const merged = [...dbBuilders, ...staticOnly]
-
   // Shuffle non-sponsored server-side (Math.random OK in server component)
-  const sponsored = merged.filter(b => b.featured)
-  const nonSponsored = merged.filter(b => !b.featured)
+  const sponsored = dbBuilders.filter(b => b.featured)
+  const nonSponsored = dbBuilders.filter(b => !b.featured)
   // eslint-disable-next-line react-hooks/purity
   const rest = nonSponsored.map(b => ({ b, r: Math.random() })).sort((a, z) => a.r - z.r).map(({ b }) => b)
   const shuffled = [...sponsored, ...rest]

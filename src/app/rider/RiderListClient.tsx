@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { MapPin, ChevronDown, X } from 'lucide-react'
 import type { RiderCard } from './page'
 
+function formatStyle(s: string): string {
+  return s.replace(/_/g, '-').replace(/\b\w/g, c => c.toUpperCase())
+}
+
 interface Props {
   riders: RiderCard[]
 }
@@ -129,7 +133,7 @@ export default function RiderListClient({ riders }: Props) {
                 : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
             }`}
           >
-            {bikeStyleFilter === 'Alle' ? 'Bike-Stil' : bikeStyleFilter}
+            {bikeStyleFilter === 'Alle' ? 'Bike-Stil' : formatStyle(bikeStyleFilter)}
             <ChevronDown size={11} className={`transition-transform ${bikeStyleOpen ? 'rotate-180' : ''}`} />
           </button>
           {bikeStyleOpen && (
@@ -139,7 +143,7 @@ export default function RiderListClient({ riders }: Props) {
                 {bikeStyles.map(s => (
                   <button key={s} onClick={() => { setBikeStyleFilter(s); setBikeStyleOpen(false) }}
                     className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${bikeStyleFilter === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                    {s === 'Alle' ? 'Alle Bike-Stile' : s}
+                    {s === 'Alle' ? 'Alle Bike-Stile' : formatStyle(s)}
                   </button>
                 ))}
               </div>

@@ -253,12 +253,12 @@ export default async function RiderProfilePage({ params }: Props) {
                             <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-lg font-bold text-[#DDDDDD]">{bike.style || 'Bike'}</span>
+                              <span className="text-lg font-bold text-[#DDDDDD]">{bike.style?.replace(/_/g, ' ') || 'Bike'}</span>
                             </div>
                           )}
                           {bike.style && (
                             <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2 py-0.5 rounded-full">
-                              {bike.style}
+                              {bike.style.replace(/_/g, ' ')}
                             </span>
                           )}
                         </div>

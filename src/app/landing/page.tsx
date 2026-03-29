@@ -6,7 +6,6 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AnimateIn from '@/components/ui/AnimateIn'
 import GlobalSearch from '@/components/search/GlobalSearch'
-import { BUILDERS } from '@/lib/data/builders'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
@@ -27,15 +26,6 @@ const STYLE_LABELS: Record<string, string> = {
 interface FeaturedBuild {
   slug: string; href?: string; title: string; style: string; base: string; builder: string; city: string; img: string; role?: string
 }
-
-const FALLBACK_BUILDS: FeaturedBuild[] = [
-  { slug: 'the-midnight-scrambler', href: '/custom-bike/the-midnight-scrambler', title: 'The Midnight Scrambler', style: 'Cafe Racer', base: 'Honda CB550',    builder: 'Jakob K.',    city: 'Berlin',    img: 'https://images.unsplash.com/photo-1568708167256-1f385e6485f5?w=600&q=75' },
-  { slug: 'iron-bastard-no-3',      href: '/custom-bike/iron-bastard-no-3',      title: 'Iron Bastard No. 3',     style: 'Bobber',     base: 'BMW R80',        builder: 'Max S.',      city: 'München',   img: 'https://images.unsplash.com/photo-1505052533681-2be9d65eade5?w=600&q=75' },
-  { slug: 'desert-fox-scrambler',   href: '/custom-bike/desert-fox-scrambler',   title: 'Desert Fox Scrambler',   style: 'Scrambler',  base: 'Triumph T100',   builder: 'Anna W.',     city: 'Hamburg',   img: 'https://images.unsplash.com/photo-1677435783431-4f81723d5a18?w=600&q=75' },
-  { slug: 'flat-track-killer',      href: '/custom-bike/flat-track-killer',      title: 'Flat Track Killer',      style: 'Tracker',    base: 'Yamaha SR500',   builder: 'René B.',     city: 'Köln',      img: 'https://images.unsplash.com/photo-1603096564885-1a332df4f903?w=600&q=75' },
-  { slug: 'low-and-slow',           href: '/custom-bike/low-and-slow',           title: 'Low & Slow',             style: 'Chopper',    base: 'H-D Sportster',  builder: 'Kai F.',      city: 'Stuttgart', img: 'https://images.unsplash.com/photo-1567972411080-a8ad4b2fded1?w=600&q=75' },
-  { slug: 'berlin-ghost',           href: '/custom-bike/berlin-ghost',           title: 'Berlin Ghost',           style: 'Street',     base: 'Suzuki GS750',   builder: 'Studio Nord', city: 'Berlin',    img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=75' },
-]
 
 const USPS = [
   { icon: <Map size={20} className="text-[#717171]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
@@ -117,10 +107,7 @@ export default async function LandingPage() {
     }
   })
 
-  // Fill with fallbacks if fewer than 6 DB bikes
-  const BUILDS: FeaturedBuild[] = dbBuilds.length >= 6
-    ? dbBuilds
-    : [...dbBuilds, ...FALLBACK_BUILDS.slice(dbBuilds.length)]
+  const BUILDS: FeaturedBuild[] = dbBuilds
 
   // ── Fetch the 10 most recently added workshops from DB ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,10 +120,7 @@ export default async function LandingPage() {
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
 
-  // Merge DB builders + static builders, deduplicate by slug, cap at 10
-  const dbSlugs = new Set(dbBuilders.map(b => b.slug))
-  const staticFill = BUILDERS.filter(b => !dbSlugs.has(b.slug))
-  const builders = [...dbBuilders, ...staticFill].slice(0, 10)
+  const builders = dbBuilders.slice(0, 10)
   return (
     <div className="min-h-screen bg-white text-[#222222]">
 

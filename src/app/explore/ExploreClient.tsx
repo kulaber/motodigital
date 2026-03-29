@@ -7,7 +7,6 @@ import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Tr
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
-import { RIDERS } from '@/lib/data/riders'
 import { EVENTS } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
 import { compressImage } from '@/lib/utils/compressImage'
@@ -545,7 +544,6 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
         .select('id, full_name, slug, username, city, avatar_url, tags, last_seen_at')
         .eq('role', 'rider')
         .order('last_seen_at', { ascending: false, nullsFirst: false })
-        .limit(20)
 
       const dbItems: SidebarRider[] = (dbRiders ?? [])
         .filter((r: Record<string, unknown>) => r.slug || r.username || r.full_name)
@@ -564,28 +562,13 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
           }
         })
 
-      // Merge with static riders (deduplicate)
-      const dbSlugs = new Set(dbItems.map(r => r.slug))
-      const staticItems: SidebarRider[] = RIDERS
-        .filter(r => !dbSlugs.has(r.slug))
-        .map(r => ({
-          slug: r.slug,
-          name: r.name,
-          initials: r.initials,
-          city: r.city,
-          style: r.style,
-          avatar: r.avatar,
-          isOnline: false,
-        }))
-
-      const all = [...dbItems, ...staticItems]
       // Sort: online first, then alphabetical
-      all.sort((a, b) => {
+      dbItems.sort((a, b) => {
         if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1
         return a.name.localeCompare(b.name)
       })
 
-      setSidebarRiders(all.slice(0, 5))
+      setSidebarRiders(dbItems)
     }
 
     loadSidebarRiders()
@@ -706,10 +689,10 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
       <div className="hidden lg:block">
         <aside className="w-80 flex-shrink-0 flex flex-col gap-3 pt-3 pb-3 pl-4 sm:pl-5 lg:pl-8 pr-3 sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto">
 
-          {/* Aktive Rider */}
+          {/* Alle Rider */}
           <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-2">
-              Aktive Rider
+              Alle Rider
             </p>
             <div className="flex flex-col">
               {sidebarRiders.map(r => (

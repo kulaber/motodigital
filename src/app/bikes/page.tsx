@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { BUILDS, type Build } from '@/lib/data/builds'
+import type { Build } from '@/lib/data/builds'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from './BikesClient'
 import { createClient } from '@/lib/supabase/server'
@@ -61,7 +61,7 @@ export default async function BikesPage() {
     }
   })
 
-  const allBuilds = [...dbBuilds, ...BUILDS]
+  const allBuilds = dbBuilds
 
   return (
     <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>

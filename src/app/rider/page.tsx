@@ -3,7 +3,6 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AuthGate from './[slug]/AuthGate'
 import RiderListClient from './RiderListClient'
-import { RIDERS, type Rider } from '@/lib/data/riders'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
@@ -20,19 +19,6 @@ export interface RiderCard {
   initials: string
   bikeCount: number
   bikeStyles: string[]
-}
-
-function staticToCard(r: Rider): RiderCard {
-  return {
-    slug: r.slug,
-    name: r.name,
-    city: r.city,
-    ridingStyle: '',
-    avatar: r.avatar,
-    initials: r.initials,
-    bikeCount: 0,
-    bikeStyles: [],
-  }
 }
 
 export default async function RiderOverviewPage() {
@@ -86,10 +72,7 @@ export default async function RiderOverviewPage() {
       }
     })
 
-  // Merge: DB riders first, then fill with static, deduplicate by slug
-  const dbSlugs = new Set(dbCards.map(r => r.slug))
-  const staticCards = RIDERS.filter(r => !dbSlugs.has(r.slug)).map(staticToCard)
-  const allRiders = [...dbCards, ...staticCards]
+  const allRiders = dbCards
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
