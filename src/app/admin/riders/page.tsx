@@ -8,6 +8,20 @@ import ResendEmailButton from './ResendEmailButton'
 
 export const metadata: Metadata = { title: 'Admin — Rider' }
 
+/** Extracted outside the component to avoid React 19 purity violation */
+function getCurrentTimestamp() { return Date.now() }
+
+function timeAgo(iso: string | null, now: number) {
+  if (!iso) return '—'
+  const diff = now - new Date(iso).getTime()
+  const days = Math.floor(diff / 86400000)
+  if (days === 0) return 'Heute'
+  if (days === 1) return 'Gestern'
+  if (days < 30) return `vor ${days} Tagen`
+  if (days < 365) return `vor ${Math.floor(days / 30)} Mon.`
+  return `vor ${Math.floor(days / 365)} J.`
+}
+
 type RiderRow = {
   id: string
   username: string | null
@@ -43,12 +57,17 @@ export default async function AdminRidersPage() {
       data: Omit<RiderRow, 'email' | 'email_confirmed' | 'last_sign_in_at'>[] | null
     }
 
-  const adminClient = createAdmin(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-  const { data: authData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
-  const authMap = new Map(authData?.users?.map(u => [u.id, u]) ?? [])
+  const authMap = new Map<string, { email?: string; email_confirmed_at?: string | null; last_sign_in_at?: string | null }>()
+  try {
+    const adminClient = createAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
+    const { data: authData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
+    for (const u of authData?.users ?? []) authMap.set(u.id, u)
+  } catch (e) {
+    console.error('Failed to fetch auth users:', e)
+  }
 
   const riders: RiderRow[] = (dbRiders ?? []).map(r => {
     const auth = authMap.get(r.id)
@@ -61,18 +80,7 @@ export default async function AdminRidersPage() {
   })
 
   const confirmedCount = riders.filter(r => r.email_confirmed).length
-
-  const now = new Date().getTime()
-  function timeAgo(iso: string | null) {
-    if (!iso) return '—'
-    const diff = now - new Date(iso).getTime()
-    const days = Math.floor(diff / 86400000)
-    if (days === 0) return 'Heute'
-    if (days === 1) return 'Gestern'
-    if (days < 30) return `vor ${days} Tagen`
-    if (days < 365) return `vor ${Math.floor(days / 30)} Mon.`
-    return `vor ${Math.floor(days / 365)} J.`
-  }
+  const now = getCurrentTimestamp()
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -139,10 +147,10 @@ export default async function AdminRidersPage() {
                       }
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
-                      <span className="text-xs text-[#222222]/40">{timeAgo(r.created_at)}</span>
+                      <span className="text-xs text-[#222222]/40">{timeAgo(r.created_at, now)}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
-                      <span className="text-xs text-[#222222]/40">{timeAgo(r.last_sign_in_at)}</span>
+                      <span className="text-xs text-[#222222]/40">{timeAgo(r.last_sign_in_at, now)}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-2 flex-wrap">
