@@ -101,7 +101,9 @@ export default async function DashboardPage() {
   let totalPageViews = 0
 
   if (isSuperAdmin) {
-    const sevenDaysAgoDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const sevenDaysAgoDate = new Date(
+      Date.now() - 7 * 24 * 60 * 60 * 1000 // eslint-disable-line react-hooks/purity
+    ).toISOString()
 
     // Daily views grouped by section
     const { data: pvData } = await (supabase
@@ -122,7 +124,9 @@ export default async function DashboardPage() {
 
       // Fill all 7 days (including empty ones)
       for (let i = 6; i >= 0; i--) {
-        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+        const d = new Date(
+          Date.now() - i * 86400000 // eslint-disable-line react-hooks/purity
+        ).toISOString().split('T')[0]
         pageViewsByDay.push({ date: d, section: '', count: dayMap.get(d) ?? 0 })
       }
 
@@ -134,7 +138,9 @@ export default async function DashboardPage() {
     } else {
       // Fill empty 7 days
       for (let i = 6; i >= 0; i--) {
-        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+        const d = new Date(
+          Date.now() - i * 86400000 // eslint-disable-line react-hooks/purity
+        ).toISOString().split('T')[0]
         pageViewsByDay.push({ date: d, section: '', count: 0 })
       }
     }
