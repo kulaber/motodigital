@@ -46,7 +46,7 @@ function MessageBody({ body, isOwn: _isOwn, onImageClick }: { body: string; isOw
         src={url}
         alt="Bild"
         onClick={() => onImageClick(url)}
-        className="block max-w-[240px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
+        className="block w-full max-w-[320px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
       />
     )
   }
@@ -56,14 +56,14 @@ function MessageBody({ body, isOwn: _isOwn, onImageClick }: { body: string; isOw
     const [, text, url] = imgMatch
     return (
       <div className="flex flex-col gap-2">
-        <span className="text-sm leading-relaxed text-[#222222]">{text}</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={url}
           alt="Bild"
           onClick={() => onImageClick(url)}
-          className="block max-w-[240px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
+          className="block w-full max-w-[320px] rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
         />
+        <span className="text-sm leading-relaxed text-[#222222]">{text}</span>
       </div>
     )
   }
@@ -796,14 +796,14 @@ function MessageThread({
       {/* Lightbox */}
       {lightboxUrl && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
           onClick={() => setLightboxUrl(null)}
         >
           <button
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             onClick={() => setLightboxUrl(null)}
           >
-            <X size={20} />
+            <X size={22} />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

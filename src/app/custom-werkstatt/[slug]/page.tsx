@@ -12,6 +12,7 @@ import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
 import OwnerEditButton from './OwnerEditButton'
 import GallerySlider from './GallerySlider'
+import MobileStickyBar from './MobileStickyBar'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -238,26 +239,17 @@ export default async function BuilderProfilePage({ params }: Props) {
       />
       <Header activePage="custom-werkstatt" />
 
+      {/* ── MOBILE STICKY TOP BAR ── */}
+      <MobileStickyBar>
+        <OwnerEditButton builderSlug={slug} iconOnly />
+        <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+      </MobileStickyBar>
+
       {/* ── MOBILE HERO ── */}
       <div className="sm:hidden relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={`${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}`} fill sizes="100vw" className="object-cover" priority />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-
-        {/* Top: Back + Save/Share */}
-        <div className="absolute top-0 left-0 right-0 z-10 pt-4 px-4">
-          <div className="flex items-center justify-between">
-            <Link href="/custom-werkstatt"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
-              aria-label="Zurück">
-              <ChevronLeft size={20} />
-            </Link>
-            <div className="flex items-center gap-2">
-              <OwnerEditButton builderSlug={slug} iconOnly />
-              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
-            </div>
-          </div>
-        </div>
 
         {/* Bottom: Profile info */}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-6">
