@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, X, ArrowUpDown, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -123,22 +123,22 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
           <div className="flex items-center gap-2">
 
             {/* Search field */}
-            <div className="relative flex-shrink-0 w-48 lg:w-56">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] pointer-events-none" />
+            <div className="relative flex-shrink-0 w-44 lg:w-52">
+              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setActiveCountry('Alle'); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 placeholder="Custom Bike suchen…"
-                className="w-full pl-8 pr-8 py-1.5 text-xs text-[#222222] placeholder-[#AAAAAA] bg-[#F7F7F7] border border-[#EBEBEB] rounded-full focus:outline-none focus:border-[#222222]/20 focus:bg-white transition-all"
+                className="w-full h-[34px] pl-8 pr-7 text-[13px] text-[#333] placeholder-[#999] bg-white border border-[#d4d4d4] rounded-lg focus:outline-none focus:border-[#999] transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => { setSearchQuery(''); setPage(1) }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#222222] transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#333] transition-colors"
                   aria-label="Suche löschen"
                 >
-                  <X size={12} />
+                  <X size={13} />
                 </button>
               )}
             </div>
@@ -147,12 +147,12 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <select
               value={activeCountry}
               onChange={e => { setActiveCountry(e.target.value); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
                 activeCountry !== 'Alle'
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                  ? 'bg-[#333] text-white border-[#333]'
+                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
               }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeCountry !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeCountry !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
             >
               <option value="Alle">Land</option>
               {countries.filter(c => c !== 'Alle').map(c => <option key={c} value={c}>{c}</option>)}
@@ -161,12 +161,12 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <select
               value={activeStyle}
               onChange={e => { setActiveStyle(e.target.value); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
                 activeStyle !== 'Alle'
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                  ? 'bg-[#333] text-white border-[#333]'
+                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
               }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeStyle !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeStyle !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
             >
               <option value="Alle">Umbau-Stil</option>
               {styles.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
@@ -175,12 +175,12 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <select
               value={activeMake}
               onChange={e => { setActiveMake(e.target.value); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
                 activeMake !== 'Alle'
-                  ? 'bg-[#222222] text-white'
-                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                  ? 'bg-[#333] text-white border-[#333]'
+                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
               }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeMake !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeMake !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
             >
               <option value="Alle">Marke</option>
               {makes.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
@@ -190,12 +190,12 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <select
                 value={activeModel}
                 onChange={e => { setActiveModel(e.target.value); setPage(1); scrollToFilter() }}
-                className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+                className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
                   activeModel !== 'Alle'
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                    ? 'bg-[#333] text-white border-[#333]'
+                    : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
                 }`}
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeModel !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeModel !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
               >
                 <option value="Alle">Modell</option>
                 {models.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
@@ -207,7 +207,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <button
                 onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 aria-label="Filter zurücksetzen"
-                className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#222222]/35 hover:text-[#222222] transition-colors rounded-full hover:bg-[#222222]/5"
+                className="flex-shrink-0 w-[34px] h-[34px] flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-lg border border-[#d4d4d4] hover:border-[#999] bg-white"
               >
                 <X size={14} />
               </button>
@@ -217,19 +217,16 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="flex-1" />
 
             {/* Sortieren */}
-            <div className="flex-shrink-0 flex items-center gap-1.5">
-              <ArrowUpDown size={11} className="text-[#717171] hidden sm:block" />
-              <select
-                value={activeSort}
-                onChange={e => { setActiveSort(e.target.value as 'popular' | 'newest' | 'oldest'); setPage(1); scrollToFilter() }}
-                className="text-xs font-semibold pl-1 pr-5 py-1.5 rounded-full appearance-none bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30 cursor-pointer transition-all bg-[right_6px_center] bg-[length:10px] bg-no-repeat"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-              >
-                {(['popular', 'newest', 'oldest'] as const).map(key => (
-                  <option key={key} value={key}>{SORT_LABELS[key]}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={activeSort}
+              onChange={e => { setActiveSort(e.target.value as 'popular' | 'newest' | 'oldest'); setPage(1); scrollToFilter() }}
+              className="flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-white text-[#333] border border-[#d4d4d4] hover:border-[#999] cursor-pointer transition-colors bg-[right_8px_center] bg-[length:10px] bg-no-repeat"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+            >
+              {(['popular', 'newest', 'oldest'] as const).map(key => (
+                <option key={key} value={key}>{SORT_LABELS[key]}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
