@@ -94,11 +94,6 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
   const url  = typeof window !== 'undefined' ? window.location.href : ''
   const text = `${name} auf MotoDigital`
 
-  // Nicht eingeloggt → Login-Button
-  if (userId === null && !loadingSave) {
-    // Noch ladend, zeige nichts bis Auth bekannt
-  }
-
   return (
     <div className={`flex items-center gap-2${iconOnly ? '' : ' flex-shrink-0 pb-1'}`} ref={ref}>
       <LoginModal

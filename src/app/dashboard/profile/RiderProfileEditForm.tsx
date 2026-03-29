@@ -90,7 +90,7 @@ export default function RiderProfileEditForm({ profile }: Props) {
     setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
     setAvatarSaved(true)
     setAvatarUploading(false)
-    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: publicUrl } }))
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: `${publicUrl}?t=${Date.now()}` } }))
   }
 
   // ── Name ──

@@ -222,6 +222,7 @@ function BuilderList({
   onReset,
   isMobile,
   userId,
+  authReady,
 }: {
   builders: Builder[]
   visible: Builder[]
@@ -234,6 +235,7 @@ function BuilderList({
   onReset: () => void
   isMobile?: boolean
   userId?: string | null
+  authReady?: boolean
 }) {
   if (visible.length === 0) {
     return (
@@ -291,8 +293,8 @@ function BuilderList({
         ))}
       </div>
 
-      {/* CTA card — only for logged-out users */}
-      {!userId && (
+      {/* CTA card — only for logged-out users (guarded by authReady to prevent FOUC) */}
+      {authReady && !userId && (
         <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
           <div className="absolute inset-0">
             <Image
@@ -329,6 +331,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [hoveredBuilder,     setHoveredBuilder]     = useState<Builder | null>(null)
   const [savedIds,           setSavedIds]           = useState<Set<string>>(new Set())
   const [userId,             setUserId]             = useState<string | null>(null)
+  const [authReady,          setAuthReady]          = useState(false)
   const [mapBounds,          setMapBounds]          = useState<mapboxgl.LngLatBounds | null>(null)
   const [mapReady,           setMapReady]           = useState(false)
   const [markerEpoch,        setMarkerEpoch]        = useState(0)
@@ -378,13 +381,14 @@ export default function BuilderPageClient({ builders }: Props) {
   useEffect(() => {
     async function loadSaved() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) { setAuthReady(true); return }
       setUserId(user.id)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('saved_builders') as any)
         .select('builder_id')
         .eq('user_id', user.id) as { data: { builder_id: string }[] | null }
       if (data) setSavedIds(new Set(data.map(r => r.builder_id)))
+      setAuthReady(true)
     }
     loadSaved()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -848,6 +852,7 @@ export default function BuilderPageClient({ builders }: Props) {
             onHoverEnd={() => setHoveredBuilder(null)}
             onReset={resetAndFitMap}
             userId={userId}
+            authReady={authReady}
           />
         </div>
 
@@ -902,6 +907,7 @@ export default function BuilderPageClient({ builders }: Props) {
           onReset={resetAndFitMap}
           isMobile
           userId={userId}
+          authReady={authReady}
         />
 
         <div className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50">
