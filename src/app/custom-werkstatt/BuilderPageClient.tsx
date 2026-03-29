@@ -111,7 +111,7 @@ function BuilderCardPhoto({ b, selected }: { b: Builder; selected: boolean }) {
       <SwipeableImages images={images} aspectClass="aspect-[4/3]" />
       {b.featured && (
         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-          <span className="text-[11px] font-semibold bg-[#06a5a5]/20 border border-[#06a5a5]/30 text-[#06a5a5] px-2.5 py-0.5 rounded-full">Gesponsert</span>
+          <span className="text-[10px] font-semibold bg-[#06a5a5]/20 border border-[#06a5a5]/30 text-[#06a5a5] px-2.5 py-0.5 rounded-full">Gesponsert</span>
         </div>
       )}
       {selected && (
@@ -750,14 +750,14 @@ export default function BuilderPageClient({ builders }: Props) {
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Search field */}
-          <div className="relative flex-shrink-0 w-44 lg:w-52">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
+          <div className={`relative flex-shrink-0 transition-all duration-300 ease-in-out ${searchQuery ? 'w-44 lg:w-52' : 'w-32 focus-within:w-44 lg:focus-within:w-52'}`}>
+            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => { setSearchQuery(e.target.value); setActiveSpecialty('Alle'); setActiveLeistung('Alle') }}
-              placeholder="Werkstatt suchen…"
-              className="w-full h-[34px] pl-8 pr-7 text-[13px] text-[#333] placeholder-[#999] bg-white border border-[#d4d4d4] rounded-lg focus:outline-none focus:border-[#999] transition-colors"
+              placeholder="Suchen…"
+              className="w-full h-8 pl-8 pr-7 text-[12px] font-normal text-[#333] placeholder-[#999] bg-white border border-[#d4d4d4] rounded-full focus:outline-none focus:border-[#999] transition-colors"
             />
             {searchQuery && (
               <button
@@ -770,45 +770,43 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
-          {/* Umbaustil — native select */}
-          <select
-            value={activeSpecialty}
-            onChange={e => setActiveSpecialty(e.target.value)}
-            className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-              activeSpecialty !== 'Alle'
-                ? 'bg-[#333] text-white border-[#333]'
-                : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-            }`}
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeSpecialty !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-          >
-            <option value="Alle">Umbaustil</option>
-            {availableSpecialties.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          {/* Umbaustil */}
+          <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+            activeSpecialty !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+          }`}>
+            <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+              {activeSpecialty === 'Alle' ? 'Umbaustil' : activeSpecialty}
+              <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <select value={activeSpecialty} onChange={e => setActiveSpecialty(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              <option value="Alle">Umbaustil</option>
+              {availableSpecialties.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
 
-          {/* Leistungen — native select */}
-          <select
-            value={activeLeistung}
-            onChange={e => setActiveLeistung(e.target.value)}
-            className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-              activeLeistung !== 'Alle'
-                ? 'bg-[#333] text-white border-[#333]'
-                : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-            }`}
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeLeistung !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-          >
-            <option value="Alle">Leistungen</option>
-            {availableLeistungen.map(l => <option key={l} value={l}>{l}</option>)}
-          </select>
+          {/* Leistungen */}
+          <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+            activeLeistung !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+          }`}>
+            <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+              {activeLeistung === 'Alle' ? 'Leistungen' : activeLeistung}
+              <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <select value={activeLeistung} onChange={e => setActiveLeistung(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              <option value="Alle">Leistungen</option>
+              {availableLeistungen.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </div>
 
           {/* Jetzt geöffnet */}
           {now && (
             <button onClick={() => setOnlyOpen(v => !v)}
-              className={`flex-shrink-0 h-[34px] text-[13px] font-medium px-3 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 border ${
+              className={`flex-shrink-0 h-8 text-[13px] font-medium px-3.5 rounded-full transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 border ${
                 onlyOpen
-                  ? 'bg-[#333] text-white border-[#333]'
+                  ? 'bg-[#222222]/8 text-[#222222] border-[#222222]/25'
                   : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
               }`}>
-              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-white animate-pulse' : 'bg-emerald-500'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-500'}`} />
               Jetzt geöffnet
             </button>
           )}
@@ -817,7 +815,7 @@ export default function BuilderPageClient({ builders }: Props) {
           {hasActiveFilter && (
             <button
               onClick={resetAllFilters}
-              className="w-[34px] h-[34px] flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-lg border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
               aria-label="Filter zurücksetzen"
             >
               <X size={14} />

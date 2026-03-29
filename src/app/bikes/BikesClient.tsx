@@ -123,14 +123,14 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
           <div className="flex items-center gap-2">
 
             {/* Search field */}
-            <div className="relative flex-shrink-0 w-44 lg:w-52">
-              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
+            <div className={`relative flex-shrink-0 transition-all duration-300 ease-in-out ${searchQuery ? 'w-44 lg:w-52' : 'w-32 focus-within:w-44 lg:focus-within:w-52'}`}>
+              <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setActiveCountry('Alle'); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
-                placeholder="Custom Bike suchen…"
-                className="w-full h-[34px] pl-8 pr-7 text-[13px] text-[#333] placeholder-[#999] bg-white border border-[#d4d4d4] rounded-lg focus:outline-none focus:border-[#999] transition-colors"
+                placeholder="Suchen…"
+                className="w-full h-8 pl-8 pr-7 text-[12px] font-normal text-[#333] placeholder-[#999] bg-white border border-[#d4d4d4] rounded-full focus:outline-none focus:border-[#999] transition-colors"
               />
               {searchQuery && (
                 <button
@@ -143,63 +143,59 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               )}
             </div>
 
-            {/* Native select filters: Land → Umbau-Stil → Marke → Modell */}
-            <select
-              value={activeCountry}
-              onChange={e => { setActiveCountry(e.target.value); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-                activeCountry !== 'Alle'
-                  ? 'bg-[#333] text-white border-[#333]'
-                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-              }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeCountry !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-            >
-              <option value="Alle">Land</option>
-              {countries.filter(c => c !== 'Alle').map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            {/* Overlay select filters: Land → Umbau-Stil → Marke → Modell */}
+            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+              activeCountry !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+            }`}>
+              <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                {activeCountry === 'Alle' ? 'Land' : activeCountry}
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <select value={activeCountry} onChange={e => { setActiveCountry(e.target.value); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <option value="Alle">Land</option>
+                {countries.filter(c => c !== 'Alle').map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
 
-            <select
-              value={activeStyle}
-              onChange={e => { setActiveStyle(e.target.value); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-                activeStyle !== 'Alle'
-                  ? 'bg-[#333] text-white border-[#333]'
-                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-              }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeStyle !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-            >
-              <option value="Alle">Umbau-Stil</option>
-              {styles.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
+            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+              activeStyle !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+            }`}>
+              <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <select value={activeStyle} onChange={e => { setActiveStyle(e.target.value); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <option value="Alle">Umbau-Stil</option>
+                {styles.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
 
-            <select
-              value={activeMake}
-              onChange={e => { setActiveMake(e.target.value); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
-              className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-                activeMake !== 'Alle'
-                  ? 'bg-[#333] text-white border-[#333]'
-                  : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-              }`}
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeMake !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-            >
-              <option value="Alle">Marke</option>
-              {makes.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
+            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+              activeMake !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+            }`}>
+              <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                {activeMake === 'Alle' ? 'Marke' : activeMake}
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <select value={activeMake} onChange={e => { setActiveMake(e.target.value); setActiveModel('Alle'); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <option value="Alle">Marke</option>
+                {makes.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
 
             {activeMake !== 'Alle' && (
-              <select
-                value={activeModel}
-                onChange={e => { setActiveModel(e.target.value); setPage(1); scrollToFilter() }}
-                className={`flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-colors border ${
-                  activeModel !== 'Alle'
-                    ? 'bg-[#333] text-white border-[#333]'
-                    : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
-                }`}
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeModel !== 'Alle' ? 'white' : '%23999'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-              >
-                <option value="Alle">Modell</option>
-                {models.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+                activeModel !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+              }`}>
+                <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                  {activeModel === 'Alle' ? 'Modell' : activeModel}
+                  <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
+                <select value={activeModel} onChange={e => { setActiveModel(e.target.value); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                  <option value="Alle">Modell</option>
+                  {models.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
             )}
 
             {/* Reset */}
@@ -207,7 +203,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               <button
                 onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
                 aria-label="Filter zurücksetzen"
-                className="flex-shrink-0 w-[34px] h-[34px] flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-lg border border-[#d4d4d4] hover:border-[#999] bg-white"
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white"
               >
                 <X size={14} />
               </button>
@@ -217,16 +213,17 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="flex-1" />
 
             {/* Sortieren */}
-            <select
-              value={activeSort}
-              onChange={e => { setActiveSort(e.target.value as 'popular' | 'newest' | 'oldest'); setPage(1); scrollToFilter() }}
-              className="flex-shrink-0 h-[34px] text-[13px] font-medium pl-3 pr-7 rounded-lg appearance-none bg-white text-[#333] border border-[#d4d4d4] hover:border-[#999] cursor-pointer transition-colors bg-[right_8px_center] bg-[length:10px] bg-no-repeat"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
-            >
-              {(['popular', 'newest', 'oldest'] as const).map(key => (
-                <option key={key} value={key}>{SORT_LABELS[key]}</option>
-              ))}
-            </select>
+            <div className="relative flex-shrink-0 h-8 rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer">
+              <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                {SORT_LABELS[activeSort]}
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <select value={activeSort} onChange={e => { setActiveSort(e.target.value as 'popular' | 'newest' | 'oldest'); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                {(['popular', 'newest', 'oldest'] as const).map(key => (
+                  <option key={key} value={key}>{SORT_LABELS[key]}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
