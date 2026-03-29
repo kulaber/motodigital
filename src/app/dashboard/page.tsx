@@ -83,8 +83,7 @@ export default async function DashboardPage() {
       supabase.auth.admin.listUsers({ perPage: 1000 }),
     ])
 
-    // eslint-disable-next-line react-hooks/purity
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const ridersOnline = authResult.data?.users?.filter(u =>
       u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
     ).length ?? 0
