@@ -58,7 +58,7 @@ export default async function CustomBikePage({ params }: Props) {
 
   {
     const supabase = await createClient()
-    const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug'
+    const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, workshop_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bike: any = null
@@ -85,12 +85,20 @@ export default async function CustomBikePage({ params }: Props) {
 
     if (!bike) notFound()
 
-    // Fetch seller profile
+    // Fetch seller profile + workshop (if linked)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: sellerProfile } = await (supabase.from('profiles') as any)
-      .select('full_name, city, slug, role, avatar_url')
-      .eq('id', bike.seller_id)
-      .maybeSingle()
+    const [{ data: sellerProfile }, { data: workshop }] = await Promise.all([
+      (supabase.from('profiles') as any)
+        .select('full_name, city, slug, role, avatar_url')
+        .eq('id', bike.seller_id)
+        .maybeSingle() as Promise<{ data: { full_name: string | null; city: string | null; slug: string | null; role: string; avatar_url: string | null } | null }>,
+      bike.workshop_id
+        ? (supabase.from('workshops') as any)
+            .select('logo_url')
+            .eq('id', bike.workshop_id)
+            .maybeSingle() as Promise<{ data: { logo_url: string | null } | null }>
+        : Promise.resolve({ data: null }),
+    ])
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = sortedBikeImageUrls(rawImages)
@@ -192,7 +200,15 @@ export default async function CustomBikePage({ params }: Props) {
                   <div className="flex items-center gap-3.5">
                     {/* Avatar */}
                     <div className="relative w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-[#EBEBEB]">
-                      {sellerProfile?.avatar_url ? (
+                      {workshop?.logo_url ? (
+                        <Image
+                          src={workshop.logo_url}
+                          alt={sellerName}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      ) : sellerProfile?.avatar_url ? (
                         <Image
                           src={sellerProfile.avatar_url}
                           alt={sellerName}
@@ -200,6 +216,10 @@ export default async function CustomBikePage({ params }: Props) {
                           sizes="48px"
                           className="object-cover"
                         />
+                      ) : sellerProfile?.role === 'custom-werkstatt' ? (
+                        <div className="w-full h-full bg-[#06a5a5] flex items-center justify-center p-2">
+                          <Image src="/pin-logo.svg" alt="MotoDigital" width={28} height={28} />
+                        </div>
                       ) : (
                         <div className="w-full h-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white">
                           {sellerInitials}
