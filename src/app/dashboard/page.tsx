@@ -3,9 +3,8 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
-import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -95,16 +94,51 @@ export default async function DashboardPage() {
     }
   }
 
-  const weeklyVisitors = isSuperAdmin ? await getWeeklyVisitors() : []
-  const hasRealVisitors = weeklyVisitors.length > 0
-  const chartData = hasRealVisitors
-    ? weeklyVisitors
-    : [42, 68, 55, 91, 73, 84, 110].map((v, i) => ({
-        // eslint-disable-next-line react-hooks/purity
-        date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0],
-        visitors: v,
-      }))
-  const maxVisitors = Math.max(...chartData.map(d => d.visitors), 1)
+  // Page view analytics (for superadmin)
+  type DaySection = { date: string; section: string; count: number }
+  let pageViewsByDay: DaySection[] = []
+  let sectionTotals: { section: string; count: number }[] = []
+  let totalPageViews = 0
+
+  if (isSuperAdmin) {
+    const sevenDaysAgoDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    // Daily views grouped by section
+    const { data: pvData } = await (supabase
+      .from('page_views') as any)
+      .select('section, created_at')
+      .gte('created_at', sevenDaysAgoDate)
+      .order('created_at', { ascending: true })
+
+    if (pvData?.length) {
+      // Group by day
+      const dayMap = new Map<string, number>()
+      const sectionMap = new Map<string, number>()
+      for (const row of pvData as { section: string; created_at: string }[]) {
+        const day = row.created_at.split('T')[0]
+        dayMap.set(day, (dayMap.get(day) ?? 0) + 1)
+        sectionMap.set(row.section, (sectionMap.get(row.section) ?? 0) + 1)
+      }
+
+      // Fill all 7 days (including empty ones)
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+        pageViewsByDay.push({ date: d, section: '', count: dayMap.get(d) ?? 0 })
+      }
+
+      sectionTotals = Array.from(sectionMap.entries())
+        .map(([section, count]) => ({ section, count }))
+        .sort((a, b) => b.count - a.count)
+
+      totalPageViews = pvData.length
+    } else {
+      // Fill empty 7 days
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+        pageViewsByDay.push({ date: d, section: '', count: 0 })
+      }
+    }
+  }
 
   return (
     <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
@@ -139,13 +173,13 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
               {[
                 {
-                  label: 'Builder gesamt',
+                  label: 'Custom Werkstätten gesamt',
                   value: adminStats.buildersTotal,
                   sub: 'registriert',
                   icon: <Wrench size={15} />,
                 },
                 {
-                  label: 'Builder LIVE',
+                  label: 'Custom Werkstätten LIVE',
                   value: adminStats.buildersLive,
                   sub: 'verifiziert & aktiv',
                   icon: <Radio size={15} />,
@@ -174,53 +208,74 @@ export default async function DashboardPage() {
               ))}
             </div>
 
-            {/* Visitor chart placeholder */}
+            {/* Page views chart */}
             <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-semibold text-[#222222]">Besucher</p>
+                  <p className="text-sm font-semibold text-[#222222]">Seitenaufrufe</p>
                   <p className="text-xs text-[#222222]/30 mt-0.5">
-                    {hasRealVisitors
-                      ? `${chartData.reduce((s, d) => s + d.visitors, 0).toLocaleString('de-DE')} diese Woche`
+                    {totalPageViews > 0
+                      ? `${totalPageViews.toLocaleString('de-DE')} in den letzten 7 Tagen`
                       : 'Letzte 7 Tage'}
                   </p>
                 </div>
-                {!hasRealVisitors && (
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-semibold">
-                    Token fehlt
-                  </span>
-                )}
-                {hasRealVisitors && (
-                  <span className="text-[10px] bg-[#222222]/10 text-[#717171] border border-[#222222]/20 px-2.5 py-1 rounded-full font-semibold">
-                    Live Daten
-                  </span>
-                )}
+                <span className="text-[10px] bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20 px-2.5 py-1 rounded-full font-semibold">
+                  Live Daten
+                </span>
               </div>
+
               {/* Bar chart */}
-              <div className="flex items-end gap-1.5 h-20">
-                {chartData.map((d, i) => (
-                  <div key={i} className="flex-1 group relative">
-                    <div
-                      className="w-full rounded-sm bg-[#222222]/25 group-hover:bg-[#222222]/50 transition-colors"
-                      style={{ height: `${(d.visitors / maxVisitors) * 100}%` }}
-                    />
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white border border-[#222222]/10 rounded px-1.5 py-0.5 text-[10px] text-[#222222] whitespace-nowrap z-10">
-                      {d.visitors}
+              {(() => {
+                const maxViews = Math.max(...pageViewsByDay.map(d => d.count), 1)
+                return (
+                  <>
+                    <div className="flex items-end gap-1.5 h-24">
+                      {pageViewsByDay.map((d, i) => (
+                        <div key={i} className="flex-1 group relative">
+                          <div
+                            className="w-full rounded-t-sm bg-[#06a5a5]/30 group-hover:bg-[#06a5a5]/60 transition-colors"
+                            style={{ height: `${(d.count / maxViews) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
+                          />
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white border border-[#222222]/10 rounded px-1.5 py-0.5 text-[10px] text-[#222222] whitespace-nowrap z-10 shadow-sm">
+                            {d.count}
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                    <div className="flex justify-between mt-2">
+                      {pageViewsByDay.map((d, i) => (
+                        <span key={i} className="flex-1 text-center text-[10px] text-[#222222]/25">
+                          {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )
+              })()}
+
+              {/* Section breakdown */}
+              {sectionTotals.length > 0 && (
+                <div className="mt-5 pt-4 border-t border-[#222222]/6">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-3">Nach Bereich</p>
+                  <div className="space-y-2">
+                    {sectionTotals.slice(0, 6).map(s => (
+                      <div key={s.section} className="flex items-center gap-3">
+                        <span className="text-xs text-[#222222]/60 w-28 truncate">{s.section}</span>
+                        <div className="flex-1 h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#06a5a5]/40 rounded-full"
+                            style={{ width: `${(s.count / sectionTotals[0].count) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#222222]/50 w-10 text-right">{s.count}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div className="flex justify-between mt-2">
-                {chartData.map((d, i) => (
-                  <span key={i} className="flex-1 text-center text-[10px] text-[#222222]/20">
-                    {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
-                  </span>
-                ))}
-              </div>
-              {!hasRealVisitors && (
-                <p className="text-[10px] text-[#222222]/20 mt-3">
-                  * Platzhalterdaten — VERCEL_ACCESS_TOKEN + VERCEL_PROJECT_ID als Env-Variable setzen
-                </p>
+                </div>
+              )}
+
+              {totalPageViews === 0 && (
+                <p className="text-xs text-[#222222]/25 mt-3 text-center">Noch keine Daten — Tracking wurde gerade aktiviert</p>
               )}
             </div>
           </div>

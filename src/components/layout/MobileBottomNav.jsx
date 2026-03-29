@@ -187,10 +187,10 @@ export default function MobileBottomNav() {
                 style={{
                   position: "absolute",
                   top: "50%",
-                  left: 4,
-                  width: `calc(${100 / ITEM_COUNT}% - 8px)`,
+                  left: `calc(4px + ${activeIndex} * (100% - 8px) / ${ITEM_COUNT})`,
+                  width: `calc((100% - 8px) / ${ITEM_COUNT})`,
                   height: 54,
-                  transform: `translateX(calc(${activeIndex} * (100% + 8px))) translateY(-50%)`,
+                  transform: "translateY(-50%)",
                   borderRadius: 24,
                   background: "#111111",
                   transition: "none",

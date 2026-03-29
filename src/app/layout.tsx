@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import PageViewTracker from '@/components/analytics/PageViewTracker'
 import './globals.css'
 
 const bodoniModa = Bodoni_Moda({
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body>
         {children}
         <MobileBottomNav />
+        <PageViewTracker />
         <Analytics />
       </body>
     </html>
