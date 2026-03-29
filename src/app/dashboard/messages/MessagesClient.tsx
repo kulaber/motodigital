@@ -680,7 +680,7 @@ function MessageThread({
       </div>
 
       {/* Input area */}
-      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white pb-24 md:pb-0">
+      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white pb-[100px] sm:pb-0">
 
         {/* Image preview */}
         {previewFile && (

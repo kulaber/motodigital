@@ -285,11 +285,11 @@ export default function Header({ activePage }: Props) {
         <div className="lg:hidden flex items-center gap-2 ml-auto">
           {!loading && !user && (
             <>
-              <button onClick={() => { setLoginMode('login'); setShowLogin(true) }}
+              <button onClick={() => { setMobileOpen(false); setLoginMode('login'); setShowLogin(true) }}
                 className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
                 Login
               </button>
-              <button onClick={() => { setLoginMode('register'); setShowLogin(true) }}
+              <button onClick={() => { setMobileOpen(false); setLoginMode('register'); setShowLogin(true) }}
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
               </button>

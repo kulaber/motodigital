@@ -145,8 +145,10 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      {/* Spacer so page content isn't hidden */}
-      <div className="block md:hidden" style={{ height: 96 }} />
+      {/* Spacer so page content isn't hidden (skip on viewport-locked pages) */}
+      {!pathname.startsWith("/dashboard/messages") && (
+        <div className="block md:hidden" style={{ height: 96 }} />
+      )}
 
       {/* Docked nav wrapper */}
       <div

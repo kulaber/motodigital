@@ -897,7 +897,7 @@ export default function BuilderPageClient({ builders }: Props) {
           authReady={authReady}
         />
 
-        <div className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className={`fixed ${userId ? 'bottom-28' : 'bottom-6'} sm:bottom-6 left-1/2 -translate-x-1/2 z-50`}>
           <button
             onClick={() => {
               window.scrollTo({ top: 0 })

@@ -63,7 +63,7 @@ export default async function MessagesPage() {
   })
 
   return (
-    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-[#F7F7F7] overflow-hidden">
+    <div className="h-full flex flex-col bg-[#F7F7F7] overflow-hidden">
       <MessagesClient conversations={conversations} userId={user.id} />
     </div>
   )
