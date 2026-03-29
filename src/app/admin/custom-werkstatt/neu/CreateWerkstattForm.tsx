@@ -10,16 +10,8 @@ export default function CreateWerkstattForm() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [form, setForm] = useState({
-    name: '',
-    username: '',
-    city: '',
-    specialty: '',
-    bio: '',
-    tags: '',
-    since_year: '',
-    is_verified: false,
-  })
+  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
 
   /** Auto-generate slug from name */
   function handleNameChange(value: string) {
@@ -31,11 +23,12 @@ export default function CreateWerkstattForm() {
       .replace(/ß/g, 'ss')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-    setForm(f => ({ ...f, name: value, username: slug }))
+    setName(value)
+    setUsername(slug)
   }
 
   async function handleSubmit() {
-    if (!form.name.trim() || !form.username.trim()) {
+    if (!name.trim() || !username.trim()) {
       setError('Name und Username sind erforderlich')
       return
     }
@@ -46,14 +39,8 @@ export default function CreateWerkstattForm() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: form.name.trim(),
-        username: form.username.trim(),
-        city: form.city.trim() || null,
-        specialty: form.specialty.trim() || null,
-        bio: form.bio.trim() || null,
-        tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : null,
-        since_year: form.since_year ? parseInt(form.since_year) : null,
-        is_verified: form.is_verified,
+        name: name.trim(),
+        username: username.trim(),
       }),
     })
 
@@ -65,42 +52,12 @@ export default function CreateWerkstattForm() {
       return
     }
 
-    router.push('/admin/custom-werkstatt')
+    // Redirect to full edit form (same as workshop self-edit)
+    router.push(`/admin/custom-werkstatt/${data.username}/edit`)
     router.refresh()
   }
 
-  const field = (
-    label: string,
-    key: keyof typeof form,
-    opts?: { type?: 'text' | 'textarea' | 'number'; placeholder?: string; disabled?: boolean },
-  ) => {
-    const { type = 'text', placeholder, disabled } = opts ?? {}
-    return (
-      <div>
-        <label className="block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-1.5">
-          {label}
-        </label>
-        {type === 'textarea' ? (
-          <textarea
-            value={form[key] as string}
-            onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-            placeholder={placeholder}
-            rows={3}
-            className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 resize-none transition-colors"
-          />
-        ) : (
-          <input
-            type={type}
-            value={form[key] as string}
-            onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-            placeholder={placeholder}
-            disabled={disabled}
-            className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors disabled:opacity-50"
-          />
-        )}
-      </div>
-    )
-  }
+  const inputClass = 'w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors'
 
   return (
     <>
@@ -124,7 +81,7 @@ export default function CreateWerkstattForm() {
         <div className="flex items-center gap-2 p-4 rounded-2xl bg-white border border-[#222222]/6">
           <div className="w-2 h-2 rounded-full flex-shrink-0 bg-amber-400" />
           <p className="text-xs text-[#222222]/50">
-            Die Werkstatt wird ohne E-Mail-Adresse erstellt. Du kannst sie spaeter einem Inhaber zuordnen.
+            Nach dem Anlegen wirst du zum vollstaendigen Profil-Formular weitergeleitet.
           </p>
         </div>
 
@@ -137,48 +94,24 @@ export default function CreateWerkstattForm() {
             </label>
             <input
               type="text"
-              value={form.name}
+              value={name}
               onChange={e => handleNameChange(e.target.value)}
               placeholder="z.B. Thunderbike Customs"
-              className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder-[#1A1714]/20 focus:outline-none focus:border-[#DDDDDD]/50 transition-colors"
+              className={inputClass}
             />
           </div>
-          {field('Username / Slug *', 'username', { placeholder: 'wird-automatisch-generiert' })}
-          <div className="grid grid-cols-2 gap-4">
-            {field('Stadt', 'city', { placeholder: 'z.B. Stuttgart' })}
-            {field('Seit Jahr', 'since_year', { type: 'number', placeholder: '2010' })}
+          <div>
+            <label className="block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-1.5">
+              Username / Slug *
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="wird-automatisch-generiert"
+              className={inputClass}
+            />
           </div>
-          {field('Spezialisierung', 'specialty', { placeholder: 'z.B. Cafe Racer, Bobber' })}
-          {field('Bio (kurz)', 'bio', { type: 'textarea', placeholder: 'Kurzbeschreibung der Werkstatt...' })}
-        </div>
-
-        {/* Tags */}
-        <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 space-y-4">
-          <h2 className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest">Tags</h2>
-          {field('Leistungen (kommagetrennt)', 'tags', { placeholder: 'Umbau, Restauration, Lackierung' })}
-        </div>
-
-        {/* Status */}
-        <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
-          <h2 className="text-xs font-semibold text-[#222222]/30 uppercase tracking-widest mb-4">Status</h2>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <div
-              onClick={() => setForm(f => ({ ...f, is_verified: !f.is_verified }))}
-              className={`w-10 h-6 rounded-full border-2 transition-all relative cursor-pointer ${
-                form.is_verified ? 'bg-[#06a5a5] border-[#DDDDDD]' : 'bg-transparent border-[#222222]/20'
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
-                  form.is_verified ? 'left-4' : 'left-0.5'
-                }`}
-              />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[#222222]">Verifizierte Werkstatt</p>
-              <p className="text-xs text-[#222222]/30 mt-0.5">Zeigt das Verified-Badge auf dem Profil</p>
-            </div>
-          </label>
         </div>
 
         {error && (
@@ -194,11 +127,11 @@ export default function CreateWerkstattForm() {
           </Link>
           <button
             onClick={handleSubmit}
-            disabled={saving || !form.name.trim() || !form.username.trim()}
+            disabled={saving || !name.trim() || !username.trim()}
             className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#058f8f] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus size={14} />
-            {saving ? 'Wird erstellt...' : 'Werkstatt anlegen'}
+            {saving ? 'Wird erstellt...' : 'Werkstatt anlegen & bearbeiten'}
           </button>
         </div>
       </div>
