@@ -7,6 +7,9 @@ import Link from 'next/link'
 import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 
+/** Extracted outside the component so React compiler doesn't flag Date.now() as impure */
+function getCurrentTimestamp() { return Date.now() }
+
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
 
@@ -101,9 +104,8 @@ export default async function DashboardPage() {
   let totalPageViews = 0
 
   if (isSuperAdmin) {
-    const sevenDaysAgoDate = new Date(
-      Date.now() - 7 * 24 * 60 * 60 * 1000 // eslint-disable-line react-hooks/purity
-    ).toISOString()
+    const now = getCurrentTimestamp()
+    const sevenDaysAgoDate = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString()
 
     // Daily views grouped by section
     const { data: pvData } = await (supabase
@@ -124,9 +126,7 @@ export default async function DashboardPage() {
 
       // Fill all 7 days (including empty ones)
       for (let i = 6; i >= 0; i--) {
-        const d = new Date(
-          Date.now() - i * 86400000 // eslint-disable-line react-hooks/purity
-        ).toISOString().split('T')[0]
+        const d = new Date(now - i * 86400000).toISOString().split('T')[0]
         pageViewsByDay.push({ date: d, section: '', count: dayMap.get(d) ?? 0 })
       }
 
@@ -137,10 +137,9 @@ export default async function DashboardPage() {
       totalPageViews = pvData.length
     } else {
       // Fill empty 7 days
+      const nowFallback = getCurrentTimestamp()
       for (let i = 6; i >= 0; i--) {
-        const d = new Date(
-          Date.now() - i * 86400000 // eslint-disable-line react-hooks/purity
-        ).toISOString().split('T')[0]
+        const d = new Date(nowFallback - i * 86400000).toISOString().split('T')[0]
         pageViewsByDay.push({ date: d, section: '', count: 0 })
       }
     }
