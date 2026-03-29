@@ -42,19 +42,23 @@ export default async function AdminBuilderPage() {
     .order('created_at', { ascending: false }) as { data: Omit<SupabaseBuilder, 'email' | 'email_confirmed'>[] | null }
 
   // Enrich with auth data (email + confirmed) — use service role key for admin API
-  const adminClient = createAdmin(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
   const authMap = new Map<string, { email?: string; email_confirmed_at?: string | null; last_sign_in_at?: string | null }>()
-  let authPage = 1
-  const perPage = 1000
-  while (true) {
-    const { data: authData } = await adminClient.auth.admin.listUsers({ page: authPage, perPage })
-    if (!authData?.users?.length) break
-    for (const u of authData.users) authMap.set(u.id, u)
-    if (authData.users.length < perPage) break
-    authPage++
+  try {
+    const adminClient = createAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
+    let authPage = 1
+    const perPage = 1000
+    while (true) {
+      const { data: authData } = await adminClient.auth.admin.listUsers({ page: authPage, perPage })
+      if (!authData?.users?.length) break
+      for (const u of authData.users) authMap.set(u.id, u)
+      if (authData.users.length < perPage) break
+      authPage++
+    }
+  } catch (e) {
+    console.error('Failed to fetch auth users:', e)
   }
 
   const UNCLAIMED_SUFFIX = '@motodigital.local'

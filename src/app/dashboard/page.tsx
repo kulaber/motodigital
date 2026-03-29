@@ -76,23 +76,34 @@ export default async function DashboardPage() {
   let adminStats: AdminStats | null = null
 
   if (isSuperAdmin) {
-    const [buildersTotal, buildersLive, ridersTotal, authResult] = await Promise.all([
-      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt') as Promise<{ count: number | null }>,
-      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt').eq('is_verified', true) as Promise<{ count: number | null }>,
-      (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'rider').eq('is_verified', true) as Promise<{ count: number | null }>,
-      supabase.auth.admin.listUsers({ perPage: 1000 }),
-    ])
+    try {
+      const { createClient: createAdminClient } = await import('@supabase/supabase-js')
+      const adminClient = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      )
 
-    const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
-    const ridersOnline = authResult.data?.users?.filter(u =>
-      u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
-    ).length ?? 0
+      const [buildersTotal, buildersLive, ridersTotal, authResult] = await Promise.all([
+        (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt') as Promise<{ count: number | null }>,
+        (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt').eq('is_verified', true) as Promise<{ count: number | null }>,
+        (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'rider').eq('is_verified', true) as Promise<{ count: number | null }>,
+        adminClient.auth.admin.listUsers({ perPage: 1000 }),
+      ])
 
-    adminStats = {
-      buildersTotal: buildersTotal.count ?? 0,
-      buildersLive: buildersLive.count ?? 0,
-      ridersTotal: ridersTotal.count ?? 0,
-      ridersOnline,
+      const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const ridersOnline = authResult.data?.users?.filter(u =>
+        u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
+      ).length ?? 0
+
+      adminStats = {
+        buildersTotal: buildersTotal.count ?? 0,
+        buildersLive: buildersLive.count ?? 0,
+        ridersTotal: ridersTotal.count ?? 0,
+        ridersOnline,
+      }
+    } catch (e) {
+      console.error('Failed to load admin stats:', e)
+      adminStats = { buildersTotal: 0, buildersLive: 0, ridersTotal: 0, ridersOnline: 0 }
     }
   }
 
