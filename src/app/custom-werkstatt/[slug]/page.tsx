@@ -10,6 +10,7 @@ import Header from '@/components/layout/Header'
 import { BUILDERS, getBuilderBySlug, type Builder, type BuilderMedia } from '@/lib/data/builders'
 import BuilderMapClient from './BuilderMapClient'
 import HeroActions from './HeroActions'
+import OwnerEditButton from './OwnerEditButton'
 import GallerySlider from './GallerySlider'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
@@ -72,7 +73,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
@@ -154,6 +155,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     website:     (row.website_url as string | null) ?? undefined,
     youtube:     (row.youtube_url as string | null) ?? undefined,
     avatarUrl:   (row.avatar_url as string | null) ?? undefined,
+    openingHours: (row.opening_hours as { day: string; hours: string }[] | null) ?? undefined,
     media,
     galleryImages,
     featuredBuilds,
@@ -254,7 +256,10 @@ export default async function BuilderProfilePage({ params }: Props) {
               aria-label="Zurück">
               <ChevronLeft size={20} />
             </Link>
-            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+            <div className="flex items-center gap-2">
+              <OwnerEditButton builderSlug={slug} iconOnly />
+              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+            </div>
           </div>
         </div>
 
@@ -339,7 +344,8 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )}
               </div>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden sm:flex items-center gap-2">
+              <OwnerEditButton builderSlug={slug} />
               <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
             </div>
           </div>
