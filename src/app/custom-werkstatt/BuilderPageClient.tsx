@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Wrench, Star, ChevronDown, SlidersHorizontal, X, Map as MapIcon, List as ListIcon, Search } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Star, X, Map as MapIcon, List as ListIcon, Search } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
 import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
 import { type Builder } from '@/lib/data/builders'
@@ -322,10 +322,6 @@ function BuilderList({
 export default function BuilderPageClient({ builders }: Props) {
   const [searchQuery,         setSearchQuery]        = useState('')
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
-  const [styleOpen,          setStyleOpen]          = useState(false)
-  const [styleDropLeft,      setStyleDropLeft]      = useState(16)
-  const [leistungenOpen,     setLeistungenOpen]     = useState(false)
-  const [leistungenDropLeft,  setLeistungenDropLeft] = useState(16)
   const [activeLeistung,     setActiveLeistung]     = useState('Alle')
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
@@ -344,9 +340,6 @@ export default function BuilderPageClient({ builders }: Props) {
   const [showLogin, setShowLogin]                   = useState(false)
   const supabase = createClient()
 
-  const filterBarRef     = useRef<HTMLDivElement>(null)
-  const stilBtnRef       = useRef<HTMLButtonElement>(null)
-  const leistungenBtnRef = useRef<HTMLButtonElement>(null)
   const listRef          = useRef<HTMLDivElement>(null)
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const desktopMapSlot   = useRef<HTMLDivElement>(null)
@@ -754,8 +747,7 @@ export default function BuilderPageClient({ builders }: Props) {
       `}</style>
 
       {/* ── Sticky filter bar ── */}
-      <div ref={filterBarRef} className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5 relative">
-        {/* Filters — all screen sizes */}
+      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Search field */}
           <div className="relative flex-shrink-0 w-48 lg:w-56">
@@ -778,45 +770,35 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
-          {/* Stil button */}
-          <button
-            ref={stilBtnRef}
-            onClick={() => {
-              if (!styleOpen && stilBtnRef.current && filterBarRef.current) {
-                setStyleDropLeft(stilBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left)
-              }
-              setStyleOpen(v => !v)
-            }}
-            className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+          {/* Umbaustil — native select */}
+          <select
+            value={activeSpecialty}
+            onChange={e => setActiveSpecialty(e.target.value)}
+            className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
               activeSpecialty !== 'Alle'
                 ? 'bg-[#222222] text-white'
                 : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
             }`}
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeSpecialty !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
           >
-            <SlidersHorizontal size={11} />
-            {activeSpecialty === 'Alle' ? 'Umbaustil' : activeSpecialty}
-            <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
-          </button>
+            <option value="Alle">Umbaustil</option>
+            {availableSpecialties.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
 
-          {/* Leistungen button */}
-          <button
-            ref={leistungenBtnRef}
-            onClick={() => {
-              if (!leistungenOpen && leistungenBtnRef.current && filterBarRef.current) {
-                setLeistungenDropLeft(leistungenBtnRef.current.getBoundingClientRect().left - filterBarRef.current.getBoundingClientRect().left)
-              }
-              setLeistungenOpen(v => !v)
-            }}
-            className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+          {/* Leistungen — native select */}
+          <select
+            value={activeLeistung}
+            onChange={e => setActiveLeistung(e.target.value)}
+            className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
               activeLeistung !== 'Alle'
                 ? 'bg-[#222222] text-white'
                 : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
             }`}
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeLeistung !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
           >
-            <Wrench size={11} />
-            {activeLeistung === 'Alle' ? 'Leistungen' : activeLeistung}
-            <ChevronDown size={11} className={`transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
-          </button>
+            <option value="Alle">Leistungen</option>
+            {availableLeistungen.map(l => <option key={l} value={l}>{l}</option>)}
+          </select>
 
           {/* Jetzt geöffnet */}
           {now && (
@@ -842,57 +824,6 @@ export default function BuilderPageClient({ builders }: Props) {
             </button>
           )}
         </div>
-
-        {/* Dropdown panels — positioned relative to their trigger buttons */}
-        {styleOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
-            <div
-              className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg overflow-hidden min-w-[160px] py-1"
-              style={{ left: styleDropLeft }}
-            >
-              {availableSpecialties.map(spec => (
-                <button
-                  key={spec}
-                  onClick={() => { setActiveSpecialty(spec); setStyleOpen(false) }}
-                  className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
-                    activeSpecialty === spec
-                      ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
-                      : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
-                  }`}
-                >
-                  {spec}
-                  {activeSpecialty === spec && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-        {leistungenOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setLeistungenOpen(false)} />
-            <div
-              className="absolute top-full mt-1.5 z-50 bg-white border border-[#DDDDDD] rounded-2xl shadow-lg min-w-[200px] py-1 max-h-72 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              style={{ left: leistungenDropLeft }}
-            >
-              {['Alle', ...availableLeistungen].map(l => (
-                <button
-                  key={l}
-                  onClick={() => { setActiveLeistung(l); setLeistungenOpen(false) }}
-                  className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors flex items-center justify-between gap-3 ${
-                    activeLeistung === l
-                      ? 'text-[#222222] font-semibold bg-[#F7F7F7]'
-                      : 'text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222]'
-                  }`}
-                >
-                  {l}
-                  {activeLeistung === l && <span className="w-1.5 h-1.5 rounded-full bg-[#222222] flex-shrink-0" />}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
       </div>
 
       {/* ── Desktop: Split layout (List left 50% | Map right 50%) ── */}

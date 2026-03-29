@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, ArrowUpDown, Search } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -23,15 +23,10 @@ interface Props {
 export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [activeStyle,   setActiveStyle]   = useState(initialStyle)
   const [activeCountry, setActiveCountry] = useState('Alle')
-  const [countryOpen,   setCountryOpen]   = useState(false)
   const [activeMake,    setActiveMake]    = useState('Alle')
-  const [makeOpen,      setMakeOpen]      = useState(false)
   const [activeModel,   setActiveModel]   = useState('Alle')
-  const [modelOpen,     setModelOpen]     = useState(false)
-  const [styleOpen,     setStyleOpen]     = useState(false)
   const [searchQuery,   setSearchQuery]   = useState('')
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
-  const [sortOpen,      setSortOpen]      = useState(false)
   const [page,          setPage]          = useState(1)
   const PER_PAGE = 12
 
@@ -148,124 +143,64 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               )}
             </div>
 
-            {/* Dropdowns: Land → Umbau-Stil → Marke → Modell */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Native select filters: Land → Umbau-Stil → Marke → Modell */}
+            <select
+              value={activeCountry}
+              onChange={e => { setActiveCountry(e.target.value); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
+              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+                activeCountry !== 'Alle'
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeCountry !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+            >
+              <option value="Alle">Land</option>
+              {countries.filter(c => c !== 'Alle').map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
 
-            {/* Land */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setCountryOpen(v => !v)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeCountry !== 'Alle'
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                }`}
-              >
-                {activeCountry === 'Alle' ? 'Land' : activeCountry}
-                <ChevronDown size={11} className={`transition-transform ${countryOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {countryOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setCountryOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
-                    {countries.map(c => (
-                      <button key={c} onClick={() => { setActiveCountry(c); setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); setCountryOpen(false); scrollToFilter() }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeCountry === c ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <select
+              value={activeStyle}
+              onChange={e => { setActiveStyle(e.target.value); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
+              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+                activeStyle !== 'Alle'
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeStyle !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+            >
+              <option value="Alle">Umbau-Stil</option>
+              {styles.filter(s => s !== 'Alle').map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
 
-            {/* Umbau-Stil */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setStyleOpen(v => !v)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeStyle !== 'Alle'
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                }`}
-              >
-                {activeStyle === 'Alle' ? 'Umbau-Stil' : activeStyle}
-                <ChevronDown size={11} className={`transition-transform ${styleOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {styleOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px]">
-                    {styles.map(s => (
-                      <button key={s} onClick={() => { setActiveStyle(s); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1); setStyleOpen(false); scrollToFilter() }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeStyle === s ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <select
+              value={activeMake}
+              onChange={e => { setActiveMake(e.target.value); setActiveModel('Alle'); setPage(1); scrollToFilter() }}
+              className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+                activeMake !== 'Alle'
+                  ? 'bg-[#222222] text-white'
+                  : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+              }`}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeMake !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+            >
+              <option value="Alle">Marke</option>
+              {makes.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
 
-            {/* Marke */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setMakeOpen(v => !v)}
-                className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeMake !== 'Alle'
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                }`}
-              >
-                {activeMake === 'Alle' ? 'Marke' : activeMake}
-                <ChevronDown size={11} className={`transition-transform ${makeOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {makeOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setMakeOpen(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[160px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
-                    {makes.map(m => (
-                      <button key={m} onClick={() => { setActiveMake(m); setActiveModel('Alle'); setPage(1); setMakeOpen(false); scrollToFilter() }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeMake === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Modell — nur nach Marken-Auswahl */}
             {activeMake !== 'Alle' && (
-              <div className="relative flex-shrink-0">
-                <button
-                  onClick={() => setModelOpen(v => !v)}
-                  className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                    activeModel !== 'Alle'
-                      ? 'bg-[#222222] text-white'
-                      : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
-                  }`}
-                >
-                  {activeModel === 'Alle' ? 'Modell' : activeModel}
-                  <ChevronDown size={11} className={`transition-transform ${modelOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {modelOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setModelOpen(false)} />
-                    <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[180px] max-h-64 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
-                      {models.map(m => (
-                        <button key={m} onClick={() => { setActiveModel(m); setPage(1); setModelOpen(false); scrollToFilter() }}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeModel === m ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                          {m}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              <select
+                value={activeModel}
+                onChange={e => { setActiveModel(e.target.value); setPage(1); scrollToFilter() }}
+                className={`flex-shrink-0 text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full appearance-none bg-[right_8px_center] bg-[length:10px] bg-no-repeat cursor-pointer transition-all ${
+                  activeModel !== 'Alle'
+                    ? 'bg-[#222222] text-white'
+                    : 'bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30'
+                }`}
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='${activeModel !== 'Alle' ? 'white' : '%23717171'}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
+              >
+                <option value="Alle">Modell</option>
+                {models.filter(m => m !== 'Alle').map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
             )}
-
-            </div>{/* end dropdowns wrapper */}
 
             {/* Reset */}
             {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle' || searchQuery) && (
@@ -282,28 +217,18 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="flex-1" />
 
             {/* Sortieren */}
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={() => setSortOpen(v => !v)}
-                className="flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold p-2 sm:px-3 sm:py-1.5 rounded-full bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30 transition-all cursor-pointer"
+            <div className="flex-shrink-0 flex items-center gap-1.5">
+              <ArrowUpDown size={11} className="text-[#717171] hidden sm:block" />
+              <select
+                value={activeSort}
+                onChange={e => { setActiveSort(e.target.value as 'popular' | 'newest' | 'oldest'); setPage(1); scrollToFilter() }}
+                className="text-xs font-semibold pl-1 pr-5 py-1.5 rounded-full appearance-none bg-white text-[#717171] border border-[#DDDDDD] hover:text-[#222222] hover:border-[#222222]/30 cursor-pointer transition-all bg-[right_6px_center] bg-[length:10px] bg-no-repeat"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")` }}
               >
-                <ArrowUpDown size={13} className="sm:size-[11px]" />
-                <span className="hidden sm:inline">{SORT_LABELS[activeSort]}</span>
-                <ChevronDown size={11} className={`hidden sm:block transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {sortOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setSortOpen(false)} />
-                  <div className="absolute top-full mt-2 right-0 z-50 bg-white border border-[#222222]/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 min-w-[170px]">
-                    {(['popular', 'newest', 'oldest'] as const).map(key => (
-                      <button key={key} onClick={() => { setActiveSort(key); setPage(1); setSortOpen(false); scrollToFilter() }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors border-b border-[#222222]/5 last:border-0 ${activeSort === key ? 'text-[#717171] bg-[#222222]/8' : 'text-[#222222]/50 hover:text-[#222222] hover:bg-[#222222]/5'}`}>
-                        {SORT_LABELS[key]}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+                {(['popular', 'newest', 'oldest'] as const).map(key => (
+                  <option key={key} value={key}>{SORT_LABELS[key]}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
