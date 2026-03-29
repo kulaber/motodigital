@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import { getWeeklyVisitors } from '@/lib/vercel-analytics'
 import Link from 'next/link'
-import { Plus, Eye, MessageCircle, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import { Plus, Eye, TrendingUp, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -31,11 +31,11 @@ export default async function DashboardPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('full_name, role, city, specialty, bio, is_verified, avatar_url, slug')
+    .select('full_name, role, city, specialty, bio, bio_long, is_verified, avatar_url, slug, tags, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url')
     .eq('id', user.id)
-    .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null } | null }
+    .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; bio_long: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null; tags: string[] | null; address: string | null; lat: number | null; lng: number | null; instagram_url: string | null; tiktok_url: string | null; website_url: string | null; youtube_url: string | null } | null }
 
-  const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }] = await Promise.all([
+  const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
       .select('id, title, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
@@ -49,10 +49,17 @@ export default async function DashboardPage() {
       .limit(10) as unknown as Promise<{ data: DashboardConversation[] | null, error: unknown }>,
     supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
     supabase.from('saved_builders').select('builder_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from('builder_media') as any)
+      .select('id, url, type, title, position')
+      .eq('builder_id', user.id)
+      .order('position', { ascending: true }) as Promise<{ data: { id: string; url: string; type: string; title: string | null; position: number }[] | null, error: unknown }>,
   ])
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
+  const coverImage = builderMedia?.find(m => m.title === 'cover') ?? null
+  const galleryCount = builderMedia?.filter(m => m.title !== 'cover').length ?? 0
   const isRider = profile?.role === 'rider'
   const isBuilder = profile?.role === 'custom-werkstatt'
   const isSuperAdmin = profile?.role === 'superadmin'
@@ -310,12 +317,10 @@ export default async function DashboardPage() {
           </div>
 
         ) : !isSuperAdmin ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 gap-3 mb-8">
             {[
-              { label: 'Aktive Inserate', value: activeCount,                   icon: <TrendingUp size={16}/> },
-              { label: 'Gesamte Aufrufe', value: totalViews,                    icon: <Eye size={16}/> },
-              { label: 'Nachrichten',     value: conversations?.length ?? 0,    icon: <MessageCircle size={16}/> },
-              { label: 'Inserate gesamt', value: bikes?.length ?? 0,            icon: <Plus size={16}/> },
+              { label: 'Aktive Custom Bikes', value: activeCount, icon: <Bike size={16}/> },
+              { label: 'Gesamte Aufrufe',     value: totalViews,  icon: <Eye size={16}/> },
             ].map(s => (
               <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
                 <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
@@ -328,78 +333,104 @@ export default async function DashboardPage() {
         {!isRider && !isSuperAdmin && <div className="flex flex-col gap-5 mt-0">
 
             {/* Builder profile card — only for builders, not superadmin (uses /admin/custom-werkstatt) */}
-            {isBuilder && !isSuperAdmin && (
-              <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
-                  style={{ background: 'radial-gradient(circle, rgba(42,171,171,0.08) 0%, transparent 65%)', transform: 'translate(30%,-30%)' }} />
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#222222]/12 border border-[#DDDDDD]/20 flex items-center justify-center flex-shrink-0">
-                      <User size={20} className="text-[#717171]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#222222] mb-0.5">Custom Werkstatt Profil</p>
-                      {profile?.bio ? (
-                        <p className="text-xs text-[#222222]/40 leading-relaxed max-w-xs line-clamp-2">{profile.bio}</p>
-                      ) : (
-                        <p className="text-xs text-[#222222]/30">Noch keine Bio — füge eine hinzu, damit Rider dich finden</p>
-                      )}
-                      {(profile?.city || profile?.specialty) && (
-                        <p className="text-xs text-[#222222]/35 mt-1">
-                          {[profile.city, profile.specialty].filter(Boolean).join(' · ')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
-                    <Link
-                      href="/dashboard/profile"
-                      className="flex items-center gap-1.5 text-xs bg-[#06a5a5] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all whitespace-nowrap"
-                    >
-                      Profil bearbeiten
-                    </Link>
-                    <Link
-                      href={profile?.slug ? `/custom-werkstatt/${profile.slug}` : '/custom-werkstatt'}
-                      className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
-                    >
-                      <ExternalLink size={11} /> Vorschau
-                    </Link>
-                  </div>
-                </div>
+            {isBuilder && !isSuperAdmin && (() => {
+              const completenessItems = [
+                { label: 'Logo', done: !!profile?.avatar_url },
+                { label: 'Titelbild', done: !!coverImage },
+                { label: 'Name', done: !!profile?.full_name },
+                { label: 'Über die Werkstatt', done: !!profile?.bio_long },
+                { label: 'Leistungen', done: (profile?.tags?.length ?? 0) > 0 },
+                { label: 'Umbaustile', done: !!profile?.specialty },
+                { label: 'Adresse', done: !!profile?.address && !!profile?.lat && !!profile?.lng },
+                { label: 'Social Media', done: !!(profile?.instagram_url || profile?.tiktok_url || profile?.website_url || profile?.youtube_url) },
+                { label: 'Galerie', done: galleryCount > 0 },
+              ]
+              const completenessPercent = Math.round(completenessItems.filter(i => i.done).length / completenessItems.length * 100)
 
-                {/* Profile completeness */}
-                <div className="mt-4 pt-4 border-t border-[#222222]/5">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-[#222222]/30">Profil-Vollständigkeit</span>
-                    <span className="text-xs font-semibold text-[#717171]">
-                      {[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%
-                    </span>
+              return (
+                <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl overflow-hidden">
+                  {/* Cover image banner */}
+                  <div className="relative aspect-[3/1] w-full overflow-hidden">
+                    {coverImage ? (
+                      <Image src={coverImage.url} alt="Titelbild" fill sizes="(max-width: 640px) 100vw, 720px" className="object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#06a5a5]/10 to-[#F0EDE4]" />
+                    )}
                   </div>
-                  <div className="h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#06a5a5] rounded-full transition-all"
-                      style={{ width: `${[profile?.bio, profile?.city, profile?.specialty, profile?.is_verified].filter(Boolean).length * 25}%` }}
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {[
-                      { label: 'Bio', done: !!profile?.bio },
-                      { label: 'Stadt', done: !!profile?.city },
-                      { label: 'Spezialisierung', done: !!profile?.specialty },
-                      { label: 'Verifiziert', done: !!profile?.is_verified },
-                    ].map(item => (
-                      <span key={item.label} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                        item.done
-                          ? 'bg-[#222222]/10 text-[#717171] border border-[#DDDDDD]/20'
-                          : 'bg-[#222222]/5 text-[#222222]/25 border border-[#222222]/8'
-                      }`}>
-                        {item.done ? '✓ ' : ''}{item.label}
-                      </span>
-                    ))}
+
+                  <div className="px-5 pb-5">
+                    {/* Avatar overlapping cover */}
+                    <div className="relative -mt-8 mb-3 z-10">
+                      <div className="relative w-16 h-16 rounded-2xl border-4 border-white bg-[#06a5a5] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                        {profile?.avatar_url ? (
+                          <Image src={profile.avatar_url} alt={profile.full_name ?? 'Logo'} fill sizes="64px" className="object-cover" />
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="28" height="28">
+                            <path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Profile info */}
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-[#222222] mb-0.5">Mein Custom Werkstatt Profil</p>
+                        {(profile?.bio_long || profile?.bio) ? (
+                          <p className="text-xs text-[#222222]/40 leading-relaxed max-w-xs line-clamp-2">{profile?.bio_long ?? profile?.bio}</p>
+                        ) : (
+                          <p className="text-xs text-[#222222]/30">Noch keine Beschreibung — füge eine hinzu, damit Rider dich finden</p>
+                        )}
+                        {(profile?.city || profile?.specialty) && (
+                          <p className="text-xs text-[#222222]/35 mt-1">
+                            {[profile.city, profile.specialty].filter(Boolean).join(' · ')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                        <Link
+                          href="/dashboard/profile"
+                          className="flex items-center gap-1.5 text-xs bg-[#06a5a5] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all whitespace-nowrap"
+                        >
+                          Profil bearbeiten
+                        </Link>
+                        <Link
+                          href={profile?.slug ? `/custom-werkstatt/${profile.slug}` : '/custom-werkstatt'}
+                          className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
+                        >
+                          <ExternalLink size={11} /> Vorschau
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Profile completeness */}
+                    <div className="mt-4 pt-4 border-t border-[#222222]/5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-[#222222]/30">Profil-Vollständigkeit</span>
+                        <span className="text-xs font-semibold text-[#717171]">{completenessPercent}%</span>
+                      </div>
+                      <div className="h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#06a5a5] rounded-full transition-all"
+                          style={{ width: `${completenessPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {completenessItems.map(item => (
+                          <span key={item.label} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                            item.done
+                              ? 'bg-[#222222]/10 text-[#717171] border border-[#DDDDDD]/20'
+                              : 'bg-[#222222]/5 text-[#222222]/25 border border-[#222222]/8'
+                          }`}>
+                            {item.done ? '✓ ' : ''}{item.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Listings */}
             {!isSuperAdmin && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
@@ -450,35 +481,6 @@ export default async function DashboardPage() {
               </div>
             </div>}
 
-            {/* Nachrichten */}
-            {!isSuperAdmin && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#222222]/5">
-                <h2 className="text-sm font-semibold text-[#222222]">Nachrichten</h2>
-              </div>
-              <div className="divide-y divide-[#222222]/5">
-                {conversations?.map((conv) => (
-                  <Link
-                    key={conv.id}
-                    href={`/dashboard?conversation=${conv.id}`}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-[#222222]/15 border border-[#DDDDDD]/20 flex items-center justify-center text-xs font-bold text-[#717171] flex-shrink-0 mt-0.5">
-                      {(conv.profiles?.full_name ?? conv.profiles?.username ?? '?').charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#222222]">
-                        {conv.profiles?.full_name ?? conv.profiles?.username}
-                      </p>
-                      <p className="text-xs text-[#222222]/35 truncate">{conv.bikes?.title}</p>
-                    </div>
-                    <ChevronRight size={14} className="text-[#222222]/20 flex-shrink-0 mt-1" />
-                  </Link>
-                ))}
-                {!conversations?.length && (
-                  <p className="px-5 py-8 text-sm text-[#222222]/30 text-center">Keine Nachrichten</p>
-                )}
-              </div>
-            </div>}
 
         </div>}
     </div>
