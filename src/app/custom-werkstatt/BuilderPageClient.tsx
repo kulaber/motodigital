@@ -866,7 +866,7 @@ export default function BuilderPageClient({ builders }: Props) {
         {mobileView === 'map' && (
           <button
             onClick={() => { setMobileView('list'); setMobileSheetBuilder(null) }}
-            className="fixed bottom-28 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+            className={`fixed ${userId ? 'bottom-28' : 'bottom-6'} sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95`}
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             <ListIcon size={16} className="text-[#1A1A1A]" />
