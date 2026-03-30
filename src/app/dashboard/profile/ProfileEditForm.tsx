@@ -353,7 +353,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       <ToastContainer toasts={toasts} />
 
       {/* ── PROFILE FORM ── */}
-      <form id="profile-form" onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      <form id="profile-form" onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 overflow-hidden">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profil-Informationen</h2>
 
         {/* Logo */}
@@ -521,7 +521,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         <Field label="Öffnungszeiten" className="mb-4">
           <div className="space-y-2">
             {openingHours.map((entry, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+              <div key={idx} className="flex flex-wrap sm:flex-nowrap items-center gap-2">
                 <select
                   value={entry.day}
                   onChange={e => {
@@ -529,7 +529,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                     next[idx] = { ...next[idx], day: e.target.value }
                     setOpeningHours(next)
                   }}
-                  className={`${input} w-[130px] flex-shrink-0`}
+                  className={`${input} w-full sm:w-[130px] sm:flex-shrink-0`}
                 >
                   <option value="">Tag…</option>
                   <option value="Mo">Mo</option>
@@ -557,7 +557,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                     }
                     setOpeningHours(next)
                   }}
-                  className={`${input} w-[180px] flex-shrink-0`}
+                  className={`${input} flex-1 min-w-0 sm:w-[180px] sm:flex-shrink-0 sm:flex-initial`}
                 >
                   <option value="__custom__">Uhrzeit eingeben</option>
                   <option value="Geschlossen">Geschlossen</option>
@@ -572,7 +572,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                       setOpeningHours(next)
                     }}
                     placeholder="09:00 – 17:00"
-                    className={`${input} flex-1`}
+                    className={`${input} flex-1 min-w-0`}
                   />
                 )}
                 <button
