@@ -28,6 +28,7 @@ type ProfileData = {
   website_url: string | null
   youtube_url: string | null
   avatar_url: string | null
+  opening_hours: { day: string; hours: string }[] | null
   is_verified: boolean
 }
 
@@ -65,7 +66,7 @@ export default function EditBuilderPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
-        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, is_verified')
+        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, opening_hours, is_verified')
         .or(`username.eq.${slug},slug.eq.${slug}`)
         .maybeSingle() as { data: ProfileData | null }
 

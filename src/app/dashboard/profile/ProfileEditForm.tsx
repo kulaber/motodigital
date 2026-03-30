@@ -3,7 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Image as ImageIcon, Trash2, MapPin } from 'lucide-react'
+import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 
@@ -118,6 +118,7 @@ type Profile = {
   website_url: string | null
   youtube_url: string | null
   avatar_url: string | null
+  opening_hours?: { day: string; hours: string }[] | null
 }
 
 function slugify(name: string) {
@@ -160,6 +161,9 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [youtube, setYoutube]       = useState(profile.youtube_url ?? '')
   const [avatarUrl, setAvatarUrl]   = useState(profile.avatar_url ?? '')
   const [avatarCacheBust, setAvatarCacheBust] = useState('')
+  const [openingHours, setOpeningHours] = useState<{ day: string; hours: string }[]>(
+    profile.opening_hours ?? []
+  )
 
   const computedSlug = profile.slug ?? slugify(fullName)
 
@@ -235,6 +239,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       tiktok_url:    tiktok || null,
       website_url:   website || null,
       youtube_url:   youtube || null,
+      opening_hours: openingHours.length ? openingHours : null,
     }).eq('id', profile.id)
 
     if (err) {
@@ -510,6 +515,86 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
         <Field label="Vollständige Anschrift" className="mb-4">
           <AddressAutocomplete value={addressData} onChange={setAddressData} />
+        </Field>
+
+        {/* Öffnungszeiten */}
+        <Field label="Öffnungszeiten" className="mb-4">
+          <div className="space-y-2">
+            {openingHours.map((entry, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <select
+                  value={entry.day}
+                  onChange={e => {
+                    const next = [...openingHours]
+                    next[idx] = { ...next[idx], day: e.target.value }
+                    setOpeningHours(next)
+                  }}
+                  className={`${input} w-[130px] flex-shrink-0`}
+                >
+                  <option value="">Tag…</option>
+                  <option value="Mo">Mo</option>
+                  <option value="Di">Di</option>
+                  <option value="Mi">Mi</option>
+                  <option value="Do">Do</option>
+                  <option value="Fr">Fr</option>
+                  <option value="Sa">Sa</option>
+                  <option value="So">So</option>
+                  <option value="Mo-Fr">Mo–Fr</option>
+                  <option value="Sa-So">Sa–So</option>
+                </select>
+                <select
+                  value={
+                    entry.hours === 'Geschlossen' || entry.hours === 'Nur nach Vereinbarung'
+                      ? entry.hours
+                      : '__custom__'
+                  }
+                  onChange={e => {
+                    const next = [...openingHours]
+                    if (e.target.value === '__custom__') {
+                      next[idx] = { ...next[idx], hours: '09:00 – 17:00' }
+                    } else {
+                      next[idx] = { ...next[idx], hours: e.target.value }
+                    }
+                    setOpeningHours(next)
+                  }}
+                  className={`${input} w-[180px] flex-shrink-0`}
+                >
+                  <option value="__custom__">Uhrzeit eingeben</option>
+                  <option value="Geschlossen">Geschlossen</option>
+                  <option value="Nur nach Vereinbarung">Nur nach Vereinbarung</option>
+                </select>
+                {entry.hours !== 'Geschlossen' && entry.hours !== 'Nur nach Vereinbarung' && (
+                  <input
+                    value={entry.hours}
+                    onChange={e => {
+                      const next = [...openingHours]
+                      next[idx] = { ...next[idx], hours: e.target.value }
+                      setOpeningHours(next)
+                    }}
+                    placeholder="09:00 – 17:00"
+                    className={`${input} flex-1`}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpeningHours(prev => prev.filter((_, i) => i !== idx))}
+                  className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg text-[#222222]/25 hover:text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setOpeningHours(prev => [...prev, { day: 'Mo-Fr', hours: '09:00 – 17:00' }])}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[#06a5a5] hover:text-[#058f8f] transition-colors mt-1"
+            >
+              <Plus size={12} /> Zeile hinzufügen
+            </button>
+          </div>
+          <p className="text-[10px] text-[#222222]/25 mt-2 flex items-center gap-1">
+            <Clock size={9} /> Format: 09:00 – 17:00 (mit Bindestrich oder Gedankenstrich)
+          </p>
         </Field>
 
       </form>
