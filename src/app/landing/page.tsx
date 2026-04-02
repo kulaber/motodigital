@@ -167,24 +167,22 @@ export default async function LandingPage() {
 
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-5 sm:p-8 lg:p-12 text-center">
               <div className="max-w-2xl">
-                <span className="inline-block animate-slide-up-sm bg-white/12 text-white/80 border border-white/20 text-xs font-medium px-3 py-1 rounded-full mb-5 sm:mb-4"
-                  style={{ animationDuration: '0.6s' }}
-                >
+                <span className="inline-block bg-white/12 text-white/80 border border-white/20 text-xs font-medium px-3 py-1 rounded-full mb-5 sm:mb-4">
                   Beta
                 </span>
                 <h1
-                  className="animate-slide-up font-bold text-white leading-[1.1] mb-5 sm:mb-4"
-                  style={{ fontSize: 'clamp(1.4rem, 4vw, 3.2rem)', animationDelay: '150ms', animationDuration: '0.8s' }}
+                  className="font-bold text-white leading-[1.1] mb-5 sm:mb-4"
+                  style={{ fontSize: 'clamp(1.4rem, 4vw, 3.2rem)' }}
                 >
                   Die Plattform für<br />Custom-Motorräder.
                 </h1>
                 <p
-                  className="animate-slide-up text-white/60 font-light mb-6 sm:mb-7 leading-relaxed max-w-[50ch] mx-auto hidden sm:block"
-                  style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1rem)', animationDelay: '300ms', animationDuration: '0.8s' }}
+                  className="text-white/60 font-light mb-6 sm:mb-7 leading-relaxed max-w-[50ch] mx-auto hidden sm:block"
+                  style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1rem)' }}
                 >
                   Entdecke einzigartige Builds, finde die beste Werkstatt in deiner Nähe und lass dich von der Custom-Szene inspirieren.
                 </p>
-                <div className="animate-slide-up flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center" style={{ animationDelay: '450ms', animationDuration: '0.8s' }}>
+                <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center">
                   <Link href="/custom-werkstatt"
                     className="bg-[#06a5a5] text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm text-center hover:bg-[#058f8f] transition-colors duration-200 min-h-[40px] sm:min-h-[44px] flex items-center justify-center">
                     Werkstatt finden
