@@ -24,11 +24,11 @@ const NAV_ITEMS = [
     href: "/bikes",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="5.5" cy="17.5" r="3.5" />
-        <circle cx="18.5" cy="17.5" r="3.5" />
-        <path d="M15 6h2l3 5.5" />
-        <path d="M5.5 17.5L9 8h4l2.5 5.5H18.5" />
-        <path d="M9 8L7.5 12" />
+        <circle cx="4.5" cy="16.5" r="3" />
+        <circle cx="19.5" cy="16.5" r="3" />
+        <path d="M7.5 16.5l2-4.5h5l1.5 2L19.5 16.5" />
+        <path d="M9.5 12l2-4.5h2" />
+        <path d="M16 14l3-6.5" />
       </svg>
     ),
   },
