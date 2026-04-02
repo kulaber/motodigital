@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
+import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
 import type { Database } from '@/types/database'
 
 /** Extracted outside the component so React compiler doesn't flag Date.now() as impure */
@@ -13,7 +15,7 @@ function getCurrentTimestamp() { return Date.now() }
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
 
-type DashboardBike = Pick<BikeRow, 'id' | 'title' | 'status' | 'price' | 'view_count' | 'created_at'> & {
+type DashboardBike = Pick<BikeRow, 'id' | 'title' | 'status' | 'price' | 'view_count' | 'created_at'> & { slug?: string | null } & {
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
 
@@ -40,7 +42,7 @@ export default async function DashboardPage() {
   const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
-      .select('id, title, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .select('id, title, slug, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .eq('seller_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: DashboardBike[] | null, error: unknown }>,
     supabase
@@ -107,51 +109,75 @@ export default async function DashboardPage() {
     }
   }
 
-  // Page view analytics (for superadmin)
-  type DaySection = { date: string; section: string; count: number }
-  let pageViewsByDay: DaySection[] = []
-  let sectionTotals: { section: string; count: number }[] = []
-  let totalPageViews = 0
+  // Page view analytics (for superadmin) — raw data passed to client component
+  let rawPageViews: { path: string; section: string; created_at: string }[] = []
 
   if (isSuperAdmin) {
-    const now = getCurrentTimestamp()
-    const sevenDaysAgoDate = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const sevenDaysAgoDate = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    // Daily views grouped by section
     const { data: pvData } = await (supabase
       .from('page_views') as any)
-      .select('section, created_at')
+      .select('path, section, created_at')
       .gte('created_at', sevenDaysAgoDate)
       .order('created_at', { ascending: true })
 
     if (pvData?.length) {
-      // Group by day
-      const dayMap = new Map<string, number>()
-      const sectionMap = new Map<string, number>()
-      for (const row of pvData as { section: string; created_at: string }[]) {
-        const day = row.created_at.split('T')[0]
-        dayMap.set(day, (dayMap.get(day) ?? 0) + 1)
-        sectionMap.set(row.section, (sectionMap.get(row.section) ?? 0) + 1)
+      rawPageViews = pvData as { path: string; section: string; created_at: string }[]
+    }
+  }
+
+  // Builder analytics — profile views, contact clicks, bike views
+  type BuilderStats = {
+    profileViews: { created_at: string }[]
+    contactClicks: { created_at: string }[]
+    bikeViews: { path: string; created_at: string }[]
+    bikeSlugMap: Record<string, string>
+  }
+  let builderStats: BuilderStats | null = null
+
+  if (isBuilder && profile?.slug) {
+    try {
+      const { createClient: createAdminClient } = await import('@supabase/supabase-js')
+      const adminClient = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      )
+      const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+      // Build bike slug → title map and path patterns
+      const bikeSlugMap: Record<string, string> = {}
+      const bikePaths: string[] = []
+      for (const b of bikes ?? []) {
+        const key = (b as DashboardBike & { slug?: string | null }).slug ?? b.id
+        bikeSlugMap[key] = b.title
+        bikePaths.push(`/custom-bike/${key}`)
       }
 
-      // Fill all 7 days (including empty ones)
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now - i * 86400000).toISOString().split('T')[0]
-        pageViewsByDay.push({ date: d, section: '', count: dayMap.get(d) ?? 0 })
-      }
+      const [pvProfile, pvContact, pvBikes] = await Promise.all([
+        (adminClient.from('page_views') as any)
+          .select('created_at')
+          .eq('path', `/custom-werkstatt/${profile.slug}`)
+          .gte('created_at', sevenDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
+        (adminClient.from('page_views') as any)
+          .select('created_at')
+          .eq('path', `/__event/contact-click/${user.id}`)
+          .gte('created_at', sevenDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
+        bikePaths.length > 0
+          ? (adminClient.from('page_views') as any)
+              .select('path, created_at')
+              .in('path', bikePaths)
+              .gte('created_at', sevenDaysAgo) as Promise<{ data: { path: string; created_at: string }[] | null }>
+          : Promise.resolve({ data: [] as { path: string; created_at: string }[] }),
+      ])
 
-      sectionTotals = Array.from(sectionMap.entries())
-        .map(([section, count]) => ({ section, count }))
-        .sort((a, b) => b.count - a.count)
-
-      totalPageViews = pvData.length
-    } else {
-      // Fill empty 7 days
-      const nowFallback = getCurrentTimestamp()
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(nowFallback - i * 86400000).toISOString().split('T')[0]
-        pageViewsByDay.push({ date: d, section: '', count: 0 })
+      builderStats = {
+        profileViews: pvProfile.data ?? [],
+        contactClicks: pvContact.data ?? [],
+        bikeViews: pvBikes.data ?? [],
+        bikeSlugMap,
       }
+    } catch (e) {
+      console.error('Failed to load builder analytics:', e)
     }
   }
 
@@ -223,76 +249,8 @@ export default async function DashboardPage() {
               ))}
             </div>
 
-            {/* Page views chart */}
-            <div className="bg-white border border-[#222222]/6 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-[#222222]">Seitenaufrufe</p>
-                  <p className="text-xs text-[#222222]/30 mt-0.5">
-                    {totalPageViews > 0
-                      ? `${totalPageViews.toLocaleString('de-DE')} in den letzten 7 Tagen`
-                      : 'Letzte 7 Tage'}
-                  </p>
-                </div>
-                <span className="text-[10px] bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20 px-2.5 py-1 rounded-full font-semibold">
-                  Live Daten
-                </span>
-              </div>
-
-              {/* Bar chart */}
-              {(() => {
-                const maxViews = Math.max(...pageViewsByDay.map(d => d.count), 1)
-                return (
-                  <>
-                    <div className="flex items-end gap-1.5 h-24">
-                      {pageViewsByDay.map((d, i) => (
-                        <div key={i} className="flex-1 group relative">
-                          <div
-                            className="w-full rounded-t-sm bg-[#06a5a5]/30 group-hover:bg-[#06a5a5]/60 transition-colors"
-                            style={{ height: `${(d.count / maxViews) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
-                          />
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white border border-[#222222]/10 rounded px-1.5 py-0.5 text-[10px] text-[#222222] whitespace-nowrap z-10 shadow-sm">
-                            {d.count}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      {pageViewsByDay.map((d, i) => (
-                        <span key={i} className="flex-1 text-center text-[10px] text-[#222222]/25">
-                          {new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short' })}
-                        </span>
-                      ))}
-                    </div>
-                  </>
-                )
-              })()}
-
-              {/* Section breakdown */}
-              {sectionTotals.length > 0 && (
-                <div className="mt-5 pt-4 border-t border-[#222222]/6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-3">Nach Bereich</p>
-                  <div className="space-y-2">
-                    {sectionTotals.slice(0, 6).map(s => (
-                      <div key={s.section} className="flex items-center gap-3">
-                        <span className="text-xs text-[#222222]/60 w-28 truncate">{s.section}</span>
-                        <div className="flex-1 h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[#06a5a5]/40 rounded-full"
-                            style={{ width: `${(s.count / sectionTotals[0].count) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] font-semibold text-[#222222]/50 w-10 text-right">{s.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {totalPageViews === 0 && (
-                <p className="text-xs text-[#222222]/25 mt-3 text-center">Noch keine Daten — Tracking wurde gerade aktiviert</p>
-              )}
-            </div>
+            {/* Page views chart with filters & drill-down */}
+            <PageViewsChart pageViews={rawPageViews} />
           </div>
         )}
 
@@ -387,16 +345,27 @@ export default async function DashboardPage() {
           </div>
 
         ) : !isSuperAdmin ? (
-          <div className="grid grid-cols-2 gap-3 mb-8">
-            {[
-              { label: 'Aktive Custom Bikes', value: activeCount, icon: <Bike size={16}/> },
-              { label: 'Gesamte Aufrufe',     value: totalViews,  icon: <Eye size={16}/> },
-            ].map(s => (
-              <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
-                <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
-                <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
+          <div className="mb-8">
+            {builderStats ? (
+              <BuilderAnalytics
+                profileViews={builderStats.profileViews}
+                contactClicks={builderStats.contactClicks}
+                bikeViews={builderStats.bikeViews}
+                bikeSlugMap={builderStats.bikeSlugMap}
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Aktive Custom Bikes', value: activeCount, icon: <Bike size={16}/> },
+                  { label: 'Gesamte Aufrufe',     value: totalViews,  icon: <Eye size={16}/> },
+                ].map(s => (
+                  <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 text-[#222222]/40 mb-2">{s.icon}<span className="text-xs">{s.label}</span></div>
+                    <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         ) : null}
 
@@ -473,7 +442,8 @@ export default async function DashboardPage() {
                       </div>
                     </div>
 
-                    {/* Profile completeness */}
+                    {/* Profile completeness — hidden when 100% */}
+                    {completenessPercent < 100 && (
                     <div className="mt-4 pt-4 border-t border-[#222222]/5">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-[#222222]/30">Profil-Vollständigkeit</span>
@@ -497,6 +467,7 @@ export default async function DashboardPage() {
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
                 </div>
               )

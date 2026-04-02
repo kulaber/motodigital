@@ -17,6 +17,7 @@ function getSection(path: string): string {
     if (path === prefix || path.startsWith(prefix + '/')) return section
   }
   if (path === '/' || path === '') return 'Startseite'
+  if (path.startsWith('/__event/contact-click')) return 'Kontaktanfragen'
   return 'Sonstige'
 }
 

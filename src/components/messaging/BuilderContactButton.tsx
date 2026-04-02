@@ -144,6 +144,12 @@ export default function BuilderContactButton({ builderId, builderFirstName, buil
       setShowLogin(true)
       return
     }
+    // Track contact button click
+    fetch('/api/pageview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: `/__event/contact-click/${builderId}`, referrer: window.location.pathname }),
+    }).catch(() => {})
     setOpen(true)
   }
 
