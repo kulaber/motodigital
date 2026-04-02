@@ -128,6 +128,7 @@ export default function DatePicker({
       {/* Popover */}
       {open && (
         <FloatingPortal>
+          {/* eslint-disable-next-line react-hooks/refs */}
           <div
             ref={refs.setFloating}
             style={{ ...floatingStyles, zIndex: 9999 }}
