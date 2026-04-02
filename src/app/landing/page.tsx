@@ -125,7 +125,7 @@ export default async function LandingPage() {
       .from('bikes')
       .select('seller_id')
       .in('seller_id', workshopIds)
-      .eq('status', 'active')
+      .eq('status', 'active') as { data: { seller_id: string }[] | null }
     if (bikeCounts) {
       for (const row of bikeCounts) {
         bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
