@@ -562,6 +562,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                   builderId={builder.id ?? ''}
                   builderFirstName={builder.name.split(' ')[0]}
                   builderName={builder.name}
+                  builderAvatarUrl={builder.avatarUrl}
                 />
               </div>
 

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import Image from 'next/image'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
 import { LoginModal } from '@/components/ui/LoginModal'
 
@@ -11,6 +12,7 @@ interface Props {
   builderId: string
   builderFirstName: string
   builderName: string
+  builderAvatarUrl?: string
   bikeId?: string
   fullWidth?: boolean
 }
@@ -18,11 +20,13 @@ interface Props {
 function Modal({
   builderId,
   builderName,
+  builderAvatarUrl,
   userId,
   onClose,
 }: {
   builderId: string
   builderName: string
+  builderAvatarUrl?: string
   userId: string
   onClose: () => void
 }) {
@@ -79,13 +83,14 @@ function Modal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-              {initials}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#222222] leading-tight">{builderName}</p>
-              <p className="text-[10px] text-[#717171]">Nachricht senden</p>
-            </div>
+            {builderAvatarUrl ? (
+              <img src={builderAvatarUrl} alt={builderName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
+                <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={20} height={20} className="opacity-90" />
+              </div>
+            )}
+            <p className="text-sm font-semibold text-[#222222] leading-tight">{builderName}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-[#F7F7F7] transition-colors text-[#222222]/40 hover:text-[#222222]">
             <X size={16} />
@@ -132,7 +137,7 @@ function Modal({
   )
 }
 
-export default function BuilderContactButton({ builderId, builderFirstName, builderName, fullWidth }: Props) {
+export default function BuilderContactButton({ builderId, builderFirstName, builderName, builderAvatarUrl, fullWidth }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -168,6 +173,7 @@ export default function BuilderContactButton({ builderId, builderFirstName, buil
         <Modal
           builderId={builderId}
           builderName={builderName}
+          builderAvatarUrl={builderAvatarUrl}
           userId={user.id}
           onClose={() => setOpen(false)}
         />,

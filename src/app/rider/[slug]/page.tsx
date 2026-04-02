@@ -256,7 +256,7 @@ export default async function RiderProfilePage({ params }: Props) {
               ) : (
                 <>
                   <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
-                  <RiderContactButton riderId={rider.id} riderName={rider.name} />
+                  <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
                 </>
               )}
             </div>

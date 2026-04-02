@@ -10,6 +10,7 @@ import { LoginModal } from '@/components/ui/LoginModal'
 interface Props {
   sellerId: string
   sellerName: string
+  sellerAvatarUrl?: string
   sellerRole: string | null
   bikeId: string
   bikeTitle: string
@@ -20,6 +21,7 @@ interface Props {
 function Modal({
   sellerId,
   sellerName,
+  sellerAvatarUrl,
   bikeId,
   userId,
   coverImage,
@@ -27,6 +29,7 @@ function Modal({
 }: {
   sellerId: string
   sellerName: string
+  sellerAvatarUrl?: string
   bikeId: string
   userId: string
   coverImage: string | null
@@ -80,13 +83,14 @@ function Modal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-              {initials}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#222222] leading-tight">{sellerName}</p>
-              <p className="text-[10px] text-[#717171]">Nachricht senden</p>
-            </div>
+            {sellerAvatarUrl ? (
+              <img src={sellerAvatarUrl} alt={sellerName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                {initials}
+              </div>
+            )}
+            <p className="text-sm font-semibold text-[#222222] leading-tight">{sellerName}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-[#F7F7F7] transition-colors text-[#222222]/40 hover:text-[#222222]">
             <X size={16} />
@@ -132,7 +136,7 @@ function Modal({
   )
 }
 
-export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId, coverImage, fullWidth }: Props) {
+export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, coverImage, fullWidth }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -164,6 +168,7 @@ export default function ContactModal({ sellerId, sellerName, sellerRole, bikeId,
         <Modal
           sellerId={sellerId}
           sellerName={sellerName}
+          sellerAvatarUrl={sellerAvatarUrl}
           bikeId={bikeId}
           userId={user.id}
           coverImage={coverImage}

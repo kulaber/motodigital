@@ -10,16 +10,19 @@ import { LoginModal } from '@/components/ui/LoginModal'
 interface Props {
   riderId: string
   riderName: string
+  riderAvatarUrl?: string
 }
 
 function Modal({
   riderId,
   riderName,
+  riderAvatarUrl,
   userId,
   onClose,
 }: {
   riderId: string
   riderName: string
+  riderAvatarUrl?: string
   userId: string
   onClose: () => void
 }) {
@@ -76,13 +79,14 @@ function Modal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-              {initials}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#222222] leading-tight">{riderName}</p>
-              <p className="text-[10px] text-[#717171]">Nachricht senden</p>
-            </div>
+            {riderAvatarUrl ? (
+              <img src={riderAvatarUrl} alt={riderName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                {initials}
+              </div>
+            )}
+            <p className="text-sm font-semibold text-[#222222] leading-tight">{riderName}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-[#F7F7F7] transition-colors text-[#222222]/40 hover:text-[#222222]">
             <X size={16} />
@@ -129,7 +133,7 @@ function Modal({
   )
 }
 
-export default function RiderContactButton({ riderId, riderName }: Props) {
+export default function RiderContactButton({ riderId, riderName, riderAvatarUrl }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -159,6 +163,7 @@ export default function RiderContactButton({ riderId, riderName }: Props) {
         <Modal
           riderId={riderId}
           riderName={riderName}
+          riderAvatarUrl={riderAvatarUrl}
           userId={user.id}
           onClose={() => setOpen(false)}
         />,

@@ -254,6 +254,7 @@ export default async function CustomBikePage({ params }: Props) {
                     <ContactModal
                       sellerId={bike.seller_id}
                       sellerName={sellerName}
+                      sellerAvatarUrl={sellerProfile?.avatar_url ?? undefined}
                       sellerRole={sellerProfile?.role ?? null}
                       bikeId={bike.id}
                       bikeTitle={bike.title}
