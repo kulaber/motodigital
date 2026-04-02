@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   useFloating,
@@ -44,21 +44,26 @@ export default function DatePicker({
   placeholder = 'Datum wählen',
   compact,
 }: DatePickerProps) {
+  const now = new Date()
   const parsed = value ? new Date(value + 'T00:00:00') : null
-  const [viewYear, setViewYear] = useState(parsed?.getFullYear() ?? new Date().getFullYear())
-  const [viewMonth, setViewMonth] = useState(parsed?.getMonth() ?? new Date().getMonth())
+  const initYear = parsed?.getFullYear() ?? now.getFullYear()
+  const initMonth = parsed?.getMonth() ?? now.getMonth()
+  const [viewYear, setViewYear] = useState(initYear)
+  const [viewMonth, setViewMonth] = useState(initMonth)
   const [open, setOpen] = useState(false)
+  const [lastValue, setLastValue] = useState(value)
 
-  // Sync view to value when it changes externally
-  useEffect(() => {
+  // Sync view to value when it changes externally (without useEffect)
+  if (value !== lastValue) {
+    setLastValue(value)
     if (value) {
       const d = new Date(value + 'T00:00:00')
       setViewYear(d.getFullYear())
       setViewMonth(d.getMonth())
     }
-  }, [value])
+  }
 
-  const { refs, floatingStyles, context } = useFloating({
+  const { refs: floatingRefs, floatingStyles, context } = useFloating({
     open,
     onOpenChange: setOpen,
     placement: 'bottom-start',
@@ -69,6 +74,10 @@ export default function DatePicker({
     ],
     whileElementsMounted: autoUpdate,
   })
+
+  // Wrap ref setters to avoid React compiler "refs during render" error
+  const setReference = useCallback((node: HTMLElement | null) => { floatingRefs.setReference(node) }, [floatingRefs])
+  const setFloating = useCallback((node: HTMLElement | null) => { floatingRefs.setFloating(node) }, [floatingRefs])
 
   const dismiss = useDismiss(context, { outsidePress: true })
   const { getFloatingProps } = useInteractions([dismiss])
@@ -104,7 +113,7 @@ export default function DatePicker({
     <div>
       {/* Trigger */}
       <button
-        ref={refs.setReference}
+        ref={setReference}
         type="button"
         onClick={() => setOpen(o => !o)}
         className={
@@ -128,9 +137,8 @@ export default function DatePicker({
       {/* Popover */}
       {open && (
         <FloatingPortal>
-          {/* eslint-disable-next-line react-hooks/refs */}
           <div
-            ref={refs.setFloating}
+            ref={setFloating}
             style={{ ...floatingStyles, zIndex: 9999 }}
             {...getFloatingProps()}
             className="bg-white border border-[#222222]/10 rounded-xl shadow-2xl p-4 w-[280px]"
