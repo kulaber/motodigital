@@ -56,13 +56,13 @@ export default async function RiderOverviewPage() {
     }
   })
 
-  const now = Date.now()
+  // eslint-disable-next-line react-hooks/purity
+  const onlineThreshold = new Date(Date.now() - 3 * 60 * 1000).toISOString()
   const dbCards: RiderCard[] = filteredRiders.map((r: Record<string, unknown>) => {
       const name = (r.full_name as string | null) ?? 'Unbekannt'
       const slug = (r.slug as string | null)
         ?? (r.username as string | null)
         ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      const lastSeen = r.last_seen_at ? new Date(r.last_seen_at as string).getTime() : 0
       return {
         slug,
         name,
@@ -72,7 +72,7 @@ export default async function RiderOverviewPage() {
         initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         bikeCount: countMap.get(r.id as string) ?? 0,
         bikeStyles: [...(styleMap.get(r.id as string) ?? [])],
-        isOnline: now - lastSeen < 3 * 60 * 1000,
+        isOnline: !!r.last_seen_at && (r.last_seen_at as string) > onlineThreshold,
       }
     })
 

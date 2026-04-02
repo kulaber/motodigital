@@ -74,7 +74,6 @@ export default function MobileBottomNav() {
   const { user, role, slug, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [optimisticIndex, setOptimisticIndex] = useState(-1);
   const [unreadCount, setUnreadCount] = useState(0);
   const supabase = createClient();
   const fetchUnreadRef = useRef(() => {});
@@ -136,19 +135,9 @@ export default function MobileBottomNav() {
     return false;
   });
 
-  // Reset optimistic index when route changes (e.g. via links outside the nav)
-  useEffect(() => {
-    setOptimisticIndex(-1);
-  }, [pathname]);
+  const activeIndex = routeIndex;
 
-  // Use optimistic index until route catches up, then fall back to route
-  const activeIndex =
-    optimisticIndex >= 0 && optimisticIndex !== routeIndex
-      ? optimisticIndex
-      : routeIndex;
-
-  const handleTap = (index, href) => {
-    setOptimisticIndex(index);
+  const handleTap = (_index, href) => {
     router.push(href);
   };
 
