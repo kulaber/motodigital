@@ -20,9 +20,10 @@ interface Props {
   role: string | null
   userName: string | null
   avatarUrl: string | null
+  slug?: string | null
 }
 
-export default function DashboardNav({ role, userName, avatarUrl }: Props) {
+export default function DashboardNav({ role, userName, avatarUrl, slug }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -85,7 +86,7 @@ export default function DashboardNav({ role, userName, avatarUrl }: Props) {
     <aside className="w-80 flex-shrink-0 flex flex-col gap-3 pt-3 pb-3 pl-4 sm:pl-5 lg:pl-8 pr-3 sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto">
 
       {/* Card 1 — User identity */}
-      <div className="bg-white rounded-2xl border border-[#222222]/6 p-4 flex items-center gap-3">
+      <Link href={role === 'rider' && slug ? `/rider/${slug}` : role === 'custom-werkstatt' && slug ? `/custom-werkstatt/${slug}` : '/dashboard/profile'} className="bg-white rounded-2xl border border-[#222222]/6 hover:border-[#222222]/15 p-4 flex items-center gap-3 transition-colors">
         <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-[#F7F7F7] border border-[#222222]/8">
           {avatarUrl ? (
             <Image src={avatarUrl} alt={userName ?? ''} width={48} height={48} className="w-full h-full object-cover" />
@@ -107,7 +108,7 @@ export default function DashboardNav({ role, userName, avatarUrl }: Props) {
             {roleLabel}
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Card 2 — Main navigation */}
       <div className="bg-white rounded-2xl border border-[#222222]/6 p-2 flex flex-col gap-0.5">

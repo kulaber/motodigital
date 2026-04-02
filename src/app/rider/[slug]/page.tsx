@@ -12,6 +12,7 @@ import RiderContactButton from '@/components/rider/RiderContactButton'
 import { Pencil, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { EVENTS } from '@/lib/data/events'
 
 export const dynamicParams = true
 
@@ -29,6 +30,11 @@ interface RiderProfile {
   ridingStyle?: string
   visitedCities: string[]
   visitedCityCoords: { name: string; lat: number; lng: number; country?: string }[]
+  events: {
+    slug: string
+    name: string
+    image?: string
+  }[]
   instagram?: string
   tiktok?: string
   website?: string
@@ -90,13 +96,18 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   if (!row) return null
 
-  // Fetch bikes in parallel with geocoding (no dependency between them)
+  // Fetch bikes and event interests in parallel (no dependency between them)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: bikeRows } = await (supabase.from('bikes') as any)
-    .select('id, slug, title, make, model, style, bike_images(id, url, is_cover, position)')
-    .eq('seller_id', row.id)
-    .in('status', ['active', 'draft'])
-    .order('created_at', { ascending: false })
+  const [{ data: bikeRows }, { data: eventRows }] = await Promise.all([
+    (supabase.from('bikes') as any)
+      .select('id, slug, title, make, model, style, bike_images(id, url, is_cover, position)')
+      .eq('seller_id', row.id)
+      .in('status', ['active', 'draft'])
+      .order('created_at', { ascending: false }),
+    (supabase.from('event_interest') as any)
+      .select('event_slug')
+      .eq('user_id', row.id),
+  ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
 
@@ -145,6 +156,10 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     ridingStyle: (row.riding_style as string | null) ?? undefined,
     visitedCities: visitedRaw,
     visitedCityCoords,
+    events: ((eventRows ?? []) as { event_slug: string }[])
+      .map(e => EVENTS.find(ev => ev.slug === e.event_slug))
+      .filter(Boolean)
+      .map(ev => ({ slug: ev!.slug, name: ev!.name, image: ev!.image })),
     instagram: (row.instagram_url as string | null) ?? undefined,
     tiktok: (row.tiktok_url as string | null) ?? undefined,
     website: (row.website_url as string | null) ?? undefined,
@@ -289,6 +304,32 @@ export default async function RiderProfilePage({ params }: Props) {
                     {rider.ridingStyle === 'flott' && '💨☀️ Flotter Fahrer'}
                     {rider.ridingStyle === 'legende' && '🏍💨☀️ Lebensmüde Legende'}
                   </span>
+                </div>
+              )}
+
+              {/* Events */}
+              {rider.events.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">
+                    {rider.name.split(' ')[0]} nimmt an folgenden Events teil:
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {rider.events.map(event => (
+                      <Link key={event.slug} href={`/events/${event.slug}`} className="group relative aspect-[4/3] rounded-xl overflow-hidden">
+                        {event.image ? (
+                          <Image src={event.image} alt={event.name} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                        ) : (
+                          <div className="absolute inset-0 bg-[#111111]" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <span className="text-xs font-bold text-white leading-tight drop-shadow-sm">
+                            {event.name}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
 

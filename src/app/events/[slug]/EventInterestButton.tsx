@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Heart, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Participant {
+  id: string
   avatar_url: string | null
+  full_name: string | null
+  username: string | null
+  slug: string | null
   initials: string
 }
 
@@ -35,16 +40,20 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
       setCount(entries.length)
       setInterested(!!userId && entries.some(e => e.user_id === userId))
 
-      // Load participant avatars (max 8)
+      // Load participant profiles
       if (entries.length > 0) {
-        const ids = entries.slice(0, 8).map(e => e.user_id)
+        const ids = entries.map(e => e.user_id)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: profiles } = await (supabase.from('profiles') as any)
-          .select('id, full_name, avatar_url')
+          .select('id, full_name, avatar_url, username, slug')
           .in('id', ids)
 
-        setParticipants((profiles ?? []).map((p: { full_name: string | null; avatar_url: string | null }) => ({
+        setParticipants((profiles ?? []).map((p: { id: string; full_name: string | null; avatar_url: string | null; username: string | null; slug: string | null }) => ({
+          id: p.id,
           avatar_url: p.avatar_url,
+          full_name: p.full_name,
+          username: p.username,
+          slug: p.slug,
           initials: (p.full_name ?? '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         })))
       }
@@ -69,17 +78,22 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
       // Add self to participants optimistically
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: prof } = await (supabase.from('profiles') as any)
-        .select('full_name, avatar_url')
+        .select('id, full_name, avatar_url, username, slug')
         .eq('id', userId)
         .maybeSingle()
 
       if (prof) {
-        setParticipants(prev => [...prev, {
+        setParticipants(prev => prev.some(p => p.id === prof.id) ? prev : [...prev, {
+          id: prof.id,
           avatar_url: prof.avatar_url,
+          full_name: prof.full_name,
+          username: prof.username,
+          slug: prof.slug,
           initials: (prof.full_name ?? '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         }])
       }
     } else {
+      setParticipants(prev => prev.filter(p => p.id !== userId))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('event_interest') as any)
         .delete()
@@ -94,21 +108,29 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
     <div className="mt-10 border-t border-[#222222]/6 pt-8">
       {/* Participants */}
       {count > 0 && (
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex -space-x-2">
-            {participants.slice(0, 6).map((p, i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-[#F0F0F0] flex-shrink-0">
-                {p.avatar_url ? (
-                  <Image src={p.avatar_url} alt="" width={32} height={32} className="object-cover w-full h-full" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">{p.initials}</div>
-                )}
-              </div>
-            ))}
-          </div>
-          <span className="text-sm text-[#717171] flex items-center gap-1.5">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-[#222222] flex items-center gap-1.5 mb-4">
             <Users size={14} /> {count} {count === 1 ? 'Teilnehmer' : 'Teilnehmer'}
-          </span>
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {participants.map(p => {
+              const href = `/rider/${p.slug ?? p.username ?? p.id}`
+              return (
+                <Link key={p.id} href={href} className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-[#F7F7F7] transition-colors group">
+                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[#F0F0F0] flex-shrink-0 border border-[#222222]/6">
+                    {p.avatar_url ? (
+                      <Image src={p.avatar_url} alt={p.full_name ?? ''} width={36} height={36} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">{p.initials}</div>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate">
+                    {p.full_name ?? 'Rider'}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
       )}
 

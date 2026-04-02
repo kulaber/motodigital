@@ -31,7 +31,7 @@ export default function RiderListClient({ riders }: Props) {
 
   const cities = useMemo(() => {
     const set = new Set<string>()
-    riders.forEach(r => { if (r.city) set.add(r.city) })
+    riders.forEach(r => { if (r.city) set.add(r.city.split(',')[0].trim()) })
     return ['Alle', ...[...set].sort()]
   }, [riders])
 
@@ -43,7 +43,7 @@ export default function RiderListClient({ riders }: Props) {
 
   const filtered = useMemo(() => {
     return riders.filter(r => {
-      if (cityFilter !== 'Alle' && r.city !== cityFilter) return false
+      if (cityFilter !== 'Alle' && r.city?.split(',')[0].trim() !== cityFilter) return false
       if (styleFilter !== 'Alle' && r.ridingStyle !== styleFilter) return false
       if (bikeStyleFilter !== 'Alle' && !r.bikeStyles.includes(bikeStyleFilter)) return false
       return true
@@ -169,7 +169,7 @@ export default function RiderListClient({ riders }: Props) {
       </p>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {filtered.map(rider => (
           <Link
             key={rider.slug}

@@ -286,7 +286,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 gap-3 max-w-2xl">
 
             {/* Rider Profil */}
-            <Link href="/dashboard/profile" className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex flex-col items-center justify-center aspect-square transition-colors group">
+            <Link href={profile?.slug ? `/rider/${profile.slug}` : '/dashboard/profile'} className="bg-white border border-[#222222]/6 hover:border-[#222222]/15 rounded-2xl p-4 flex flex-col items-center justify-center aspect-square transition-colors group">
               <div className="relative w-14 h-14 rounded-full bg-[#F7F7F7] flex-shrink-0 overflow-hidden mb-2">
                 {profile?.avatar_url ? (
                   <Image src={profile.avatar_url} alt={profile.full_name ?? 'Profil'} fill sizes="56px" className="object-cover" />

@@ -14,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('role, full_name, avatar_url, address')
+    .select('role, full_name, avatar_url, address, slug, username')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -28,6 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       role={profile?.role ?? null}
       userName={profile?.full_name ?? null}
       avatarUrl={profile?.avatar_url ?? null}
+      slug={profile?.slug ?? profile?.username ?? null}
     >
       {children}
     </DashboardShell>
