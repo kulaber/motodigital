@@ -84,7 +84,7 @@ export function PageViewsChart({ pageViews }: { pageViews: PageView[] }) {
       days.push({ date: d, count: dayMap.get(d) ?? 0 })
     }
     return days
-  }, [filtered])
+  }, [filtered, now])
 
   // Top pages (detailed drill-down)
   const topPages = useMemo(() => {
