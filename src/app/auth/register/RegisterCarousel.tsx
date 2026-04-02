@@ -84,26 +84,6 @@ export default function RegisterCarousel() {
         </div>
       </div>
 
-      {/* Community avatars */}
-      <div className="mt-5">
-        <p className="text-xs text-white/30 mb-3">Bereits dabei</p>
-        <div className="flex items-center gap-2">
-          {AVATARS.map((a, i) => (
-            <div
-              key={i}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 border-[#111111] ${
-                a.teal
-                  ? 'bg-[#06a5a5]/30 text-[#06a5a5] ring-1 ring-[#06a5a5]/20'
-                  : 'bg-white/10 text-white/60'
-              }`}
-              style={{ marginLeft: i > 0 ? '-6px' : 0 }}
-            >
-              {a.initials}
-            </div>
-          ))}
-          <span className="text-xs text-white/30 ml-3">+120 Nutzer</span>
-        </div>
-      </div>
     </div>
   )
 }

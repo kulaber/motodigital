@@ -13,6 +13,7 @@ import HeroActions from './HeroActions'
 import OwnerEditButton from './OwnerEditButton'
 import GallerySlider from './GallerySlider'
 import MobileStickyBar from './MobileStickyBar'
+import WorkshopCTA from './WorkshopCTA'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -627,6 +628,7 @@ export default async function BuilderProfilePage({ params }: Props) {
         </div>
       </section>
 
+      <WorkshopCTA />
       <Footer />
     </div>
   )

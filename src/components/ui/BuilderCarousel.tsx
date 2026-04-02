@@ -3,7 +3,6 @@
 import { useRef, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
 
 interface Props {
@@ -87,17 +86,17 @@ export default function BuilderCarousel({ builders }: Props) {
             <Link
               key={`${b.slug}-${i}`}
               href={`/custom-werkstatt/${b.slug}`}
-              className="group flex-shrink-0 w-72 bg-white border border-[#222222]/6 rounded-2xl overflow-hidden hover:border-[#DDDDDD] hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300 block"
+              className="group flex-shrink-0 w-80 bg-white border border-[#222222]/6 rounded-xl sm:rounded-2xl overflow-hidden hover:border-[#222222]/20 transition-all duration-200 block"
             >
               {/* Cover image */}
-              <div className="relative h-36 overflow-hidden bg-[#F7F7F7]">
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
                 {coverImg ? (
                   <Image
                     src={coverImg}
                     alt={b.name}
                     fill
-                    sizes="288px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    sizes="320px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -105,33 +104,21 @@ export default function BuilderCarousel({ builders }: Props) {
                   </div>
                 )}
                 {b.featured && (
-                  <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-widest bg-white/90 text-[#222222] px-2 py-0.5 rounded-full shadow-sm">
+                  <span className="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] px-2 py-0.5 rounded-full">
                     Top Builder
+                  </span>
+                )}
+                {b.builds > 0 && (
+                  <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                    {b.builds} Custom {b.builds === 1 ? 'Bike' : 'Bikes'}
                   </span>
                 )}
               </div>
 
               {/* Card body */}
-              <div className="p-4">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#222222]/10 flex items-center justify-center text-xs font-bold text-[#717171] flex-shrink-0">
-                    {b.initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-semibold text-[#222222] truncate">{b.name}</p>
-                      {b.verified && <BadgeCheck size={11} className="text-[#717171] flex-shrink-0" />}
-                    </div>
-                    <p className="text-[10px] text-[#222222]/35 truncate">{b.city} · {b.tags.slice(0, 2).join(' · ')}</p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#222222]/40 leading-relaxed line-clamp-2 mb-3">{b.bio}</p>
-
-                <div className="flex items-center justify-between pt-3 border-t border-[#222222]/6">
-                  <span className="text-xs text-[#222222]/30 font-medium">{b.builds} Builds</span>
-                  <span className="text-xs text-[#06a5a5] font-semibold opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">Profil →</span>
-                </div>
+              <div className="p-3 sm:p-4">
+                <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{b.name}</h3>
+                <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.city}</p>
               </div>
             </Link>
           )

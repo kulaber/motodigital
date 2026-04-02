@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, Map, MessageCircle, ShieldCheck } from 'lucide-react'
+import { BadgeCheck, Map as MapIcon, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import GlobalSearch from '@/components/search/GlobalSearch'
@@ -27,7 +27,7 @@ interface FeaturedBuild {
 }
 
 const USPS = [
-  { icon: <Map size={20} className="text-[#717171]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
+  { icon: <MapIcon size={20} className="text-[#717171]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
   { icon: <BadgeCheck size={20} className="text-[#717171]" />,   title: 'Verified Builds',   desc: 'Jedes verifizierte Inserat wurde manuell geprüft — maximale Sicherheit.' },
   { icon: <MessageCircle size={20} className="text-[#717171]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
   { icon: <ShieldCheck size={20} className="text-[#717171]" />,  title: 'Marketplace',       desc: 'Bald: Custom Builds kaufen & verkaufen — direkt vom Builder.' },
@@ -117,7 +117,26 @@ export default async function LandingPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
-  const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
+  // Count bikes per workshop
+  const workshopIds = (dbRows ?? []).map((r: Record<string, unknown>) => r.id as string)
+  const bikeCountMap = new Map<string, number>()
+  if (workshopIds.length > 0) {
+    const { data: bikeCounts } = await supabase
+      .from('bikes')
+      .select('seller_id')
+      .in('seller_id', workshopIds)
+      .eq('status', 'active')
+    if (bikeCounts) {
+      for (const row of bikeCounts) {
+        bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
+      }
+    }
+  }
+
+  const dbBuilders: Builder[] = (dbRows ?? []).map((row: Record<string, unknown>) => ({
+    ...dbRowToBuilder(row),
+    builds: bikeCountMap.get(row.id as string) ?? 0,
+  }))
 
   const builders = dbBuilders.slice(0, 10)
   return (

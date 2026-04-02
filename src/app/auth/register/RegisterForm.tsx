@@ -78,19 +78,19 @@ export default function RegisterForm() {
           {/* Rider */}
           <button
             onClick={() => handleRoleSelect('rider')}
-            className="rounded-2xl border-2 border-[#222222]/10 hover:border-[#222222]/35 hover:shadow-md transition-all text-left group"
+            className="rounded-2xl border-2 border-white/10 hover:border-white/30 hover:shadow-md transition-all text-left group"
           >
-            <div className="px-4 py-4 bg-white rounded-2xl">
+            <div className="px-4 py-4 bg-white/5 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
-                <Bike size={18} className="text-[#222222]/60" />
-                <p className="font-bold text-base text-[#222222]">Rider</p>
+                <Bike size={18} className="text-white/60" />
+                <p className="font-bold text-base text-white">Rider</p>
               </div>
-              <p className="text-xs text-[#222222]/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
+              <p className="text-xs text-white/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
               <ul className="flex flex-col gap-1.5">
                 {RIDER_BENEFITS.map(b => (
                   <li key={b} className="flex items-center gap-2">
-                    <Check size={10} className="text-[#222222]/30 flex-shrink-0" />
-                    <span className="text-xs text-[#222222]/50">{b}</span>
+                    <Check size={10} className="text-white/30 flex-shrink-0" />
+                    <span className="text-xs text-white/50">{b}</span>
                   </li>
                 ))}
               </ul>
@@ -100,20 +100,20 @@ export default function RegisterForm() {
           {/* Custom Werkstatt */}
           <button
             onClick={() => handleRoleSelect('custom-werkstatt')}
-            className="rounded-2xl border-2 border-[#222222]/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
+            className="rounded-2xl border-2 border-white/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
           >
-            <div className="px-4 py-4 bg-white rounded-2xl">
+            <div className="px-4 py-4 bg-white/5 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <Wrench size={18} className="text-[#06a5a5]" />
-                <p className="font-bold text-base text-[#222222]">Custom Werkstatt</p>
+                <p className="font-bold text-base text-white">Custom Werkstatt</p>
                 <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
               </div>
-              <p className="text-xs text-[#222222]/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
+              <p className="text-xs text-white/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
               <ul className="flex flex-col gap-1.5">
                 {WERKSTATT_BENEFITS.map(b => (
                   <li key={b} className="flex items-center gap-2">
                     <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
-                    <span className="text-xs text-[#222222]/50">{b}</span>
+                    <span className="text-xs text-white/50">{b}</span>
                   </li>
                 ))}
               </ul>
@@ -134,14 +134,14 @@ export default function RegisterForm() {
       {/* Back + role indicator */}
       <div className="flex items-center justify-between mb-1">
         <button type="button" onClick={() => setStep(1)}
-          className="flex items-center gap-1.5 text-xs text-[#222222]/40 hover:text-[#222222] transition-colors">
+          className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors">
           <ArrowLeft size={13} />
           Zurück
         </button>
         <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
             ? 'bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20'
-            : 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]/40'
+            : 'bg-white/5 text-white/60 border-white/10'
         }`}>
           {isBuilder ? <Wrench size={11} /> : <Bike size={11} />}
           {isBuilder ? 'Custom Werkstatt' : 'Rider'}
@@ -149,28 +149,28 @@ export default function RegisterForm() {
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">
+        <label className="block text-xs font-semibold text-white/50 mb-1.5">
           {isBuilder ? 'Name / Werkstatt' : 'Dein Name'}
         </label>
         <input
           type="text" required value={name} onChange={e => setName(e.target.value)}
           placeholder={isBuilder ? 'z.B. Moto Garage Berlin' : 'Dein Name'}
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">E-Mail</label>
+        <label className="block text-xs font-semibold text-white/50 mb-1.5">E-Mail</label>
         <input
           type="email" required value={email} onChange={e => setEmail(e.target.value)}
           placeholder="deine@email.de"
           autoComplete="email"
-          className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-[#222222]/50 mb-1.5">Passwort</label>
+        <label className="block text-xs font-semibold text-white/50 mb-1.5">Passwort</label>
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -178,12 +178,12 @@ export default function RegisterForm() {
             value={password} onChange={e => setPassword(e.target.value)}
             placeholder="Mindestens 8 Zeichen"
             autoComplete="new-password"
-            className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-3 pr-11 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/40 transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowPassword(v => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#222222]/30 hover:text-[#222222]/60 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
             aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -192,7 +192,7 @@ export default function RegisterForm() {
       </div>
 
       {error && (
-        <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
+        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{error}</p>
       )}
 
       <button type="submit" disabled={loading}
@@ -200,7 +200,7 @@ export default function RegisterForm() {
         {loading ? 'Wird erstellt...' : 'Account erstellen'}
       </button>
 
-      <p className="text-center text-xs text-[#222222]/25 leading-relaxed">
+      <p className="text-center text-xs text-white/25 leading-relaxed">
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>
