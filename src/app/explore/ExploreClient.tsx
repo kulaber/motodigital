@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, Heart, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
+import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -120,6 +120,8 @@ interface Comment {
   user_name: string
   user_initials: string
   user_avatar: string | null
+  like_count: number
+  liked_by_me: boolean
 }
 
 function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void }) {
@@ -151,6 +153,20 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       const pMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {}
       for (const p of (profiles ?? [])) pMap[p.id] = p
 
+      // Load comment likes
+      const commentIds = (data as { id: string }[]).map(c => c.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: likesData } = await (supabase.from('community_comment_likes') as any)
+        .select('comment_id, user_id')
+        .in('comment_id', commentIds)
+
+      const likeCounts: Record<string, number> = {}
+      const myLikes = new Set<string>()
+      for (const l of (likesData ?? []) as { comment_id: string; user_id: string }[]) {
+        likeCounts[l.comment_id] = (likeCounts[l.comment_id] ?? 0) + 1
+        if (l.user_id === userId) myLikes.add(l.comment_id)
+      }
+
       setComments((data as { id: string; body: string; created_at: string; user_id: string }[]).map(c => {
         const prof = pMap[c.user_id]
         const name = prof?.full_name ?? 'Unbekannt'
@@ -161,6 +177,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           user_name: name,
           user_initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
           user_avatar: prof?.avatar_url ?? null,
+          like_count: likeCounts[c.id] ?? 0,
+          liked_by_me: myLikes.has(c.id),
         }
       }))
     })()
@@ -181,6 +199,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       user_name: post.author_name, // fallback, will be overridden if profile loads
       user_initials: '…',
       user_avatar: null,
+      like_count: 0,
+      liked_by_me: false,
     }
 
     // Try to get the commenter's profile for display
@@ -214,6 +234,23 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
     } catch {
       // Table may not exist yet — comment stays in local state
     }
+  }
+
+  async function handleCommentLike(commentId: string) {
+    if (!userId) return
+    const comment = comments.find(c => c.id === commentId)
+    if (!comment) return
+    const next = !comment.liked_by_me
+    setComments(prev => prev.map(c => c.id === commentId ? { ...c, liked_by_me: next, like_count: next ? c.like_count + 1 : Math.max(0, c.like_count - 1) } : c))
+    try {
+      if (next) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('community_comment_likes') as any).insert({ comment_id: commentId, user_id: userId })
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('community_comment_likes') as any).delete().eq('comment_id', commentId).eq('user_id', userId)
+      }
+    } catch { /* table may not exist yet */ }
   }
 
   return (
@@ -301,13 +338,10 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       {/* Location map */}
       {post.latitude != null && post.longitude != null && (
         <div className="mt-3 mx-4 mb-1">
-          <div className="rounded-xl overflow-hidden border border-[#222222]/6">
-            <MiniMap lat={post.latitude} lng={post.longitude} locationName={post.location_name} />
-          </div>
           {post.location_name && (
-            <div className="flex items-center justify-between mt-1.5">
-              <p className="flex items-center gap-1 text-[11px] text-[#717171] min-w-0">
-                <MapPin size={11} className="flex-shrink-0" />
+            <div className="flex items-center justify-between bg-[#F7F7F7] rounded-lg px-3 py-2 mb-2">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-[#222222] min-w-0">
+                <MapPin size={12} className="flex-shrink-0 text-[#717171]" />
                 <span className="truncate">{post.location_name}</span>
               </p>
               <a
@@ -321,6 +355,9 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
               </a>
             </div>
           )}
+          <div className="rounded-lg overflow-hidden border border-[#222222]/6">
+            <MiniMap lat={post.latitude} lng={post.longitude} locationName={post.location_name} />
+          </div>
         </div>
       )}
 
@@ -331,7 +368,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           onClick={() => loggedIn ? onLike() : onLoginRequired?.('like')}
           className="flex items-center gap-1.5 group"
         >
-          <Heart
+          <ThumbsUp
             size={18}
             className={`transition-colors ${post.liked_by_me ? 'fill-[#06a5a5] text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`}
           />
@@ -358,7 +395,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         <div className="px-4 pb-1">
           <div className="flex flex-col gap-2.5">
             {comments.map(c => (
-              <div key={c.id} className="flex gap-2.5">
+              <div key={c.id} className="flex gap-2.5 items-start">
                 <div className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
                   {c.user_avatar ? (
                     <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
@@ -366,13 +403,23 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
                     <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
                   )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-[13px] leading-snug">
                     <span className="font-semibold text-[#222222]">{c.user_name}</span>{' '}
                     <span className="text-[#222222]/80">{c.body}</span>
                   </p>
                   <p className="text-[10px] text-[#B0B0B0] mt-0.5">{formatRelativeTime(c.created_at)}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleCommentLike(c.id)}
+                  className="flex items-center gap-1 mt-1 flex-shrink-0 group/like"
+                >
+                  {c.like_count > 0 && (
+                    <span className={`text-[10px] font-semibold ${c.liked_by_me ? 'text-[#06a5a5]' : 'text-[#222222]/30'}`}>{c.like_count}</span>
+                  )}
+                  <ThumbsUp size={12} className={`transition-colors ${c.liked_by_me ? 'fill-[#06a5a5] text-[#06a5a5]' : 'text-[#222222]/20 group-hover/like:text-[#06a5a5]'}`} />
+                </button>
               </div>
             ))}
           </div>

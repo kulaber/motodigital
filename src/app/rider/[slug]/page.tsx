@@ -13,6 +13,7 @@ import { Pencil, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { EVENTS } from '@/lib/data/events'
+import VisitedCitiesCarousel from './VisitedCitiesCarousel'
 
 export const dynamicParams = true
 
@@ -24,6 +25,7 @@ interface RiderProfile {
   bio: string
   city: string
   avatarUrl?: string
+  isOnline: boolean
   lat?: number
   lng?: number
   tags: string[]
@@ -68,7 +70,7 @@ async function geocode(query: string): Promise<{ lat: number; lng: number; count
 
 async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   const supabase = await createClient()
-  const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url'
+  const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url, last_seen_at'
 
   // Try slug + username lookups in parallel (2 queries instead of 2 sequential)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -142,6 +144,9 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     visitedCityCoords = results.filter(Boolean) as typeof visitedCityCoords
   }
 
+  const lastSeen = row.last_seen_at ? new Date(row.last_seen_at as string).getTime() : 0
+  const isOnline = Date.now() - lastSeen < 3 * 60 * 1000
+
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -149,6 +154,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     bio: (row.bio as string | null) ?? '',
     city: (row.city as string | null) ?? '',
+    isOnline,
     avatarUrl: (row.avatar_url as string | null) ?? undefined,
     lat,
     lng,
@@ -197,11 +203,16 @@ export default async function RiderProfilePage({ params }: Props) {
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 py-10 sm:py-14">
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-            <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
-              {rider.avatarUrl ? (
-                <Image src={rider.avatarUrl} alt={rider.name} fill sizes="96px" className="object-cover" />
-              ) : (
-                <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
+            <div className="relative flex-shrink-0">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
+                {rider.avatarUrl ? (
+                  <Image src={rider.avatarUrl} alt={rider.name} fill sizes="96px" className="object-cover" />
+                ) : (
+                  <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
+                )}
+              </div>
+              {rider.isOnline && (
+                <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
               )}
             </div>
             <div className="min-w-0">
@@ -352,21 +363,7 @@ export default async function RiderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 w-full lg:w-1/2">
               {/* Visited Cities */}
               {rider.visitedCityCoords.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">{rider.name} war mit dem Motorrad hier:</h2>
-                  <div className="grid grid-cols-3 gap-3">
-                    {rider.visitedCityCoords.map(city => (
-                      <div key={city.name} className="bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square">
-                        <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">★ ★ ★ ★ ★</div>
-                        <Image src="/pin-logo.svg" alt="MotoDigital" width={28} height={28} className="mb-1.5 opacity-80" />
-                        <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
-                        {city.country && (
-                          <span className="text-[8px] text-white/40 mt-0.5 truncate w-full text-center">{city.country}</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <VisitedCitiesCarousel cities={rider.visitedCityCoords} riderName={rider.name} />
               )}
 
               {/* Map */}

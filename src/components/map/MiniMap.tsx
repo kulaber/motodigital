@@ -49,23 +49,36 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false, showZoom: true }), 'top-right')
 
-    // Custom teal marker
+    // Custom MotoDigital logo marker with pulse
     const el = document.createElement('div')
     el.style.cssText = `
-      width: 32px; height: 32px;
-      background: var(--color-accent);
-      border: 3px solid #fff;
-      border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(6,165,165,0.2), 0 3px 8px rgba(0,0,0,0.15);
+      width: 40px; height: 40px;
+      position: relative;
       display: flex; align-items: center; justify-content: center;
     `
-    const inner = document.createElement('div')
-    inner.style.cssText = `
-      width: 7px; height: 7px;
-      background: #ffffff;
+    const pulse = document.createElement('div')
+    pulse.style.cssText = `
+      position: absolute; inset: 0;
       border-radius: 50%;
+      background: rgba(6,165,165,0.15);
+      animation: minimap-pulse 2.5s ease-out infinite;
     `
-    el.appendChild(inner)
+    el.appendChild(pulse)
+    const circle = document.createElement('div')
+    circle.style.cssText = `
+      position: relative;
+      width: 32px; height: 32px;
+      background: #06a5a5;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex; align-items: center; justify-content: center;
+    `
+    const logo = document.createElement('img')
+    logo.src = '/pin-logo.svg'
+    logo.style.cssText = 'width: 16px; height: 16px; opacity: 0.9;'
+    circle.appendChild(logo)
+    el.appendChild(circle)
 
     const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat([lng, lat])
@@ -146,6 +159,10 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
   return (
     <>
       <style>{`
+        @keyframes minimap-pulse {
+          0% { transform: scale(0.8); opacity: 1; }
+          100% { transform: scale(2); opacity: 0; }
+        }
         .minimap-container .mapboxgl-ctrl-logo { display: none !important; }
         .minimap-container .mapboxgl-ctrl-attrib { display: none !important; }
         .minimap-container .mapboxgl-popup-content {
@@ -166,7 +183,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
       `}</style>
       <div className="minimap-container">
         <div className="relative">
-          <div ref={containerRef} className="w-full" style={{ height: visitedCities.length > 0 ? 300 : 200 }} />
+          <div ref={containerRef} className="w-full" style={{ height: visitedCities.length > 0 ? 300 : 260 }} />
           {!activated && (
             <div
               onClick={handleActivate}
