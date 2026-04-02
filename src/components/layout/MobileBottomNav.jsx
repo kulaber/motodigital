@@ -74,6 +74,7 @@ export default function MobileBottomNav() {
   const { user, role, slug, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [optimistic, setOptimistic] = useState({ index: -1, href: null });
   const [unreadCount, setUnreadCount] = useState(0);
   const supabase = createClient();
   const fetchUnreadRef = useRef(() => {});
@@ -135,9 +136,15 @@ export default function MobileBottomNav() {
     return false;
   });
 
-  const activeIndex = routeIndex;
+  // Show optimistic index until pathname reaches the target href
+  const arrivedAtTarget =
+    optimistic.href &&
+    (pathname === optimistic.href || pathname.startsWith(optimistic.href + "/"));
+  const activeIndex =
+    optimistic.index >= 0 && !arrivedAtTarget ? optimistic.index : routeIndex;
 
-  const handleTap = (_index, href) => {
+  const handleTap = (index, href) => {
+    setOptimistic({ index, href });
     router.push(href);
   };
 
@@ -223,7 +230,6 @@ export default function MobileBottomNav() {
                       alignItems: "center",
                       justifyContent: "center",
                       stroke: isActive ? "#FFFFFF" : INACTIVE_ICON,
-                      transition: "stroke 0.35s ease",
                       position: "relative",
                     }}
                   >
