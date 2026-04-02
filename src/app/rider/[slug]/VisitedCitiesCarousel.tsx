@@ -44,7 +44,7 @@ export default function VisitedCitiesCarousel({ cities, riderName }: { cities: C
   }
 
   const cityCard = (city: City) => (
-    <div key={city.name} className={`bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square ${needsCarousel ? 'w-[calc(33.333%-8px)] flex-shrink-0' : ''}`}>
+    <div key={city.name} className={`bg-[#111111] rounded-xl p-3 flex flex-col items-center justify-center aspect-square ${needsCarousel ? 'w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] flex-shrink-0' : ''}`}>
       <div className="text-[10px] text-[#2AABAB] tracking-wide mb-1">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
       <Image src="/pin-logo.svg" alt="MotoDigital" width={28} height={28} className="mb-1.5 opacity-80" />
       <span className="text-[10px] font-bold text-white text-center leading-tight truncate w-full">{city.name}</span>
@@ -68,12 +68,12 @@ export default function VisitedCitiesCarousel({ cities, riderName }: { cities: C
             {cities.map(cityCard)}
           </div>
 
-          {/* Arrows — hidden on mobile (touch scroll) */}
+          {/* Arrows */}
           {canScrollLeft && (
             <button
               type="button"
               onClick={() => scroll('left')}
-              className="hidden sm:flex absolute -left-3 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center rounded-full bg-white border border-[#EBEBEB] shadow-sm hover:shadow-md transition-shadow z-10"
+              className="flex absolute -left-3 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center rounded-full bg-white border border-[#EBEBEB] shadow-sm hover:shadow-md transition-shadow z-10"
             >
               <ChevronLeft size={16} className="text-[#222222]" />
             </button>
@@ -82,14 +82,14 @@ export default function VisitedCitiesCarousel({ cities, riderName }: { cities: C
             <button
               type="button"
               onClick={() => scroll('right')}
-              className="hidden sm:flex absolute -right-3 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center rounded-full bg-white border border-[#EBEBEB] shadow-sm hover:shadow-md transition-shadow z-10"
+              className="flex absolute -right-3 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center rounded-full bg-white border border-[#EBEBEB] shadow-sm hover:shadow-md transition-shadow z-10"
             >
               <ChevronRight size={16} className="text-[#222222]" />
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {cities.map(cityCard)}
         </div>
       )}

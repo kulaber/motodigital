@@ -129,10 +129,17 @@ export default function MobileBottomNav() {
 
   const routeIndex = navItems.findIndex((item) => {
     if (pathname === item.href || pathname.startsWith(item.href + "/")) return true;
-    // For riders: highlight profile button on /dashboard (exact) too
-    if (item.dynamicHref && role === "rider" && pathname === "/dashboard") return true;
+    // Bikes: also match /custom-bike/* detail pages
+    if (item.id === "bikes" && pathname.startsWith("/custom-bike/")) return true;
+    // Profil: match all /dashboard/* pages except /dashboard/messages
+    if (item.dynamicHref && pathname.startsWith("/dashboard") && !pathname.startsWith("/dashboard/messages")) return true;
     return false;
   });
+
+  // Reset optimistic index when route changes (e.g. via links outside the nav)
+  useEffect(() => {
+    setOptimisticIndex(-1);
+  }, [pathname]);
 
   // Use optimistic index until route catches up, then fall back to route
   const activeIndex =
@@ -236,21 +243,21 @@ export default function MobileBottomNav() {
                       <span
                         style={{
                           position: "absolute",
-                          top: -4,
-                          right: -8,
-                          minWidth: 16,
-                          height: 16,
-                          padding: "0 3px",
+                          top: -5,
+                          right: -9,
+                          minWidth: 18,
+                          height: 18,
+                          padding: "0 4px",
                           background: "#06a5a5",
                           color: "#FFFFFF",
-                          fontSize: 8,
+                          fontSize: 9,
                           fontWeight: 700,
                           borderRadius: 999,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           lineHeight: 1,
-                          border: isActive ? "2px solid #111111" : "2px solid rgba(250,250,250,0.92)",
+                          border: "2px solid #06a5a5",
                         }}
                       >
                         {unreadCount > 9 ? "9+" : unreadCount}

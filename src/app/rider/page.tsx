@@ -19,6 +19,7 @@ export interface RiderCard {
   initials: string
   bikeCount: number
   bikeStyles: string[]
+  isOnline: boolean
 }
 
 export default async function RiderOverviewPage() {
@@ -30,7 +31,7 @@ export default async function RiderOverviewPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: dbRiders }, { data: allBikeRows }] = await Promise.all([
     (supabase.from('profiles') as any)
-      .select('id, full_name, slug, username, city, address, avatar_url, riding_style')
+      .select('id, full_name, slug, username, city, address, avatar_url, riding_style, last_seen_at')
       .eq('role', 'rider')
       .order('created_at', { ascending: false })
       .limit(50),
@@ -55,11 +56,13 @@ export default async function RiderOverviewPage() {
     }
   })
 
+  const now = Date.now()
   const dbCards: RiderCard[] = filteredRiders.map((r: Record<string, unknown>) => {
       const name = (r.full_name as string | null) ?? 'Unbekannt'
       const slug = (r.slug as string | null)
         ?? (r.username as string | null)
         ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      const lastSeen = r.last_seen_at ? new Date(r.last_seen_at as string).getTime() : 0
       return {
         slug,
         name,
@@ -69,6 +72,7 @@ export default async function RiderOverviewPage() {
         initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         bikeCount: countMap.get(r.id as string) ?? 0,
         bikeStyles: [...(styleMap.get(r.id as string) ?? [])],
+        isOnline: now - lastSeen < 3 * 60 * 1000,
       }
     })
 

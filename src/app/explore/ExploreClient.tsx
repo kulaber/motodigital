@@ -120,6 +120,8 @@ interface Comment {
   user_name: string
   user_initials: string
   user_avatar: string | null
+  user_slug: string | null
+  user_role: string | null
   like_count: number
   liked_by_me: boolean
 }
@@ -147,10 +149,10 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       const userIds = [...new Set((data as { user_id: string }[]).map(c => c.user_id))]
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: profiles } = await (supabase.from('profiles') as any)
-        .select('id, full_name, avatar_url')
+        .select('id, full_name, avatar_url, slug, role')
         .in('id', userIds)
 
-      const pMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {}
+      const pMap: Record<string, { full_name: string | null; avatar_url: string | null; slug: string | null; role: string | null }> = {}
       for (const p of (profiles ?? [])) pMap[p.id] = p
 
       // Load comment likes
@@ -177,6 +179,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           user_name: name,
           user_initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
           user_avatar: prof?.avatar_url ?? null,
+          user_slug: prof?.slug ?? null,
+          user_role: prof?.role ?? null,
           like_count: likeCounts[c.id] ?? 0,
           liked_by_me: myLikes.has(c.id),
         }
@@ -199,6 +203,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       user_name: post.author_name, // fallback, will be overridden if profile loads
       user_initials: '…',
       user_avatar: null,
+      user_slug: null,
+      user_role: null,
       like_count: 0,
       liked_by_me: false,
     }
@@ -206,7 +212,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
     // Try to get the commenter's profile for display
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: prof } = await (supabase.from('profiles') as any)
-      .select('full_name, avatar_url')
+      .select('full_name, avatar_url, slug, role')
       .eq('id', userId)
       .maybeSingle()
 
@@ -214,6 +220,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
     optimisticComment.user_name = name
     optimisticComment.user_initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
     optimisticComment.user_avatar = prof?.avatar_url ?? null
+    optimisticComment.user_slug = prof?.slug ?? null
+    optimisticComment.user_role = prof?.role ?? null
 
     setComments(prev => [...prev, optimisticComment])
     setCommentText('')
@@ -394,18 +402,34 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       {loggedIn && comments.length > 0 && (
         <div className="px-4 pb-1">
           <div className="flex flex-col gap-2.5">
-            {comments.map(c => (
+            {comments.map(c => {
+              const commentProfileHref = getProfileUrl(c.user_role, c.user_slug)
+              return (
               <div key={c.id} className="flex gap-2.5 items-start">
-                <div className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
-                  {c.user_avatar ? (
-                    <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
-                  ) : (
-                    <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
-                  )}
-                </div>
+                {commentProfileHref ? (
+                  <Link href={commentProfileHref} className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
+                    {c.user_avatar ? (
+                      <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
+                    ) : (
+                      <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
+                    )}
+                  </Link>
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
+                    {c.user_avatar ? (
+                      <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
+                    ) : (
+                      <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
+                    )}
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] leading-snug">
-                    <span className="font-semibold text-[#222222]">{c.user_name}</span>{' '}
+                    {commentProfileHref ? (
+                      <Link href={commentProfileHref} className="font-semibold text-[#222222] hover:underline">{c.user_name}</Link>
+                    ) : (
+                      <span className="font-semibold text-[#222222]">{c.user_name}</span>
+                    )}{' '}
                     <span className="text-[#222222]/80">{c.body}</span>
                   </p>
                   <p className="text-[10px] text-[#B0B0B0] mt-0.5">{formatRelativeTime(c.created_at)}</p>
@@ -421,7 +445,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
                   <ThumbsUp size={12} className={`transition-colors ${c.liked_by_me ? 'fill-[#06a5a5] text-[#06a5a5]' : 'text-[#222222]/20 group-hover/like:text-[#06a5a5]'}`} />
                 </button>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

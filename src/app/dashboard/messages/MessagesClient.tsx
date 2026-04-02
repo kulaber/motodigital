@@ -20,7 +20,8 @@ const REACTIONS = ['👍', '❤️', '😂', '😮', '😢']
 
 /* ─── Avatar ─── */
 function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | null; sm?: boolean }) {
-  const dim = sm ? 'w-8 h-8 text-[10px]' : 'w-11 h-11 text-sm'
+  const dim = sm ? 'w-8 h-8' : 'w-11 h-11'
+  const logoDim = sm ? 16 : 22
   if (avatarUrl) {
     return (
       <span className={`block ${dim} rounded-full overflow-hidden flex-shrink-0`}>
@@ -29,8 +30,8 @@ function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | nu
     )
   }
   return (
-    <div className={`${dim} rounded-full bg-[#F7F7F7] border border-[#E0E0E0] flex items-center justify-center font-bold text-[#717171] flex-shrink-0`}>
-      {name.charAt(0).toUpperCase()}
+    <div className={`${dim} rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0`}>
+      <Image src="/pin-logo.svg" alt="MotoDigital" width={logoDim} height={logoDim} className="opacity-90" />
     </div>
   )
 }
@@ -189,10 +190,7 @@ function ConversationList({
     const matchesFilter = filter === 'alle' || c.unread_count > 0
     return matchesSearch && matchesFilter
   }).sort((a, b) => {
-    // Unread conversations always on top
-    if (a.unread_count > 0 && b.unread_count === 0) return -1
-    if (a.unread_count === 0 && b.unread_count > 0) return 1
-    // Then by last_message_at descending
+    // Sort by last_message_at descending — newest activity (sent or received) first
     const aTime = a.last_message_at ?? ''
     const bTime = b.last_message_at ?? ''
     return bTime.localeCompare(aTime)
@@ -602,10 +600,10 @@ function MessageThread({
             >
               {/* Other avatar */}
               {!isOwn && (
-                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden bg-[#F7F7F7] flex items-center justify-center text-[10px] font-bold text-[#717171]">
+                <div className={`relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden flex items-center justify-center ${avatarUrl ? 'bg-[#F7F7F7]' : 'bg-[#06a5a5]'}`}>
                   {avatarUrl
                     ? <Image src={avatarUrl} alt={name} fill sizes="28px" className="object-cover" />
-                    : name.charAt(0).toUpperCase()
+                    : <Image src="/pin-logo.svg" alt="MotoDigital" width={14} height={14} className="opacity-90" />
                   }
                 </div>
               )}
@@ -666,10 +664,10 @@ function MessageThread({
 
               {/* Own avatar */}
               {isOwn && (
-                <div className="relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden bg-[#06a5a5]/10 flex items-center justify-center text-[10px] font-bold text-[#06a5a5]">
+                <div className={`relative flex-shrink-0 w-7 h-7 rounded-full overflow-hidden flex items-center justify-center ${avatarUrl ? 'bg-[#06a5a5]/10' : 'bg-[#06a5a5]'}`}>
                   {avatarUrl
                     ? <Image src={avatarUrl} alt="Ich" fill sizes="28px" className="object-cover" />
-                    : 'I'
+                    : <Image src="/pin-logo.svg" alt="MotoDigital" width={14} height={14} className="opacity-90" />
                   }
                 </div>
               )}

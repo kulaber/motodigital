@@ -169,7 +169,7 @@ export default function Header({ activePage }: Props) {
                       <CircleUserRound size={19} />
                     )}
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-0.5 bg-[#06a5a5] text-white text-[8px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-white">
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-0.5 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-[#06a5a5]">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}

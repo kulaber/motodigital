@@ -177,11 +177,16 @@ export default function RiderListClient({ riders }: Props) {
             className="bg-white rounded-2xl border border-[#222222]/6 p-5 hover:border-[#222222]/15 transition-all group"
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-full bg-[#06a5a5] flex-shrink-0 overflow-hidden flex items-center justify-center">
-                {rider.avatar ? (
-                  <Image src={rider.avatar} alt={rider.name} width={48} height={48} className="object-cover w-full h-full" />
-                ) : (
-                  <span className="text-sm font-bold text-white">{rider.initials}</span>
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#06a5a5] overflow-hidden flex items-center justify-center">
+                  {rider.avatar ? (
+                    <Image src={rider.avatar} alt={rider.name} width={48} height={48} className="object-cover w-full h-full" />
+                  ) : (
+                    <span className="text-sm font-bold text-white">{rider.initials}</span>
+                  )}
+                </div>
+                {rider.isOnline && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
               </div>
               <div className="min-w-0">

@@ -324,7 +324,7 @@ export default async function RiderProfilePage({ params }: Props) {
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">
                     {rider.name.split(' ')[0]} nimmt an folgenden Events teil:
                   </h2>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {rider.events.map(event => (
                       <Link key={event.slug} href={`/events/${event.slug}`} className="group relative aspect-[4/3] rounded-xl overflow-hidden">
                         {event.image ? (
