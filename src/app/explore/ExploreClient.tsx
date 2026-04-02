@@ -7,7 +7,8 @@ import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp,
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
-import { EVENTS } from '@/lib/data/events'
+import { formatEventDate } from '@/lib/data/events'
+import type { Event } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
 import { compressImage } from '@/lib/utils/compressImage'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
@@ -126,7 +127,7 @@ interface Comment {
   liked_by_me: boolean
 }
 
-function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void }) {
+function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired, allEvents }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void; allEvents: Event[] }) {
   const [commentInputOpen, setCommentInputOpen] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -314,7 +315,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
       {/* Linked event */}
       {post.event_slug && (() => {
-        const ev = EVENTS.find(e => e.slug === post.event_slug)
+        const ev = allEvents.find(e => e.slug === post.event_slug)
         if (!ev) return null
         return (
           <div className="mx-4 mt-3">
@@ -329,7 +330,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight group-hover:text-[#06a5a5] transition-colors">{ev.name}</p>
-                <p className="text-[10px] text-[#717171] truncate">{ev.date} · {ev.location}</p>
+                <p className="text-[10px] text-[#717171] truncate">{formatEventDate(ev)} · {ev.location}</p>
               </div>
               <ExternalLink size={12} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors flex-shrink-0" />
             </a>
@@ -516,6 +517,14 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
   const canPost = !!userId
   const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
+  const [allEvents, setAllEvents] = useState<Event[]>([])
+
+  // Load events from Supabase
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from('events') as any).select('*').order('date_start', { ascending: true })
+      .then(({ data }: { data: Event[] | null }) => { if (data) setAllEvents(data) })
+  }, [supabase])
 
   // Detect when composer becomes sticky
   useEffect(() => {
@@ -878,7 +887,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
                   {composerTag === 'events' && (
                     <div className="mt-3">
                       <div className="flex flex-col gap-1.5">
-                        {EVENTS.map(ev => (
+                        {allEvents.map(ev => (
                           <button
                             key={ev.slug}
                             type="button"
@@ -892,7 +901,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
                             <Calendar size={13} className={composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]/25'} />
                             <div className="min-w-0 flex-1">
                               <p className={`text-[13px] font-semibold leading-tight truncate ${composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]'}`}>{ev.name}</p>
-                              <p className="text-[10px] text-[#717171] truncate">{ev.date} · {ev.location}</p>
+                              <p className="text-[10px] text-[#717171] truncate">{formatEventDate(ev)} · {ev.location}</p>
                             </div>
                           </button>
                         ))}
@@ -966,7 +975,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
               </div>
             ) : (
               filteredPosts.map(post => (
-                <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} />
+                <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} allEvents={allEvents} />
               ))
             )}
           </div>

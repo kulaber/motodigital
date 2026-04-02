@@ -3,7 +3,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Shield, Plus, Pencil, ExternalLink, MapPin, Calendar } from 'lucide-react'
-import { EVENTS } from '@/lib/data/events'
+import { formatEventDate } from '@/lib/data/events'
+import type { Event } from '@/lib/data/events'
 
 export const metadata: Metadata = { title: 'Admin — Events' }
 
@@ -20,7 +21,13 @@ export default async function AdminEventsPage() {
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  const uniqueLocations = new Set(EVENTS.map(e => e.location)).size
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase.from('events') as any)
+    .select('*')
+    .order('date_start', { ascending: true })
+
+  const events = (data ?? []) as Event[]
+  const uniqueLocations = new Set(events.map(e => e.location)).size
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -42,9 +49,9 @@ export default async function AdminEventsPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {[
-            { label: 'Events gesamt',    value: EVENTS.length },
+            { label: 'Events gesamt',    value: events.length },
             { label: 'Standorte',        value: uniqueLocations },
-            { label: 'Mit URL',          value: EVENTS.filter(e => e.url).length },
+            { label: 'Mit URL',          value: events.filter(e => e.url).length },
           ].map(s => (
             <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
               <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
@@ -67,14 +74,14 @@ export default async function AdminEventsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#222222]/5">
-                {EVENTS.map(event => (
+                {events.map(event => (
                   <tr key={event.id} className="hover:bg-[#222222]/2 transition-colors group">
                     <td className="px-5 py-3.5">
                       <p className="text-sm font-medium text-[#222222]">{event.name}</p>
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell">
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#717171]">
-                        <Calendar size={11} /> {event.date}
+                        <Calendar size={11} /> {formatEventDate(event)}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell">
@@ -93,7 +100,7 @@ export default async function AdminEventsPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-2">
-                        <a href="/events" target="_blank" rel="noopener noreferrer"
+                        <a href={`/events/${event.slug}`} target="_blank" rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-[#222222]/40 hover:text-[#222222] border border-[#222222]/10 hover:border-[#222222]/25 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
                           <ExternalLink size={10} /> Live ansehen
                         </a>

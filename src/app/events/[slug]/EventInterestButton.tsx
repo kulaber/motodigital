@@ -19,9 +19,10 @@ interface Participant {
 interface Props {
   eventSlug: string
   userId: string | null
+  sidebar?: boolean
 }
 
-export default function EventInterestButton({ eventSlug, userId }: Props) {
+export default function EventInterestButton({ eventSlug, userId, sidebar }: Props) {
   const [interested, setInterested] = useState(false)
   const [count, setCount] = useState(0)
   const [participants, setParticipants] = useState<Participant[]>([])
@@ -105,21 +106,21 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
   if (loading) return null
 
   return (
-    <div className="mt-10 border-t border-[#222222]/6 pt-8">
-      {/* Participants */}
+    <div className={sidebar ? 'flex flex-col gap-4' : 'mt-10 border-t border-[#222222]/6 pt-8'}>
+      {/* Participants card */}
       {count > 0 && (
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-[#222222] flex items-center gap-1.5 mb-4">
+        <div className={sidebar ? 'bg-white border border-[#222222]/6 rounded-2xl p-5' : 'mb-6'}>
+          <p className={`font-semibold flex items-center gap-1.5 ${sidebar ? 'text-xs uppercase tracking-widest text-[#222222]/30 mb-3' : 'text-sm text-[#222222] mb-4'}`}>
             <Users size={14} /> {count} {count === 1 ? 'Teilnehmer' : 'Teilnehmer'}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className={sidebar ? 'flex flex-col gap-0.5' : 'grid grid-cols-2 sm:grid-cols-3 gap-3'}>
             {participants.map(p => {
               const href = `/rider/${p.slug ?? p.username ?? p.id}`
               return (
-                <Link key={p.id} href={href} className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-[#F7F7F7] transition-colors group">
-                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[#F0F0F0] flex-shrink-0 border border-[#222222]/6">
+                <Link key={p.id} href={href} className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F7F7F7] transition-colors group">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F0F0F0] flex-shrink-0 border border-[#222222]/6">
                     {p.avatar_url ? (
-                      <Image src={p.avatar_url} alt={p.full_name ?? ''} width={36} height={36} className="object-cover w-full h-full" />
+                      <Image src={p.avatar_url} alt={p.full_name ?? ''} width={32} height={32} className="object-cover w-full h-full" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">{p.initials}</div>
                     )}
@@ -138,14 +139,16 @@ export default function EventInterestButton({ eventSlug, userId }: Props) {
       <button
         type="button"
         onClick={() => userId ? handleToggle() : setShowLogin(true)}
-        className={`inline-flex items-center gap-2.5 text-sm font-semibold px-6 py-3 rounded-full transition-all ${
+        className={`inline-flex items-center justify-center gap-2.5 text-sm font-semibold px-6 py-3 rounded-full transition-all ${
+          sidebar ? 'w-full' : ''
+        } ${
           interested
             ? 'bg-[#06a5a5] text-white hover:bg-[#058f8f]'
             : 'border border-[#222222]/10 text-[#222222] hover:border-[#06a5a5] hover:text-[#06a5a5]'
         }`}
       >
         <Heart size={16} className={interested ? 'fill-white' : ''} />
-        {interested ? 'Du nimmst teil!' : 'Ich habe Interesse und möchte teilnehmen'}
+        {interested ? 'Du nimmst teil!' : 'Ich möchte teilnehmen'}
       </button>
 
       <LoginModal

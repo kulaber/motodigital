@@ -5,7 +5,8 @@ import { MapPin, Calendar, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
-import { EVENTS } from '@/lib/data/events'
+import { formatEventDate } from '@/lib/data/events'
+import type { Event } from '@/lib/data/events'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 export const metadata: Metadata = {
@@ -78,15 +79,20 @@ export default async function SearchPage({
     builders = (builderRes.data ?? []) as BuilderRow[]
   }
 
-  // Filter static events
-  const lowerQ = query.toLowerCase()
-  const matchedEvents = query.length >= 2
-    ? EVENTS.filter(
-        (e) =>
-          e.name.toLowerCase().includes(lowerQ) ||
-          e.location.toLowerCase().includes(lowerQ),
-      )
-    : []
+  // Search events from Supabase
+  let matchedEvents: Event[] = []
+  if (query.length >= 2) {
+    const supabase = await createClient()
+    const pattern = `%${query}%`
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: eventData } = await (supabase.from('events') as any)
+      .select('*')
+      .or(`name.ilike.${pattern},location.ilike.${pattern}`)
+      .order('date_start', { ascending: true })
+      .limit(6)
+
+    matchedEvents = (eventData ?? []) as Event[]
+  }
 
   const totalResults = bikes.length + builders.length + matchedEvents.length
 
@@ -253,7 +259,7 @@ export default async function SearchPage({
                       <h3 className="text-lg font-bold text-[#222222] mb-2">{event.name}</h3>
                       <div className="flex flex-wrap items-center gap-4 mb-2">
                         <span className="flex items-center gap-1.5 text-xs text-[#717171]">
-                          <Calendar size={12} /> {event.date}
+                          <Calendar size={12} /> {formatEventDate(event)}
                         </span>
                         <span className="flex items-center gap-1.5 text-xs text-[#222222]/40">
                           <MapPin size={12} /> {event.location}

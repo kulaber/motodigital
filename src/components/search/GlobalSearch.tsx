@@ -4,7 +4,7 @@ import { Search, X, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { EVENTS } from '@/lib/data/events'
+import { formatEventDate } from '@/lib/data/events'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import SearchResult, { type SearchResultItem } from './SearchResult'
 
@@ -115,7 +115,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
     if (suggestions) { setOpen(true); return }
 
     try {
-      const [bikeRes, builderRes] = await Promise.all([
+      const [bikeRes, builderRes, eventRes] = await Promise.all([
         (supabase.from('bikes') as ReturnType<typeof supabase.from>)
           .select('id, title, make, model, city, slug, bike_images(url, is_cover, position)')
           .eq('status', 'active')
@@ -127,10 +127,15 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
           .not('slug', 'is', null)
           .order('created_at', { ascending: false })
           .limit(20),
+        (supabase.from('events') as any)
+          .select('id, slug, name, date_start, date_end, location')
+          .order('date_start', { ascending: true })
+          .limit(20),
       ])
 
       const bikeRows = (bikeRes.data ?? []) as unknown as BikeRow[]
       const builderRows = (builderRes.data ?? []) as unknown as BuilderRow[]
+      const eventRows = (eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string }[]
 
       const pick = <T,>(arr: T[]): T[] => {
         if (arr.length === 0) return []
@@ -140,7 +145,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
 
       const pickedBike = pick(bikeRows)
       const pickedBuilder = pick(builderRows)
-      const pickedEvent = pick(EVENTS)
+      const pickedEvent = pick(eventRows)
 
       const sugBikes: SearchResultItem[] = pickedBike.map((b) => {
         const imgs = b.bike_images ?? []
@@ -161,8 +166,8 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
       }))
 
       const sugEvents: SearchResultItem[] = pickedEvent.map((e) => ({
-        id: String(e.id), type: 'event' as const, title: e.name,
-        subtitle: `${e.date} · ${e.location}`,
+        id: e.id, type: 'event' as const, title: e.name,
+        subtitle: `${formatEventDate(e)} · ${e.location}`,
         href: `/events/${e.slug}`,
       }))
 
@@ -192,7 +197,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
       const pattern = `%${term}%`
 
       try {
-        const [bikeRes, builderRes] = await Promise.all([
+        const [bikeRes, builderRes, eventRes] = await Promise.all([
           // Bikes
           (supabase.from('bikes') as ReturnType<typeof supabase.from>)
             .select('id, title, make, model, city, slug, bike_images(url, is_cover, position)')
@@ -208,6 +213,13 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
             .not('slug', 'is', null)
             .or(`full_name.ilike.${pattern},city.ilike.${pattern},specialty.ilike.${pattern}`)
             .order('created_at', { ascending: false })
+            .limit(3),
+
+          // Events
+          (supabase.from('events') as any)
+            .select('id, slug, name, date_start, date_end, location')
+            .or(`name.ilike.${pattern},location.ilike.${pattern}`)
+            .order('date_start', { ascending: true })
             .limit(3),
         ])
 
@@ -236,20 +248,13 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
           imageUrl: w.avatar_url || undefined,
         }))
 
-        // Filter static events client-side
-        const lowerTerm = term.toLowerCase()
-        const eventItems: SearchResultItem[] = EVENTS
-          .filter(
-            (e) =>
-              e.name.toLowerCase().includes(lowerTerm) ||
-              e.location.toLowerCase().includes(lowerTerm),
-          )
-          .slice(0, 3)
+        // Map events from Supabase
+        const eventItems: SearchResultItem[] = ((eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string }[])
           .map((e) => ({
-            id: String(e.id),
+            id: e.id,
             type: 'event' as const,
             title: e.name,
-            subtitle: `${e.date} · ${e.location}`,
+            subtitle: `${formatEventDate(e)} · ${e.location}`,
             href: `/events/${e.slug}`,
           }))
 

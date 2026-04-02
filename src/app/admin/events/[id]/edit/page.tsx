@@ -1,14 +1,13 @@
 import { redirect, notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { EVENTS } from '@/lib/data/events'
+import type { Event } from '@/lib/data/events'
 import EventEditor from '../../EventEditor'
 
 export const metadata: Metadata = { title: 'Admin — Event bearbeiten' }
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const eventId = parseInt(id, 10)
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -22,7 +21,13 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  const event = EVENTS.find(e => e.id === eventId)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase.from('events') as any)
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  const event = data as Event | null
   if (!event) notFound()
 
   return <EventEditor initialEvent={event} />

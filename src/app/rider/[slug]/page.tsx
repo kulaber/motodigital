@@ -12,7 +12,7 @@ import RiderContactButton from '@/components/rider/RiderContactButton'
 import { Pencil, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
-import { EVENTS } from '@/lib/data/events'
+import type { Event } from '@/lib/data/events'
 import VisitedCitiesCarousel from './VisitedCitiesCarousel'
 
 export const dynamicParams = true
@@ -162,10 +162,17 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     ridingStyle: (row.riding_style as string | null) ?? undefined,
     visitedCities: visitedRaw,
     visitedCityCoords,
-    events: ((eventRows ?? []) as { event_slug: string }[])
-      .map(e => EVENTS.find(ev => ev.slug === e.event_slug))
-      .filter(Boolean)
-      .map(ev => ({ slug: ev!.slug, name: ev!.name, image: ev!.image })),
+    events: await (async () => {
+      const slugs = ((eventRows ?? []) as { event_slug: string }[]).map(e => e.event_slug)
+      if (slugs.length === 0) return []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: evData } = await (supabase.from('events') as any).select('slug, name, image').in('slug', slugs)
+      return ((evData ?? []) as Pick<Event, 'slug' | 'name' | 'image'>[]).map(ev => ({
+        slug: ev.slug,
+        name: ev.name,
+        image: ev.image ?? undefined,
+      }))
+    })(),
     instagram: (row.instagram_url as string | null) ?? undefined,
     tiktok: (row.tiktok_url as string | null) ?? undefined,
     website: (row.website_url as string | null) ?? undefined,
