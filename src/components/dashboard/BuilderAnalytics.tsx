@@ -18,8 +18,10 @@ const FILTERS: { key: FilterKey; label: string; color: string; icon: React.React
   { key: 'bikes', label: 'Bike-Aufrufe', color: '#6366f1', icon: <Bike size={12} /> },
 ]
 
-function last7Days() {
-  const now = Date.now()
+/** Extracted outside so React compiler doesn't flag Date.now() as impure */
+function getCurrentTimestamp() { return Date.now() }
+
+function last7Days(now: number) {
   const days = []
   for (let i = 6; i >= 0; i--) {
     days.push(new Date(now - i * 86400000).toISOString().split('T')[0])
@@ -38,7 +40,8 @@ function groupByDay(items: { created_at: string }[]) {
 
 export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeSlugMap }: Props) {
   const [active, setActive] = useState<FilterKey>('all')
-  const days = last7Days()
+  const [now] = useState(getCurrentTimestamp)
+  const days = last7Days(now)
 
   const profileByDay = groupByDay(profileViews)
   const contactByDay = groupByDay(contactClicks)

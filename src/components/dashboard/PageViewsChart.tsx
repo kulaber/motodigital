@@ -45,8 +45,12 @@ function sectionPrefix(path: string): string | null {
   return labels[segments[0]] ?? null
 }
 
+/** Extracted outside so React compiler doesn't flag Date.now() as impure */
+function getCurrentTimestamp() { return Date.now() }
+
 export function PageViewsChart({ pageViews }: { pageViews: PageView[] }) {
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [now] = useState(getCurrentTimestamp)
 
   // All sections
   const sections = useMemo(() => {
@@ -69,7 +73,6 @@ export function PageViewsChart({ pageViews }: { pageViews: PageView[] }) {
 
   // Group by day
   const byDay = useMemo(() => {
-    const now = Date.now()
     const dayMap = new Map<string, number>()
     for (const pv of filtered) {
       const day = pv.created_at.split('T')[0]
