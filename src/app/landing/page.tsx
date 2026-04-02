@@ -150,10 +150,15 @@ export default async function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-[#222222]/10">
             <video
-              autoPlay muted loop playsInline preload="auto"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/custombike_intro_poster.webp"
               className="w-full aspect-[9/12] sm:aspect-[16/9] lg:aspect-[21/9] object-cover"
             >
-              <source src="/custombike_intro.mp4" type="video/mp4" />
+              <source src="/custombike_intro_optimized.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-[#1a1a1a]/45" />
             <div className="absolute inset-0" style={{
