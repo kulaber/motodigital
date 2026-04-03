@@ -16,15 +16,20 @@ export default function ContactForm() {
 
     const form = e.currentTarget
     const formData = new FormData(form)
-    const result = await submitContactForm(formData)
 
-    setPending(false)
+    try {
+      const result = await submitContactForm(formData)
 
-    if (result.success) {
-      setSuccess(true)
-      form.reset()
-    } else if (result.error) {
-      setErrors(result.error as Record<string, string[]>)
+      if (result.success) {
+        setSuccess(true)
+        form.reset()
+      } else if (result.error) {
+        setErrors(result.error as Record<string, string[]>)
+      }
+    } catch {
+      setErrors({ _form: ['Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.'] })
+    } finally {
+      setPending(false)
     }
   }
 
