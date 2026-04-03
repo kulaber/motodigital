@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { BadgeCheck, MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import BuildGallery from '@/components/build/BuildGallery'
+import BikeGallerySection from './BikeGallerySection'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
@@ -122,7 +122,16 @@ export default async function CustomBikePage({ params }: Props) {
           </Link>
 
           {imageUrls.length > 0 ? (
-            <BuildGallery images={imageUrls} title={bike.title} bikeId={bike.id} />
+            <BikeGallerySection
+              images={imageUrls}
+              title={bike.title}
+              bikeId={bike.id}
+              sellerId={bike.seller_id}
+              sellerName={sellerName}
+              sellerAvatarUrl={sellerProfile?.avatar_url ?? undefined}
+              sellerRole={sellerProfile?.role ?? null}
+              coverImage={imageUrls[0] ?? null}
+            />
           ) : (
             <div className="rounded-2xl bg-[#F7F7F7] aspect-video flex items-center justify-center text-[#AAAAAA] text-sm">
               Keine Fotos vorhanden

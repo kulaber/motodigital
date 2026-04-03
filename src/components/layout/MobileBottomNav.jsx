@@ -148,6 +148,19 @@ export default function MobileBottomNav() {
     router.push(href);
   };
 
+  // Hide nav when gallery modal opens
+  const [navHidden, setNavHidden] = useState(false);
+  useEffect(() => {
+    const show = () => setNavHidden(false);
+    const hide = () => setNavHidden(true);
+    window.addEventListener("gallery-modal-open", hide);
+    window.addEventListener("gallery-modal-close", show);
+    return () => {
+      window.removeEventListener("gallery-modal-open", hide);
+      window.removeEventListener("gallery-modal-close", show);
+    };
+  }, []);
+
   if (loading || !user) return null;
 
   return (
@@ -165,6 +178,8 @@ export default function MobileBottomNav() {
           paddingLeft: 16,
           paddingRight: 16,
           pointerEvents: "none",
+          transform: navHidden ? "translateY(120%)" : "translateY(0)",
+          transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         <nav

@@ -16,6 +16,7 @@ interface Props {
   bikeTitle: string
   coverImage: string | null
   fullWidth?: boolean
+  renderTrigger?: (onClick: () => void) => React.ReactNode
 }
 
 function Modal({
@@ -136,7 +137,7 @@ function Modal({
   )
 }
 
-export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, coverImage, fullWidth }: Props) {
+export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, coverImage, fullWidth, renderTrigger }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -156,13 +157,15 @@ export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, se
 
   return (
     <>
-      <button
-        onClick={openModal}
-        className={`flex items-center justify-center gap-2 w-full bg-[#06a5a5] hover:bg-[#058f8f] text-white text-sm font-semibold py-3 transition-all ${fullWidth ? 'rounded-full shadow-lg' : 'rounded-xl'}`}
-      >
-        <MessageCircle size={14} />
-        {ctaLabel}
-      </button>
+      {renderTrigger ? renderTrigger(openModal) : (
+        <button
+          onClick={openModal}
+          className={`flex items-center justify-center gap-2 w-full bg-[#06a5a5] hover:bg-[#058f8f] text-white text-sm font-semibold py-3 transition-all ${fullWidth ? 'rounded-full shadow-lg' : 'rounded-xl'}`}
+        >
+          <MessageCircle size={14} />
+          {ctaLabel}
+        </button>
+      )}
 
       {open && user && typeof document !== 'undefined' && createPortal(
         <Modal
