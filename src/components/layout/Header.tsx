@@ -108,7 +108,7 @@ export default function Header({ activePage }: Props) {
 
         {/* Logo — mobile: zentriert wenn eingeloggt, linksbündig wenn nicht */}
         <div className={`${loading || user ? 'absolute left-1/2 -translate-x-1/2' : ''} lg:static lg:translate-x-0 lg:flex-1 min-w-0 flex items-center`}>
-          <Link href={user && role === 'rider' ? '/explore' : '/'} className="inline-flex items-center">
+          <Link href={user && (role === 'rider' || role === 'custom-werkstatt') ? '/explore' : '/'} className="inline-flex items-center">
             <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
           </Link>
         </div>

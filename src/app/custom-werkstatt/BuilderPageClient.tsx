@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Star, X, Map as MapIcon, List as ListIcon, Search } from 'lucide-react'
+import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Star, X, Map as MapIcon, List as ListIcon, Search, SlidersHorizontal } from 'lucide-react'
 import SwipeableImages from '@/components/ui/SwipeableImages'
 import WorkshopBottomSheet from '@/components/builder/WorkshopBottomSheet'
 import { type Builder } from '@/lib/data/builders'
@@ -219,7 +219,6 @@ function BuilderList({
   onToggleSave,
   onHover,
   onHoverEnd,
-  onReset,
   isMobile,
   userId,
   authReady,
@@ -232,7 +231,6 @@ function BuilderList({
   onToggleSave: (id: string | null) => void
   onHover?: (b: Builder) => void
   onHoverEnd?: () => void
-  onReset: () => void
   isMobile?: boolean
   userId?: string | null
   authReady?: boolean
@@ -240,13 +238,7 @@ function BuilderList({
   if (visible.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8">
-        <p className="text-[#717171] text-sm mb-4">Keine Custom-Werkstatt in diesem Kartenbereich.</p>
-        <button
-          onClick={onReset}
-          className="text-xs font-semibold text-[#222222] border border-[#DDDDDD] px-4 py-2 rounded-full hover:bg-[#F7F7F7] transition-all cursor-pointer"
-        >
-          Filter zurücksetzen
-        </button>
+        <p className="text-[#717171] text-sm">Keine Custom-Werkstatt in diesem Kartenbereich.</p>
       </div>
     )
   }
@@ -325,6 +317,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [activeLeistung,     setActiveLeistung]     = useState('Alle')
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
+  const [showFilterModal,   setShowFilterModal]    = useState(false)
   const [now,                setNow]                = useState<Date | null>(null)
   const [selectedBuilder,    setSelectedBuilder]    = useState<Builder | null>(null)
   const [hoveredBuilder,     setHoveredBuilder]     = useState<Builder | null>(null)
@@ -704,26 +697,7 @@ export default function BuilderPageClient({ builders }: Props) {
 
   const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
 
-  const resetAllFilters = useCallback(() => {
-    setSearchQuery('')
-    setActiveSpecialty('Alle')
-    setActiveLeistung('Alle')
-    setOnlyVerified(false)
-    setOnlyOpen(false)
-  }, [])
-
-  const resetAndFitMap = useCallback(() => {
-    resetAllFilters()
-    const map = mapRef.current
-    if (!map) return
-    const withCoords = builders.filter(b => b.lat && b.lng)
-    if (withCoords.length === 0) return
-    const bounds = new mapboxgl.LngLatBounds()
-    withCoords.forEach(b => bounds.extend([b.lng!, b.lat!]))
-    map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 800 })
-  }, [builders, resetAllFilters])
-
-  const hasActiveFilter = searchQuery !== '' || activeSpecialty !== 'Alle' || activeLeistung !== 'Alle' || onlyVerified || onlyOpen
+  const activeFilterCount = (activeSpecialty !== 'Alle' ? 1 : 0) + (activeLeistung !== 'Alle' ? 1 : 0) + (onlyOpen ? 1 : 0)
 
   return (
     <>
@@ -749,6 +723,34 @@ export default function BuilderPageClient({ builders }: Props) {
       {/* ── Sticky filter bar ── */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Mobile: Filter button (left) */}
+          <button
+            onClick={() => setShowFilterModal(true)}
+            className={`lg:hidden flex-shrink-0 h-8 text-[13px] font-medium px-4 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 border ${
+              activeFilterCount > 0 ? 'bg-[#222222]/8 text-[#222222] border-[#222222]/25' : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+            }`}
+          >
+            <SlidersHorizontal size={13} />
+            Filter
+            {activeFilterCount > 0 && (
+              <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold text-white bg-[#222222] rounded-full">{activeFilterCount}</span>
+            )}
+          </button>
+
+          {/* Mobile: Reset button (next to filter) */}
+          {activeFilterCount > 0 && (
+            <button
+              onClick={() => { setActiveSpecialty('Alle'); setActiveLeistung('Alle'); setOnlyOpen(false) }}
+              className="lg:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
+              aria-label="Filter zurücksetzen"
+            >
+              <X size={14} />
+            </button>
+          )}
+
+          {/* Mobile: spacer to push search right */}
+          <div className="flex-1 lg:hidden" />
+
           {/* Search field */}
           <div className={`relative flex-shrink-0 transition-all duration-300 ease-in-out ${searchQuery ? 'w-44 lg:w-52' : 'w-32 focus-within:w-44 lg:focus-within:w-52'}`}>
             <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
@@ -770,8 +772,9 @@ export default function BuilderPageClient({ builders }: Props) {
             )}
           </div>
 
+          {/* Desktop: inline filters */}
           {/* Umbaustil */}
-          <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+          <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
             activeSpecialty !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
           }`}>
             <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -785,7 +788,7 @@ export default function BuilderPageClient({ builders }: Props) {
           </div>
 
           {/* Leistungen */}
-          <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+          <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
             activeLeistung !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
           }`}>
             <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -801,7 +804,7 @@ export default function BuilderPageClient({ builders }: Props) {
           {/* Jetzt geöffnet */}
           {now && (
             <button onClick={() => setOnlyOpen(v => !v)}
-              className={`flex-shrink-0 h-8 text-[13px] font-medium px-3.5 rounded-full transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 border ${
+              className={`hidden lg:flex flex-shrink-0 h-8 text-[13px] font-medium px-3.5 rounded-full transition-colors cursor-pointer whitespace-nowrap items-center gap-1.5 border ${
                 onlyOpen
                   ? 'bg-[#222222]/8 text-[#222222] border-[#222222]/25'
                   : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
@@ -811,18 +814,109 @@ export default function BuilderPageClient({ builders }: Props) {
             </button>
           )}
 
-          {/* Reset */}
-          {hasActiveFilter && (
+          {/* Desktop: Reset */}
+          {activeFilterCount > 0 && (
             <button
-              onClick={resetAllFilters}
-              className="w-8 h-8 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
+              onClick={() => { setActiveSpecialty('Alle'); setActiveLeistung('Alle'); setOnlyOpen(false) }}
+              className="hidden lg:flex w-8 h-8 flex-shrink-0 items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
               aria-label="Filter zurücksetzen"
             >
               <X size={14} />
             </button>
           )}
+
         </div>
       </div>
+
+      {/* ── Mobile filter modal ── */}
+      {showFilterModal && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
+            <h2 className="text-base font-bold text-[#222222]">Filter</h2>
+            <button onClick={() => setShowFilterModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors cursor-pointer">
+              <X size={18} className="text-[#222222]" />
+            </button>
+          </div>
+
+          {/* Filter options */}
+          <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8">
+            {/* Umbaustil */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Umbaustil</h3>
+              <div className="flex flex-wrap gap-2">
+                {['Alle', ...availableSpecialties.filter(s => s !== 'Alle')].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setActiveSpecialty(s)}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeSpecialty === s
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {s === 'Alle' ? 'Alle Stile' : s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Leistungen */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Leistungen</h3>
+              <div className="flex flex-wrap gap-2">
+                {['Alle', ...availableLeistungen].map(l => (
+                  <button
+                    key={l}
+                    onClick={() => setActiveLeistung(l)}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeLeistung === l
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {l === 'Alle' ? 'Alle Leistungen' : l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Jetzt geöffnet */}
+            {now && (
+              <div>
+                <h3 className="text-sm font-semibold text-[#222222] mb-3">Verfügbarkeit</h3>
+                <button
+                  onClick={() => setOnlyOpen(v => !v)}
+                  className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer flex items-center gap-2 ${
+                    onlyOpen
+                      ? 'bg-[#222222] text-white border-[#222222]'
+                      : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${onlyOpen ? 'bg-emerald-400' : 'bg-emerald-500'}`} />
+                  Jetzt geöffnet
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Fixed bottom buttons */}
+          <div className="border-t border-[#EBEBEB] px-5 py-4 flex items-center gap-3">
+            <button
+              onClick={() => { setActiveSpecialty('Alle'); setActiveLeistung('Alle'); setOnlyOpen(false) }}
+              className="flex-1 h-12 text-sm font-semibold text-[#222222] bg-white border border-[#DDDDDD] rounded-xl hover:bg-[#F7F7F7] transition-colors cursor-pointer"
+            >
+              Zurücksetzen
+            </button>
+            <button
+              onClick={() => setShowFilterModal(false)}
+              className="flex-1 h-12 text-sm font-semibold text-white bg-[#222222] rounded-xl hover:bg-[#333] transition-colors cursor-pointer"
+            >
+              {filtered.length} Ergebnisse anzeigen
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Desktop: Split layout (List left 50% | Map right 50%) ── */}
       <div className="hidden lg:flex" style={{ height: mapHeight }}>
@@ -837,7 +931,7 @@ export default function BuilderPageClient({ builders }: Props) {
             onToggleSave={toggleSave}
             onHover={setHoveredBuilder}
             onHoverEnd={() => setHoveredBuilder(null)}
-            onReset={resetAndFitMap}
+
             userId={userId}
             authReady={authReady}
           />
@@ -863,7 +957,7 @@ export default function BuilderPageClient({ builders }: Props) {
           />
         )}
 
-        {mobileView === 'map' && (
+        {mobileView === 'map' && !showFilterModal && (
           <button
             onClick={() => { setMobileView('list'); setMobileSheetBuilder(null) }}
             className={`fixed ${userId ? 'bottom-28' : 'bottom-6'} sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95`}
@@ -891,30 +985,31 @@ export default function BuilderPageClient({ builders }: Props) {
           selectedBuilder={null}
           savedIds={savedIds}
           onToggleSave={toggleSave}
-          onReset={resetAndFitMap}
           isMobile
           userId={userId}
           authReady={authReady}
         />
 
-        <div className={`fixed ${userId ? 'bottom-28' : 'bottom-6'} sm:bottom-6 left-1/2 -translate-x-1/2 z-50`}>
-          <button
-            onClick={() => {
-              window.scrollTo({ top: 0 })
-              setListExiting(true)
-              setMobileSheetBuilder(null)
-              setTimeout(() => {
-                setMobileView('map')
-                setListExiting(false)
-              }, 300)
-            }}
-            className="flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            <MapIcon size={16} className="text-[#1A1A1A]" />
-            <span className="text-sm font-semibold text-[#1A1A1A]">Karte anzeigen</span>
-          </button>
-        </div>
+        {!showFilterModal && (
+          <div className={`fixed ${userId ? 'bottom-28' : 'bottom-6'} sm:bottom-6 left-1/2 -translate-x-1/2 z-50`}>
+            <button
+              onClick={() => {
+                window.scrollTo({ top: 0 })
+                setListExiting(true)
+                setMobileSheetBuilder(null)
+                setTimeout(() => {
+                  setMobileView('map')
+                  setListExiting(false)
+                }, 300)
+              }}
+              className="flex items-center gap-2 bg-white border border-[#E5E5E5] shadow-md px-5 py-3 rounded-full transition-all active:scale-95"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              <MapIcon size={16} className="text-[#1A1A1A]" />
+              <span className="text-sm font-semibold text-[#1A1A1A]">Karte anzeigen</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <LoginModal

@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Search, SlidersHorizontal } from 'lucide-react'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -27,6 +27,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [activeModel,   setActiveModel]   = useState('Alle')
   const [searchQuery,   setSearchQuery]   = useState('')
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
+  const [showFilterModal, setShowFilterModal] = useState(false)
   const [page,          setPage]          = useState(1)
   const PER_PAGE = 12
 
@@ -115,12 +116,43 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     }, 50)
   }
 
+  const activeFilterCount = (activeCountry !== 'Alle' ? 1 : 0) + (activeStyle !== 'Alle' ? 1 : 0) + (activeMake !== 'Alle' ? 1 : 0) + (activeModel !== 'Alle' ? 1 : 0) + (activeSort !== 'newest' ? 1 : 0)
+  const resetAllFilters = () => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setActiveSort('newest'); setPage(1) }
+
   return (
     <>
       {/* FILTER BAR */}
       <div ref={filterRef} className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
+
+            {/* Mobile: Filter button (left) */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className={`lg:hidden flex-shrink-0 h-8 text-[13px] font-medium px-4 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 border ${
+                activeFilterCount > 0 ? 'bg-[#222222]/8 text-[#222222] border-[#222222]/25' : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+              }`}
+            >
+              <SlidersHorizontal size={13} />
+              Filter
+              {activeFilterCount > 0 && (
+                <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold text-white bg-[#222222] rounded-full">{activeFilterCount}</span>
+              )}
+            </button>
+
+            {/* Mobile: Reset button */}
+            {activeFilterCount > 0 && (
+              <button
+                onClick={resetAllFilters}
+                className="lg:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer"
+                aria-label="Filter zurücksetzen"
+              >
+                <X size={14} />
+              </button>
+            )}
+
+            {/* Mobile: spacer */}
+            <div className="flex-1 lg:hidden" />
 
             {/* Search field */}
             <div className={`relative flex-shrink-0 transition-all duration-300 ease-in-out ${searchQuery ? 'w-44 lg:w-52' : 'w-32 focus-within:w-44 lg:focus-within:w-52'}`}>
@@ -143,8 +175,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               )}
             </div>
 
-            {/* Overlay select filters: Land → Umbau-Stil → Marke → Modell */}
-            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+            {/* Desktop: inline filters */}
+            <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
               activeCountry !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
             }`}>
               <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -157,7 +189,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               </select>
             </div>
 
-            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+            <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
               activeStyle !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
             }`}>
               <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -170,7 +202,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               </select>
             </div>
 
-            <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+            <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
               activeMake !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
             }`}>
               <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -184,7 +216,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             </div>
 
             {activeMake !== 'Alle' && (
-              <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+              <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
                 activeModel !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
               }`}>
                 <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -198,22 +230,22 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
               </div>
             )}
 
-            {/* Reset */}
+            {/* Desktop: Reset */}
             {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle' || searchQuery) && (
               <button
-                onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
+                onClick={() => { setSearchQuery(''); resetAllFilters() }}
                 aria-label="Filter zurücksetzen"
-                className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white"
+                className="hidden lg:flex flex-shrink-0 w-8 h-8 items-center justify-center text-[#999] hover:text-[#333] transition-colors rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white"
               >
                 <X size={14} />
               </button>
             )}
 
-            {/* Spacer */}
-            <div className="flex-1" />
+            {/* Desktop: Spacer */}
+            <div className="hidden lg:block flex-1" />
 
-            {/* Sortieren */}
-            <div className="relative flex-shrink-0 h-8 rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer">
+            {/* Desktop: Sortieren */}
+            <div className="hidden lg:block relative flex-shrink-0 h-8 rounded-full border border-[#d4d4d4] hover:border-[#999] bg-white cursor-pointer">
               <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
                 {SORT_LABELS[activeSort]}
                 <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -227,6 +259,140 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile filter modal ── */}
+      {showFilterModal && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
+            <h2 className="text-base font-bold text-[#222222]">Filter</h2>
+            <button onClick={() => setShowFilterModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors cursor-pointer">
+              <X size={18} className="text-[#222222]" />
+            </button>
+          </div>
+
+          {/* Filter options */}
+          <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8">
+            {/* Land */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Land</h3>
+              <div className="flex flex-wrap gap-2">
+                {countries.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => { setActiveCountry(c); if (c === 'Alle') { setActiveStyle('Alle'); setActiveMake('Alle'); setActiveModel('Alle') } }}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeCountry === c
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {c === 'Alle' ? 'Alle Länder' : c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Umbau-Stil */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Umbau-Stil</h3>
+              <div className="flex flex-wrap gap-2">
+                {styles.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setActiveStyle(s); if (s !== activeStyle) { setActiveMake('Alle'); setActiveModel('Alle') } }}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeStyle === s
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {s === 'Alle' ? 'Alle Stile' : s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Marke */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Marke</h3>
+              <div className="flex flex-wrap gap-2">
+                {makes.map(m => (
+                  <button
+                    key={m}
+                    onClick={() => { setActiveMake(m); if (m === 'Alle') setActiveModel('Alle') }}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeMake === m
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {m === 'Alle' ? 'Alle Marken' : m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modell (nur wenn Marke gewählt) */}
+            {activeMake !== 'Alle' && models.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-[#222222] mb-3">Modell</h3>
+                <div className="flex flex-wrap gap-2">
+                  {models.map(m => (
+                    <button
+                      key={m}
+                      onClick={() => setActiveModel(m)}
+                      className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                        activeModel === m
+                          ? 'bg-[#222222] text-white border-[#222222]'
+                          : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                      }`}
+                    >
+                      {m === 'Alle' ? 'Alle Modelle' : m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sortieren */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Sortieren</h3>
+              <div className="flex flex-wrap gap-2">
+                {(['popular', 'newest', 'oldest'] as const).map(key => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveSort(key)}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeSort === key
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {SORT_LABELS[key]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Fixed bottom buttons */}
+          <div className="border-t border-[#EBEBEB] px-5 py-4 flex items-center gap-3">
+            <button
+              onClick={resetAllFilters}
+              className="flex-1 h-12 text-sm font-semibold text-[#222222] bg-white border border-[#DDDDDD] rounded-xl hover:bg-[#F7F7F7] transition-colors cursor-pointer"
+            >
+              Zurücksetzen
+            </button>
+            <button
+              onClick={() => { setShowFilterModal(false); setPage(1) }}
+              className="flex-1 h-12 text-sm font-semibold text-white bg-[#222222] rounded-xl hover:bg-[#333] transition-colors cursor-pointer"
+            >
+              {filtered.length} Ergebnisse anzeigen
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* GRID */}
       <div ref={gridAnchorRef} className="-mt-32 pt-32" />
