@@ -6,7 +6,6 @@ import { MapPin, Instagram, Globe, Calendar, Settings } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
-import AuthGate from './AuthGate'
 import FollowButton from '@/components/rider/FollowButton'
 import RiderContactButton from '@/components/rider/RiderContactButton'
 import { Pencil, Wrench } from 'lucide-react'
@@ -342,7 +341,7 @@ export default async function RiderProfilePage({ params }: Props) {
               {rider.bikes.length > 0 && (
                 <div className="bg-[#111111] rounded-2xl p-5 sm:p-6">
                   <div className="flex items-center gap-2 mb-5">
-                    <h2 className="text-xl font-bold text-white tracking-tight">Meine Garage</h2>
+                    <h2 className="text-xl font-bold text-white tracking-tight">{isOwnProfile ? 'Meine Garage' : `Garage von ${rider.name.split(' ')[0]}`}</h2>
                     <span className="text-xs text-white/30 ml-auto">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -506,10 +505,6 @@ export default async function RiderProfilePage({ params }: Props) {
       <Footer />
     </div>
   )
-
-  if (!user) {
-    return <AuthGate />
-  }
 
   return content
 }
