@@ -2,24 +2,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Instagram } from 'lucide-react'
 import FooterWrapper from './FooterWrapper'
-import { createClient } from '@/lib/supabase/server'
+import FooterBikeStyles from './FooterBikeStyles'
 
-// DB style value → slug + label for footer links
-const STYLE_MAP: Record<string, { slug: string; label: string }> = {
-  cafe_racer:     { slug: 'cafe-racer',     label: 'Cafe Racer' },
-  bobber:         { slug: 'bobber',         label: 'Bobber' },
-  scrambler:      { slug: 'scrambler',      label: 'Scrambler' },
-  tracker:        { slug: 'tracker',        label: 'Tracker' },
-  chopper:        { slug: 'chopper',        label: 'Chopper' },
-  naked:          { slug: 'naked',          label: 'Naked' },
-  brat_style:     { slug: 'brat-style',     label: 'Brat Style' },
-  street_fighter: { slug: 'street-fighter', label: 'Street Fighter' },
-  enduro:         { slug: 'enduro',         label: 'Enduro' },
-  old_school:     { slug: 'old-school',     label: 'Old School' },
-  street:         { slug: 'street',         label: 'Street' },
-}
-
-const STATIC_NAV = [
+const NAV = [
   {
     heading: 'Plattform',
     links: [
@@ -50,30 +35,7 @@ const STATIC_NAV = [
   },
 ]
 
-export default async function Footer() {
-  // Fetch distinct styles that have at least 1 active bike
-  const supabase = await createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: rows } = await (supabase.from('bikes') as any)
-    .select('style')
-    .eq('status', 'active')
-
-  const activeStyles = new Set((rows ?? []).map((r: { style: string }) => r.style))
-  const styleLinks = Array.from(activeStyles)
-    .filter(s => STYLE_MAP[s])
-    .sort((a, b) => STYLE_MAP[a].label.localeCompare(STYLE_MAP[b].label))
-    .map(s => ({ label: STYLE_MAP[s].label, href: `/bikes/${STYLE_MAP[s].slug}` }))
-
-  const bikesColumn = {
-    heading: 'Custom Bikes',
-    links: [
-      { label: 'Alle Marken', href: '/marken' },
-      ...styleLinks,
-    ],
-  }
-
-  const NAV = [STATIC_NAV[0], bikesColumn, STATIC_NAV[1], STATIC_NAV[2]]
-
+export default function Footer() {
   return (
     <FooterWrapper>
     <footer className="bg-[#222222] border-t border-white/8 text-white">
@@ -100,6 +62,22 @@ export default async function Footer() {
           </div>
 
           {/* Nav columns */}
+          {/* Custom Bikes — dynamic styles from DB */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">
+              Custom Bikes
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              <li>
+                <Link href="/marken" className="text-sm text-white/45 hover:text-white transition-colors">
+                  Alle Marken
+                </Link>
+              </li>
+              <FooterBikeStyles />
+            </ul>
+          </div>
+
+          {/* Static columns */}
           {NAV.map(col => (
             <div key={col.heading}>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">
