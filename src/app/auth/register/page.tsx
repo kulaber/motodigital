@@ -6,48 +6,66 @@ import RegisterCarousel from './RegisterCarousel'
 
 export const metadata: Metadata = { title: 'Registrieren — MotoDigital' }
 
-export default function RegisterPage() {
+export default async function RegisterPage(
+  props: { searchParams: Promise<{ role?: string }> }
+) {
+  const { role } = await props.searchParams
+  const initialRole = role === 'rider' || role === 'custom-werkstatt' ? role : undefined
   return (
     <div className="h-[100dvh] overflow-hidden bg-[#111111] text-white flex flex-col lg:flex-row">
 
-      {/* Left — dark panel */}
-      <div className="hidden lg:flex flex-col justify-center w-[420px] flex-shrink-0 bg-[#111111] px-8 py-10 relative overflow-hidden">
+      {/* Left — Visual showcase (desktop) */}
+      <div className="hidden lg:flex lg:flex-[1.2] flex-col relative overflow-hidden bg-[#0a0a0a]">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 55%, rgba(6,165,165,0.07) 0%, transparent 70%)' }} />
 
-        {/* Subtle glow */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 20% 60%, rgba(6,165,165,0.1) 0%, transparent 60%)' }} />
-
-        {/* Logo */}
-        <div className="absolute top-10 left-8">
+        {/* Logo — top left above slider */}
+        <div className="relative pt-10 pl-10">
           <Link href="/">
-            <Image src="/logo.svg" alt="MotoDigital" width={200} height={76} className="h-12 w-auto" priority />
+            <Image src="/logo.svg" alt="MotoDigital" width={300} height={110}
+              className="h-16 w-auto" priority />
           </Link>
         </div>
 
-        {/* Headline + Carousel — vertically centered */}
-        <div className="relative">
-          <h2 className="text-xl font-bold text-white leading-snug">Account erstellen</h2>
-          <p className="text-sm text-white/35 mt-1 mb-6">Kostenlos — keine Kreditkarte erforderlich</p>
+        {/* Carousel fills remaining space */}
+        <div className="flex-1 flex items-center justify-center">
           <RegisterCarousel />
         </div>
       </div>
 
-      {/* Right — Form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-y-auto">
+      {/* Right — Content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-5 sm:px-8 overflow-y-auto relative">
+        <div className="absolute inset-0 pointer-events-none lg:hidden"
+          style={{ background: 'radial-gradient(ellipse at 50% 20%, rgba(6,165,165,0.05) 0%, transparent 60%)' }} />
 
-        {/* Mobile logo */}
-        <div className="lg:hidden mb-8 text-center">
-          <Link href="/" className="inline-flex mb-3">
-            <Image src="/logo.svg" alt="MotoDigital" width={150} height={56} className="h-8 w-auto" priority />
+        <div className="w-full max-w-sm flex flex-col items-center py-10 relative">
+
+          {/* Mobile logo */}
+          <Link href="/" className="lg:hidden">
+            <Image src="/logo.svg" alt="MotoDigital" width={300} height={110}
+              className="h-12 sm:h-16 w-auto" priority />
           </Link>
-        </div>
 
-        <div className="w-full max-w-sm py-8">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <RegisterForm />
+          {/* Mobile illustration */}
+          <div className="lg:hidden mt-6">
+            <Image src="/rider.png" alt="" width={200} height={150} className="w-44 h-auto" />
           </div>
 
-          <p className="text-center text-sm text-white/35 mt-4">
+          {/* Headline — above the cards */}
+          <h1 className="text-xl sm:text-2xl lg:text-[1.7rem] font-bold mt-6 lg:mt-10 text-center leading-tight">
+            Account erstellen
+          </h1>
+          <p className="text-sm text-white/35 mt-2 mb-6 lg:mb-8 text-center">
+            Kostenlos — keine Kreditkarte erforderlich
+          </p>
+
+          {/* Form / Role selection */}
+          <div className="w-full">
+            <RegisterForm initialRole={initialRole} />
+          </div>
+
+          {/* Login link */}
+          <p className="text-center text-sm text-white/35 mt-5">
             Bereits registriert?{' '}
             <Link href="/auth/login" className="text-white/60 hover:text-[#06a5a5] transition-colors">
               Anmelden

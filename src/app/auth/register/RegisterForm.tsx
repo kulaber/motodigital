@@ -22,9 +22,9 @@ const RIDER_BENEFITS = [
   'Digitaler Bike-Pass (bald verfügbar)',
 ]
 
-export default function RegisterForm() {
-  const [step, setStep] = useState<1 | 2>(1)
-  const [role, setRole] = useState<Role | null>(null)
+export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
+  const [step, setStep] = useState<1 | 2>(initialRole ? 2 : 1)
+  const [role, setRole] = useState<Role | null>(initialRole ?? null)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -72,55 +72,48 @@ export default function RegisterForm() {
   // ── Step 1 — Role selection ─────────────────────────────────────────────
   if (step === 1) {
     return (
-      <div>
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
 
-          {/* Rider */}
-          <button
-            onClick={() => handleRoleSelect('rider')}
-            className="rounded-2xl border-2 border-white/10 hover:border-white/30 hover:shadow-md transition-all text-left group"
-          >
-            <div className="px-4 py-4 bg-white/5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Bike size={18} className="text-white/60" />
-                <p className="font-bold text-base text-white">Rider</p>
-              </div>
-              <p className="text-xs text-white/45 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
-              <ul className="flex flex-col gap-1.5">
-                {RIDER_BENEFITS.map(b => (
-                  <li key={b} className="flex items-center gap-2">
-                    <Check size={10} className="text-white/30 flex-shrink-0" />
-                    <span className="text-xs text-white/50">{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </button>
+        {/* Rider */}
+        <button
+          onClick={() => handleRoleSelect('rider')}
+          className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] transition-all duration-200 text-left px-5 py-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Bike size={18} className="text-white/60" />
+            <p className="font-bold text-base text-white">Rider</p>
+          </div>
+          <p className="text-xs text-white/45 mb-3">Ich suche Custom Bikes & die richtige Werkstatt</p>
+          <ul className="flex flex-col gap-1.5">
+            {RIDER_BENEFITS.map(b => (
+              <li key={b} className="flex items-center gap-2">
+                <Check size={10} className="text-white/30 flex-shrink-0" />
+                <span className="text-xs text-white/50">{b}</span>
+              </li>
+            ))}
+          </ul>
+        </button>
 
-          {/* Custom Werkstatt */}
-          <button
-            onClick={() => handleRoleSelect('custom-werkstatt')}
-            className="rounded-2xl border-2 border-white/10 hover:border-[#06a5a5]/60 hover:shadow-md transition-all text-left group"
-          >
-            <div className="px-4 py-4 bg-white/5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Wrench size={18} className="text-[#06a5a5]" />
-                <p className="font-bold text-base text-white">Custom Werkstatt</p>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
-              </div>
-              <p className="text-xs text-white/45 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
-              <ul className="flex flex-col gap-1.5">
-                {WERKSTATT_BENEFITS.map(b => (
-                  <li key={b} className="flex items-center gap-2">
-                    <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
-                    <span className="text-xs text-white/50">{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </button>
-        </div>
-
+        {/* Custom Werkstatt */}
+        <button
+          onClick={() => handleRoleSelect('custom-werkstatt')}
+          className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all duration-200 text-left px-5 py-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Wrench size={18} className="text-[#06a5a5]" />
+            <p className="font-bold text-base text-white">Custom Werkstatt</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
+          </div>
+          <p className="text-xs text-white/45 mb-3">Ich baue Custom Bikes & will Kunden gewinnen</p>
+          <ul className="flex flex-col gap-1.5">
+            {WERKSTATT_BENEFITS.map(b => (
+              <li key={b} className="flex items-center gap-2">
+                <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
+                <span className="text-xs text-white/50">{b}</span>
+              </li>
+            ))}
+          </ul>
+        </button>
       </div>
     )
   }
@@ -129,6 +122,7 @@ export default function RegisterForm() {
   const isBuilder = role === 'custom-werkstatt'
 
   return (
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
       {/* Back + role indicator */}
@@ -204,5 +198,6 @@ export default function RegisterForm() {
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>
+    </div>
   )
 }
