@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   {
@@ -70,53 +70,17 @@ const NAV_ITEMS = [
 const ITEM_COUNT = NAV_ITEMS.length;
 const INACTIVE_ICON = "#B0B0B8";
 
+/* Gate — only mounts the inner nav when user is logged in */
 export default function MobileBottomNav() {
-  const { user, role, slug, loading } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading || !user) return null;
+  return <MobileBottomNavInner />;
+}
+
+function MobileBottomNavInner() {
+  const { role, slug, unreadCount } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const [optimistic, setOptimistic] = useState({ index: -1, href: null });
-  const [unreadCount, setUnreadCount] = useState(0);
-  const supabase = createClient();
-  const fetchUnreadRef = useRef(() => {});
-
-  // Fetch unread count + realtime subscription
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!user) { setUnreadCount(0); return; }
-    const uid = user.id;
-
-    async function fetchUnread() {
-      const { data: convs } = await supabase
-        .from("conversations")
-        .select("id")
-        .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`);
-      if (!convs?.length) { setUnreadCount(0); return; }
-      const ids = convs.map((c) => c.id);
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .in("conversation_id", ids)
-        .neq("sender_id", uid)
-        .is("read_at", null);
-      setUnreadCount(count ?? 0);
-    }
-
-    fetchUnreadRef.current = fetchUnread;
-    fetchUnread();
-
-    const stableListener = () => fetchUnreadRef.current();
-    window.addEventListener("messages-read", stableListener);
-
-    const channel = supabase
-      .channel("mobile-unread-badge")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, stableListener)
-      .subscribe();
-
-    return () => {
-      window.removeEventListener("messages-read", stableListener);
-      supabase.removeChannel(channel);
-    };
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Resolve dynamic profile href for riders
   const riderProfileHref = role === "rider" && slug ? `/rider/${slug}` : null;
@@ -143,11 +107,6 @@ export default function MobileBottomNav() {
   const activeIndex =
     optimistic.index >= 0 && !arrivedAtTarget ? optimistic.index : routeIndex;
 
-  const handleTap = (index, href) => {
-    setOptimistic({ index, href });
-    router.push(href);
-  };
-
   // Hide nav when any modal/overlay opens
   const [navHidden, setNavHidden] = useState(false);
   const modalCountRef = useRef(0);
@@ -171,8 +130,6 @@ export default function MobileBottomNav() {
       window.removeEventListener("gallery-modal-close", show);
     };
   }, []);
-
-  if (loading || !user) return null;
 
   return (
     <>
@@ -233,13 +190,11 @@ export default function MobileBottomNav() {
               const showBadge = item.id === "nachrichten" && unreadCount > 0;
 
               return (
-                <a
+                <Link
                   key={item.id}
                   href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleTap(index, item.href);
-                  }}
+                  prefetch={true}
+                  onClick={() => setOptimistic({ index, href: item.href })}
                   className="relative flex items-center justify-center"
                   style={{
                     flex: 1,
@@ -285,7 +240,7 @@ export default function MobileBottomNav() {
                       </span>
                     )}
                   </span>
-                </a>
+                </Link>
               );
             })}
           </div>

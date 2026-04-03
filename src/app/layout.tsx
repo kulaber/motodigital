@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AuthProvider } from '@/contexts/AuthContext'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import './globals.css'
@@ -57,10 +58,12 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
-        {children}
-        <MobileBottomNav />
-        <PageViewTracker />
-        <Analytics />
+        <AuthProvider>
+          {children}
+          <MobileBottomNav />
+          <PageViewTracker />
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   )

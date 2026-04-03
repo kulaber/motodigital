@@ -8,11 +8,13 @@ import {
   LayoutDashboard, LogOut, ChevronDown,
   Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star, Wrench,
 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import MobileNav from './MobileNav'
-import { LoginModal } from '@/components/ui/LoginModal'
+
+const LoginModal = dynamic(() => import('@/components/ui/LoginModal').then(m => m.LoginModal), { ssr: false })
 
 interface Props {
   activePage?: 'bikes' | 'custom-werkstatt' | 'map' | 'landing' | 'magazine' | 'events' | 'sell' | 'builds' | 'explore'
@@ -27,12 +29,11 @@ const ROLE_BADGE: Record<string, { label: string; color: string }> = {
 export default function Header({ activePage }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dashDropdown, setDashDropdown] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [showLogin, setShowLogin] = useState(false)
   const [loginMode, setLoginMode] = useState<'login' | 'register'>('login')
 
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { user, role, slug, avatarUrl, fullName, loading } = useAuth()
+  const { user, role, slug, avatarUrl, fullName, loading, unreadCount } = useAuth()
   const router  = useRouter()
   const supabase = createClient()
 
@@ -44,9 +45,6 @@ export default function Header({ activePage }: Props) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  // Stabiler Ref damit der Event-Listener immer die aktuellste fetchUnread-Version aufruft
-  const fetchUnreadRef = useRef<() => void>(() => {})
-
   // ── Update last_seen_at while logged in ──
   useEffect(() => {
     if (!user) return
@@ -54,45 +52,7 @@ export default function Header({ activePage }: Props) {
     update()
     const interval = setInterval(update, 60_000)
     return () => clearInterval(interval)
-  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!user) { setUnreadCount(0); return }
-    const uid = user.id
-
-    async function fetchUnread() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: convs } = await (supabase.from('conversations') as any)
-        .select('id')
-        .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`)
-      if (!convs?.length) { setUnreadCount(0); return }
-      const ids = convs.map((c: { id: string }) => c.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count } = await (supabase.from('messages') as any)
-        .select('id', { count: 'exact', head: true })
-        .in('conversation_id', ids)
-        .neq('sender_id', uid)
-        .is('read_at', null)
-      setUnreadCount(count ?? 0)
-    }
-
-    fetchUnreadRef.current = fetchUnread
-    fetchUnread()
-
-    const stableListener = () => fetchUnreadRef.current()
-    window.addEventListener('messages-read', stableListener)
-
-    const channel = supabase
-      .channel('unread-badge')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, stableListener)
-      .subscribe()
-
-    return () => {
-      window.removeEventListener('messages-read', stableListener)
-      supabase.removeChannel(channel)
-    }
-  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user])
 
   async function handleLogout() {
     await supabase.auth.signOut()

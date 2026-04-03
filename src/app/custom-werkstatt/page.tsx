@@ -84,7 +84,6 @@ async function geocode(query: string, token: string): Promise<{ lat: number; lng
 async function BuilderContent() {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRows } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
     .eq('role', 'custom-werkstatt')
@@ -93,20 +92,25 @@ async function BuilderContent() {
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
 
   // Geocode builders that have a city/address but no coordinates
+  // Results are persisted to DB so each builder is only geocoded once
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
   if (token) {
-    await Promise.allSettled(
-      dbBuilders.map(async b => {
-        if (b.lat && b.lng) return
-        const query = b.address || b.city
-        if (!query) return
-        const coords = await geocode(query, token)
-        if (coords) {
-          b.lat = coords.lat
-          b.lng = coords.lng
-        }
-      })
-    )
+    const needsGeocode = dbBuilders.filter(b => !b.lat && !b.lng && (b.address || b.city))
+    if (needsGeocode.length > 0) {
+      await Promise.allSettled(
+        needsGeocode.map(async b => {
+          const query = b.address || b.city
+          if (!query) return
+          const coords = await geocode(query, token)
+          if (coords) {
+            b.lat = coords.lat
+            b.lng = coords.lng
+            // Persist coordinates so future loads skip geocoding (fire-and-forget)
+            ;(supabase.from('profiles') as any).update({ lat: coords.lat, lng: coords.lng }).eq('id', b.id)
+          }
+        })
+      )
+    }
   }
 
   // Shuffle non-sponsored server-side (Math.random OK in server component)
@@ -142,7 +146,22 @@ export default function BuilderPage() {
         <h1 className="text-xl font-bold text-[#222222] text-center">Custom Werkstatt</h1>
       </div>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-6">
+          <div className="h-12 w-full max-w-md mx-auto bg-[#F0F0F0] animate-pulse rounded-full mb-8" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden border border-[#222222]/5">
+                <div className="aspect-[16/10] bg-[#F0F0F0] animate-pulse" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 w-2/3 bg-[#F0F0F0] animate-pulse rounded" />
+                  <div className="h-3 w-1/3 bg-[#F0F0F0] animate-pulse rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      }>
         <BuilderContent />
       </Suspense>
     </div>
