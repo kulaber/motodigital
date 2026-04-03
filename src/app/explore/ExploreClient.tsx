@@ -148,20 +148,21 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       if (!data || data.length === 0) return
 
       const userIds = [...new Set((data as { user_id: string }[]).map(c => c.user_id))]
+      const commentIds = (data as { id: string }[]).map(c => c.id)
+
+      // Fetch profiles + likes in parallel (both depend only on comments data)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: profiles } = await (supabase.from('profiles') as any)
-        .select('id, full_name, avatar_url, slug, role')
-        .in('id', userIds)
+      const [{ data: profiles }, { data: likesData }] = await Promise.all([
+        (supabase.from('profiles') as any)
+          .select('id, full_name, avatar_url, slug, role')
+          .in('id', userIds),
+        (supabase.from('community_comment_likes') as any)
+          .select('comment_id, user_id')
+          .in('comment_id', commentIds),
+      ])
 
       const pMap: Record<string, { full_name: string | null; avatar_url: string | null; slug: string | null; role: string | null }> = {}
       for (const p of (profiles ?? [])) pMap[p.id] = p
-
-      // Load comment likes
-      const commentIds = (data as { id: string }[]).map(c => c.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: likesData } = await (supabase.from('community_comment_likes') as any)
-        .select('comment_id, user_id')
-        .in('comment_id', commentIds)
 
       const likeCounts: Record<string, number> = {}
       const myLikes = new Set<string>()

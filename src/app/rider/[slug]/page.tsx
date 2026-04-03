@@ -144,23 +144,39 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     }
   })
 
-  let lat: number | undefined = (row.lat as number | null) ?? undefined
-  let lng: number | undefined = (row.lng as number | null) ?? undefined
-  if ((!lat || !lng) && row.city) {
-    const coords = await geocode(row.city as string)
-    if (coords) { lat = coords.lat; lng = coords.lng }
-  }
-
-  // Geocode visited cities in parallel
+  // Geocode rider city + visited cities + fetch events — all in parallel
   const visitedRaw = (row.visited_cities as string[] | null) ?? []
-  let visitedCityCoords: { name: string; lat: number; lng: number; country?: string }[] = []
-  if (visitedRaw.length > 0) {
-    const results = await Promise.all(visitedRaw.map(async (cityName) => {
+  const eventSlugs = ((eventRows ?? []) as { event_slug: string }[]).map(e => e.event_slug)
+
+  const [cityGeo, visitedResults, eventsResult] = await Promise.all([
+    // Geocode rider's city if no coords
+    ((!row.lat && !row.lng && row.city) ? geocode(row.city as string) : Promise.resolve(null)),
+    // Geocode all visited cities in parallel
+    Promise.all(visitedRaw.map(async (cityName) => {
       const geo = await geocode(cityName)
       return geo ? { name: cityName, lat: geo.lat, lng: geo.lng, country: geo.country } : null
-    }))
-    visitedCityCoords = results.filter(Boolean) as typeof visitedCityCoords
-  }
+    })),
+    // Fetch event details
+    eventSlugs.length > 0
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (supabase.from('events') as any).select('slug, name, image, date_start, date_end, location').in('slug', eventSlugs)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  let lat: number | undefined = (row.lat as number | null) ?? undefined
+  let lng: number | undefined = (row.lng as number | null) ?? undefined
+  if (cityGeo) { lat = cityGeo.lat; lng = cityGeo.lng }
+
+  const visitedCityCoords = visitedResults.filter(Boolean) as { name: string; lat: number; lng: number; country?: string }[]
+
+  const events = ((eventsResult.data ?? []) as Pick<Event, 'slug' | 'name' | 'image' | 'date_start' | 'date_end' | 'location'>[]).map(ev => ({
+    slug: ev.slug,
+    name: ev.name,
+    image: ev.image ?? undefined,
+    date_start: ev.date_start ?? undefined,
+    date_end: ev.date_end ?? undefined,
+    location: ev.location ?? undefined,
+  }))
 
   const lastSeen = row.last_seen_at ? new Date(row.last_seen_at as string).getTime() : 0
   const isOnline = Date.now() - lastSeen < 3 * 60 * 1000
@@ -183,20 +199,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     coverImageUrl: (coverRow?.url as string | null) ?? undefined,
     followerCount: followerCount ?? 0,
     followingCount: followingCount ?? 0,
-    events: await (async () => {
-      const slugs = ((eventRows ?? []) as { event_slug: string }[]).map(e => e.event_slug)
-      if (slugs.length === 0) return []
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: evData } = await (supabase.from('events') as any).select('slug, name, image, date_start, date_end, location').in('slug', slugs)
-      return ((evData ?? []) as Pick<Event, 'slug' | 'name' | 'image' | 'date_start' | 'date_end' | 'location'>[]).map(ev => ({
-        slug: ev.slug,
-        name: ev.name,
-        image: ev.image ?? undefined,
-        date_start: ev.date_start ?? undefined,
-        date_end: ev.date_end ?? undefined,
-        location: ev.location ?? undefined,
-      }))
-    })(),
+    events,
     instagram: (row.instagram_url as string | null) ?? undefined,
     tiktok: (row.tiktok_url as string | null) ?? undefined,
     website: (row.website_url as string | null) ?? undefined,

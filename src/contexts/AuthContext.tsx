@@ -82,20 +82,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Unread message count + realtime (single subscription for entire app)
+  const lastUidRef = useRef<string | null>(null)
+  const convIdsRef = useRef<string[]>([])
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!user) { setUnreadCount(0); return }
+    if (!user) { setUnreadCount(0); lastUidRef.current = null; convIdsRef.current = []; return }
     const uid = user.id
 
+    // Skip re-fetching conversations if user hasn't changed
+    const userChanged = lastUidRef.current !== uid
+    lastUidRef.current = uid
+
     async function fetchUnread() {
-      const { data: convs } = await (supabase.from('conversations') as any)
-        .select('id')
-        .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`)
-      if (!convs?.length) { setUnreadCount(0); return }
-      const ids = convs.map((c: { id: string }) => c.id)
+      // Only re-fetch conversation IDs if user changed or we don't have them
+      if (userChanged || convIdsRef.current.length === 0) {
+        const { data: convs } = await (supabase.from('conversations') as any)
+          .select('id')
+          .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`)
+        convIdsRef.current = convs?.map((c: { id: string }) => c.id) ?? []
+      }
+      if (convIdsRef.current.length === 0) { setUnreadCount(0); return }
       const { count } = await (supabase.from('messages') as any)
         .select('id', { count: 'exact', head: true })
-        .in('conversation_id', ids)
+        .in('conversation_id', convIdsRef.current)
         .neq('sender_id', uid)
         .is('read_at', null)
       setUnreadCount(count ?? 0)

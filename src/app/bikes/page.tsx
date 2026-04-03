@@ -28,6 +28,7 @@ export default async function BikesPage() {
     .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
+    .limit(100)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbBuilds: Build[] = (rows ?? []).map((r: any) => {

@@ -79,29 +79,20 @@ export default async function DashboardPage() {
 
   if (isSuperAdmin) {
     try {
-      const { createClient: createAdminClient } = await import('@supabase/supabase-js')
-      const adminClient = createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      )
+      const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-      const [buildersTotal, buildersLive, ridersTotal, authResult] = await Promise.all([
+      const [buildersTotal, buildersLive, ridersTotal, ridersOnlineResult] = await Promise.all([
         (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt') as Promise<{ count: number | null }>,
         (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'custom-werkstatt').eq('is_verified', true) as Promise<{ count: number | null }>,
         (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).eq('role', 'rider').eq('is_verified', true) as Promise<{ count: number | null }>,
-        adminClient.auth.admin.listUsers({ perPage: 1000 }),
+        (supabase.from('profiles') as any).select('id', { count: 'exact', head: true }).gte('last_seen_at', sevenDaysAgo) as Promise<{ count: number | null }>,
       ])
-
-      const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      const ridersOnline = authResult.data?.users?.filter(u =>
-        u.last_sign_in_at && u.last_sign_in_at > sevenDaysAgo
-      ).length ?? 0
 
       adminStats = {
         buildersTotal: buildersTotal.count ?? 0,
         buildersLive: buildersLive.count ?? 0,
         ridersTotal: ridersTotal.count ?? 0,
-        ridersOnline,
+        ridersOnline: ridersOnlineResult.count ?? 0,
       }
     } catch (e) {
       console.error('Failed to load admin stats:', e)

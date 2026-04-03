@@ -69,19 +69,36 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
 export default async function LandingPage() {
   const supabase = await createClient()
 
-  // ── Fetch the 6 newest active bikes ──
+  // ── Fetch bikes + workshops in parallel ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: bikeRows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-    .limit(6)
+  const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
+    (supabase.from('bikes') as any)
+      .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(6),
+    (supabase.from('profiles') as any)
+      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ])
 
+  // ── Fetch seller profiles + workshop bike counts in parallel ──
   const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: Record<string, unknown>) => r.seller_id as string))]
+  const workshopIds = (dbRows ?? []).map((r: Record<string, unknown>) => r.id as string)
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sellerProfiles } = sellerIds.length > 0
-    ? await (supabase.from('profiles') as any).select('id, full_name, role').in('id', sellerIds)
-    : { data: [] }
+  const [{ data: sellerProfiles }, bikeCountResult] = await Promise.all([
+    sellerIds.length > 0
+      ? (supabase.from('profiles') as any).select('id, full_name, role').in('id', sellerIds)
+      : Promise.resolve({ data: [] }),
+    workshopIds.length > 0
+      ? supabase.from('bikes').select('seller_id').in('seller_id', workshopIds).eq('status', 'active') as unknown as Promise<{ data: { seller_id: string }[] | null }>
+      : Promise.resolve({ data: [] as { seller_id: string }[] }),
+  ])
+
   const sellerName: Record<string, string> = Object.fromEntries(
     ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.full_name ?? ''])
   )
@@ -108,28 +125,11 @@ export default async function LandingPage() {
 
   const BUILDS: FeaturedBuild[] = dbBuilds
 
-  // ── Fetch the 10 most recently added workshops from DB ──
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: dbRows } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
-    .eq('role', 'custom-werkstatt')
-    .not('slug', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
   // Count bikes per workshop
-  const workshopIds = (dbRows ?? []).map((r: Record<string, unknown>) => r.id as string)
   const bikeCountMap = new Map<string, number>()
-  if (workshopIds.length > 0) {
-    const { data: bikeCounts } = await supabase
-      .from('bikes')
-      .select('seller_id')
-      .in('seller_id', workshopIds)
-      .eq('status', 'active') as { data: { seller_id: string }[] | null }
-    if (bikeCounts) {
-      for (const row of bikeCounts) {
-        bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
-      }
+  if (bikeCountResult.data) {
+    for (const row of bikeCountResult.data) {
+      bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
     }
   }
 
@@ -228,6 +228,7 @@ export default async function LandingPage() {
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image src={build.img} alt={build.title}
                       fill sizes="(max-width: 768px) 100vw, 400px"
+                      {...(i < 3 ? { priority: true } : {})}
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
