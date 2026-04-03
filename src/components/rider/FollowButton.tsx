@@ -87,7 +87,7 @@ export default function FollowButton({ riderId, riderFirstName }: Props) {
         ) : (
           <UserPlus size={14} />
         )}
-        {isFollowing ? 'Folgst du' : `${riderFirstName} folgen`}
+        {isFollowing ? 'Folgst du' : 'Folgen'}
         {followerCount > 0 && (
           <span className={`text-xs ${isFollowing ? 'text-[#999999]' : 'text-white/70'}`}>
             · {followerCount}
