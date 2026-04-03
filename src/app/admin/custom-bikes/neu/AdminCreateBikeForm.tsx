@@ -11,7 +11,7 @@ import { generateVideoThumbnail } from '@/lib/utils/videoThumbnail'
 const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
-const MAX_MEDIA_COUNT = 10
+const MAX_MEDIA_COUNT = 30
 
 const STYLES = [
   { value: 'cafe_racer', label: 'Cafe Racer' },
