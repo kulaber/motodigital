@@ -299,15 +299,10 @@ export default async function RiderProfilePage({ params }: Props) {
               />
             </div>
 
-            {/* Badge + Bio */}
-            <div className="mt-3 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-widest bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8 px-2.5 py-0.5 rounded-full">
-                Rider
-              </span>
-              {rider.bio && (
-                <p className="text-sm text-[#717171] truncate max-w-lg">{rider.bio}</p>
-              )}
-            </div>
+            {/* Bio */}
+            {rider.bio && (
+              <p className="text-sm text-[#717171] truncate max-w-lg mt-3">{rider.bio}</p>
+            )}
 
             {/* Actions — below bio, mobile only */}
             {isOwnProfile ? (
