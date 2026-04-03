@@ -43,7 +43,8 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Redirect unauthenticated users away from protected routes
-  if (!user && PROTECTED_ROUTES.some(r => path.startsWith(r))) {
+  // Use exact match for /rider (list page), but allow /rider/[slug] (public profiles)
+  if (!user && PROTECTED_ROUTES.some(r => r === '/rider' ? path === '/rider' : path.startsWith(r))) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/auth/login'
     loginUrl.searchParams.set('redirectTo', path)
@@ -51,7 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unverified users to /verify-email for protected routes
-  if (user && !user.email_confirmed_at && EMAIL_CONFIRMED_ROUTES.some(r => path.startsWith(r))) {
+  if (user && !user.email_confirmed_at && EMAIL_CONFIRMED_ROUTES.some(r => r === '/rider' ? path === '/rider' : path.startsWith(r))) {
     const verifyUrl = request.nextUrl.clone()
     verifyUrl.pathname = '/verify-email'
     verifyUrl.searchParams.set('email', user.email ?? '')
