@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { MapPin, Wrench, Check } from 'lucide-react'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 type MapboxFeature = {
   id: string
@@ -86,6 +87,7 @@ function AddressAutocomplete({
 }
 
 export default function OnboardingAddressModal({ userId }: { userId: string }) {
+  useHideNavOnModal(true)
   const supabase = createClient()
   const [addressData, setAddressData] = useState({
     address: '',

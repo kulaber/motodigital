@@ -116,8 +116,8 @@ export default async function CustomBikePage({ params }: Props) {
       <div className="min-h-screen bg-white text-[#222222]">
         <ScrollToTop />
         <Header activePage="bikes" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-6 pb-24">
-          <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-4 pb-24">
+          <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-4">
             <ArrowLeft size={13} /> Custom Bikes
           </Link>
 

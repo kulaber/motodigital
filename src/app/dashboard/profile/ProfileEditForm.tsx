@@ -673,7 +673,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       </div>
 
       {/* ── FLOATING SAVE BUTTON ── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-28 md:bottom-6 left-1/2 -translate-x-1/2 z-50">
         <button
           type="submit"
           form="profile-form"

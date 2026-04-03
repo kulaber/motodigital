@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUp, MessageCircle, Trash2, Search, ImageIcon, X, Plus, Camera } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -368,7 +369,9 @@ function MessageThread({
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+  useHideNavOnModal(!!lightboxUrl)
   const [plusMenuOpen, setPlusMenuOpen] = useState(false)
+  useHideNavOnModal(plusMenuOpen)
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

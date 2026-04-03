@@ -198,8 +198,10 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── Sticky search wrapper — search unsticks before Dark CTA ── */}
+      <div>
       {/* ── QUICK SEARCH ── */}
-      <section className="bg-white py-3 sm:py-4 lg:py-5">
+      <section className="sticky top-16 z-40 py-3 sm:py-4 lg:py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <GlobalSearch dropUp />
         </div>
@@ -283,6 +285,8 @@ export default async function LandingPage() {
         </div>
         <BuilderCarousel builders={builders} />
       </section>
+
+      </div>{/* end sticky search wrapper */}
 
       {/* ── DARK CTA ── */}
       <section className="bg-[#111111] py-24 lg:py-32 overflow-hidden relative">

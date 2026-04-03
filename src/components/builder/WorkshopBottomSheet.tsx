@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, BadgeCheck, X } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 interface Props {
   builder: Builder
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function WorkshopBottomSheet({ builder, onClose }: Props) {
+  useHideNavOnModal(true)
   const [dragging, setDragging] = useState(false)
   const [translateY, setTranslateY] = useState(0)
   const startY = useRef(0)

@@ -4,6 +4,7 @@ import { useState, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, X, Search, SlidersHorizontal } from 'lucide-react'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -28,6 +29,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [searchQuery,   setSearchQuery]   = useState('')
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
   const [showFilterModal, setShowFilterModal] = useState(false)
+  useHideNavOnModal(showFilterModal)
   const [page,          setPage]          = useState(1)
   const PER_PAGE = 12
 

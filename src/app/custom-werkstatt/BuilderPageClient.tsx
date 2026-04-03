@@ -11,6 +11,7 @@ import { type Builder } from '@/lib/data/builders'
 import { isOpenNow } from '@/lib/utils/openingHours'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -318,6 +319,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [onlyVerified,       setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
   const [showFilterModal,   setShowFilterModal]    = useState(false)
+  useHideNavOnModal(showFilterModal)
   const [now,                setNow]                = useState<Date | null>(null)
   const [selectedBuilder,    setSelectedBuilder]    = useState<Builder | null>(null)
   const [hoveredBuilder,     setHoveredBuilder]     = useState<Builder | null>(null)

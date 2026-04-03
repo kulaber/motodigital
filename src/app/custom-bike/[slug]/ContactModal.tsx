@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { X, MessageCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
@@ -141,6 +142,7 @@ export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, se
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
+  useHideNavOnModal(open)
 
   const isWerkstatt = sellerRole === 'custom-werkstatt'
   const ctaLabel = isWerkstatt ? 'Werkstatt kontaktieren' : 'Rider kontaktieren'

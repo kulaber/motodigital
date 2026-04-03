@@ -335,7 +335,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot }
 
       {/* ── Desktop grid (md+) ── */}
       <div className="hidden md:flex flex-col relative rounded-2xl overflow-hidden">
-      <div className="grid gap-1.5 h-[60vh] min-h-[400px] max-h-[640px]"
+      <div className="grid gap-1.5 h-[70vh] min-h-[500px] max-h-[800px]"
         style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
       >
         {/* Main image — left, spans 2 rows */}

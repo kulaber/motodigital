@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
 import { LoginModal } from '@/components/ui/LoginModal'
 
@@ -137,6 +138,7 @@ export default function RiderContactButton({ riderId, riderName, riderAvatarUrl 
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
+  useHideNavOnModal(open)
 
   if (!authLoading && user?.id === riderId) return null
 

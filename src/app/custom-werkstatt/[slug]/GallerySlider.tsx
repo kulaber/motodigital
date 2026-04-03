@@ -3,11 +3,13 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import NextImage from 'next/image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 type GalleryImage = { url: string; title?: string }
 
 /* ── Fullscreen Modal ── */
 function GalleryModal({ images, startIndex, onClose }: { images: GalleryImage[]; startIndex: number; onClose: () => void }) {
+  useHideNavOnModal(true)
   const [idx, setIdx] = useState(startIndex)
 
   const prev = useCallback(() => setIdx(i => (i - 1 + images.length) % images.length), [images.length])

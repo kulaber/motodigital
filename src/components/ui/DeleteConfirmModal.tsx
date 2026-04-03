@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import { AlertTriangle, X } from 'lucide-react'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 interface DeleteConfirmModalProps {
   open: boolean
@@ -36,6 +37,8 @@ export function DeleteConfirmModal({ open, onClose, onConfirm, loading, title }:
       }
     }
   }, [onClose])
+
+  useHideNavOnModal(open)
 
   useEffect(() => {
     if (!open) return

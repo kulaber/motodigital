@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 /* ─── Trigger Context ────────────────────────────────────── */
 
@@ -58,6 +60,7 @@ interface LoginModalProps {
 /* ─── Component ──────────────────────────────────────────── */
 
 export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'login' }: LoginModalProps) {
+  useHideNavOnModal(isOpen)
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [email, setEmail] = useState('')
@@ -580,8 +583,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
   /* ─── Render ─────────────────────────────────────────── */
 
-  return (
-    <div className="fixed inset-0 z-[60]">
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -674,6 +679,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
