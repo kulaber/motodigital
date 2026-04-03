@@ -172,7 +172,7 @@ export default async function LandingPage() {
                 </span>
                 <h1
                   className="font-bold text-white leading-[1.1] mb-5 sm:mb-4"
-                  style={{ fontSize: 'clamp(1.8rem, 5.5vw, 4.5rem)' }}
+                  style={{ fontSize: 'clamp(1.8rem, 4vw, 3.2rem)' }}
                 >
                   Die Plattform für<br />Custom-Motorräder.
                 </h1>
