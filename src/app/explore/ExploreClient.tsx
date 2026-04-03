@@ -290,7 +290,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             <>{avatar}{nameBlock}</>
           )
         })()}
-        {tagLabel && (
+        {tagLabel && post.topic !== 'allgemein' && (
           <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#222222]/8 text-[#222222]/50 flex-shrink-0">
             {tagLabel}
           </span>
@@ -340,7 +340,14 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
       {imageUrls.length > 0 && (
         <div className="mt-3">
-          <PostImageCarousel items={urlsToMediaItems(imageUrls)} alt={post.author_name} />
+          <PostImageCarousel
+            items={urlsToMediaItems(imageUrls)}
+            alt={post.author_name}
+            onDoubleClick={() => {
+              if (!loggedIn) { onLoginRequired?.('like'); return }
+              if (!post.liked_by_me) onLike()
+            }}
+          />
         </div>
       )}
 
@@ -886,26 +893,18 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
                   {/* Event selector for "Events" */}
                   {composerTag === 'events' && (
                     <div className="mt-3">
-                      <div className="flex flex-col gap-1.5">
+                      <select
+                        value={composerEventSlug ?? ''}
+                        onChange={e => setComposerEventSlug(e.target.value || null)}
+                        className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors"
+                      >
+                        <option value="">Event auswählen…</option>
                         {allEvents.map(ev => (
-                          <button
-                            key={ev.slug}
-                            type="button"
-                            onClick={() => setComposerEventSlug(composerEventSlug === ev.slug ? null : ev.slug)}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left transition-all ${
-                              composerEventSlug === ev.slug
-                                ? 'border-[#06a5a5]/50 bg-[#06a5a5]/5'
-                                : 'border-[#222222]/6 hover:border-[#222222]/15'
-                            }`}
-                          >
-                            <Calendar size={13} className={composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]/25'} />
-                            <div className="min-w-0 flex-1">
-                              <p className={`text-[13px] font-semibold leading-tight truncate ${composerEventSlug === ev.slug ? 'text-[#06a5a5]' : 'text-[#222222]'}`}>{ev.name}</p>
-                              <p className="text-[10px] text-[#717171] truncate">{formatEventDate(ev)} · {ev.location}</p>
-                            </div>
-                          </button>
+                          <option key={ev.slug} value={ev.slug}>
+                            {ev.name} — {formatEventDate(ev)}
+                          </option>
                         ))}
-                      </div>
+                      </select>
                     </div>
                   )}
 

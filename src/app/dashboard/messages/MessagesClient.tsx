@@ -364,6 +364,7 @@ function MessageThread({
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [inputFocused, setInputFocused] = useState(false)
   // reactions: { [messageId]: { [emoji]: { count, userReacted } } }
   const [reactions, setReactions] = useState<Record<string, Record<string, { count: number; userReacted: boolean }>>>({})
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
@@ -681,7 +682,7 @@ function MessageThread({
       </div>
 
       {/* Input area */}
-      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white pb-[100px] sm:pb-0">
+      <div className={`flex-shrink-0 border-t border-[#222222]/5 bg-white ${inputFocused ? 'pb-0' : 'pb-[100px]'} sm:pb-0 transition-[padding] duration-200`}>
 
         {/* Image preview */}
         {previewFile && (
@@ -706,28 +707,30 @@ function MessageThread({
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
 
         {/* Mobile: einzeiliges Layout */}
-        <div className="flex items-center gap-2 px-3 py-3 sm:hidden">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 pb-[calc(0.25rem+env(safe-area-inset-bottom,0px))] sm:hidden">
           <button
             type="button"
             onClick={() => setPlusMenuOpen(true)}
-            className="flex-shrink-0 w-9 h-9 rounded-full bg-[#F0F0F0] flex items-center justify-center text-[#555] active:bg-[#E0E0E0] transition-colors"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F0F0F0] flex items-center justify-center text-[#555] active:bg-[#E0E0E0] transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={16} />
           </button>
           <input
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSend() } }}
+            onFocus={() => { setInputFocused(true); window.dispatchEvent(new Event('keyboard-open')) }}
+            onBlur={() => { setInputFocused(false); window.dispatchEvent(new Event('keyboard-close')) }}
             placeholder="Nachricht schreiben..."
-            className="flex-1 bg-white border border-[#E5E5E5] rounded-full px-4 h-10 text-[#222222] placeholder:text-[#999] outline-none focus:outline-none focus:ring-0"
+            className="flex-1 bg-white border border-[#E5E5E5] rounded-full px-3.5 h-8 text-sm text-[#222222] placeholder:text-[#999] outline-none focus:outline-none focus:ring-0"
           />
           <button
             type="button"
             onClick={handleSend}
             disabled={(!text.trim() && !previewFile) || sending || uploading}
-            className="flex-shrink-0 w-9 h-9 rounded-full bg-[#F0F0F0] disabled:opacity-30 flex items-center justify-center transition-colors active:bg-[#E0E0E0]"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F0F0F0] disabled:opacity-30 flex items-center justify-center transition-colors active:bg-[#E0E0E0]"
           >
-            <ArrowUp size={16} className="text-[#555]" />
+            <ArrowUp size={14} className="text-[#555]" />
           </button>
         </div>
 

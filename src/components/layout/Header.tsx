@@ -253,30 +253,30 @@ export default function Header({ activePage }: Props) {
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 Registrieren
               </button>
+              <button
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F0F0] transition-colors active:bg-[#E5E5E5]"
+                onClick={() => setMobileOpen(o => !o)}
+                aria-label="Menü"
+              >
+                <div className="relative w-[18px] h-[7px]">
+                  <span
+                    className="absolute left-0 w-full h-[2px] rounded-full bg-[#222222] transition-all duration-300 ease-in-out"
+                    style={{
+                      top: mobileOpen ? '2.5px' : '0px',
+                      transform: mobileOpen ? 'rotate(45deg)' : 'rotate(0)',
+                    }}
+                  />
+                  <span
+                    className="absolute left-0 w-full h-[2px] rounded-full bg-[#222222] transition-all duration-300 ease-in-out"
+                    style={{
+                      top: mobileOpen ? '2.5px' : '5px',
+                      transform: mobileOpen ? 'rotate(-45deg)' : 'rotate(0)',
+                    }}
+                  />
+                </div>
+              </button>
             </>
           )}
-          <button
-            className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F0F0] transition-colors active:bg-[#E5E5E5]"
-            onClick={() => setMobileOpen(o => !o)}
-            aria-label="Menü"
-          >
-            <div className="relative w-[18px] h-[7px]">
-              <span
-                className="absolute left-0 w-full h-[2px] rounded-full bg-[#222222] transition-all duration-300 ease-in-out"
-                style={{
-                  top: mobileOpen ? '2.5px' : '0px',
-                  transform: mobileOpen ? 'rotate(45deg)' : 'rotate(0)',
-                }}
-              />
-              <span
-                className="absolute left-0 w-full h-[2px] rounded-full bg-[#222222] transition-all duration-300 ease-in-out"
-                style={{
-                  top: mobileOpen ? '2.5px' : '5px',
-                  transform: mobileOpen ? 'rotate(-45deg)' : 'rotate(0)',
-                }}
-              />
-            </div>
-          </button>
         </div>
 
       </div>

@@ -14,15 +14,21 @@ export default async function AccountSettingsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('username, avatar_url, bio, role')
+    .select('username, slug, avatar_url, bio, role')
     .eq('id', user.id)
-    .maybeSingle() as { data: { username: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
+    .maybeSingle() as { data: { username: string | null; slug: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
+
+  const backHref = profile?.role === 'rider' && (profile.slug || profile.username)
+    ? `/rider/${profile.slug || profile.username}`
+    : profile?.role === 'custom-werkstatt' && profile.slug
+      ? `/custom-werkstatt/${profile.slug}`
+      : '/dashboard'
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+            <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
               <ArrowLeft size={18} className="text-[#222222]" />
             </Link>
             <div>

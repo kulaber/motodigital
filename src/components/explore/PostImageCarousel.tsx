@@ -1,13 +1,15 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
+import { ThumbsUp } from 'lucide-react'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostVideoPlayer from '@/components/explore/PostVideoPlayer'
 
 interface PostImageCarouselProps {
   items: MediaItem[]
   alt: string
+  onDoubleClick?: () => void
 }
 
 // Clamp ratio: min 16:9 (landscape floor), max 4:3 portrait (0.75)
@@ -15,13 +17,21 @@ function clampRatio(r: number) {
   return Math.min(16 / 9, Math.max(3 / 4, r))
 }
 
-export default function PostImageCarousel({ items, alt }: PostImageCarouselProps) {
+export default function PostImageCarousel({ items, alt, onDoubleClick }: PostImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const multi = items.length > 1
+  const [showHeart, setShowHeart] = useState(false)
 
   // Default 16:9 until first media loads and reports its natural ratio.
   const [ratio, setRatio] = useState<number>(16 / 9)
+
+  const handleDoubleClick = useCallback(() => {
+    if (!onDoubleClick) return
+    onDoubleClick()
+    setShowHeart(true)
+    setTimeout(() => setShowHeart(false), 800)
+  }, [onDoubleClick])
 
   function handleScroll() {
     const el = scrollRef.current
@@ -38,7 +48,26 @@ export default function PostImageCarousel({ items, alt }: PostImageCarouselProps
 
   return (
     // Outer div height is driven by aspect-ratio; absolute scroll container fills it.
-    <div className="relative w-full group" style={{ aspectRatio: ratio }}>
+    <div className="relative w-full group" style={{ aspectRatio: ratio }} onDoubleClick={handleDoubleClick}>
+      {/* Heart animation on double-click */}
+      {showHeart && (
+        <div className="absolute inset-0 flex items-center justify-center z-[5] pointer-events-none">
+          <ThumbsUp
+            size={80}
+            className="fill-white text-white drop-shadow-lg animate-[heartPop_0.8s_ease-out_forwards]"
+          />
+        </div>
+      )}
+      <style>{`
+        @keyframes heartPop {
+          0% { opacity: 0; transform: scale(0.3); }
+          15% { opacity: 1; transform: scale(1.2); }
+          30% { transform: scale(0.95); }
+          45% { transform: scale(1.05); }
+          80% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1); }
+        }
+      `}</style>
       <div
         ref={scrollRef}
         onScroll={handleScroll}

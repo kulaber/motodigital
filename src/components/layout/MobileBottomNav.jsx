@@ -123,11 +123,15 @@ function MobileBottomNavInner() {
     window.addEventListener("modal-close", show);
     window.addEventListener("gallery-modal-open", hide);
     window.addEventListener("gallery-modal-close", show);
+    window.addEventListener("keyboard-open", hide);
+    window.addEventListener("keyboard-close", show);
     return () => {
       window.removeEventListener("modal-open", hide);
       window.removeEventListener("modal-close", show);
       window.removeEventListener("gallery-modal-open", hide);
       window.removeEventListener("gallery-modal-close", show);
+      window.removeEventListener("keyboard-open", hide);
+      window.removeEventListener("keyboard-close", show);
     };
   }, []);
 

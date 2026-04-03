@@ -93,11 +93,11 @@ export default function FollowerListModal({ riderId, riderName, followerCount, f
 
       {/* Modal Backdrop */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
-          {/* Modal */}
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden">
+          {/* Modal — fullscreen on mobile, centered card on desktop */}
+          <div className="relative bg-white w-full h-full sm:h-auto sm:rounded-2xl sm:shadow-xl sm:max-w-sm sm:max-h-[70vh] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <h3 className="text-base font-bold text-[#222222]">{firstName}</h3>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Instagram, Globe, Calendar } from 'lucide-react'
+import { MapPin, Instagram, Globe, Calendar, Settings } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
@@ -231,7 +231,7 @@ export default async function RiderProfilePage({ params }: Props) {
       <Header activePage="explore" />
 
       {/* ── COVER BANNER ── */}
-      <div className="relative w-full h-32 sm:h-40 lg:h-48 bg-[#1a8a8a] overflow-hidden">
+      <div className="relative w-full h-44 sm:h-56 lg:h-64 bg-[#1a8a8a] overflow-hidden">
         <Image
           src={rider.coverImageUrl ?? '/og-image.jpg'}
           alt="Titelbild"
@@ -240,6 +240,14 @@ export default async function RiderProfilePage({ params }: Props) {
           className="object-cover"
           priority
         />
+        {isOwnProfile && (
+          <Link
+            href="/dashboard/account"
+            className="lg:hidden absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-white/90 transition-colors z-10"
+          >
+            <Settings size={16} className="text-[#222222]" />
+          </Link>
+        )}
       </div>
 
       {/* ── HERO ── */}
@@ -260,32 +268,13 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
             </div>
 
-            {/* Actions — top right, aligned with avatar */}
-            <div className="flex items-center gap-2.5 pb-1">
-              {isOwnProfile ? (
-                <>
-                  <Link
-                    href="/dashboard/profile"
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
-                  >
-                    <Pencil size={13} />
-                    Profil bearbeiten
-                  </Link>
-                  <Link
-                    href="/dashboard/meine-garage"
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
-                  >
-                    <Wrench size={13} />
-                    Garage bearbeiten
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
-                  <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
-                </>
-              )}
-            </div>
+            {/* Actions — top right, aligned with avatar (non-owner only) */}
+            {!isOwnProfile && (
+              <div className="flex items-center gap-2.5 pb-1">
+                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
+              </div>
+            )}
           </div>
 
           {/* Profile info — all on white background */}
@@ -319,6 +308,26 @@ export default async function RiderProfilePage({ params }: Props) {
                 <p className="text-sm text-[#717171] truncate max-w-lg">{rider.bio}</p>
               )}
             </div>
+
+            {/* Owner actions — below bio, mobile only */}
+            {isOwnProfile && (
+              <div className="flex items-center gap-2.5 mt-4 lg:hidden">
+                <Link
+                  href="/dashboard/profile"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                >
+                  <Pencil size={13} />
+                  Profil bearbeiten
+                </Link>
+                <Link
+                  href="/dashboard/meine-garage"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                >
+                  <Wrench size={13} />
+                  Garage bearbeiten
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -336,7 +345,7 @@ export default async function RiderProfilePage({ params }: Props) {
                     <h2 className="text-xl font-bold text-white tracking-tight">Meine Garage</h2>
                     <span className="text-xs text-white/30 ml-auto">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {rider.bikes.map(bike => (
                       <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
                         <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a1a] mb-2.5 relative">
@@ -386,34 +395,21 @@ export default async function RiderProfilePage({ params }: Props) {
 
             {/* ── Sidebar (40%) — sticky ── */}
             <div className="flex flex-col gap-4 w-full lg:w-[40%] lg:sticky lg:top-20">
-              {/* Über mich */}
-              {(rider.bio || rider.city || rider.ridingStyle) && (
+              {/* Fahrstil */}
+              {rider.ridingStyle && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name.split(' ')[0]}</h2>
-                  {rider.bio && (
-                    <p className="text-sm text-[#717171] leading-relaxed mb-3">{rider.bio}</p>
-                  )}
-                  <div className="flex flex-col gap-2 text-sm text-[#717171]">
-                    {rider.city && (
-                      <div className="flex items-center gap-2">
-                        <MapPin size={13} className="text-[#999999] flex-shrink-0" />
-                        <span>{rider.city}</span>
-                      </div>
-                    )}
-                    {rider.ridingStyle && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-base leading-none">
-                          {rider.ridingStyle === 'cruiser' && '☀️'}
-                          {rider.ridingStyle === 'flott' && '💨'}
-                          {rider.ridingStyle === 'legende' && '🏍'}
-                        </span>
-                        <span>
-                          {rider.ridingStyle === 'cruiser' && 'Ruhiger Cruiser'}
-                          {rider.ridingStyle === 'flott' && 'Flotter Fahrer'}
-                          {rider.ridingStyle === 'legende' && 'Lebensmüde Legende'}
-                        </span>
-                      </div>
-                    )}
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Fahrstil von {rider.name.split(' ')[0]}</h2>
+                  <div className="flex items-center gap-2 text-sm text-[#717171]">
+                    <span className="text-base leading-none">
+                      {rider.ridingStyle === 'cruiser' && '☀️'}
+                      {rider.ridingStyle === 'flott' && '💨'}
+                      {rider.ridingStyle === 'legende' && '🏍'}
+                    </span>
+                    <span>
+                      {rider.ridingStyle === 'cruiser' && 'Ruhiger Cruiser'}
+                      {rider.ridingStyle === 'flott' && 'Flotter Fahrer'}
+                      {rider.ridingStyle === 'legende' && 'Lebensmüde Legende'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -432,10 +428,10 @@ export default async function RiderProfilePage({ params }: Props) {
                 </div>
               )}
 
-              {/* Events — compact */}
+              {/* Events */}
               {rider.events.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-sm font-bold text-[#222222] tracking-tight mb-3">Events</h2>
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">{rider.name.split(' ')[0]} nimmt an folgenden Events teil</h2>
                   <div className="flex flex-col gap-1.5">
                     {rider.events.map(event => (
                       <Link
@@ -443,8 +439,14 @@ export default async function RiderProfilePage({ params }: Props) {
                         href={`/events/${event.slug}`}
                         className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F7F7F7] transition-colors"
                       >
-                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center">
-                          <Calendar size={14} className="text-[#999999]" />
+                        <div className="relative flex-shrink-0 w-9 h-9 rounded-lg overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB]">
+                          {event.image ? (
+                            <Image src={event.image} alt={event.name} fill sizes="36px" className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Calendar size={14} className="text-[#999999]" />
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-medium text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate">

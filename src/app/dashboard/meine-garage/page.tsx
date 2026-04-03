@@ -26,11 +26,17 @@ export default async function MeinBikePage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('role').eq('id', user.id).maybeSingle()
+    .select('role, slug, username').eq('id', user.id).maybeSingle()
   const role = profile?.role as string | null
   if (role !== 'custom-werkstatt' && role !== 'rider') redirect('/dashboard')
 
   const isWerkstatt = role === 'custom-werkstatt'
+  const profileSlug = (profile?.slug ?? profile?.username) as string | null
+  const backHref = role === 'rider' && profileSlug
+    ? `/rider/${profileSlug}`
+    : role === 'custom-werkstatt' && profileSlug
+      ? `/custom-werkstatt/${profileSlug}`
+      : '/dashboard'
 
   const { data: bikes } = await supabase
     .from('bikes')
@@ -52,7 +58,7 @@ export default async function MeinBikePage() {
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+            <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
               <ArrowLeft size={18} className="text-[#222222]" />
             </Link>
             <div>

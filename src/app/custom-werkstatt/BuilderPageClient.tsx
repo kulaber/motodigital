@@ -982,7 +982,7 @@ export default function BuilderPageClient({ builders }: Props) {
       <div className={`lg:hidden ${mobileView === 'list' && !listExiting ? '' : 'hidden'}`}>
         <BuilderList
           builders={builders}
-          visible={visible}
+          visible={filtered}
           mapReady={mapReady}
           selectedBuilder={null}
           savedIds={savedIds}

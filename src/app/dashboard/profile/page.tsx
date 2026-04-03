@@ -29,13 +29,19 @@ export default async function ProfileEditPage() {
   if (profile?.role === 'superadmin') redirect('/dashboard')
 
   const isRider = profile?.role === 'rider'
+  const profileSlug = (profile?.slug ?? profile?.username) as string | null
+  const backHref = isRider && profileSlug
+    ? `/rider/${profileSlug}`
+    : !isRider && profile?.slug
+      ? `/custom-werkstatt/${profile.slug}`
+      : '/dashboard'
 
   if (isRider) {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <div className="mb-8">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+            <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
               <ArrowLeft size={18} className="text-[#222222]" />
             </Link>
             <div>
@@ -44,7 +50,7 @@ export default async function ProfileEditPage() {
             </div>
           </div>
         </div>
-        <RiderProfileEditForm profile={profile} />
+        <RiderProfileEditForm profile={profile} coverImage={(media ?? []).find((m: { title: string | null }) => m.title === 'cover') ?? null} />
       </div>
     )
   }
@@ -53,7 +59,7 @@ export default async function ProfileEditPage() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
+          <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
             <ArrowLeft size={18} className="text-[#222222]" />
           </Link>
           <div>
