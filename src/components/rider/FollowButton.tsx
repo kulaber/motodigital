@@ -76,7 +76,7 @@ export default function FollowButton({ riderId, riderFirstName }: Props) {
         disabled={authLoading || loading}
         className={`flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-5 rounded-full transition-all disabled:opacity-50 ${
           isFollowing
-            ? 'bg-[#222222] text-white hover:bg-[#333333]'
+            ? 'bg-[#F0F0F0] text-[#717171] hover:bg-[#E5E5E5]'
             : 'bg-[#06a5a5] text-white hover:bg-[#058f8f]'
         }`}
       >
@@ -89,7 +89,7 @@ export default function FollowButton({ riderId, riderFirstName }: Props) {
         )}
         {isFollowing ? 'Folgst du' : `${riderFirstName} folgen`}
         {followerCount > 0 && (
-          <span className={`text-xs ${isFollowing ? 'text-white/50' : 'text-white/70'}`}>
+          <span className={`text-xs ${isFollowing ? 'text-[#999999]' : 'text-white/70'}`}>
             · {followerCount}
           </span>
         )}

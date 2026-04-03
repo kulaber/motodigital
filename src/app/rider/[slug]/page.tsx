@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Instagram, Globe } from 'lucide-react'
+import { MapPin, Instagram, Globe, Calendar } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
@@ -13,7 +13,9 @@ import { Pencil, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import type { Event } from '@/lib/data/events'
+import { formatEventDate } from '@/lib/data/events'
 import VisitedCitiesCarousel from './VisitedCitiesCarousel'
+import FollowerListModal from '@/components/rider/FollowerListModal'
 
 export const dynamicParams = true
 
@@ -25,6 +27,7 @@ interface RiderProfile {
   bio: string
   city: string
   avatarUrl?: string
+  coverImageUrl?: string
   isOnline: boolean
   lat?: number
   lng?: number
@@ -36,7 +39,12 @@ interface RiderProfile {
     slug: string
     name: string
     image?: string
+    date_start?: string
+    date_end?: string
+    location?: string
   }[]
+  followerCount: number
+  followingCount: number
   instagram?: string
   tiktok?: string
   website?: string
@@ -98,9 +106,9 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   if (!row) return null
 
-  // Fetch bikes and event interests in parallel (no dependency between them)
+  // Fetch bikes, event interests, cover image, and follow counts in parallel
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [{ data: bikeRows }, { data: eventRows }] = await Promise.all([
+  const [{ data: bikeRows }, { data: eventRows }, { data: coverRow }, { count: followerCount }, { count: followingCount }] = await Promise.all([
     (supabase.from('bikes') as any)
       .select('id, slug, title, make, model, style, bike_images(id, url, is_cover, position)')
       .eq('seller_id', row.id)
@@ -109,6 +117,17 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     (supabase.from('event_interest') as any)
       .select('event_slug')
       .eq('user_id', row.id),
+    (supabase.from('builder_media') as any)
+      .select('url')
+      .eq('builder_id', row.id)
+      .eq('title', 'cover')
+      .maybeSingle(),
+    (supabase.from('followers') as any)
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', row.id),
+    (supabase.from('followers') as any)
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', row.id),
   ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
@@ -162,15 +181,21 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     ridingStyle: (row.riding_style as string | null) ?? undefined,
     visitedCities: visitedRaw,
     visitedCityCoords,
+    coverImageUrl: (coverRow?.url as string | null) ?? undefined,
+    followerCount: followerCount ?? 0,
+    followingCount: followingCount ?? 0,
     events: await (async () => {
       const slugs = ((eventRows ?? []) as { event_slug: string }[]).map(e => e.event_slug)
       if (slugs.length === 0) return []
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: evData } = await (supabase.from('events') as any).select('slug, name, image').in('slug', slugs)
-      return ((evData ?? []) as Pick<Event, 'slug' | 'name' | 'image'>[]).map(ev => ({
+      const { data: evData } = await (supabase.from('events') as any).select('slug, name, image, date_start, date_end, location').in('slug', slugs)
+      return ((evData ?? []) as Pick<Event, 'slug' | 'name' | 'image' | 'date_start' | 'date_end' | 'location'>[]).map(ev => ({
         slug: ev.slug,
         name: ev.name,
         image: ev.image ?? undefined,
+        date_start: ev.date_start ?? undefined,
+        date_end: ev.date_end ?? undefined,
+        location: ev.location ?? undefined,
       }))
     })(),
     instagram: (row.instagram_url as string | null) ?? undefined,
@@ -205,37 +230,38 @@ export default async function RiderProfilePage({ params }: Props) {
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="explore" />
 
-      {/* ── HERO ── */}
-      <section className="bg-[#F7F7F7] border-b border-[#222222]/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8 py-10 sm:py-14">
+      {/* ── COVER BANNER ── */}
+      <div className="relative w-full h-32 sm:h-40 lg:h-48 bg-[#1a8a8a] overflow-hidden">
+        <Image
+          src={rider.coverImageUrl ?? '/og-image.jpg'}
+          alt="Titelbild"
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority
+        />
+      </div>
 
-          <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+      {/* ── HERO ── */}
+      <section className="bg-white border-b border-[#222222]/5">
+        <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8">
+          {/* Avatar row — only avatar overlaps cover */}
+          <div className="flex items-end justify-between -mt-14 sm:-mt-16">
             <div className="relative flex-shrink-0">
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#06a5a5] border-2 border-white overflow-hidden flex items-center justify-center shadow-lg">
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#06a5a5] border-4 border-white overflow-hidden flex items-center justify-center shadow-lg">
                 {rider.avatarUrl ? (
-                  <Image src={rider.avatarUrl} alt={rider.name} fill sizes="96px" className="object-cover" />
+                  <Image src={rider.avatarUrl} alt={rider.name} fill sizes="128px" className="object-cover" />
                 ) : (
                   <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
                 )}
               </div>
               {rider.isOnline && (
-                <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
+                <span className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 border-[3px] border-white rounded-full" />
               )}
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight">{rider.name}</h1>
-              {rider.city && (
-                <p className="text-sm text-[#717171] flex items-center gap-1 mt-1">
-                  <MapPin size={12} /> {rider.city}
-                </p>
-              )}
-              <span className="inline-flex items-center mt-2 text-[10px] font-semibold uppercase tracking-widest bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8 px-2.5 py-0.5 rounded-full">
-                Rider
-              </span>
             </div>
 
-            {/* Actions — right-aligned on desktop, below on mobile */}
-            <div className="flex items-center gap-2.5 sm:ml-auto">
+            {/* Actions — top right, aligned with avatar */}
+            <div className="flex items-center gap-2.5 pb-1">
               {isOwnProfile ? (
                 <>
                   <Link
@@ -261,113 +287,82 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
             </div>
           </div>
+
+          {/* Profile info — all on white background */}
+          <div className="pt-3 pb-6 sm:pb-8">
+            {/* Name + Stats */}
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight">{rider.name}</h1>
+                {rider.city && (
+                  <p className="text-sm text-[#717171] flex items-center gap-1 mt-0.5">
+                    <MapPin size={12} /> {rider.city}
+                  </p>
+                )}
+              </div>
+
+              {/* Follower / Following */}
+              <FollowerListModal
+                riderId={rider.id}
+                riderName={rider.name}
+                followerCount={rider.followerCount}
+                followingCount={rider.followingCount}
+              />
+            </div>
+
+            {/* Badge + Bio */}
+            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+              <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-widest bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8 px-2.5 py-0.5 rounded-full">
+                Rider
+              </span>
+              {rider.bio && (
+                <p className="text-sm text-[#717171] truncate max-w-lg">{rider.bio}</p>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── CONTENT ── */}
       <section className="py-10 sm:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          {/* Mobile: single column, Desktop: two columns with independent stacking */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
-            {/* ── Left Column ── */}
-            <div className="flex flex-col gap-4 w-full lg:w-1/2">
-              {/* Garage */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+            {/* ── Main Column (60%) ── */}
+            <div className="flex flex-col gap-5 w-full lg:w-[60%]">
+              {/* Garage — Dark Mode, 2-col grid */}
               {rider.bikes.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
-                  <div className="flex items-end justify-between mb-6">
-                    <h2 className="text-lg font-bold text-[#222222] tracking-tight">Meine Garage</h2>
-                    <span className="text-xs text-[#B0B0B0]">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
+                <div className="bg-[#111111] rounded-2xl p-5 sm:p-6">
+                  <div className="flex items-center gap-2 mb-5">
+                    <h2 className="text-xl font-bold text-white tracking-tight">Meine Garage</h2>
+                    <span className="text-xs text-white/30 ml-auto">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                   </div>
-                  <div className="grid grid-cols-1 gap-5">
+                  <div className="grid grid-cols-2 gap-4">
                     {rider.bikes.map(bike => (
                       <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
-                        <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
+                        <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a1a] mb-2.5 relative">
                           {bike.img ? (
-                            <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                            <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 50vw, 30vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-lg font-bold text-[#DDDDDD]">{bike.style?.replace(/_/g, ' ') || 'Bike'}</span>
+                              <span className="text-sm font-bold text-white/20">{bike.style?.replace(/_/g, ' ') || 'Bike'}</span>
                             </div>
                           )}
                           {bike.style && (
-                            <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2 py-0.5 rounded-full">
+                            <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">
                               {bike.style.replace(/_/g, ' ')}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5">
+                        <p className="text-sm font-semibold text-white group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5 truncate">
                           {bike.title}
                         </p>
-                        <p className="text-xs text-[#717171]">{bike.base}</p>
+                        <p className="text-xs text-white/40">{bike.base}</p>
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Bio */}
-              {rider.bio && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name}</h2>
-                  <p className="text-sm text-[#717171] leading-relaxed">{rider.bio}</p>
-                </div>
-              )}
-
-              {/* Fahrstil */}
-              {rider.ridingStyle && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Fahrstil</h2>
-                  <span className="text-sm text-[#222222]">
-                    {rider.ridingStyle === 'cruiser' && '☀️ Ruhiger Cruiser'}
-                    {rider.ridingStyle === 'flott' && '💨☀️ Flotter Fahrer'}
-                    {rider.ridingStyle === 'legende' && '🏍💨☀️ Lebensmüde Legende'}
-                  </span>
-                </div>
-              )}
-
-              {/* Events */}
-              {rider.events.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">
-                    {rider.name.split(' ')[0]} nimmt an folgenden Events teil:
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {rider.events.map(event => (
-                      <Link key={event.slug} href={`/events/${event.slug}`} className="group relative aspect-[4/3] rounded-xl overflow-hidden">
-                        {event.image ? (
-                          <Image src={event.image} alt={event.name} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                        ) : (
-                          <div className="absolute inset-0 bg-[#111111]" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-3">
-                          <span className="text-xs font-bold text-white leading-tight drop-shadow-sm">
-                            {event.name}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Interessen */}
-              {rider.tags.length > 0 && (
-                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Interessen</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {rider.tags.map(tag => (
-                      <span key={tag} className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* ── Right Column ── */}
-            <div className="flex flex-col gap-4 w-full lg:w-1/2">
               {/* Visited Cities */}
               {rider.visitedCityCoords.length > 0 && (
                 <VisitedCitiesCarousel cities={rider.visitedCityCoords} riderName={rider.name} />
@@ -385,6 +380,91 @@ export default async function RiderProfilePage({ params }: Props) {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* ── Sidebar (40%) — sticky ── */}
+            <div className="flex flex-col gap-4 w-full lg:w-[40%] lg:sticky lg:top-20">
+              {/* Über mich */}
+              {(rider.bio || rider.city || rider.ridingStyle) && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Über {rider.name.split(' ')[0]}</h2>
+                  {rider.bio && (
+                    <p className="text-sm text-[#717171] leading-relaxed mb-3">{rider.bio}</p>
+                  )}
+                  <div className="flex flex-col gap-2 text-sm text-[#717171]">
+                    {rider.city && (
+                      <div className="flex items-center gap-2">
+                        <MapPin size={13} className="text-[#999999] flex-shrink-0" />
+                        <span>{rider.city}</span>
+                      </div>
+                    )}
+                    {rider.ridingStyle && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-base leading-none">
+                          {rider.ridingStyle === 'cruiser' && '☀️'}
+                          {rider.ridingStyle === 'flott' && '💨'}
+                          {rider.ridingStyle === 'legende' && '🏍'}
+                        </span>
+                        <span>
+                          {rider.ridingStyle === 'cruiser' && 'Ruhiger Cruiser'}
+                          {rider.ridingStyle === 'flott' && 'Flotter Fahrer'}
+                          {rider.ridingStyle === 'legende' && 'Lebensmüde Legende'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Interessen — Teal Pills */}
+              {rider.tags.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">Interessen</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {rider.tags.map(tag => (
+                      <span key={tag} className="text-xs font-medium text-[#06a5a5] bg-[#06a5a5]/8 border border-[#06a5a5]/15 px-3 py-1.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Events — compact */}
+              {rider.events.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+                  <h2 className="text-sm font-bold text-[#222222] tracking-tight mb-3">Events</h2>
+                  <div className="flex flex-col gap-1.5">
+                    {rider.events.map(event => (
+                      <Link
+                        key={event.slug}
+                        href={`/events/${event.slug}`}
+                        className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F7F7F7] transition-colors"
+                      >
+                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center">
+                          <Calendar size={14} className="text-[#999999]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate">
+                            {event.name}
+                          </p>
+                          <p className="text-[11px] text-[#999999] flex items-center gap-1.5 mt-0.5">
+                            {(event.date_start || event.date_end) && (
+                              <span>{formatEventDate({ date_start: event.date_start ?? null, date_end: event.date_end ?? null })}</span>
+                            )}
+                            {(event.date_start || event.date_end) && event.location && (
+                              <span className="text-[#DDDDDD]">&middot;</span>
+                            )}
+                            {event.location && (
+                              <span className="truncate">{event.location}</span>
+                            )}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
 
