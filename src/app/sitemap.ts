@@ -31,7 +31,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/magazine/interview`,      lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
     { url: `${BASE}/magazine/guide`,          lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
     { url: `${BASE}/events`,                  lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/preise`,                  lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE}/ueber-motodigital`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     // Bike style pages
     { url: `${BASE}/bikes/cafe-racer`,        lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },

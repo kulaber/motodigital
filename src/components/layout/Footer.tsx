@@ -12,7 +12,6 @@ const NAV = [
       { label: 'Custom Werkstatt',          href: '/custom-werkstatt' },
       { label: 'Magazin',                   href: '/magazine' },
       { label: 'Events',                    href: '/events' },
-      { label: 'Preise',                    href: '/preise' },
       { label: 'Über MotoDigital',           href: '/ueber-motodigital' },
     ],
   },
