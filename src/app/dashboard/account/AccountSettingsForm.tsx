@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
+import { CheckCircle, Eye, EyeOff, Camera, User, Trash2, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 type Props = {
   userId: string
@@ -47,6 +48,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
   const isWerkstatt = role === 'custom-werkstatt'
   const isRider = role === 'rider'
   const supabase = createClient()
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ── Avatar ──
@@ -304,6 +306,16 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
           <SaveRow saving={pwSaving} saved={pwSaved} error={pwError} label="Passwort ändern" />
         </div>
       </form>
+
+      {/* ── Abmelden (mobil) ── */}
+      <button
+        type="button"
+        onClick={async () => { await supabase.auth.signOut(); router.push('/'); router.refresh() }}
+        className="lg:hidden flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-red-400/20 text-red-400 text-sm font-semibold hover:bg-red-50 transition-colors"
+      >
+        <LogOut size={15} />
+        Abmelden
+      </button>
 
     </div>
   )

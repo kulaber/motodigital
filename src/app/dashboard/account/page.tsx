@@ -25,7 +25,7 @@ export default async function AccountSettingsPage() {
       : '/dashboard'
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32 sm:pb-16 min-h-full bg-[#F7F7F7]">
         <div className="mb-8">
           <div className="flex items-center gap-3">
             <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors">
