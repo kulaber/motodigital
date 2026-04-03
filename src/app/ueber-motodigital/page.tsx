@@ -251,13 +251,13 @@ export default function WieEsFunktioniertPage() {
             Kostenlos registrieren — als Werkstatt oder Rider. In wenigen Minuten live.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/auth/register"
+            <Link href="/auth/register?role=custom-werkstatt"
               className="bg-[#06a5a5] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-[#058f8f] transition-all inline-flex items-center gap-2">
-              Jetzt kostenlos registrieren <ArrowRight size={14} />
+              Als Custom Werkstatt registrieren <ArrowRight size={14} />
             </Link>
-            <Link href="/custom-werkstatt"
-              className="text-sm font-medium text-white/40 hover:text-white transition-colors px-4 py-3.5">
-              Werkstätten entdecken →
+            <Link href="/auth/register?role=rider"
+              className="border border-white/10 text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:border-white/25 transition-all inline-flex items-center gap-2">
+              Als Rider registrieren <ArrowRight size={14} />
             </Link>
           </div>
         </div>
