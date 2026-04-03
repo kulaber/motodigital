@@ -612,19 +612,19 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot }
                   <ChevronRight size={22} />
                 </button>
 
-                {/* Counter + close overlay */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4" onClick={e => e.stopPropagation()}>
-                  <span className="text-white/40 text-xs font-medium tabular-nums tracking-widest">
-                    {viewerIdx + 1} / {images.length}
-                  </span>
-                  <button
-                    onClick={closeViewer}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white transition-all"
-                    aria-label="Schließen"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
+                {/* Close — top left */}
+                <button
+                  onClick={closeViewer}
+                  className="absolute top-4 left-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white transition-all"
+                  aria-label="Schließen"
+                >
+                  <X size={18} />
+                </button>
+
+                {/* Counter — top center */}
+                <span className="absolute top-5 left-1/2 -translate-x-1/2 text-white/40 text-xs font-medium tabular-nums tracking-widest">
+                  {viewerIdx + 1} / {images.length}
+                </span>
               </div>
             </div>
           )}
