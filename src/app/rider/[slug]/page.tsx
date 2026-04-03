@@ -268,9 +268,9 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
             </div>
 
-            {/* Actions — top right, aligned with avatar (non-owner only) */}
+            {/* Actions — top right, desktop only (non-owner) */}
             {!isOwnProfile && (
-              <div className="flex items-center gap-2.5 pb-1">
+              <div className="hidden lg:flex items-center gap-2.5 pb-1">
                 <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
                 <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
               </div>
@@ -309,8 +309,8 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
             </div>
 
-            {/* Owner actions — below bio, mobile only */}
-            {isOwnProfile && (
+            {/* Actions — below bio, mobile only */}
+            {isOwnProfile ? (
               <div className="flex items-center gap-2.5 mt-4 lg:hidden">
                 <Link
                   href="/dashboard/profile"
@@ -326,6 +326,11 @@ export default async function RiderProfilePage({ params }: Props) {
                   <Wrench size={13} />
                   Garage bearbeiten
                 </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5 mt-4 lg:hidden">
+                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
               </div>
             )}
           </div>
