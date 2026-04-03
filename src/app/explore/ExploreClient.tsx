@@ -63,8 +63,7 @@ interface SidebarRider {
   slug: string
   name: string
   initials: string
-  city: string
-  style: string
+  bio: string
   avatar?: string
   isOnline: boolean
 }
@@ -88,7 +87,7 @@ function RiderItem({ rider }: { rider: SidebarRider }) {
       </div>
       <div className="min-w-0">
         <p className="text-[13px] font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors truncate leading-tight">{rider.name}</p>
-        <p className="text-[11px] text-[#717171] truncate">{rider.style} · {rider.city}</p>
+        {rider.bio && <p className="text-[11px] text-[#717171] truncate">{rider.bio}</p>}
       </div>
     </Link>
   )
@@ -630,7 +629,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: dbRiders } = await (supabase.from('profiles') as any)
-        .select('id, full_name, slug, username, city, avatar_url, tags, last_seen_at')
+        .select('id, full_name, slug, username, bio, avatar_url, last_seen_at')
         .eq('role', 'rider')
         .order('last_seen_at', { ascending: false, nullsFirst: false })
 
@@ -638,14 +637,12 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
         .filter((r: Record<string, unknown>) => r.slug || r.username || r.full_name)
         .map((r: Record<string, unknown>) => {
           const name = (r.full_name as string | null) ?? 'Unbekannt'
-          const tags = (r.tags as string[] | null) ?? []
           const lastSeen = r.last_seen_at as string | null
           return {
             slug: (r.slug as string | null) ?? (r.username as string | null) ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
             name,
             initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
-            city: (r.city as string | null) ?? '',
-            style: tags[0] ?? '',
+            bio: (r.bio as string | null) ?? '',
             avatar: (r.avatar_url as string | null) ?? undefined,
             isOnline: !!lastSeen && lastSeen > THREE_MIN_AGO,
           }
