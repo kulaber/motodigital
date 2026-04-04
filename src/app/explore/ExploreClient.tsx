@@ -17,6 +17,7 @@ import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { getProfileUrl } from '@/lib/utils/profileLink'
 import dynamic from 'next/dynamic'
+import RiderList from '@/components/explore/RiderStories'
 
 const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
 
@@ -91,6 +92,23 @@ function RiderItem({ rider }: { rider: SidebarRider }) {
       </div>
     </Link>
   )
+}
+
+/* ── Helper: render @mentions as clickable links ──────── */
+
+function renderWithMentions(text: string) {
+  const parts = text.split(/(@[a-zA-Z0-9_-]+)/g)
+  return parts.map((part, i) => {
+    if (/^@[a-zA-Z0-9_-]+$/.test(part)) {
+      const username = part.slice(1)
+      return (
+        <Link key={i} href={`/rider/${username}`} className="text-[#06a5a5] font-semibold hover:underline">
+          {part}
+        </Link>
+      )
+    }
+    return part
+  })
 }
 
 /* ── Helper: convert media URLs to MediaSlider items ───── */
@@ -309,7 +327,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
       {post.body && (
         <div className="px-4 pt-3">
-          <p className="text-sm text-[#222222] leading-relaxed">{post.body}</p>
+          <p className="text-sm text-[#222222] leading-relaxed">{renderWithMentions(post.body)}</p>
         </div>
       )}
 
@@ -438,7 +456,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
                     ) : (
                       <span className="font-semibold text-[#222222]">{c.user_name}</span>
                     )}{' '}
-                    <span className="text-[#222222]/80">{c.body}</span>
+                    <span className="text-[#222222]/80">{renderWithMentions(c.body)}</span>
                   </p>
                   <p className="text-[10px] text-[#B0B0B0] mt-0.5">{formatRelativeTime(c.created_at)}</p>
                 </div>
@@ -494,12 +512,20 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
 /* ── Main component ────────────────────────────────────── */
 
+interface StoryRider {
+  id: string
+  username: string
+  full_name: string | null
+  avatar_url: string | null
+}
+
 interface Props {
   userId: string | null
   isSuperadmin?: boolean
+  riders?: StoryRider[]
 }
 
-export default function ExploreClient({ userId, isSuperadmin }: Props) {
+export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -802,7 +828,7 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
           <h1 className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</h1>
 
           {/* Filter pills */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
+          <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
             {CATEGORIES.map(cat => (
               <button
                 key={cat.value}
@@ -959,7 +985,12 @@ export default function ExploreClient({ userId, isSuperadmin }: Props) {
               </button>
             </div>
           )}
+        </div>
 
+        {/* Mobile rider list — full width */}
+        <RiderList riders={riders} />
+
+        <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Card stream */}
           <div className="flex flex-col gap-4">
             {loadingPosts ? (

@@ -22,12 +22,21 @@ export default async function ExplorePage() {
     isSuperadmin = data?.role === 'superadmin'
   }
 
+  // Fetch riders for mobile story bar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: storyRiders } = await (supabase.from('profiles') as any)
+    .select('id, username, full_name, avatar_url')
+    .eq('role', 'rider')
+    .not('username', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(12)
+
   return (
     <div className="min-h-dvh flex flex-col bg-[#F7F7F7]">
       <Header activePage="explore" />
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
-          <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} />
+          <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} />
         </div>
       </div>
     </div>
