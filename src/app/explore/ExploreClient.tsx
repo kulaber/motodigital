@@ -1021,13 +1021,14 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                           } else {
                             setComposerTag(t.value)
                             // Auto-request geolocation for "In der Nähe"
-                            if (t.value === 'in-der-naehe' && navigator.geolocation) {
-                              navigator.geolocation.getCurrentPosition(
+                            if (t.value === 'in-der-naehe' && typeof navigator !== 'undefined' && navigator.geolocation) {
+                              // watchPosition is more reliable on mobile than getCurrentPosition
+                              const watchId = navigator.geolocation.watchPosition(
                                 (pos) => {
+                                  navigator.geolocation.clearWatch(watchId)
                                   const { latitude: lat, longitude: lng } = pos.coords
-                                  // Set location immediately so the user can post right away
                                   setComposerLocation({ lat, lng, address: 'Mein Standort' })
-                                  // Reverse geocode in background to update the address
+                                  // Reverse geocode in background
                                   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
                                   if (token) {
                                     fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=de&limit=1&types=address,place,locality`)
@@ -1040,8 +1041,11 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                                       .catch(() => {})
                                   }
                                 },
-                                () => { /* user denied or error — they can still pick manually */ },
-                                { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+                                () => {
+                                  navigator.geolocation.clearWatch(watchId)
+                                  showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.')
+                                },
+                                { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 }
                               )
                             }
                           }
