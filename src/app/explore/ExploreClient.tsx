@@ -825,7 +825,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!userId || (!body.trim() && mediaFiles.length === 0)) return
+    const hasContent = body.trim() || mediaFiles.length > 0 || (composerTag === 'in-der-naehe' && composerLocation) || (composerTag === 'events' && composerEventSlug)
+    if (!userId || !hasContent) return
     setSubmitting(true)
 
     const uploadedUrls: string[] = []
@@ -1039,7 +1040,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                                       .catch(() => {})
                                   }
                                 },
-                                () => { /* user denied or error — they can still pick manually */ }
+                                () => { /* user denied or error — they can still pick manually */ },
+                                { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
                               )
                             }
                           }
