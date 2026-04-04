@@ -4,9 +4,10 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User, LogOut } from 'lucide-react'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
+import SignOutButton from './SignOutButton'
 import type { Database } from '@/types/database'
 
 /** Extracted outside the component so React compiler doesn't flag Date.now() as impure */
@@ -515,6 +516,11 @@ export default async function DashboardPage() {
 
 
         </div>}
+
+        {/* Mobile sign-out — sidebar hidden on mobile */}
+        <div className="lg:hidden mt-8">
+          <SignOutButton />
+        </div>
     </div>
   )
 }
