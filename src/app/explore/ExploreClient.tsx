@@ -1021,10 +1021,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                           } else {
                             setComposerTag(t.value)
                             // Auto-request geolocation for "In der Nähe"
-                            if (t.value === 'in-der-naehe' && typeof navigator !== 'undefined' && navigator.geolocation) {
-                              const onPosition = (pos: GeolocationPosition) => {
-                                const { latitude: lat, longitude: lng } = pos.coords
-                                setComposerLocation({ lat, lng, address: 'Mein Standort' })
+                            if (t.value === 'in-der-naehe') {
+                              const reverseGeocode = (lat: number, lng: number) => {
                                 const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
                                 if (token) {
                                   fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=de&limit=1&types=address,place,locality`)
@@ -1037,18 +1035,38 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                                     .catch(() => {})
                                 }
                               }
-                              // Try GPS first, fallback to network-only
-                              navigator.geolocation.getCurrentPosition(
-                                onPosition,
-                                () => {
-                                  navigator.geolocation.getCurrentPosition(
-                                    onPosition,
-                                    () => showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.'),
-                                    { enableHighAccuracy: false, timeout: 15000, maximumAge: Infinity }
-                                  )
-                                },
-                                { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
-                              )
+
+                              const tryBrowserGeo = () => {
+                                if (!navigator.geolocation) { fallbackIPGeo(); return }
+                                navigator.geolocation.getCurrentPosition(
+                                  (pos) => {
+                                    const { latitude: lat, longitude: lng } = pos.coords
+                                    setComposerLocation({ lat, lng, address: 'Mein Standort' })
+                                    reverseGeocode(lat, lng)
+                                  },
+                                  () => fallbackIPGeo(),
+                                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
+                                )
+                              }
+
+                              const fallbackIPGeo = () => {
+                                fetch('https://ipapi.co/json/')
+                                  .then(r => r.json())
+                                  .then(data => {
+                                    if (data.latitude && data.longitude) {
+                                      const lat = data.latitude as number
+                                      const lng = data.longitude as number
+                                      const address = [data.city, data.region].filter(Boolean).join(', ') || 'Mein Standort'
+                                      setComposerLocation({ lat, lng, address })
+                                      reverseGeocode(lat, lng)
+                                    } else {
+                                      showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.')
+                                    }
+                                  })
+                                  .catch(() => showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.'))
+                              }
+
+                              tryBrowserGeo()
                             }
                           }
                         }}
