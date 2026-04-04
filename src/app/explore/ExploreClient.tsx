@@ -550,6 +550,12 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
   const canPost = !!userId
   const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
+  const [followingProfiles, setFollowingProfiles] = useState<{ id: string; username: string; full_name: string; avatar_url: string | null }[]>([])
+
+  // Mention autocomplete state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
+  const [mentionIndex, setMentionIndex] = useState(0)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [allEvents, setAllEvents] = useState<Event[]>([])
 
   // Load events from Supabase
@@ -635,7 +641,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
   useEffect(() => { loadPosts() }, [loadPosts])
 
-  // Load IDs of users the current user follows
+  // Load IDs of users the current user follows + their profiles for @mention
   useEffect(() => {
     if (!userId) return
     async function loadFollowing() {
@@ -643,7 +649,28 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
       const { data } = await (supabase.from('followers') as any)
         .select('following_id')
         .eq('follower_id', userId)
-      if (data) setFollowingIds(new Set(data.map((r: { following_id: string }) => r.following_id)))
+      if (!data) return
+      const ids = data.map((r: { following_id: string }) => r.following_id)
+      setFollowingIds(new Set(ids))
+
+      if (ids.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: profiles } = await (supabase.from('profiles') as any)
+          .select('id, username, slug, full_name, avatar_url')
+          .in('id', ids)
+        if (profiles) {
+          setFollowingProfiles(
+            (profiles as { id: string; username: string | null; slug: string | null; full_name: string | null; avatar_url: string | null }[])
+              .filter(p => p.username || p.slug || p.full_name)
+              .map(p => ({
+                id: p.id,
+                username: p.slug ?? p.username ?? p.full_name!.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+                full_name: p.full_name ?? p.username ?? 'Unbekannt',
+                avatar_url: p.avatar_url,
+              }))
+          )
+        }
+      }
     }
     loadFollowing()
   }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -736,6 +763,65 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     const newFiles = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
     setMediaFiles(prev => [...prev, ...newFiles].slice(0, 4))
     e.target.value = ''
+  }
+
+  // Mention autocomplete: filtered suggestions
+  const mentionSuggestions = useMemo(() => {
+    if (mentionQuery === null) return []
+    const q = mentionQuery.toLowerCase()
+    return followingProfiles.filter(
+      p => p.username.toLowerCase().includes(q) || p.full_name.toLowerCase().includes(q)
+    ).slice(0, 6)
+  }, [mentionQuery, followingProfiles])
+
+  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value
+    setBody(val)
+
+    // Detect @mention query from cursor position
+    const cursor = e.target.selectionStart ?? val.length
+    const textBefore = val.slice(0, cursor)
+    const match = textBefore.match(/@([a-zA-Z0-9_äöüÄÖÜß-]*)$/)
+    if (match) {
+      setMentionQuery(match[1])
+      setMentionIndex(0)
+    } else {
+      setMentionQuery(null)
+    }
+  }
+
+  function insertMention(username: string) {
+    const textarea = textareaRef.current
+    if (!textarea) return
+    const cursor = textarea.selectionStart ?? body.length
+    const textBefore = body.slice(0, cursor)
+    const atPos = textBefore.lastIndexOf('@')
+    if (atPos === -1) return
+    const newBody = body.slice(0, atPos) + `@${username} ` + body.slice(cursor)
+    setBody(newBody)
+    setMentionQuery(null)
+    // Refocus textarea after React re-render
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const newCursor = atPos + username.length + 2
+      textarea.setSelectionRange(newCursor, newCursor)
+    })
+  }
+
+  function handleMentionKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (mentionQuery === null || mentionSuggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setMentionIndex(i => (i + 1) % mentionSuggestions.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setMentionIndex(i => (i - 1 + mentionSuggestions.length) % mentionSuggestions.length)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      insertMention(mentionSuggestions[mentionIndex].username)
+    } else if (e.key === 'Escape') {
+      setMentionQuery(null)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -870,15 +956,48 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                   >
                     <X size={15} />
                   </button>
-                  <textarea
-                    autoFocus
-                    value={body}
-                    onChange={e => setBody(e.target.value)}
-                    placeholder="Poste, was dich bewegt…"
-                    rows={4}
-                    style={{ resize: 'none' }}
-                    className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
-                  />
+                  <div className="relative">
+                    <textarea
+                      ref={textareaRef}
+                      autoFocus
+                      value={body}
+                      onChange={handleBodyChange}
+                      onKeyDown={handleMentionKeyDown}
+                      placeholder="Poste, was dich bewegt…"
+                      rows={4}
+                      style={{ resize: 'none' }}
+                      className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
+                    />
+                    {/* @mention autocomplete dropdown */}
+                    {mentionQuery !== null && mentionSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 bottom-0 translate-y-full z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto">
+                        {mentionSuggestions.map((p, i) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); insertMention(p.username) }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                              i === mentionIndex ? 'bg-[#06a5a5]/8' : 'hover:bg-[#F7F7F7]'
+                            }`}
+                          >
+                            <div className="w-7 h-7 rounded-full bg-[#F0F0F0] overflow-hidden flex-shrink-0">
+                              {p.avatar_url ? (
+                                <Image src={p.avatar_url} alt={p.full_name} width={28} height={28} className="object-cover w-full h-full" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">
+                                  {p.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight">{p.full_name}</p>
+                              <p className="text-[11px] text-[#717171] truncate">@{p.username}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Tag selector */}
                   <div className="flex gap-2 mt-3 flex-wrap">
