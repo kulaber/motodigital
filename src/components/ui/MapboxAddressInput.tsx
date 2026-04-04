@@ -42,6 +42,12 @@ export default function MapboxAddressInput({ initialValue = '', onSelect, placeh
   const [open,        setOpen]        = useState(false)
   const [selected,    setSelected]    = useState(!!initialValue)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [prevInitial, setPrevInitial] = useState(initialValue)
+  if (initialValue !== prevInitial) {
+    setPrevInitial(initialValue)
+    setQuery(initialValue)
+    setSelected(!!initialValue)
+  }
 
   const { refs, floatingStyles, context } = useFloating({
     open,

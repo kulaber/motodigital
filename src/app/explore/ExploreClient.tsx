@@ -33,7 +33,6 @@ const CATEGORIES: { value: Category; label: string }[] = [
 
 // Composer tags: categories the user can post in
 const COMPOSER_TAGS: { value: Category; label: string }[] = [
-  { value: 'allgemein', label: 'Allgemein' },
   { value: 'in-der-naehe', label: 'In der Nähe' },
   { value: 'events', label: 'Events' },
 ]
@@ -313,7 +312,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             {tagLabel}
           </span>
         )}
-        {isSuperadmin && onDelete && (
+        {(isSuperadmin || post.user_id === userId) && onDelete && (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onDelete() }}
@@ -909,6 +908,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
       {/* ── Feed ────────────────────────────────────── */}
       <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8">
+        {/* Heading + filter pills (outside sticky parent so RiderList can sit full-width) */}
         <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Mobile heading */}
           <h1 className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</h1>
@@ -929,7 +929,13 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
               </button>
             ))}
           </div>
+        </div>
 
+        {/* Mobile rider list — full width (between pills and composer) */}
+        <RiderList riders={riders} />
+
+        {/* Composer + card stream share one parent so sticky works through the full scroll */}
+        <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Composer sentinel */}
           <div ref={composerSentinelRef} className="h-0" />
 
@@ -1005,13 +1011,46 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                       <button
                         key={t.value}
                         type="button"
-                        onClick={() => setComposerTag(t.value)}
+                        onClick={() => {
+                          if (composerTag === t.value) {
+                            // Toggle off → back to default
+                            setComposerTag('allgemein')
+                            if (t.value === 'in-der-naehe') setComposerLocation(null)
+                            if (t.value === 'events') setComposerEventSlug(null)
+                          } else {
+                            setComposerTag(t.value)
+                            // Auto-request geolocation for "In der Nähe"
+                            if (t.value === 'in-der-naehe' && navigator.geolocation) {
+                              navigator.geolocation.getCurrentPosition(
+                                (pos) => {
+                                  const { latitude: lat, longitude: lng } = pos.coords
+                                  // Set location immediately so the user can post right away
+                                  setComposerLocation({ lat, lng, address: 'Mein Standort' })
+                                  // Reverse geocode in background to update the address
+                                  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+                                  if (token) {
+                                    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=de&limit=1&types=address,place,locality`)
+                                      .then(r => r.json())
+                                      .then(json => {
+                                        if (json.features?.[0]) {
+                                          setComposerLocation({ lat, lng, address: json.features[0].place_name })
+                                        }
+                                      })
+                                      .catch(() => {})
+                                  }
+                                },
+                                () => { /* user denied or error — they can still pick manually */ }
+                              )
+                            }
+                          }
+                        }}
                         className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
                           composerTag === t.value
                             ? 'bg-[#222222] text-white border-[#222222]'
                             : 'text-[#222222]/40 border-[#222222]/6 hover:border-[#222222]/20'
                         }`}
                       >
+                        {t.value === 'in-der-naehe' && <MapPin size={11} />}
                         {t.label}
                       </button>
                     ))}
@@ -1021,6 +1060,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                   {composerTag === 'in-der-naehe' && (
                     <div className="mt-3">
                       <MapboxAddressInput
+                        initialValue={composerLocation?.address ?? ''}
                         placeholder="Standort eingeben…"
                         onSelect={(place) => {
                           if (place) {
@@ -1086,7 +1126,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                     </div>
                     <button
                       type="submit"
-                      disabled={submitting || (!body.trim() && mediaFiles.length === 0) || (composerTag === 'in-der-naehe' && !composerLocation)}
+                      disabled={submitting || (composerTag === 'in-der-naehe' && !composerLocation) || (!body.trim() && mediaFiles.length === 0 && !(composerTag === 'in-der-naehe' && composerLocation) && !(composerTag === 'events' && composerEventSlug))}
                       className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
                     >
                       <Send size={12} />
@@ -1104,12 +1144,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
               </button>
             </div>
           )}
-        </div>
 
-        {/* Mobile rider list — full width */}
-        <RiderList riders={riders} />
-
-        <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Card stream */}
           <div className="flex flex-col gap-4">
             {loadingPosts ? (
@@ -1129,14 +1164,12 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
         </div>
       </main>
 
-      {isSuperadmin && (
-        <DeleteConfirmModal
-          open={deleteTargetId !== null}
-          onClose={() => setDeleteTargetId(null)}
-          onConfirm={handleDeletePost}
-          loading={deleting}
-        />
-      )}
+      <DeleteConfirmModal
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDeletePost}
+        loading={deleting}
+      />
 
       <ToastContainer toasts={toasts} />
 
