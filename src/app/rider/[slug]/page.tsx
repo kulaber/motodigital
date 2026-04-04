@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Instagram, Globe, Calendar, Settings } from 'lucide-react'
+import { MapPin, Instagram, Globe, Calendar, Settings, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
@@ -242,6 +242,12 @@ export default async function RiderProfilePage({ params }: Props) {
           className="object-cover"
           priority
         />
+        <Link
+          href="/explore"
+          className="absolute top-3 left-3 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors z-10"
+        >
+          <ArrowLeft size={16} className="text-[#222222]" />
+        </Link>
         {isOwnProfile && (
           <Link
             href="/dashboard/account"

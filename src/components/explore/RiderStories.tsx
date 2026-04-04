@@ -36,7 +36,7 @@ export default function RiderList({ riders }: { riders: Rider[] }) {
   if (!riders.length) return null
 
   return (
-    <section className="md:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
+    <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
       <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#999] px-4 pt-4 mb-2">
         Entdecke Rider
       </p>

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AuthGate from './[slug]/AuthGate'
@@ -82,8 +84,14 @@ export default async function RiderOverviewPage() {
     <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
       <Header activePage="explore" />
 
-      <section className="pt-10 pb-6">
+      <section className="pt-4 sm:pt-10 pb-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-8">
+          <Link href="/explore" className="sm:hidden inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#F0F0F0] hover:bg-[#E5E5E5] transition-colors mb-3">
+            <ArrowLeft size={16} className="text-[#222222]" />
+          </Link>
+          <Link href="/explore" className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-4">
+            <ArrowLeft size={13} /> Explore
+          </Link>
           <h1 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight">Rider</h1>
         </div>
       </section>

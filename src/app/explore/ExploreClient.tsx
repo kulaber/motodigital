@@ -951,8 +951,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                 <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
                   <button
                     type="button"
-                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setMediaFiles([]) }}
-                    className="absolute top-3 right-3 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
+                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setMediaFiles([]); setMentionQuery(null) }}
+                    className="absolute top-3 right-3 z-40 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
                   >
                     <X size={15} />
                   </button>
