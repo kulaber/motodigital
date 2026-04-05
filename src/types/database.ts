@@ -87,6 +87,20 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['workshops']['Insert']>
       }
+      base_bike_brands: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          country: string | null
+          founded: number | null
+          description: string | null
+          logo_url: string | null
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['base_bike_brands']['Row'], 'id' | 'created_at'> & { id?: string }
+        Update: Partial<Database['public']['Tables']['base_bike_brands']['Insert']>
+      }
       base_bikes: {
         Row: {
           id: string
@@ -97,6 +111,11 @@ export interface Database {
           year_to: number | null
           typical_styles: string[]
           notes: string | null
+          brand_id: string | null
+          slug: string | null
+          engine_cc: number | null
+          engine_type: string | null
+          custom_styles: string[] | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['base_bikes']['Row'], 'id' | 'created_at'> & { id?: string }

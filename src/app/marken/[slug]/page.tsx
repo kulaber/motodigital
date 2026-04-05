@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { BRANDS, getBrandBySlug } from '@/lib/data/brands'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { createClient } from '@/lib/supabase/server'
 
@@ -13,47 +12,83 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-export const revalidate = 3600 // ISR: revalidate every hour
+export const revalidate = 3600
+
+// Map engine_type DB values to German display labels
+const ENGINE_LABELS: Record<string, string> = {
+  single: 'Einzylinder',
+  parallel_twin: 'Parallel-Twin',
+  inline_four: 'Reihen-Vierzylinder',
+  v_twin: 'V-Twin',
+  triple: 'Dreizylinder',
+  inline_six: 'Reihen-Sechszylinder',
+  flat_twin: 'Boxer-Twin',
+  flat_four: 'Flat Four',
+  v_four: 'V4',
+  two_stroke: 'Zweitakter',
+  two_stroke_triple: 'Zweitakt-Dreizylinder',
+}
+
+// Map custom_style DB values to display labels
+const STYLE_LABELS: Record<string, string> = {
+  cafe_racer: 'Cafe Racer',
+  scrambler: 'Scrambler',
+  tracker: 'Tracker',
+  bobber: 'Bobber',
+  chopper: 'Chopper',
+  streetfighter: 'Streetfighter',
+  brat: 'Brat Style',
+  bagger: 'Bagger',
+  supermoto: 'Supermoto',
+  adventure: 'Adventure',
+  custom: 'Custom',
+}
+
+export async function generateStaticParams() {
+  const supabase = await createClient()
+  const { data: brands } = await (supabase.from('base_bike_brands') as any).select('slug')
+  return (brands ?? []).map((b: any) => ({ slug: b.slug }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const brand = getBrandBySlug(slug)
+  const supabase = await createClient()
+  const { data: brand } = await (supabase.from('base_bike_brands') as any)
+    .select('name, description')
+    .eq('slug', slug)
+    .maybeSingle()
   if (!brand) return {}
   return {
     title: `Custom ${brand.name} Motorrad Builds — MotoDigital`,
-    description: brand.tagline,
+    description: brand.description || `Entdecke alle ${brand.name} Modelle als Custom-Basis auf MotoDigital.`,
   }
 }
 
 export default async function MarkeDetailPage({ params }: Props) {
   const { slug } = await params
-  const brand = getBrandBySlug(slug)
+  const supabase = await createClient()
+
+  // Fetch brand
+  const { data: brand } = await (supabase.from('base_bike_brands') as any)
+    .select('id, name, slug, country, founded, description')
+    .eq('slug', slug)
+    .maybeSingle()
   if (!brand) notFound()
 
-  // DB bikes filtered by make column
-  const supabase = await createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let dbBikes: any[] | null = null
-  // Try with slug column first (new schema), fall back to without
-  {
-    const { data } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
-      .ilike('make', brand.name)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-    dbBikes = data
-  }
-  if (!dbBikes) {
-    const { data } = await (supabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
-      .ilike('make', brand.name)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-    dbBikes = data
-  }
+  // Fetch models for this brand
+  const { data: models } = await (supabase.from('base_bikes') as any)
+    .select('id, model, slug, year_from, year_to, engine_cc, engine_type, custom_styles')
+    .eq('brand_id', brand.id)
+    .order('year_from', { ascending: true })
 
-  // Map DB bikes to a renderable format
-  const dbBuilds = (dbBikes ?? []).map((bike: any) => {
+  // Fetch custom builds from bikes table matching this brand
+  const { data: dbBikes } = await (supabase.from('bikes') as any)
+    .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .ilike('make', brand.name)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+
+  const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = (dbBikes ?? []).map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const cover = sortBikeImages(images)[0]
     return {
@@ -63,11 +98,14 @@ export default async function MarkeDetailPage({ params }: Props) {
       style: bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? '',
       city: bike.city ?? '',
       coverImg: cover?.url ?? '',
-      isDb: true,
     }
   })
 
-  const builds = dbBuilds
+  // Fetch other brands for "Weitere Marken" section
+  const { data: allBrands } = await (supabase.from('base_bike_brands') as any)
+    .select('name, slug')
+    .neq('slug', slug)
+    .order('name')
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
@@ -96,31 +134,51 @@ export default async function MarkeDetailPage({ params }: Props) {
               <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight">{brand.name}</h1>
               <span className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">{brand.country}</span>
             </div>
-            <p className="text-sm text-[#717171] max-w-xl">{brand.tagline}</p>
+            {brand.founded && (
+              <p className="text-xs text-[#AAAAAA] mb-1">Gegr. {brand.founded}</p>
+            )}
+            {brand.description && (
+              <p className="text-sm text-[#717171] max-w-xl">{brand.description}</p>
+            )}
           </div>
         </div>
 
         {/* Models */}
         <div className="mb-12">
-          <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">{brand.name} Modelle als Custom-Basis</h2>
+          <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">
+            {brand.name} Modelle als Custom-Basis
+            {(models?.length ?? 0) > 0 && <span className="ml-2 text-sm font-normal text-[#717171]">({models.length})</span>}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {brand.models.map(m => (
-              <div key={m.model} className="bg-white border border-[#EBEBEB] rounded-xl p-4">
+            {(models ?? []).map((m: any) => (
+              <Link
+                key={m.slug}
+                href={`/marken/${brand.slug}/${m.slug}`}
+                className="group bg-white border border-[#EBEBEB] hover:border-[#DDDDDD] hover:shadow-sm rounded-xl p-4 transition-all"
+              >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <p className="text-sm font-semibold text-[#222222]">{brand.name} {m.model}</p>
+                  <p className="text-sm font-semibold text-[#222222] group-hover:text-[#06a5a5] transition-colors">{brand.name} {m.model}</p>
                   <span className="text-[10px] font-medium text-[#717171] whitespace-nowrap">
-                    {m.yearFrom}–{m.yearTo ?? 'heute'}
+                    {m.year_from}–{m.year_to ?? 'heute'}
                   </span>
                 </div>
-                <p className="text-xs text-[#AAAAAA] mb-3">{m.cc} cc</p>
+                <div className="flex items-center gap-2 mb-3">
+                  {m.engine_cc && <span className="text-xs text-[#AAAAAA]">{m.engine_cc} cc</span>}
+                  {m.engine_type && (
+                    <>
+                      <span className="text-[#EBEBEB]">·</span>
+                      <span className="text-xs text-[#AAAAAA]">{ENGINE_LABELS[m.engine_type] ?? m.engine_type}</span>
+                    </>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-1">
-                  {m.styles.map(s => (
-                    <span key={s} className="text-[10px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2 py-0.5 rounded-full">
-                      {s}
+                  {(m.custom_styles ?? []).map((s: string) => (
+                    <span key={s} className="text-[10px] font-medium text-[#06a5a5] bg-[#06a5a5]/8 border border-[#06a5a5]/15 px-2 py-0.5 rounded-full">
+                      {STYLE_LABELS[s] ?? s}
                     </span>
                   ))}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -182,7 +240,7 @@ export default async function MarkeDetailPage({ params }: Props) {
         <div className="mt-16 pt-10 border-t border-[#EBEBEB]">
           <h2 className="text-sm font-semibold text-[#222222] mb-6">Weitere Marken</h2>
           <div className="flex flex-wrap gap-2">
-            {BRANDS.filter(b => b.slug !== brand.slug).map(b => (
+            {(allBrands ?? []).map((b: any) => (
               <Link
                 key={b.slug}
                 href={`/marken/${b.slug}`}
