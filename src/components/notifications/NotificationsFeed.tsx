@@ -34,7 +34,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string }> = 
   publish_celebration:  { icon: Bell,           label: 'Dein Bike ist jetzt live' },
 }
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 6
 
 function getEntityHref(n: NotificationRow): string | null {
   if (n.type === 'follow' && n.actor?.slug) {

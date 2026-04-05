@@ -242,7 +242,7 @@ export default async function RiderProfilePage({ params }: Props) {
         {!isOwnProfile && (
           <Link
             href="/explore"
-            className="lg:hidden absolute top-3 left-3 w-9 h-9 bg-white border border-black/8 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors z-10"
+            className="absolute top-3 left-3 w-9 h-9 bg-white border border-black/8 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors z-10"
           >
             <ArrowLeft size={16} className="text-[#111111]" />
           </Link>

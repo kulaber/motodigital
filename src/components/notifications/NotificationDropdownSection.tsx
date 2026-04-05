@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { Bell, Heart, MessageCircle, UserPlus, Tag, Store } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, Tag, Store, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -46,7 +46,7 @@ export function NotificationDropdownSection({ userId, onClose }: { userId: strin
         `)
         .eq('recipient_id', userId)
         .order('created_at', { ascending: false })
-        .limit(5)
+        .limit(2)
 
       setNotifications(data ?? [])
       setLoading(false)
@@ -87,7 +87,9 @@ export function NotificationDropdownSection({ userId, onClose }: { userId: strin
       </div>
 
       {loading ? (
-        <div className="px-4 py-3 text-[11px] text-[#222222]/30">Laden...</div>
+        <div className="flex items-center justify-center px-4 py-4">
+          <Loader2 size={16} className="animate-spin text-[#999999]" />
+        </div>
       ) : notifications.length === 0 ? (
         <div className="px-4 py-3 text-[11px] text-[#222222]/30">Keine Benachrichtigungen</div>
       ) : (
