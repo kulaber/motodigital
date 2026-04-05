@@ -53,6 +53,7 @@ interface RiderProfile {
     base: string
     style: string
     img: string
+    listingType: string
   }[]
 }
 
@@ -109,7 +110,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: bikeRows }, { data: eventRows }, { data: coverRow }, { count: followerCount }, { count: followingCount }] = await Promise.all([
     (supabase.from('bikes') as any)
-      .select('id, slug, title, make, model, style, bike_images(id, url, is_cover, position)')
+      .select('id, slug, title, make, model, style, listing_type, bike_images(id, url, is_cover, position)')
       .eq('seller_id', row.id)
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
@@ -141,6 +142,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
       base: [b.make, b.model].filter(Boolean).join(' '),
       style: (b.style as string) ?? '',
       img: cover,
+      listingType: (b.listing_type as string) ?? 'showcase',
     }
   })
 
@@ -367,6 +369,11 @@ export default async function RiderProfilePage({ params }: Props) {
                           {bike.style && (
                             <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">
                               {bike.style.replace(/_/g, ' ')}
+                            </span>
+                          )}
+                          {bike.listingType === 'for_sale' && (
+                            <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-widest bg-white/90 text-[#06a5a5] px-2 py-0.5 rounded-full">
+                              Zu verkaufen
                             </span>
                           )}
                         </div>
