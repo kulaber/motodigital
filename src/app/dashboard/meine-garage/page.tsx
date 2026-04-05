@@ -3,14 +3,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Plus, Bike, ArrowLeft } from 'lucide-react'
+import { Plus, Bike, ArrowLeft, Tag } from 'lucide-react'
 import type { Database } from '@/types/database'
 import BikeCardActions, { PublishToggle } from './DeleteBikeButton'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
 type BikeImageRow = Database['public']['Tables']['bike_images']['Row']
-type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at' | 'status'> & {
+type MyBike = Pick<BikeRow, 'id' | 'title' | 'make' | 'model' | 'year' | 'created_at' | 'status' | 'listing_type' | 'price_amount' | 'price_on_request'> & {
   slug?: string | null
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
@@ -40,7 +40,7 @@ export default async function MeinBikePage() {
 
   const { data: bikes } = await supabase
     .from('bikes')
-    .select('id, slug, title, make, model, year, status, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, slug, title, make, model, year, status, created_at, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 
@@ -117,16 +117,39 @@ export default async function MeinBikePage() {
 
                   {/* Info + actions */}
                   <div className="flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-5 min-w-0">
-                    {/* Top row: title + toggle */}
-                    <div className="flex items-start justify-between gap-4 mb-auto">
+                    {/* Top: title + badge + toggle */}
+                    <div className="flex items-start justify-between gap-4 mb-1">
                       <div className="min-w-0">
                         <p className="font-bold text-[#222222] leading-snug line-clamp-1 text-base">{bike.title}</p>
                         <p className="text-xs text-[#222222]/40 mt-1 font-medium">{bike.make} {bike.model} · {bike.year}</p>
                       </div>
                       <PublishToggle bikeId={bike.id} initialStatus={bike.status} />
                     </div>
-                    {/* Bottom row: action buttons */}
-                    <div className="mt-5">
+
+                    {/* Middle: badge + price */}
+                    <div className="flex items-center gap-2 mt-2">
+                      {bike.listing_type === 'for_sale' ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-[#06a5a5] border border-[#06a5a5]/30 bg-[#06a5a5]/8 px-2 py-0.5 rounded-full">
+                          <Tag size={9} /> Zu verkaufen
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-widest text-[#222222]/35 border border-[#222222]/10 px-2 py-0.5 rounded-full">
+                          Showcase
+                        </span>
+                      )}
+                      {bike.listing_type === 'for_sale' && (
+                        <span className="text-sm font-bold text-[#222222]">
+                          {bike.price_on_request
+                            ? 'Preis auf Anfrage'
+                            : bike.price_amount
+                              ? `${Number(bike.price_amount).toLocaleString('de-DE')} EUR`
+                              : '—'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Bottom: action buttons — right-aligned on desktop */}
+                    <div className="mt-auto pt-4 sm:flex sm:justify-end">
                       <BikeCardActions
                         bikeId={bike.id}
                         editHref={`/bikes/${bike.id}/edit`}

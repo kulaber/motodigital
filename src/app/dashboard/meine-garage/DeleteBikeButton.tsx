@@ -81,22 +81,22 @@ export default function BikeCardActions({ bikeId, editHref, viewHref }: Props) {
             href={viewHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full border border-[#222222]/10 text-[#222222]/45 hover:border-[#222222]/25 hover:text-[#222222] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222] transition-colors whitespace-nowrap"
           >
-            <Eye size={12} /> Ansehen
+            <Eye size={13} /> Ansehen
           </Link>
         )}
         <Link
           href={editHref}
-          className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#222222] text-white hover:bg-[#444] transition-colors whitespace-nowrap"
+          className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full bg-[#222222] text-white hover:bg-[#444] transition-colors whitespace-nowrap"
         >
-          <Pencil size={12} /> Bearbeiten
+          <Pencil size={13} /> Bearbeiten
         </Link>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center text-xs font-semibold px-3.5 py-1.5 rounded-full border border-[#222222]/10 text-[#222222]/30 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/30 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer whitespace-nowrap"
         >
-          <Trash2 size={12} />
+          <Trash2 size={13} /> Löschen
         </button>
       </div>
     </>
