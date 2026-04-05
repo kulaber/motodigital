@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AccountSettingsForm from './AccountSettingsForm'
 import NotificationSettings from './NotificationSettings'
+import DangerZone from './DangerZone'
 import LogoutButton from './LogoutButton'
 
 export const metadata: Metadata = { title: 'Konto-Einstellungen' }
@@ -49,6 +50,10 @@ export default async function AccountSettingsPage() {
 
         <div className="mt-8">
           <NotificationSettings userId={user.id} role={profile?.role ?? null} />
+        </div>
+
+        <div className="mt-12">
+          <DangerZone email={user.email ?? ''} />
         </div>
 
         <div className="mt-8">
