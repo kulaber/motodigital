@@ -8,8 +8,7 @@ function CardSkeleton() {
         <div className="h-4 w-2/3 bg-[#F0F0F0] animate-pulse rounded mb-1" />
         <div className="h-3 w-4/5 bg-[#F0F0F0] animate-pulse rounded mb-1" />
         <div className="flex gap-1 mt-1.5">
-          <div className="h-4 w-16 bg-[#F0F0F0] animate-pulse rounded-full" />
-          <div className="h-4 w-14 bg-[#F0F0F0] animate-pulse rounded-full" />
+          <div className="h-4 w-20 bg-[#F0F0F0] animate-pulse rounded-full" />
         </div>
       </div>
     </div>

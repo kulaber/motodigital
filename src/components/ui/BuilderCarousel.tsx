@@ -118,7 +118,7 @@ export default function BuilderCarousel({ builders }: Props) {
               {/* Card body */}
               <div className="p-3 sm:p-4">
                 <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{b.name}</h3>
-                <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.city}</p>
+                <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.city}{b.country ? `, ${b.country}` : ''}</p>
               </div>
             </Link>
           )

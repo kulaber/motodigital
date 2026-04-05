@@ -246,8 +246,6 @@ function BuilderList({
 
   return (
     <div className="p-4">
-      <p className="text-xs text-[#717171] mb-4 px-0.5">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'}</p>
-
       <div className={`grid gap-4 ${isMobile ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
         {visible.map(b => (
           <Link
@@ -264,23 +262,19 @@ function BuilderList({
                 saved={b.id ? savedIds.has(b.id) : false}
                 onToggle={onToggleSave}
               />
+              {b.builds > 0 && (
+                <span className="absolute bottom-2 left-2 text-[10px] font-semibold text-white bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full">{b.builds} Custom {b.builds === 1 ? 'Bike' : 'Bikes'}</span>
+              )}
             </div>
             <div className="pt-2.5 pb-1">
               <div className="flex items-start justify-between gap-1 mb-0.5">
                 <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1 flex-1">{b.name}</p>
                 {b.verified && <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />}
               </div>
-              <p className="text-xs text-[#717171] flex items-center gap-1 mb-1">
+              <p className="text-xs text-[#717171] flex items-center gap-1">
                 <MapPin size={9} className="flex-shrink-0" />
-                <span className="truncate">{b.city}{b.specialty ? ` · ${b.specialty}` : ''}</span>
+                <span className="truncate">{b.city}{b.country ? `, ${b.country}` : ''}</span>
               </p>
-              {b.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                  {b.tags.slice(0, 2).map(tag => (
-                    <span key={tag} className="text-[9px] font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-1.5 py-0.5 rounded-full">{tag}</span>
-                  ))}
-                </div>
-              )}
             </div>
           </Link>
         ))}
@@ -307,7 +301,6 @@ function BuilderList({
         </Link>
       )}
 
-      <p className="text-[10px] text-[#B0B0B0] text-center py-4">{visible.length} {visible.length === 1 ? 'Custom Werkstatt' : 'Custom Werkstätten'} · MotoDigital</p>
     </div>
   )
 }
@@ -452,6 +445,8 @@ export default function BuilderPageClient({ builders }: Props) {
     })
     return [...results.filter(b => b.featured), ...results.filter(b => !b.featured)]
   }, [searchFiltered, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
+
+  const filterKey = `${searchQuery}|${effectiveSpecialty}|${effectiveLeistung}|${onlyVerified}|${onlyOpen}`
 
   const visible = useMemo(() => {
     // Show all filtered builders immediately; only apply map-bounds filter once map is ready
@@ -674,10 +669,11 @@ export default function BuilderPageClient({ builders }: Props) {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── scroll list to top on filter change ── */
+  /* ── scroll list to top when visible results change ── */
+  const visibleKey = useMemo(() => visible.map(b => b.slug).join(','), [visible])
   useEffect(() => {
     listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [searchQuery, activeSpecialty, activeLeistung, onlyVerified, onlyOpen])
+  }, [visibleKey])
 
   /* ── redraw markers on filter/hover/zoom change ── */
   useEffect(() => {
@@ -685,17 +681,16 @@ export default function BuilderPageClient({ builders }: Props) {
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
 
-  /* ── fit map bounds when filtered builders change ── */
-  const prevFilteredRef = useRef(filtered)
+  /* ── fit map bounds when filter criteria change ── */
+  const prevFilterKeyRef = useRef(filterKey)
+  const initialFitDone = useRef(false)
   useEffect(() => {
     const map = mapRef.current
-    if (!map?.loaded()) return
-    // Skip if only hover/selection changed (same filtered list)
-    if (prevFilteredRef.current === filtered && mapReady) {
-      prevFilteredRef.current = filtered
-      return
-    }
-    prevFilteredRef.current = filtered
+    if (!map?.loaded() || !mapReady) return
+    // Skip if filter criteria haven't actually changed (ignores `now` timer ticks)
+    if (initialFitDone.current && prevFilterKeyRef.current === filterKey) return
+    prevFilterKeyRef.current = filterKey
+    initialFitDone.current = true
     const withCoords = filtered.filter(b => b.lat && b.lng)
     if (withCoords.length > 1) {
       const bounds = new mapboxgl.LngLatBounds()
@@ -704,7 +699,7 @@ export default function BuilderPageClient({ builders }: Props) {
     } else if (withCoords.length === 1) {
       map.flyTo({ center: [withCoords[0].lng!, withCoords[0].lat!], zoom: 12, duration: 400 })
     }
-  }, [filtered, mapReady])
+  }, [filterKey, filtered, mapReady])
 
   /* ── Resize map + adjust inset when mobile view changes ── */
   useEffect(() => {

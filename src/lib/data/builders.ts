@@ -24,6 +24,7 @@ export type Builder = {
   initials: string
   name: string
   city: string
+  country: string
   address?: string
   lat?: number
   lng?: number

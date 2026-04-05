@@ -152,6 +152,12 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       const parts = addr.split(',').map((p: string) => p.trim())
       return parts.length >= 2 ? parts[parts.length - 2] : parts[0]
     })(),
+    country:     (() => {
+      const addr = (row.address as string | null) ?? ''
+      if (!addr) return ''
+      const parts = addr.split(',').map((p: string) => p.trim()).filter(Boolean)
+      return parts.length >= 2 ? parts[parts.length - 1] : ''
+    })(),
     address:     (row.address as string | null) ?? undefined,
     lat,
     lng,

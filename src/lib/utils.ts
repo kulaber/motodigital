@@ -37,6 +37,12 @@ export function formatRelativeTime(date: string): string {
   return date
 }
 
+/** Extract country from a Mapbox address string, e.g. "Frankfurter Straße 20, 03185 Peitz, Deutschland" → "Deutschland" */
+export function countryFromAddress(address: string): string {
+  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
+  return parts.length >= 2 ? parts[parts.length - 1] : ''
+}
+
 /** Extract city from a Mapbox address string, e.g. "Frankfurter Straße 20, 03185 Peitz, Deutschland" → "Peitz" */
 export function cityFromAddress(address: string): string {
   const parts = address.split(',').map(p => p.trim()).filter(Boolean)

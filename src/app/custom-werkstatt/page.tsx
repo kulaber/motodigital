@@ -4,7 +4,7 @@ import Header from '@/components/layout/Header'
 import type { Builder } from '@/lib/data/builders'
 import BuilderPageClientLoader from './BuilderPageClientLoader'
 import { createClient } from '@/lib/supabase/server'
-import { cityFromAddress } from '@/lib/utils'
+import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 
 export const revalidate = 3600 // ISR: revalidate every hour
 
@@ -36,12 +36,14 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
   const rawCity = (row.city as string | null)
   // If address is set, extract city from it (always up-to-date); fall back to DB city field
   const city    = address ? cityFromAddress(address) : (rawCity ?? '')
+  const country = address ? countryFromAddress(address) : ''
   return {
     id:          row.id as string,
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
     city,
+    country,
     address,
     lat:         (row.lat as number | null) ?? undefined,
     lng:         (row.lng as number | null) ?? undefined,
@@ -90,6 +92,24 @@ async function BuilderContent() {
     .not('slug', 'is', null)
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
+
+  // Count custom bikes per workshop (seller_id = profile id)
+  const builderIds = dbBuilders.map(b => b.id).filter(Boolean) as string[]
+  if (builderIds.length > 0) {
+    const { data: bikeCounts } = await (supabase.from('bikes') as any)
+      .select('seller_id')
+      .in('seller_id', builderIds)
+      .in('status', ['active', 'draft'])
+    if (bikeCounts) {
+      const countMap = new Map<string, number>()
+      for (const row of bikeCounts) {
+        countMap.set(row.seller_id, (countMap.get(row.seller_id) ?? 0) + 1)
+      }
+      for (const b of dbBuilders) {
+        if (b.id) b.builds = countMap.get(b.id) ?? 0
+      }
+    }
+  }
 
   // Geocode builders that have a city/address but no coordinates
   // Results are persisted to DB so each builder is only geocoded once
@@ -165,7 +185,6 @@ export default function BuilderPage() {
           {/* Desktop split */}
           <div className="hidden lg:flex" style={{ height: 'calc(100dvh - 128px)' }}>
             <div className="w-1/2 overflow-hidden border-r border-[#EBEBEB] p-4">
-              <div className="h-3 w-28 bg-[#F0F0F0] animate-pulse rounded mb-4" />
               <div className="grid grid-cols-2 gap-4">
                 {[...Array(4)].map((_, i) => (
                   <div key={i}>
@@ -174,8 +193,7 @@ export default function BuilderPage() {
                       <div className="h-4 w-2/3 bg-[#F0F0F0] animate-pulse rounded mb-1" />
                       <div className="h-3 w-4/5 bg-[#F0F0F0] animate-pulse rounded mb-1" />
                       <div className="flex gap-1 mt-1.5">
-                        <div className="h-4 w-16 bg-[#F0F0F0] animate-pulse rounded-full" />
-                        <div className="h-4 w-14 bg-[#F0F0F0] animate-pulse rounded-full" />
+                        <div className="h-4 w-20 bg-[#F0F0F0] animate-pulse rounded-full" />
                       </div>
                     </div>
                   </div>
@@ -188,7 +206,6 @@ export default function BuilderPage() {
           </div>
           {/* Mobile list */}
           <div className="lg:hidden p-4">
-            <div className="h-3 w-28 bg-[#F0F0F0] animate-pulse rounded mb-4" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[...Array(4)].map((_, i) => (
                 <div key={i}>
@@ -197,8 +214,7 @@ export default function BuilderPage() {
                     <div className="h-4 w-2/3 bg-[#F0F0F0] animate-pulse rounded mb-1" />
                     <div className="h-3 w-4/5 bg-[#F0F0F0] animate-pulse rounded mb-1" />
                     <div className="flex gap-1 mt-1.5">
-                      <div className="h-4 w-16 bg-[#F0F0F0] animate-pulse rounded-full" />
-                      <div className="h-4 w-14 bg-[#F0F0F0] animate-pulse rounded-full" />
+                      <div className="h-4 w-20 bg-[#F0F0F0] animate-pulse rounded-full" />
                     </div>
                   </div>
                 </div>

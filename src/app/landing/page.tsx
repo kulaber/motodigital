@@ -8,7 +8,7 @@ import StickySearch from './StickySearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
-import { cityFromAddress } from '@/lib/utils'
+import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
@@ -39,12 +39,14 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
   const address = (row.address   as string | null) ?? undefined
   const rawCity = (row.city as string | null)
   const city    = address ? cityFromAddress(address) : (rawCity ?? '')
+  const country = address ? countryFromAddress(address) : ''
   return {
     id:          row.id as string,
     slug:        row.slug as string,
     initials:    name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
     name,
     city,
+    country,
     address,
     lat:         (row.lat as number | null) ?? undefined,
     lng:         (row.lng as number | null) ?? undefined,
