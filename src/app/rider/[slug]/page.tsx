@@ -355,7 +355,7 @@ export default async function RiderProfilePage({ params }: Props) {
                     <h2 className="text-xl font-bold text-white tracking-tight">{isOwnProfile ? 'Meine Garage' : `Garage von ${rider.name.split(' ')[0]}`}</h2>
                     <span className="text-xs text-white/30 ml-auto">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {rider.bikes.map(bike => (
                       <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
                         <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a1a] mb-2.5 relative">

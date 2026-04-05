@@ -17,7 +17,7 @@ import ScrollToTop from '@/components/ui/ScrollToTop'
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
   scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
-  street: 'Street', enduro: 'Enduro', other: 'Sonstiges',
+  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
 }
 
 interface Props {

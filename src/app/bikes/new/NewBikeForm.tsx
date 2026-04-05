@@ -24,7 +24,7 @@ const STYLES = [
   { value: 'street',     label: 'Street'     },
   { value: 'enduro',     label: 'Enduro'     },
   { value: 'naked',      label: 'Naked'      },
-  { value: 'other',      label: 'Sonstiges'  },
+  { value: 'other',      label: 'Basis-Bike'  },
 ]
 
 type Step = 1 | 2 | 3

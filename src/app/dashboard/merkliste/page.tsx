@@ -1,45 +1,11 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Star, Bike, Wrench, ChevronRight, ArrowLeft } from 'lucide-react'
-import { formatPrice } from '@/lib/utils'
-import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { Bike, Wrench, ArrowLeft } from 'lucide-react'
+import MerklisteClient, { type SavedBikeItem, type SavedBuilderItem } from './MerklisteClient'
 
 export const metadata: Metadata = { title: 'Merkliste — MotoDigital' }
-
-type SavedBike = {
-  bike_id: string
-  created_at: string
-  bikes: {
-    id: string
-    slug: string | null
-    title: string
-    price: number | null
-    make: string
-    model: string
-    year: number
-    status: string
-    bike_images: { url: string; is_cover: boolean }[]
-    profiles: { full_name: string | null; username: string } | null
-  } | null
-}
-
-type SavedBuilder = {
-  builder_id: string
-  created_at: string
-  builders: {
-    id: string
-    full_name: string | null
-    slug: string | null
-    username: string
-    city: string | null
-    specialty: string | null
-    is_verified: boolean
-    avatar_url: string | null
-  } | null
-}
 
 export default async function MerklistePage({
   searchParams,
@@ -53,21 +19,59 @@ export default async function MerklistePage({
   const params = await searchParams
   const activeTab = params.tab === 'bikes' ? 'bikes' : 'werkstatt'
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [savedBikesResult, savedBuildersResult] = await Promise.all([
-    (supabase
-      .from('saved_bikes')
-      .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles:seller_id(full_name, username))')
+    (supabase.from('saved_bikes') as any)
+      .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(id, url, is_cover, position), profiles:seller_id(full_name))')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBike[] | null }>),
-    (supabase
-      .from('saved_builders')
-      .select('builder_id, created_at, builders:builder_id(id, full_name, slug, username, city, specialty, is_verified, avatar_url)')
+      .order('created_at', { ascending: false }),
+    (supabase.from('saved_builders') as any)
+      .select('builder_id, created_at, builders:builder_id(id, full_name, slug, username, city, specialty, is_verified, avatar_url, builder_media(url, type, title, position))')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false }) as unknown as Promise<{ data: SavedBuilder[] | null }>),
+      .order('created_at', { ascending: false }),
   ])
 
-  const savedBikes = (savedBikesResult.data ?? []).filter(e => e.bikes != null)
-  const savedBuilders = (savedBuildersResult.data ?? []).filter(e => e.builders != null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const savedBikes: SavedBikeItem[] = ((savedBikesResult.data ?? []) as any[])
+    .filter((e: any) => e.bikes != null)
+    .map((e: any) => {
+      const bike = e.bikes
+      const images = (bike.bike_images ?? []) as { url: string; is_cover: boolean; position: number }[]
+      const cover = images.find(i => i.is_cover)?.url ?? images.sort((a, b) => a.position - b.position)[0]?.url ?? null
+      return {
+        bike_id: e.bike_id,
+        title: bike.title,
+        slug: bike.slug,
+        make: bike.make,
+        model: bike.model,
+        year: bike.year,
+        price: bike.price,
+        status: bike.status,
+        coverImg: cover,
+        sellerName: bike.profiles?.full_name ?? null,
+      }
+    })
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const savedBuilders: SavedBuilderItem[] = ((savedBuildersResult.data ?? []) as any[])
+    .filter((e: any) => e.builders != null)
+    .map((e: any) => {
+      const b = e.builders
+      const media = (b.builder_media ?? []) as { url: string; type: string; title?: string; position?: number }[]
+      // Cover: builder_media with title='cover', or first image by position, or avatar_url
+      const coverMedia = media.find(m => m.title === 'cover')
+        ?? media.filter(m => m.type === 'image').sort((a, z) => (a.position ?? 0) - (z.position ?? 0))[0]
+      const coverImg = coverMedia?.url ?? b.avatar_url ?? null
+      return {
+        builder_id: e.builder_id,
+        name: b.full_name ?? b.username,
+        slug: b.slug,
+        city: b.city,
+        specialty: b.specialty,
+        is_verified: b.is_verified,
+        coverImg,
+      }
+    })
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -79,7 +83,7 @@ export default async function MerklistePage({
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-[#222222]">Merkliste</h1>
-              <p className="text-sm text-[#222222]/40 mt-1">Gespeicherte Custom Bikes und Werkstätten</p>
+              <p className="text-sm text-[#222222]/40 mt-1">Gespeicherte Custom Bikes und Werkstatten</p>
             </div>
           </div>
         </div>
@@ -120,141 +124,7 @@ export default async function MerklistePage({
           </Link>
         </div>
 
-        {/* ── Custom Bikes Tab ── */}
-        {activeTab === 'bikes' && (
-          <>
-            {savedBikes.length === 0 ? (
-              <div className="bg-white border border-[#222222]/6 rounded-2xl p-12 text-center">
-                <Star size={28} className="mx-auto text-[#222222]/15 mb-3" />
-                <p className="text-sm font-semibold text-[#222222]/40 mb-1">Noch keine Bikes gespeichert</p>
-                <p className="text-xs text-[#222222]/25 mb-5">Entdecke Custom Bikes und speichere sie für später.</p>
-                <Link
-                  href="/bikes"
-                  className="inline-flex items-center gap-2 text-sm font-semibold bg-[#06a5a5] text-white px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
-                >
-                  Custom Bikes entdecken
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {savedBikes.map(entry => {
-                  const bike = entry.bikes!
-                  const coverImg = bike.bike_images?.find(i => i.is_cover)?.url ?? bike.bike_images?.[0]?.url
-                  return (
-                    <Link
-                      key={entry.bike_id}
-                      href={`/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`}
-                      className="group block bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/6"
-                    >
-                      <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                        {coverImg ? (
-                          <Image
-                            src={coverImg}
-                            alt={bike.title}
-                            fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center opacity-10">
-                            <Bike size={36} />
-                          </div>
-                        )}
-                        {bike.status === 'sold' && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <span className="text-xs font-bold text-white uppercase tracking-widest">Verkauft</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <p className="text-sm font-semibold text-[#222222] leading-snug mb-1 line-clamp-1 group-hover:text-[#06a5a5] transition-colors">
-                          {bike.title}
-                        </p>
-                        <p className="text-xs text-[#222222]/40 mb-2">{bike.make} {bike.model} · {bike.year}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-[#222222]">
-                            {bike.price ? formatPrice(bike.price) : '—'}
-                          </span>
-                          <ChevronRight size={13} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors" />
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ── Custom-Werkstatt Tab ── */}
-        {activeTab === 'werkstatt' && (
-          <>
-            {savedBuilders.length === 0 ? (
-              <div className="bg-white border border-[#222222]/6 rounded-2xl p-12 text-center">
-                <Star size={28} className="mx-auto text-[#222222]/15 mb-3" />
-                <p className="text-sm font-semibold text-[#222222]/40 mb-1">Noch keine Werkstätten gespeichert</p>
-                <p className="text-xs text-[#222222]/25 mb-5">Entdecke Custom-Werkstätten und speichere sie für später.</p>
-                <Link
-                  href="/custom-werkstatt"
-                  className="inline-flex items-center gap-2 text-sm font-semibold bg-[#06a5a5] text-white px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
-                >
-                  Werkstätten entdecken
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {savedBuilders.map(entry => {
-                  const builder = entry.builders!
-                  const initials = (builder.full_name ?? builder.username).charAt(0).toUpperCase()
-                  return (
-                    <Link
-                      key={entry.builder_id}
-                      href={builder.slug ? `/custom-werkstatt/${builder.slug}` : '/custom-werkstatt'}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex flex-col sm:flex-row sm:items-stretch"
-                    >
-                      {/* Avatar / cover */}
-                      <div className="relative aspect-[16/9] sm:aspect-auto sm:w-40 md:w-48 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
-                        {builder.avatar_url ? (
-                          <Image src={builder.avatar_url} alt={builder.full_name ?? ''} fill sizes="192px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-[#222222]/15">
-                            {initials}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-5 min-w-0">
-                        <div className="flex items-start gap-2 mb-auto">
-                          <div className="min-w-0">
-                            <p className="font-bold text-[#222222] leading-snug line-clamp-1 text-base group-hover:text-[#06a5a5] transition-colors">
-                              {builder.full_name ?? builder.username}
-                            </p>
-                            {(builder.city || builder.specialty) && (
-                              <p className="text-xs text-[#222222]/40 mt-1 font-medium">
-                                {[builder.city, builder.specialty].filter(Boolean).join(' · ')}
-                              </p>
-                            )}
-                          </div>
-                          {builder.is_verified && (
-                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20 flex-shrink-0 mt-0.5">
-                              Verifiziert
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-4">
-                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full group-hover:border-[#06a5a5]/30 group-hover:text-[#06a5a5] transition-all">
-                            Profil ansehen <ChevronRight size={11} />
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
-          </>
-        )}
+        <MerklisteClient savedBikes={savedBikes} savedBuilders={savedBuilders} activeTab={activeTab} />
     </div>
   )
 }

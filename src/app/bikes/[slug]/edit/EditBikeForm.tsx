@@ -27,7 +27,7 @@ const STYLES = [
   { value: 'street',     label: 'Street'     },
   { value: 'enduro',     label: 'Enduro'     },
   { value: 'naked',      label: 'Naked'      },
-  { value: 'other',      label: 'Sonstiges'  },
+  { value: 'other',      label: 'Basis-Bike'  },
 ]
 
 const labelClass = 'block text-xs font-semibold text-[#222222]/40 uppercase tracking-widest mb-2'
@@ -230,7 +230,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         await (supabase.from('bike_images') as any).update({ position: i, is_cover: i === 0 }).eq('id', item.img.id)
       } else {
         const ext = item.file.name.split('.').pop()
-        const path = `${user.id}/${bike.id}/${Date.now()}-${i}.${ext}`
+        const path = `${bike.seller_id}/${bike.id}/${Date.now()}-${i}.${ext}`
         const { data: upload } = await supabase.storage.from('bike-images').upload(path, item.file, { upsert: true })
         if (upload) {
           const { data: { publicUrl } } = supabase.storage.from('bike-images').getPublicUrl(path)
@@ -238,7 +238,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
           // Upload thumbnail for videos
           let thumbnailUrl: string | null = null
           if (item.isVideo && item.thumbFile) {
-            const thumbPath = `${user.id}/${bike.id}/${Date.now()}-${i}_thumb.jpg`
+            const thumbPath = `${bike.seller_id}/${bike.id}/${Date.now()}-${i}_thumb.jpg`
             const { data: thumbUpload } = await supabase.storage
               .from('bike-images')
               .upload(thumbPath, item.thumbFile, { upsert: true })

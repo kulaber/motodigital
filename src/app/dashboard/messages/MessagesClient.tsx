@@ -37,8 +37,35 @@ function Avatar({ name, avatarUrl, sm }: { name: string; avatarUrl?: string | nu
   )
 }
 
+/* ─── Bike reference card (inline in message) ─── */
+function BikeRefCard({ title, img }: { title: string; img?: string }) {
+  return (
+    <div className="flex items-center gap-2.5 bg-[#F7F7F7] rounded-lg px-2.5 py-2 mb-1.5">
+      {img && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={img} alt={title} className="w-10 h-7 rounded object-cover flex-shrink-0" />
+      )}
+      <div className="min-w-0">
+        <p className="text-[9px] text-[#222222]/30 uppercase tracking-widest font-semibold leading-none mb-0.5">Custom Bike</p>
+        <p className="text-[11px] font-semibold text-[#222222] truncate">{title}</p>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Message body renderer (text, image, or combined) ─── */
 function MessageBody({ body, isOwn: _isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
+  // Bike reference: "[bike:Title|imgUrl]\ntext"
+  const bikeMatch = body.match(/^\[bike:([^|]*)\|([^\]]*)\]\n?([\s\S]*)$/)
+  if (bikeMatch) {
+    const [, bikeTitle, bikeImg, text] = bikeMatch
+    return (
+      <div className="flex flex-col">
+        <BikeRefCard title={bikeTitle} img={bikeImg || undefined} />
+        {text.trim() && <span className="text-sm leading-relaxed text-[#222222]">{text.trim()}</span>}
+      </div>
+    )
+  }
   // Pure image
   if (body.startsWith('[img:') && body.endsWith(']')) {
     const url = body.slice(5, -1)

@@ -22,7 +22,7 @@ const STYLES = [
   { value: 'street',     label: 'Street'     },
   { value: 'enduro',     label: 'Enduro'     },
   { value: 'naked',      label: 'Naked'      },
-  { value: 'other',      label: 'Sonstiges'  },
+  { value: 'other',      label: 'Basis-Bike'  },
 ]
 
 export type WorkshopOption = {

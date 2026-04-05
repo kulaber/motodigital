@@ -25,6 +25,7 @@ function Modal({
   sellerName,
   sellerAvatarUrl,
   bikeId,
+  bikeTitle,
   userId,
   coverImage,
   onClose,
@@ -33,6 +34,7 @@ function Modal({
   sellerName: string
   sellerAvatarUrl?: string
   bikeId: string
+  bikeTitle: string
   userId: string
   coverImage: string | null
   onClose: () => void
@@ -65,10 +67,15 @@ function Modal({
     }
 
     if (conv?.id) {
-      const body = coverImage ? `${trimmed}\n[img:${coverImage}]` : trimmed
+      const body = `[bike:${bikeTitle}|${coverImage ?? ''}]\n${trimmed}`
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('messages') as any)
         .insert({ conversation_id: conv.id, sender_id: userId, body })
+      // Update last_message_at so conversation sorts to top
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('conversations') as any)
+        .update({ last_message_at: new Date().toISOString() })
+        .eq('id', conv.id)
     }
 
     setSending(false)
@@ -115,6 +122,16 @@ function Modal({
             </div>
           ) : (
             <>
+              {/* Bike reference */}
+              <div className="flex items-center gap-3 bg-[#F7F7F7] rounded-xl px-3 py-2.5 mb-3">
+                {coverImage && (
+                  <img src={coverImage} alt={bikeTitle} className="w-12 h-9 rounded-lg object-cover flex-shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest font-semibold">Anfrage zu</p>
+                  <p className="text-xs font-semibold text-[#222222] truncate">{bikeTitle}</p>
+                </div>
+              </div>
               <textarea
                 value={text}
                 onChange={e => setText(e.target.value)}
@@ -138,7 +155,7 @@ function Modal({
   )
 }
 
-export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, coverImage, fullWidth, renderTrigger }: Props) {
+export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, bikeTitle, coverImage, fullWidth, renderTrigger }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -175,6 +192,7 @@ export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, se
           sellerName={sellerName}
           sellerAvatarUrl={sellerAvatarUrl}
           bikeId={bikeId}
+          bikeTitle={bikeTitle}
           userId={user.id}
           coverImage={coverImage}
           onClose={() => setOpen(false)}

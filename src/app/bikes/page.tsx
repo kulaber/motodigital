@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
   scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
-  street: 'Street', enduro: 'Enduro', other: 'Sonstiges',
+  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
 }
 
 export default async function BikesPage() {
@@ -25,7 +25,7 @@ export default async function BikesPage() {
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(100)
@@ -35,6 +35,21 @@ export default async function BikesPage() {
     const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
     const profile = r.profiles
+    // Extract city + country from address like "Street, 20459 Hamburg, Deutschland" or "Berlin, Deutschland" or "Bielefeld, NRW, Deutschland"
+    const addressParts = (profile?.address as string | null)?.split(',').map((s: string) => s.trim()) ?? []
+    const sellerCountry = addressParts.length >= 2 ? addressParts[addressParts.length - 1] : ''
+    let sellerCity = ''
+    if (addressParts.length >= 3) {
+      // "Street, PLZ Stadt, Land" → take second-to-last, strip PLZ
+      // "Stadt, Bundesland, Land" → take first part
+      const secondToLast = addressParts[addressParts.length - 2]
+      const stripped = secondToLast.replace(/^\d{4,5}\s+/, '')
+      // If second-to-last had a PLZ, it's "PLZ Stadt" → use stripped as city
+      // Otherwise it's likely a state/region → use first part as city
+      sellerCity = secondToLast !== stripped ? stripped : addressParts[0].replace(/^\d{4,5}\s+/, '')
+    } else if (addressParts.length === 2) {
+      sellerCity = addressParts[0]
+    }
     return {
       slug:          r.id,
       href:          `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
@@ -44,8 +59,8 @@ export default async function BikesPage() {
       base:          `${r.make} ${r.model}`,
       year:          r.year,
       price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',
-      city:          r.city ?? '',
-      country:       'Deutschland',
+      city:          sellerCity || r.city || '',
+      country:       sellerCountry || 'Deutschland',
       verified:      false,
       buildYear:     r.year,
       buildDuration: '',

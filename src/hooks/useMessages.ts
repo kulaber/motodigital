@@ -61,6 +61,11 @@ export function useMessages(conversationId: string) {
     // Optimistisch sofort anzeigen — Realtime dedupliziert via ID-Check
     if (!error && data) {
       setMessages(prev => [...prev, data as Message])
+      // Update last_message_at so conversation sorts to top
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('conversations') as any)
+        .update({ last_message_at: (data as Message).created_at })
+        .eq('id', conversationId)
     }
 
     return { error }

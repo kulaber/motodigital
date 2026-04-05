@@ -494,8 +494,13 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                         <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
                       )}
                     </div>
-                    <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
-                    <p className="text-[10px] text-[#222222]/25 mt-0.5 truncate">{build.builder.name}</p>
+                    <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year}</p>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className="text-[10px] text-[#222222]/25 truncate">{build.builder.name}</p>
+                      {(build.city || build.country) && (
+                        <p className="text-[10px] text-[#222222]/25 flex-shrink-0">{[build.city, build.country].filter(Boolean).join(', ')}</p>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}
