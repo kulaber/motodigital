@@ -42,16 +42,6 @@ const STYLE_LABELS: Record<string, string> = {
   custom: 'Custom',
 }
 
-export async function generateStaticParams() {
-  const supabase = await createClient()
-  const { data: bikes } = await (supabase.from('base_bikes') as any)
-    .select('slug, brand_id, base_bike_brands!inner(slug)')
-  return (bikes ?? []).map((b: any) => ({
-    slug: b.base_bike_brands?.slug ?? '',
-    'model-slug': b.slug ?? '',
-  })).filter((p: any) => p.slug && p['model-slug'])
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, 'model-slug': modelSlug } = await params
   const supabase = await createClient()
@@ -144,22 +134,9 @@ export default async function ModelDetailPage({ params }: Props) {
 
         {/* Hero */}
         <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center flex-shrink-0 p-1.5">
-              <Image
-                src={`/brands/${brand.slug}.svg`}
-                alt={brand.name}
-                width={40}
-                height={40}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#222222] tracking-tight">
-                {brand.name} {baseBike.model}
-              </h1>
-            </div>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#222222] tracking-tight mb-2">
+            {brand.name} {baseBike.model}
+          </h1>
           <p className="text-sm text-[#717171]">
             {baseBike.year_from}–{baseBike.year_to ?? 'heute'} · {brand.country}
           </p>

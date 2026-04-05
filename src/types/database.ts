@@ -46,7 +46,6 @@ export type Database = {
           description: string | null
           founded: number | null
           id: string
-          logo_url: string | null
           name: string
           slug: string
         }
@@ -56,7 +55,6 @@ export type Database = {
           description?: string | null
           founded?: number | null
           id?: string
-          logo_url?: string | null
           name: string
           slug: string
         }
@@ -66,7 +64,6 @@ export type Database = {
           description?: string | null
           founded?: number | null
           id?: string
-          logo_url?: string | null
           name?: string
           slug?: string
         }

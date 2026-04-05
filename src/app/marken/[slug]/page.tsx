@@ -44,12 +44,6 @@ const STYLE_LABELS: Record<string, string> = {
   custom: 'Custom',
 }
 
-export async function generateStaticParams() {
-  const supabase = await createClient()
-  const { data: brands } = await (supabase.from('base_bike_brands') as any).select('slug')
-  return (brands ?? []).map((b: any) => ({ slug: b.slug }))
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
@@ -119,28 +113,17 @@ export default async function MarkeDetailPage({ params }: Props) {
         </Link>
 
         {/* Hero */}
-        <div className="flex items-start gap-5 mb-10">
-          <div className="w-20 h-20 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center flex-shrink-0 p-2.5">
-            <Image
-              src={`/brands/${brand.slug}.svg`}
-              alt={brand.name}
-              width={160}
-              height={80}
-              className="w-full h-full object-contain"
-            />
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight">{brand.name}</h1>
+            <span className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">{brand.country}</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight">{brand.name}</h1>
-              <span className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-2.5 py-1 rounded-full">{brand.country}</span>
-            </div>
-            {brand.founded && (
-              <p className="text-xs text-[#AAAAAA] mb-1">Gegr. {brand.founded}</p>
-            )}
-            {brand.description && (
-              <p className="text-sm text-[#717171] max-w-xl">{brand.description}</p>
-            )}
-          </div>
+          {brand.founded && (
+            <p className="text-xs text-[#AAAAAA] mb-1">Gegr. {brand.founded}</p>
+          )}
+          {brand.description && (
+            <p className="text-sm text-[#717171] max-w-xl">{brand.description}</p>
+          )}
         </div>
 
         {/* Models */}
