@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BadgeCheck, MapPin, ArrowLeft, Tag } from 'lucide-react'
+import { MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BikeGallerySection from './BikeGallerySection'
@@ -11,7 +11,6 @@ import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 import ContactModal from './ContactModal'
-import MobileCTAWrapper from './MobileCTAWrapper'
 import PriceLoginButton from './PriceLoginButton'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
@@ -318,9 +317,10 @@ export default async function CustomBikePage({ params }: Props) {
 async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: string; isLoggedIn?: boolean }) {
   const supabase = await createClient()
 
+  const now = Date.now()
   function isNew(publishedAt?: string): boolean {
     if (!publishedAt) return false
-    const diff = Date.now() - new Date(publishedAt).getTime()
+    const diff = now - new Date(publishedAt).getTime()
     return diff < 3 * 24 * 60 * 60 * 1000
   }
 
