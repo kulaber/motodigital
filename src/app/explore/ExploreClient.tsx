@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -557,6 +557,19 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
   const [mentionIndex, setMentionIndex] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [allEvents, setAllEvents] = useState<Event[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // Load unread notification count
+  useEffect(() => {
+    if (!userId) return
+    ;(supabase.from('notifications') as any)
+      .select('*', { count: 'exact', head: true })
+      .eq('recipient_id', userId)
+      .is('read_at', null)
+      .then(({ count }: { count: number | null }) => {
+        if (count != null) setUnreadCount(count)
+      })
+  }, [userId])
 
   // Load events from Supabase
   useEffect(() => {
@@ -907,7 +920,22 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
         {/* Heading + filter pills (outside sticky parent so RiderList can sit full-width) */}
         <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Mobile heading */}
-          <h1 className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</h1>
+          <div className="lg:hidden relative flex items-center justify-center mb-4">
+            <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
+            {userId && (
+              <Link
+                href="/dashboard/notifications"
+                className="absolute right-0 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black/8 hover:bg-gray-50 transition-colors"
+              >
+                <Bell className="w-4 h-4 text-[#111111]" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#2AABAB] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
+          </div>
 
           {/* Filter pills */}
           <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
