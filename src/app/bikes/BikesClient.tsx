@@ -473,7 +473,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                       {build.style}
                     </span>
                     {build.listingType === 'for_sale' ? (
-                      <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                         Zu verkaufen
                       </span>
                     ) : isNew(build.publishedAt) ? (

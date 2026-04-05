@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { BadgeCheck, Map as MapIcon, MessageCircle, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import GlobalSearch from '@/components/search/GlobalSearch'
+import StickySearch from './StickySearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
@@ -207,11 +207,8 @@ export default async function LandingPage() {
       {/* ── Sticky search wrapper — search unsticks before Dark CTA ── */}
       <div>
       {/* ── QUICK SEARCH ── */}
-      <section className="sticky top-16 z-40 py-3 sm:py-4 lg:py-5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <GlobalSearch dropUp />
-        </div>
-      </section>
+      <StickySearch />
+
 
       {/* ── FEATURED BUILDS ── */}
       <section className="py-20 lg:py-28 bg-white" id="builds">
@@ -244,7 +241,7 @@ export default async function LandingPage() {
                       {build.style}
                     </span>
                     {build.listingType === 'for_sale' && (
-                      <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                         Zu verkaufen
                       </span>
                     )}

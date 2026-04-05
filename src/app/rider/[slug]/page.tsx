@@ -372,7 +372,7 @@ export default async function RiderProfilePage({ params }: Props) {
                             </span>
                           )}
                           {bike.listingType === 'for_sale' && (
-                            <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-widest bg-white/90 text-[#06a5a5] px-2 py-0.5 rounded-full">
+                            <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                               Zu verkaufen
                             </span>
                           )}

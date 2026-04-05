@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -29,6 +29,7 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'alle', label: 'Explore' },
   { value: 'freunde', label: 'Freunde' },
   { value: 'in-der-naehe', label: 'In der Nähe' },
+  { value: 'events', label: 'Events' },
 ]
 
 // Composer tags: categories the user can post in
@@ -871,6 +872,13 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     await loadPosts()
   }
 
+  const upcomingEvents = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    return allEvents
+      .filter(e => (e.date_end ?? e.date_start ?? '') >= today)
+      .sort((a, b) => (a.date_start ?? '').localeCompare(b.date_start ?? ''))
+  }, [allEvents])
+
   const filteredPosts = useMemo(() => {
     const sorted = [...communityPosts].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -1168,6 +1176,52 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
               <button onClick={() => { setLoginContext('comment'); setShowLogin(true) }} className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
                 Anmelden
               </button>
+            </div>
+          )}
+
+          {/* Events carousel */}
+          {category === 'events' && upcomingEvents.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-[#222222]">Nächste Events</h2>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => { const el = document.getElementById('events-carousel'); if (el) el.scrollBy({ left: -280, behavior: 'smooth' }) }}
+                    className="w-7 h-7 rounded-full border border-[#222222]/10 hover:border-[#222222]/25 flex items-center justify-center text-[#222222]/40 hover:text-[#222222] transition-all"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <button
+                    onClick={() => { const el = document.getElementById('events-carousel'); if (el) el.scrollBy({ left: 280, behavior: 'smooth' }) }}
+                    className="w-7 h-7 rounded-full border border-[#222222]/10 hover:border-[#222222]/25 flex items-center justify-center text-[#222222]/40 hover:text-[#222222] transition-all"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+              <div id="events-carousel" className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 scroll-smooth">
+                {upcomingEvents.map(ev => (
+                  <Link
+                    key={ev.id}
+                    href={`/events/${ev.slug}`}
+                    className="flex-shrink-0 w-[260px] rounded-2xl border border-[#222222]/6 hover:border-[#06a5a5]/30 overflow-hidden bg-white transition-all group"
+                  >
+                    {ev.image ? (
+                      <div className="relative aspect-[16/9] overflow-hidden bg-[#F7F7F7]">
+                        <Image src={ev.image} alt={ev.name} fill sizes="260px" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                      </div>
+                    ) : (
+                      <div className="aspect-[16/9] bg-[#06a5a5] flex items-center justify-center">
+                        <Calendar size={28} className="text-white/30" />
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <p className="text-xs font-semibold text-[#222222] leading-snug line-clamp-1 group-hover:text-[#06a5a5] transition-colors">{ev.name}</p>
+                      <p className="text-[10px] text-[#222222]/35 mt-0.5 line-clamp-1">{formatEventDate(ev)} · {ev.location}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
 
