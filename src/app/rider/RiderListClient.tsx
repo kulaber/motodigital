@@ -6,8 +6,13 @@ import Link from 'next/link'
 import { MapPin, ChevronDown, X } from 'lucide-react'
 import type { RiderCard } from './page'
 
+const STYLE_LABELS: Record<string, string> = {
+  cafe_racer: 'Cafe Racer', bobber: 'Bobber', scrambler: 'Scrambler',
+  tracker: 'Tracker', chopper: 'Chopper', naked: 'Naked',
+  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
+}
 function formatStyle(s: string): string {
-  return s.replace(/_/g, '-').replace(/\b\w/g, c => c.toUpperCase())
+  return STYLE_LABELS[s] ?? s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
 interface Props {

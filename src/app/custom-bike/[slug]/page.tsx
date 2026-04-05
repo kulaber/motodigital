@@ -115,7 +115,7 @@ export default async function CustomBikePage({ params }: Props) {
         ? `/rider/${sellerProfile.slug}`
         : `/custom-werkstatt/${sellerProfile.slug}`
       : null
-    const styleLabel = bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
+    const styleLabel = STYLE_LABELS[bike.style] ?? bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
     return (
       <div className="min-h-screen bg-white text-[#222222]">
@@ -136,6 +136,7 @@ export default async function CustomBikePage({ params }: Props) {
               sellerAvatarUrl={sellerProfile?.avatar_url ?? undefined}
               sellerRole={sellerProfile?.role ?? null}
               coverImage={imageUrls[0] ?? null}
+              listingType={bike.listing_type}
             />
           ) : (
             <div className="rounded-2xl overflow-hidden h-[50vh] sm:h-[60vh] md:h-[70vh] md:min-h-[500px] md:max-h-[800px]">
@@ -146,29 +147,24 @@ export default async function CustomBikePage({ params }: Props) {
           <div className="mt-8 mb-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
+                <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight">
+                  {bike.title}
+                </h1>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full flex-shrink-0 self-center">
                   {styleLabel}
                 </span>
-                {bike.listing_type === 'for_sale' && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-[#06a5a5] border border-[#06a5a5]/30 bg-[#06a5a5]/8 px-2.5 py-1 rounded-full">
-                    <Tag size={10} /> Zu verkaufen
-                  </span>
-                )}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight mb-2">
-                {bike.title}
-              </h1>
               <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
             </div>
 
             {bike.listing_type === 'for_sale' && (
-              <div className="sm:text-right flex-shrink-0 sm:pt-6">
+              <div className="sm:text-right flex-shrink-0">
                 {isLoggedIn ? (
                   bike.price_on_request ? (
                     <p className="text-lg font-semibold text-[#222222]">Preis auf Anfrage</p>
                   ) : bike.price_amount ? (
                     <p className="text-2xl sm:text-3xl font-bold text-[#222222]">
-                      {Number(bike.price_amount).toLocaleString('de-DE')} <span className="text-base font-semibold text-[#222222]/50">EUR</span>
+                      {Number(bike.price_amount).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-semibold text-[#222222]/50">€</span>
                     </p>
                   ) : null
                 ) : (
@@ -323,10 +319,16 @@ export default async function CustomBikePage({ params }: Props) {
 async function RelatedBikes({ excludeId }: { excludeId?: string }) {
   const supabase = await createClient()
 
+  function isNew(publishedAt?: string): boolean {
+    if (!publishedAt) return false
+    const diff = Date.now() - new Date(publishedAt).getTime()
+    return diff < 3 * 24 * 60 * 60 * 1000
+  }
+
   // Single query with JOIN — fetch bikes + seller profiles together
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
+    .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(4)
@@ -340,6 +342,17 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
     const profile = r.profiles
+    // Extract city + country from seller address (same logic as /bikes page)
+    const addressParts = (profile?.address as string | null)?.split(',').map((s: string) => s.trim()) ?? []
+    const sellerCountry = addressParts.length >= 2 ? addressParts[addressParts.length - 1] : ''
+    let sellerCity = ''
+    if (addressParts.length >= 3) {
+      const secondToLast = addressParts[addressParts.length - 2]
+      const stripped = secondToLast.replace(/^\d{4,5}\s+/, '')
+      sellerCity = secondToLast !== stripped ? stripped : addressParts[0].replace(/^\d{4,5}\s+/, '')
+    } else if (addressParts.length === 2) {
+      sellerCity = addressParts[0]
+    }
     return {
       slug:  r.id as string,
       href:  `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
@@ -347,7 +360,8 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
       style: STYLE_LABELS[r.style] ?? (r.style as string),
       base:  `${r.make} ${r.model}`,
       year:  r.year as number | null,
-      city:  (r.city as string) ?? '',
+      city:  sellerCity || (r.city as string) || '',
+      country: sellerCountry || 'Deutschland',
       img:   cover,
       listingType: r.listing_type as string | null,
       priceAmount: r.price_amount as number | null,
@@ -369,27 +383,31 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
           Alle Custom Bikes ansehen →
         </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {cards.map((b: any) => (
           <Link
             key={b.slug}
             href={b.href}
-            className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200"
+            className="card-interactive cursor-pointer group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
               {b.img ? (
-                <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+                <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
               ) : (
                 <BikePlaceholder />
               )}
               <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                 {b.style}
               </span>
-              {b.listingType === 'for_sale' && (
+              {b.listingType === 'for_sale' ? (
                 <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                   Zu verkaufen
                 </span>
-              )}
+              ) : isNew(b.publishedAt) ? (
+                <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                  Neu
+                </span>
+              ) : null}
               {b.role && (
                 <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {b.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
@@ -411,8 +429,8 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
               <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.base} · {b.year}</p>
               <div className="flex items-center justify-between gap-2 mt-0.5">
                 <p className="text-[10px] text-[#222222]/25 truncate">{b.builder}</p>
-                {b.city && (
-                  <p className="text-[10px] text-[#222222]/25 flex-shrink-0">{b.city}</p>
+                {(b.city || b.country) && (
+                  <p className="text-[10px] text-[#222222]/25 flex-shrink-0">{[b.city, b.country].filter(Boolean).join(', ')}</p>
                 )}
               </div>
             </div>

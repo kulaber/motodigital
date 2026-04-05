@@ -11,9 +11,10 @@ interface Props {
   title: string
   bikeId?: string | null
   modalContactSlot?: ReactNode
+  listingType?: string | null
 }
 
-export default function BuildGallery({ images, title, bikeId, modalContactSlot }: Props) {
+export default function BuildGallery({ images, title, bikeId, modalContactSlot, listingType }: Props) {
   const router = useRouter()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
@@ -386,8 +387,15 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot }
 
       </div>
 
-        {/* Save + Share buttons — top right */}
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-2" ref={shareRefDesktop}>
+        {/* "Zu verkaufen" badge — top right */}
+        {listingType === 'for_sale' && (
+          <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-sm">
+            Zu verkaufen
+          </span>
+        )}
+
+        {/* Save + Share buttons — bottom left */}
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2" ref={shareRefDesktop}>
           <button
             onClick={handleSave}
             disabled={loadingSave}
@@ -407,7 +415,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot }
               Teilen
             </button>
             {shareOpen && (
-              <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-2xl shadow-black/20 border border-[#EBEBEB] overflow-hidden w-52 z-50">
+              <div className="absolute bottom-full mb-2 left-0 bg-white rounded-2xl shadow-2xl shadow-black/20 border border-[#EBEBEB] overflow-hidden w-52 z-50">
                 <div className="px-4 py-3 border-b border-[#F0F0F0]">
                   <p className="text-xs font-semibold text-[#222222]">Seite teilen</p>
                 </div>

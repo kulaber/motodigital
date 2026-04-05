@@ -16,6 +16,7 @@ const STYLE_MAP: Record<string, { slug: string; label: string }> = {
   enduro:         { slug: 'enduro',         label: 'Enduro' },
   old_school:     { slug: 'old-school',     label: 'Old School' },
   street:         { slug: 'street',         label: 'Street' },
+  other:          { slug: 'basis-bike',    label: 'Basis-Bike' },
 }
 
 export default function FooterBikeStyles() {

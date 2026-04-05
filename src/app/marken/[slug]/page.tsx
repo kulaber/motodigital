@@ -89,7 +89,7 @@ export default async function MarkeDetailPage({ params }: Props) {
       slug: bike.slug ?? bike.id,
       title: bike.title,
       base: `${bike.make} ${bike.model}`,
-      style: bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? '',
+      style: ({ cafe_racer: 'Cafe Racer', bobber: 'Bobber', scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper', naked: 'Naked', street: 'Street', enduro: 'Enduro', other: 'Basis-Bike' } as Record<string, string>)[bike.style] ?? bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? '',
       city: bike.city ?? '',
       coverImg: cover?.url ?? '',
     }

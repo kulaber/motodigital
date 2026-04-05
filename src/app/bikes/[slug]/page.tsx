@@ -45,12 +45,13 @@ const STYLES: Record<string, { name: string; description: string; keywords: stri
   'old-school':    { name: 'Old School',    description: 'Old School Custom Motorcycles',        keywords: 'Old school custom motorcycle' },
   'street':        { name: 'Street',        description: 'Custom Street Motorräder',             keywords: 'Street motorcycle custom' },
   'naked':         { name: 'Naked',         description: 'Custom Naked Bikes',                   keywords: 'Naked motorcycle custom' },
+  'basis-bike':    { name: 'Basis-Bike',   description: 'Basis-Bikes & Stock Motorcycles',       keywords: 'Basis bike motorcycle' },
 }
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
   scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
-  street: 'Street', enduro: 'Enduro', other: 'Other',
+  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

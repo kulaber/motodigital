@@ -13,17 +13,19 @@ interface Props {
   sellerAvatarUrl?: string
   sellerRole: string | null
   coverImage: string | null
+  listingType?: string | null
 }
 
 export default function BikeGallerySection({
   images, title, bikeId,
-  sellerId, sellerName, sellerAvatarUrl, sellerRole, coverImage,
+  sellerId, sellerName, sellerAvatarUrl, sellerRole, coverImage, listingType,
 }: Props) {
   return (
     <BuildGallery
       images={images}
       title={title}
       bikeId={bikeId}
+      listingType={listingType}
       modalContactSlot={
         <ContactModal
           sellerId={sellerId}

@@ -123,7 +123,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       title: b.title as string,
       slug:  (b.slug as string | null) ?? generateBikeSlug(b.title as string, b.id as string),
       base:  [b.make, b.model].filter(Boolean).join(' '),
-      style: (b.style as string) ?? '',
+      style: ({ cafe_racer: 'Cafe Racer', bobber: 'Bobber', scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper', naked: 'Naked', street: 'Street', enduro: 'Enduro', other: 'Basis-Bike' } as Record<string, string>)[b.style] ?? ((b.style as string) ?? '').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
       year:  (b.year as number) ?? new Date().getFullYear(),
       img:   coverImg ?? '',
       listingType: (b.listing_type as string | null) ?? null,

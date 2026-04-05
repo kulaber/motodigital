@@ -21,7 +21,7 @@ interface Props {
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
   scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
-  street: 'Street', enduro: 'Enduro', other: 'Other',
+  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
 }
 
 export default function BikeCard({ bike, highlighted = false }: Props) {
