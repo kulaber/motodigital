@@ -17,6 +17,7 @@ function LoginFormInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo')
+  const urlError = searchParams.get('error')
   const supabase = createClient()
 
   async function handlePassword(e: React.FormEvent) {
@@ -117,7 +118,7 @@ function LoginFormInner() {
         />
       </div>
 
-      {error && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{error}</p>}
+      {(error || urlError) && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{error || urlError}</p>}
 
       <button type="submit" disabled={loading}
         className="w-full bg-[#06a5a5] text-white font-semibold py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 transition-all cursor-pointer">

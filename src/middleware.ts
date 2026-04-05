@@ -39,6 +39,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/coming-soon', request.url))
   }
 
+  // Catch Supabase auth error redirects (expired/invalid magic links, OTPs)
+  if (path === '/' && request.nextUrl.searchParams.get('error_code')) {
+    const desc = request.nextUrl.searchParams.get('error_description') ?? 'Authentifizierungsfehler'
+    const loginUrl = new URL('/auth/login', request.url)
+    loginUrl.searchParams.set('error', desc)
+    return NextResponse.redirect(loginUrl)
+  }
+
   // Refresh session — IMPORTANT: do not add logic between createServerClient and getUser
   const { data: { user } } = await supabase.auth.getUser()
 
