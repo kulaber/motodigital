@@ -18,6 +18,7 @@ import { LoginModal } from '@/components/ui/LoginModal'
 import { getProfileUrl } from '@/lib/utils/profileLink'
 import dynamic from 'next/dynamic'
 import RiderList from '@/components/explore/RiderStories'
+import { useAuth } from '@/hooks/useAuth'
 
 const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
 
@@ -557,19 +558,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
   const [mentionIndex, setMentionIndex] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [allEvents, setAllEvents] = useState<Event[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-
-  // Load unread notification count
-  useEffect(() => {
-    if (!userId) return
-    ;(supabase.from('notifications') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('recipient_id', userId)
-      .is('read_at', null)
-      .then(({ count }: { count: number | null }) => {
-        if (count != null) setUnreadCount(count)
-      })
-  }, [userId])
+  const { unreadNotificationCount } = useAuth()
 
   // Load events from Supabase
   useEffect(() => {
@@ -928,9 +917,9 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
                 className="absolute right-0 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black/8 hover:bg-gray-50 transition-colors"
               >
                 <Bell className="w-4 h-4 text-[#111111]" />
-                {unreadCount > 0 && (
+                {unreadNotificationCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#2AABAB] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                    {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
                   </span>
                 )}
               </Link>
