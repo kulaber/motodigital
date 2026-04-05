@@ -366,6 +366,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
           )}
         </div>
 
+        {role !== 'superadmin' && <>
         <div className="border-t border-[#222222]/6" />
 
         {/* Account löschen */}
@@ -419,6 +420,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
             </div>
           )}
         </div>
+        </>}
 
       </div>
 
