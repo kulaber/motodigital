@@ -20,9 +20,10 @@ function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
 interface Props {
   builds: Build[]
   initialStyle?: string
+  isLoggedIn?: boolean
 }
 
-export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
+export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn = false }: Props) {
   const [activeStyle,   setActiveStyle]   = useState(initialStyle)
   const [activeCountry, setActiveCountry] = useState('Alle')
   const [activeMake,    setActiveMake]    = useState('Alle')
@@ -490,13 +491,13 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
-                      {build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
-                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
-                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
-                        </span>
-                      )}
                       {build.listingType === 'for_sale' && build.priceOnRequest && (
                         <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                      )}
+                      {isLoggedIn && build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
+                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">€</span>
+                        </span>
                       )}
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year}</p>

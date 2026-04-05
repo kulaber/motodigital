@@ -21,6 +21,8 @@ const STYLE_LABELS: Record<string, string> = {
 
 export default async function BikesPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
 
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,7 +93,7 @@ export default async function BikesPage() {
         <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
       </div>
 
-      <BikesClient builds={allBuilds} />
+      <BikesClient builds={allBuilds} isLoggedIn={isLoggedIn} />
 
       <Footer />
     </div>

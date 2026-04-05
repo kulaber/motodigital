@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BadgeCheck, MapPin, ArrowLeft, Lock, Tag } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, Tag } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BikeGallerySection from './BikeGallerySection'
@@ -12,6 +12,7 @@ import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 import ContactModal from './ContactModal'
 import MobileCTAWrapper from './MobileCTAWrapper'
+import PriceLoginButton from './PriceLoginButton'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
@@ -159,19 +160,17 @@ export default async function CustomBikePage({ params }: Props) {
 
             {bike.listing_type === 'for_sale' && (
               <div className="sm:text-right flex-shrink-0">
-                {isLoggedIn ? (
-                  bike.price_on_request ? (
-                    <p className="text-lg font-semibold text-[#222222]">Preis auf Anfrage</p>
-                  ) : bike.price_amount ? (
+                {bike.price_on_request ? (
+                  <p className="text-lg font-semibold text-[#222222]">Preis auf Anfrage</p>
+                ) : isLoggedIn ? (
+                  bike.price_amount ? (
                     <p className="text-2xl sm:text-3xl font-bold text-[#222222]">
                       {Number(bike.price_amount).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-semibold text-[#222222]/50">€</span>
                     </p>
                   ) : null
-                ) : (
-                  <Link href="/auth/login" className="inline-flex items-center gap-2 text-xs text-[#222222]/40 hover:text-[#06a5a5] transition-colors">
-                    <Lock size={12} /> Anmelden um den Preis zu sehen
-                  </Link>
-                )}
+                ) : bike.price_amount ? (
+                  <PriceLoginButton />
+                ) : null}
               </div>
             )}
           </div>
@@ -306,7 +305,7 @@ export default async function CustomBikePage({ params }: Props) {
           </div>
 
           <Suspense fallback={null}>
-            <RelatedBikes excludeId={bike.id} />
+            <RelatedBikes excludeId={bike.id} isLoggedIn={isLoggedIn} />
           </Suspense>
         </div>
 
@@ -316,7 +315,7 @@ export default async function CustomBikePage({ params }: Props) {
   }
 }
 
-async function RelatedBikes({ excludeId }: { excludeId?: string }) {
+async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: string; isLoggedIn?: boolean }) {
   const supabase = await createClient()
 
   function isNew(publishedAt?: string): boolean {
@@ -417,13 +416,13 @@ async function RelatedBikes({ excludeId }: { excludeId?: string }) {
             <div className="p-3 sm:p-4">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{b.title}</h3>
-                {b.listingType === 'for_sale' && b.priceAmount && !b.priceOnRequest && (
-                  <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
-                    {Number(b.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
-                  </span>
-                )}
                 {b.listingType === 'for_sale' && b.priceOnRequest && (
                   <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                )}
+                {isLoggedIn && b.listingType === 'for_sale' && b.priceAmount && !b.priceOnRequest && (
+                  <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                    {Number(b.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">€</span>
+                  </span>
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.base} · {b.year}</p>

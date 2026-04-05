@@ -19,6 +19,7 @@ type TriggerContext =
   | 'message'
   | 'event_interest'
   | 'follow_rider'
+  | 'price_view'
 
 const CONTEXT_MESSAGES: Record<TriggerContext, string> = {
   bike_save: 'Melde dich an, um dieses Bike zu speichern',
@@ -28,6 +29,7 @@ const CONTEXT_MESSAGES: Record<TriggerContext, string> = {
   message: 'Melde dich an, um eine Nachricht zu senden',
   event_interest: 'Melde dich an, um am Event teilzunehmen',
   follow_rider: 'Melde dich an, um diesem Rider zu folgen',
+  price_view: 'Melde dich an, um den Preis zu sehen',
 }
 
 /* ─── Register benefits ──────────────────────────────────── */

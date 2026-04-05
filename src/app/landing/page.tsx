@@ -69,6 +69,8 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
 
 export default async function LandingPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
 
   // ── Fetch bikes + workshops in parallel ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -254,13 +256,13 @@ export default async function LandingPage() {
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
-                      {build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
-                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
-                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
-                        </span>
-                      )}
                       {build.listingType === 'for_sale' && build.priceOnRequest && (
                         <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                      )}
+                      {isLoggedIn && build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
+                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">€</span>
+                        </span>
                       )}
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year}</p>
