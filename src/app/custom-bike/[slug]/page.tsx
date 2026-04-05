@@ -142,13 +142,18 @@ export default async function CustomBikePage({ params }: Props) {
 
           <div className="mt-8 mb-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight">
-                  {bike.title}
-                </h1>
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full flex-shrink-0 self-center">
+              <div className="mb-2">
+                <span className="inline-block text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full mb-2 sm:hidden">
                   {styleLabel}
                 </span>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight">
+                    {bike.title}
+                  </h1>
+                  <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full flex-shrink-0 self-center">
+                    {styleLabel}
+                  </span>
+                </div>
               </div>
               <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
             </div>

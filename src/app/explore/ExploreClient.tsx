@@ -906,26 +906,26 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
       {/* ── Feed ────────────────────────────────────── */}
       <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8">
+        {/* Mobile heading — outside max-w container so bell aligns with screen edge like Settings on profile */}
+        <div className="lg:hidden relative flex items-center justify-center mb-4">
+          <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
+          {userId && (
+            <Link
+              href="/dashboard/notifications"
+              className="absolute -top-3 -right-1 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black/8 shadow-sm hover:bg-gray-50 transition-colors"
+            >
+              <Bell className="w-4 h-4 text-[#111111]" />
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#2AABAB] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                  {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+                </span>
+              )}
+            </Link>
+          )}
+        </div>
+
         {/* Heading + filter pills (outside sticky parent so RiderList can sit full-width) */}
         <div className="max-w-[560px] mx-auto lg:mx-0">
-          {/* Mobile heading */}
-          <div className="lg:hidden relative flex items-center justify-center mb-4">
-            <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
-            {userId && (
-              <Link
-                href="/dashboard/notifications"
-                className="absolute -top-1 -right-2 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/8 shadow-sm hover:bg-gray-50 transition-colors"
-              >
-                <Bell className="w-[18px] h-[18px] text-[#111111]" />
-                {unreadNotificationCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#2AABAB] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                    {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
-                  </span>
-                )}
-              </Link>
-            )}
-          </div>
-
           {/* Filter pills */}
           <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
             {CATEGORIES.map(cat => (
