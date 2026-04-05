@@ -317,13 +317,6 @@ export default async function CustomBikePage({ params }: Props) {
 async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: string; isLoggedIn?: boolean }) {
   const supabase = await createClient()
 
-  const now = Date.now()
-  function isNew(publishedAt?: string): boolean {
-    if (!publishedAt) return false
-    const diff = now - new Date(publishedAt).getTime()
-    return diff < 3 * 24 * 60 * 60 * 1000
-  }
-
   // Single query with JOIN — fetch bikes + seller profiles together
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('bikes') as any)
@@ -365,7 +358,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
       listingType: r.listing_type as string | null,
       priceAmount: r.price_amount as number | null,
       priceOnRequest: r.price_on_request as boolean | null,
-      publishedAt: r.created_at as string | undefined,
+      isNew: !!r.created_at && (Date.now() - new Date(r.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000,
       role:  profile?.role ?? 'rider',
       builder: profile?.full_name ?? '',
       sellerId: r.seller_id as string,
@@ -402,7 +395,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
                 <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                   Zu verkaufen
                 </span>
-              ) : isNew(b.publishedAt) ? (
+              ) : b.isNew ? (
                 <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
                   Neu
                 </span>
