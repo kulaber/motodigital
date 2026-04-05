@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
+import { notifyNewRegistration } from '@/lib/actions/admin-notifications'
 
 type Role = 'rider' | 'custom-werkstatt'
 
@@ -66,6 +67,9 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
     await (supabase.from('waitlist') as any)
       .update({ invited_at: new Date().toISOString() })
       .eq('email', email)
+
+    // Notify superadmin (non-blocking)
+    notifyNewRegistration({ name, email, role })
 
     router.push('/verify-email?email=' + encodeURIComponent(email))
   }
