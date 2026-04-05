@@ -208,7 +208,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       setAvatarUrl(publicUrl)
       setAvatarCacheBust(`?t=${Date.now()}`)
       // Sofort in DB speichern & Header aktualisieren
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', profile.id)
       window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: `${publicUrl}?t=${Date.now()}` } }))
     } catch (e: unknown) {
@@ -224,7 +223,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
 
     const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name:    fullName || null,
       slug:         slug || null,
@@ -265,7 +263,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       if (match) {
         await supabase.storage.from('builder-media').remove([match[1]])
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('builder_media') as any).delete().eq('id', existingCover.id)
       setMedia(prev => prev.filter(m => m.id !== existingCover.id))
     }
@@ -285,7 +282,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       .from('builder-media')
       .getPublicUrl(upload.path)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: row, error: insertErr } = await (supabase.from('builder_media') as any).insert({
       builder_id: profile.id,
       url:        publicUrl,
@@ -320,7 +316,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         .from('builder-media')
         .getPublicUrl(upload.path)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: row, error: insertErr } = await (supabase.from('builder_media') as any).insert({
         builder_id: profile.id,
         url:        publicUrl,
@@ -343,7 +338,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       await supabase.storage.from('builder-media').remove([match[1]])
     }
     // Delete DB row
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('builder_media') as any).delete().eq('id', item.id)
     setMedia(prev => prev.filter(m => m.id !== item.id))
   }

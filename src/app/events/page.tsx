@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 
 export default async function EventsPage() {
   const supabase = await createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase.from('events') as any)
     .select('*')
     .order('date_start', { ascending: true })

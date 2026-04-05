@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
+import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { resendVerificationEmail } from '@/lib/actions/riders'
 

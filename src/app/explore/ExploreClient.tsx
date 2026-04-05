@@ -156,7 +156,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   // Load comments on mount
   useEffect(() => {
     (async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('community_post_comments') as any)
         .select('id, body, created_at, user_id')
         .eq('post_id', post.id)
@@ -168,7 +167,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       const commentIds = (data as { id: string }[]).map(c => c.id)
 
       // Fetch profiles + likes in parallel (both depend only on comments data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const [{ data: profiles }, { data: likesData }] = await Promise.all([
         (supabase.from('profiles') as any)
           .select('id, full_name, avatar_url, slug, role')
@@ -229,7 +227,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
     }
 
     // Try to get the commenter's profile for display
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: prof } = await (supabase.from('profiles') as any)
       .select('full_name, avatar_url, slug, role')
       .eq('id', userId)
@@ -248,7 +245,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
 
     // Persist to Supabase in background (may fail if table doesn't exist yet)
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: inserted } = await (supabase.from('community_post_comments') as any)
         .insert({ post_id: post.id, user_id: userId, body: text })
         .select('id')
@@ -271,10 +267,8 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
     setComments(prev => prev.map(c => c.id === commentId ? { ...c, liked_by_me: next, like_count: next ? c.like_count + 1 : Math.max(0, c.like_count - 1) } : c))
     try {
       if (next) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('community_comment_likes') as any).insert({ comment_id: commentId, user_id: userId })
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('community_comment_likes') as any).delete().eq('comment_id', commentId).eq('user_id', userId)
       }
     } catch { /* table may not exist yet */ }
@@ -560,7 +554,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
   // Load events from Supabase
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase.from('events') as any).select('*').order('date_start', { ascending: true })
       .then(({ data }: { data: Event[] | null }) => { if (data) setAllEvents(data) })
   }, [supabase])
@@ -579,7 +572,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
   // Load community posts from Supabase
   const loadPosts = useCallback(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: postsData } = await (supabase.from('community_posts') as any)
       .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
       .order('created_at', { ascending: false })
@@ -588,7 +580,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     if (!postsData || postsData.length === 0) { setCommunityPosts([]); setLoadingPosts(false); return }
 
     const userIds = [...new Set((postsData as { user_id: string }[]).map(p => p.user_id))]
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: profilesData } = await (supabase.from('profiles') as any)
       .select('id, full_name, avatar_url, role, slug, username')
       .in('id', userIds)
@@ -597,7 +588,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     for (const prof of (profilesData ?? [])) profileMap[prof.id] = prof
 
     // Load likes
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: likesData } = await (supabase.from('community_post_likes') as any)
       .select('post_id, user_id')
 
@@ -645,7 +635,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
   useEffect(() => {
     if (!userId) return
     async function loadFollowing() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('followers') as any)
         .select('following_id')
         .eq('follower_id', userId)
@@ -654,7 +643,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
       setFollowingIds(new Set(ids))
 
       if (ids.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: profiles } = await (supabase.from('profiles') as any)
           .select('id, username, slug, full_name, avatar_url')
           .in('id', ids)
@@ -680,7 +668,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     async function loadSidebarRiders() {
       const THREE_MIN_AGO = new Date(Date.now() - 3 * 60 * 1000).toISOString()
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: dbRiders } = await (supabase.from('profiles') as any)
         .select('id, full_name, slug, username, bio, avatar_url, last_seen_at')
         .eq('role', 'rider')
@@ -726,10 +713,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     } : p))
 
     if (optimistic) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('community_post_likes') as any).insert({ post_id: postId, user_id: userId })
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('community_post_likes') as any).delete().eq('post_id', postId).eq('user_id', userId)
     }
   }
@@ -743,7 +728,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
     setCommunityPosts(prev => prev.filter(p => p.id !== deleteTargetId))
     setDeleteTargetId(null)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('community_posts') as any)
       .delete()
       .eq('id', deleteTargetId)
@@ -835,18 +819,15 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
       const file = await compressImage(rawFile, 1200)
       const ext = file.name.split('.').pop() ?? 'jpg'
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase.storage as any)
         .from('community-media')
         .upload(path, file, { contentType: file.type })
       if (!error && data) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: urlData } = (supabase.storage as any).from('community-media').getPublicUrl(data.path)
         uploadedUrls.push(urlData.publicUrl)
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('community_posts') as any).insert({
       user_id: userId,
       body: body.trim() || null,

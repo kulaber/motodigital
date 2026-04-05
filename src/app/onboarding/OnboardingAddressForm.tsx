@@ -89,7 +89,7 @@ function AddressAutocomplete({
 }
 
 export default function OnboardingAddressForm({ userId }: { userId: string }) {
-  const router = useRouter()
+  const _router = useRouter()
   const supabase = createClient()
   const [addressData, setAddressData] = useState({
     address: '',

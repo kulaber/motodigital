@@ -12,7 +12,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect(`/verify-email?email=${encodeURIComponent(user.email ?? '')}`)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, full_name, avatar_url, address, slug, username')
     .eq('id', user.id)

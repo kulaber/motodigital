@@ -11,12 +11,12 @@ interface Props {
   riderFirstName: string
 }
 
-export default function FollowButton({ riderId, riderFirstName }: Props) {
+export default function FollowButton({ riderId, riderFirstName: _riderFirstName }: Props) {
   const { user, loading: authLoading } = useAuth()
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-  const [followerCount, setFollowerCount] = useState(0)
+  const [_followerCount, setFollowerCount] = useState(0)
   const supabase = createClient()
 
   // Check if already following + get follower count

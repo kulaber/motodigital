@@ -1,7 +1,7 @@
 // Light Mode only — no dark: classes
 'use client'
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Star, X, Map as MapIcon, List as ListIcon, Search, SlidersHorizontal } from 'lucide-react'
@@ -214,7 +214,7 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
 function BuilderList({
   builders: _builders,
   visible,
-  mapReady,
+  mapReady: _mapReady,
   selectedBuilder,
   savedIds,
   onToggleSave,
@@ -316,7 +316,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [searchQuery,         setSearchQuery]        = useState('')
   const [activeSpecialty,    setActiveSpecialty]    = useState('Alle')
   const [activeLeistung,     setActiveLeistung]     = useState('Alle')
-  const [onlyVerified,       setOnlyVerified]       = useState(false)
+  const [onlyVerified,       _setOnlyVerified]       = useState(false)
   const [onlyOpen,           setOnlyOpen]           = useState(false)
   const [showFilterModal,   setShowFilterModal]    = useState(false)
   useHideNavOnModal(showFilterModal)

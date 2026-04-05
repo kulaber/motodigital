@@ -452,7 +452,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {paged.map((build, i) => (
+              {paged.map((build, _i) => (
                 <Link
                   key={build.slug}
                   href={build.href ?? `/custom-bike/${build.slug}`}

@@ -14,7 +14,6 @@ export default async function ExplorePage() {
 
   let isSuperadmin = false
   if (user) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
@@ -23,7 +22,6 @@ export default async function ExplorePage() {
   }
 
   // Fetch riders for mobile story bar
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: storyRiders } = await (supabase.from('profiles') as any)
     .select('id, username, full_name, avatar_url')
     .eq('role', 'rider')

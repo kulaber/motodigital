@@ -17,7 +17,6 @@ export function PublishToggle({ bikeId, initialStatus }: { bikeId: string; initi
   async function handleToggle() {
     setToggling(true)
     const newStatus = published ? 'draft' : 'active'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('bikes') as any).update({ status: newStatus }).eq('id', bikeId)
     setPublished(!published)
     setToggling(false)

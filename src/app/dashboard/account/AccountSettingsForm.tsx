@@ -66,7 +66,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     if (files?.length) {
       await supabase.storage.from('avatars').remove(files.map(f => `${userId}/${f.name}`))
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('profiles') as any).update({ avatar_url: null }).eq('id', userId)
     setAvatarUrl('')
     setAvatarDeleting(false)
@@ -93,7 +92,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     }
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', userId)
     setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
     setAvatarSaved(true)
@@ -109,7 +107,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
   async function handleBio(e: React.FormEvent) {
     e.preventDefault()
     setBioSaving(true); setBioError(null); setBioSaved(false)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('profiles') as any)
       .update({ bio: bio.trim() || null })
       .eq('id', userId)
@@ -127,7 +124,6 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
   async function handleUsername(e: React.FormEvent) {
     e.preventDefault()
     setUsernameSaving(true); setUsernameError(null); setUsernameSaved(false)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('profiles') as any)
       .update({ username: username.trim() || null })
       .eq('id', userId)

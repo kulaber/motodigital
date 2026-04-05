@@ -14,7 +14,6 @@ export default async function ProfileEditPage() {
   if (!user) redirect('/auth/login')
 
   // Fetch profile + media in parallel (media only needed for builders, but cheap to fetch)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: profile }, { data: media }] = await Promise.all([
     (supabase.from('profiles') as any)
       .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')

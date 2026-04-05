@@ -34,7 +34,6 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: event } = await (supabase.from('events') as any)
     .select('name, description')
     .eq('slug', slug)
@@ -51,7 +50,6 @@ export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase.from('events') as any)
     .select('*')
     .eq('slug', slug)

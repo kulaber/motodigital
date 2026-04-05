@@ -32,13 +32,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
     const supabase = await createClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data } = await (supabase.from('bikes') as any)
       .select('title, style')
       .eq('slug', slug)
       .maybeSingle()
     if (!data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: byId } = await (supabase.from('bikes') as any)
         .select('title, style')
         .eq('id', slug)
@@ -61,7 +59,6 @@ export default async function CustomBikePage({ params }: Props) {
     const supabase = await createClient()
     const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, workshop_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug, listing_type, price_amount, price_on_request'
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bike: any = null
 
     // Try slug and UUID lookups in parallel (2 queries instead of up to 5 sequential)
@@ -87,7 +84,6 @@ export default async function CustomBikePage({ params }: Props) {
     if (!bike) notFound()
 
     // Fetch seller profile + workshop (if linked)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [{ data: sellerProfile }, { data: workshop }] = await Promise.all([
       (supabase.from('profiles') as any)
         .select('full_name, city, slug, role, avatar_url')
@@ -318,7 +314,6 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
   const supabase = await createClient()
 
   // Single query with JOIN — fetch bikes + seller profiles together
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('bikes') as any)
     .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
@@ -329,7 +324,6 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
 
   const { data: rows } = await query
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const related = (rows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
@@ -358,6 +352,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
       listingType: r.listing_type as string | null,
       priceAmount: r.price_amount as number | null,
       priceOnRequest: r.price_on_request as boolean | null,
+      // eslint-disable-next-line react-hooks/purity
       isNew: !!r.created_at && (Date.now() - new Date(r.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000,
       role:  profile?.role ?? 'rider',
       builder: profile?.full_name ?? '',

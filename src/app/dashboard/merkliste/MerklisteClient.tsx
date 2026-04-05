@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Star, Bike, Wrench, ChevronRight, Trash2, X } from 'lucide-react'
+import { Star, Bike, ChevronRight, Trash2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { formatPrice } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -79,11 +79,9 @@ export default function MerklisteClient({ savedBikes, savedBuilders, activeTab }
     setDeleteLoading(true)
 
     if (deleteTarget.type === 'bike') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_bikes') as any).delete().eq('bike_id', deleteTarget.id)
       setBikes(prev => prev.filter(b => b.bike_id !== deleteTarget.id))
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_builders') as any).delete().eq('builder_id', deleteTarget.id)
       setBuilders(prev => prev.filter(b => b.builder_id !== deleteTarget.id))
     }

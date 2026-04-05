@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { X, ChevronLeft, ChevronRight, LayoutGrid, Star, Share2, Facebook, Twitter, Link2, Check, MapPin } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, LayoutGrid, Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 
@@ -34,7 +34,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
   const shareRef = useRef<HTMLDivElement>(null)
   const shareRefDesktop = useRef<HTMLDivElement>(null)
   const shareRefModal = useRef<HTMLDivElement>(null)
-  const [modalTab, setModalTab] = useState<'fotos' | 'karte'>('fotos')
+  const [_modalTab, setModalTab] = useState<'fotos' | 'karte'>('fotos')
   const imageRefs = useRef<(HTMLDivElement | null)[]>([])
   const modalContentRef = useRef<HTMLDivElement>(null)
   // Image viewer (fullscreen single image inside masonry modal)

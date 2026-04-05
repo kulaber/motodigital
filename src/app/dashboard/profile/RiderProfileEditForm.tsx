@@ -58,7 +58,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
       if (match) {
         await supabase.storage.from('builder-media').remove([match[1]])
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('builder_media') as any).delete().eq('id', cover.id)
     }
 
@@ -77,7 +76,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
       .from('builder-media')
       .getPublicUrl(upload.path)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: row, error: insertErr } = await (supabase.from('builder_media') as any).insert({
       builder_id: profile.id,
       url:        publicUrl,
@@ -98,7 +96,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
     if (match) {
       await supabase.storage.from('builder-media').remove([match[1]])
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('builder_media') as any).delete().eq('id', cover.id)
     setCover(null)
     setCoverUploading(false)
@@ -118,7 +115,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
     if (files?.length) {
       await supabase.storage.from('avatars').remove(files.map(f => `${profile.id}/${f.name}`))
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('profiles') as any).update({ avatar_url: null }).eq('id', profile.id)
     setAvatarUrl('')
     setAvatarDeleting(false)
@@ -139,7 +135,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
       .upload(path, compressed, { upsert: true, contentType: compressed.type })
     if (upErr) { setAvatarError(upErr.message); setAvatarUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', profile.id)
     setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
     setAvatarSaved(true)
@@ -172,7 +167,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
 
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any).update({
       full_name: fullName.trim() || null,
       bio: bio.trim() || null,

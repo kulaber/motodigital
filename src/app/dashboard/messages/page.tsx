@@ -18,7 +18,6 @@ export default async function MessagesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: rows }, { data: unreadRows }] = await Promise.all([
     (supabase.from('conversations') as any)
       .select(`

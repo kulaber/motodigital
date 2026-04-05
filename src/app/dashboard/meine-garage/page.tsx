@@ -24,7 +24,6 @@ export default async function MeinBikePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, slug, username').eq('id', user.id).maybeSingle()
   const role = profile?.role as string | null

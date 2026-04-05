@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User, LogOut } from 'lucide-react'
+import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
 import SignOutButton from './SignOutButton'
@@ -34,13 +34,12 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('full_name, role, city, specialty, bio, bio_long, is_verified, avatar_url, slug, tags, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url')
     .eq('id', user.id)
     .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; bio_long: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null; tags: string[] | null; address: string | null; lat: number | null; lng: number | null; instagram_url: string | null; tiktok_url: string | null; website_url: string | null; youtube_url: string | null } | null }
 
-  const [{ data: bikes }, { data: conversations }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
+  const [{ data: bikes }, { data: _conversations }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
       .select('id, title, slug, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
@@ -54,7 +53,6 @@ export default async function DashboardPage() {
       .limit(10) as unknown as Promise<{ data: DashboardConversation[] | null, error: unknown }>,
     supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
     supabase.from('saved_builders').select('builder_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase.from('builder_media') as any)
       .select('id, url, type, title, position')
       .eq('builder_id', user.id)

@@ -143,7 +143,6 @@ function ConversationList({
     if (value.trim().length < 2) { setProfileResults([]); return }
     debounceRef.current = setTimeout(async () => {
       setSearching(true)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
         .select('id, full_name, username, avatar_url, role, slug')
         .or(`full_name.ilike.%${value}%,username.ilike.%${value}%`)
@@ -166,7 +165,6 @@ function ConversationList({
     }
 
     // Check DB for existing conversation in either direction
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: existing } = await (supabase.from('conversations') as any)
       .select('id')
       .or(`and(seller_id.eq.${profile.id},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${profile.id})`)
@@ -181,7 +179,6 @@ function ConversationList({
     }
 
     // Create new conversation (current user = buyer, selected profile = seller)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: created } = await (supabase.from('conversations') as any)
       .insert({ seller_id: profile.id, buyer_id: userId })
       .select('id')
@@ -431,7 +428,6 @@ function MessageThread({
 
     const msgIds = messages.map(m => m.id)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('message_reactions') as any)
       .select('message_id, user_id, emoji')
       .in('message_id', msgIds)
@@ -512,13 +508,11 @@ function MessageThread({
     const ext = file.name.split('.').pop() ?? 'jpg'
     const path = `${conversationId}/${Date.now()}.${ext}`
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.storage as any)
       .from('chat-images')
       .upload(path, file, { contentType: file.type })
 
     const imgUrl = (!error && data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? (supabase.storage as any).from('chat-images').getPublicUrl(data.path).data.publicUrl
       : blobUrl
 
@@ -560,14 +554,12 @@ function MessageThread({
     })
 
     if (already) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('message_reactions') as any)
         .delete()
         .eq('message_id', msgId)
         .eq('user_id', userId)
         .eq('emoji', emoji)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('message_reactions') as any)
         .insert({ message_id: msgId, user_id: userId, emoji })
     }
@@ -865,7 +857,6 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   const [deleteLoading, setDeleteLoading] = useState(false)
 
   async function handleDelete(convId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase.from('conversations') as any)
       .select('deleted_for')
       .eq('id', convId)
@@ -873,7 +864,6 @@ export default function MessagesClient({ conversations: initial, userId }: Props
 
     const current: string[] = data?.deleted_for ?? []
     if (!current.includes(userId)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('conversations') as any)
         .update({ deleted_for: [...current, userId] })
         .eq('id', convId)
@@ -884,7 +874,6 @@ export default function MessagesClient({ conversations: initial, userId }: Props
   }
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('profiles') as any)
       .select('avatar_url')
       .eq('id', userId)
@@ -935,7 +924,6 @@ export default function MessagesClient({ conversations: initial, userId }: Props
     setConversations(prev => prev.map(c =>
       c.id === selectedId ? { ...c, unread_count: 0 } : c
     ))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('messages') as any)
       .update({ read_at: new Date().toISOString() })
       .eq('conversation_id', selectedId)

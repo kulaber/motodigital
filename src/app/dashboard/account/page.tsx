@@ -12,7 +12,6 @@ export default async function AccountSettingsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('username, slug, avatar_url, bio, role')
     .eq('id', user.id)

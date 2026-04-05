@@ -37,7 +37,7 @@ function Modal({
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
-  const initials = builderName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
+  const _initials = builderName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
   async function handleSend() {
     const trimmed = text.trim()

@@ -19,7 +19,6 @@ export default async function MerklistePage({
   const params = await searchParams
   const activeTab = params.tab === 'bikes' ? 'bikes' : 'werkstatt'
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [savedBikesResult, savedBuildersResult] = await Promise.all([
     (supabase.from('saved_bikes') as any)
       .select('bike_id, created_at, bikes(id, slug, title, price, make, model, year, status, bike_images(id, url, is_cover, position), profiles:seller_id(full_name))')
@@ -31,7 +30,6 @@ export default async function MerklistePage({
       .order('created_at', { ascending: false }),
   ])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const savedBikes: SavedBikeItem[] = ((savedBikesResult.data ?? []) as any[])
     .filter((e: any) => e.bikes != null)
     .map((e: any) => {
@@ -52,7 +50,6 @@ export default async function MerklistePage({
       }
     })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const savedBuilders: SavedBuilderItem[] = ((savedBuildersResult.data ?? []) as any[])
     .filter((e: any) => e.builders != null)
     .map((e: any) => {

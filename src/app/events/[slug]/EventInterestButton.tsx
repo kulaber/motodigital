@@ -32,7 +32,6 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
 
   useEffect(() => {
     (async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('event_interest') as any)
         .select('user_id')
         .eq('event_slug', eventSlug)
@@ -44,7 +43,6 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
       // Load participant profiles
       if (entries.length > 0) {
         const ids = entries.map(e => e.user_id)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: profiles } = await (supabase.from('profiles') as any)
           .select('id, full_name, avatar_url, username, slug')
           .in('id', ids)
@@ -72,12 +70,10 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
     setCount(prev => next ? prev + 1 : Math.max(0, prev - 1))
 
     if (next) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('event_interest') as any)
         .insert({ event_slug: eventSlug, user_id: userId })
 
       // Add self to participants optimistically
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: prof } = await (supabase.from('profiles') as any)
         .select('id, full_name, avatar_url, username, slug')
         .eq('id', userId)
@@ -95,7 +91,6 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
       }
     } else {
       setParticipants(prev => prev.filter(p => p.id !== userId))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('event_interest') as any)
         .delete()
         .eq('event_slug', eventSlug)
