@@ -87,9 +87,10 @@ async function BuilderContent() {
   const supabase = await createClient()
 
   const { data: dbRows } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, created_at, builder_media(url, type, title, position)')
     .eq('role', 'custom-werkstatt')
     .not('slug', 'is', null)
+    .order('created_at', { ascending: false })
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
 
@@ -133,14 +134,12 @@ async function BuilderContent() {
     }
   }
 
-  // Shuffle non-sponsored server-side (Math.random OK in server component)
+  // Featured/sponsored first, then newest first (order from DB)
   const sponsored = dbBuilders.filter(b => b.featured)
   const nonSponsored = dbBuilders.filter(b => !b.featured)
-  // eslint-disable-next-line react-hooks/purity
-  const rest = nonSponsored.map(b => ({ b, r: Math.random() })).sort((a, z) => a.r - z.r).map(({ b }) => b)
-  const shuffled = [...sponsored, ...rest]
+  const sorted = [...sponsored, ...nonSponsored]
 
-  return <BuilderPageClientLoader builders={shuffled} />
+  return <BuilderPageClientLoader builders={sorted} />
 }
 
 /* ── Page component — Header renders instantly, data streams in ── */
