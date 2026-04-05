@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/utils/compressImage'
-import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
+import { CheckCircle, Eye, EyeOff, Camera, User, Trash2, ChevronDown } from 'lucide-react'
 
 type Props = {
   userId: string
@@ -175,6 +175,12 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     setPwSaving(false)
   }
 
+  // ── Accordion ──
+  const [openSection, setOpenSection] = useState<'username' | 'email' | 'password' | null>(null)
+  function toggleSection(s: 'username' | 'email' | 'password') {
+    setOpenSection(prev => prev === s ? null : s)
+  }
+
   return (
     <div className="flex flex-col gap-5">
 
@@ -249,59 +255,101 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
         </form>
       )}
 
-      {/* ── Benutzername ── */}
-      <form onSubmit={handleUsername} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-5">Benutzername</h2>
-        <div className="flex flex-col gap-4">
-          <Field label="Benutzername" hint="Wird auf der Plattform als dein Handle angezeigt">
-            <input value={username} onChange={e => setUsername(e.target.value)}
-              placeholder="z.B. jakobkraft" className={input} />
-          </Field>
-          <SaveRow saving={usernameSaving} saved={usernameSaved} error={usernameError} />
-        </div>
-      </form>
+      {/* ── Konto (Accordion) ── */}
+      <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
 
-      {/* ── E-Mail ── */}
-      <form onSubmit={handleEmail} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-5">E-Mail-Adresse</h2>
-        <div className="flex flex-col gap-4">
-          <Field label="E-Mail" hint="Nach der Änderung erhältst du eine Bestätigungs-E-Mail">
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="deine@email.de" className={input} />
-          </Field>
-          <SaveRow saving={emailSaving} saved={emailSaved} error={emailError} label="E-Mail ändern" />
-        </div>
-      </form>
-
-      {/* ── Passwort ── */}
-      <form onSubmit={handlePassword} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-[#222222]">Passwort ändern</h2>
-          <button type="button" onClick={() => setShowPw(v => !v)}
-            className="text-xs text-[#222222]/30 hover:text-[#222222] transition-colors flex items-center gap-1">
-            {showPw ? <EyeOff size={12} /> : <Eye size={12} />}
-            {showPw ? 'Verstecken' : 'Anzeigen'}
+        {/* Benutzername */}
+        <div>
+          <button type="button" onClick={() => toggleSection('username')}
+            className="w-full flex items-center justify-between p-5 sm:p-6 text-left">
+            <div>
+              <h2 className="text-sm font-semibold text-[#222222]">Benutzername</h2>
+              <p className="text-xs text-[#222222]/40 mt-0.5">{username || '–'}</p>
+            </div>
+            <ChevronDown size={16} className={`text-[#222222]/30 transition-transform duration-200 ${openSection === 'username' ? 'rotate-180' : ''}`} />
           </button>
+          {openSection === 'username' && (
+            <form onSubmit={handleUsername} className="px-5 sm:px-6 pb-5 sm:pb-6">
+              <div className="flex flex-col gap-4">
+                <Field label="Benutzername" hint="Wird auf der Plattform als dein Handle angezeigt">
+                  <input value={username} onChange={e => setUsername(e.target.value)}
+                    placeholder="z.B. jakobkraft" className={input} />
+                </Field>
+                <SaveRow saving={usernameSaving} saved={usernameSaved} error={usernameError} />
+              </div>
+            </form>
+          )}
         </div>
-        <div className="flex flex-col gap-4">
-          <Field label="Aktuelles Passwort">
-            <input type={showPw ? 'text' : 'password'} value={currentPw}
-              onChange={e => setCurrentPw(e.target.value)}
-              placeholder="••••••••" className={input} />
-          </Field>
-          <Field label="Neues Passwort" hint="Mindestens 8 Zeichen">
-            <input type={showPw ? 'text' : 'password'} value={newPw}
-              onChange={e => setNewPw(e.target.value)}
-              placeholder="••••••••" className={input} />
-          </Field>
-          <Field label="Neues Passwort bestätigen">
-            <input type={showPw ? 'text' : 'password'} value={confirmPw}
-              onChange={e => setConfirmPw(e.target.value)}
-              placeholder="••••••••" className={input} />
-          </Field>
-          <SaveRow saving={pwSaving} saved={pwSaved} error={pwError} label="Passwort ändern" />
+
+        <div className="border-t border-[#222222]/6" />
+
+        {/* E-Mail */}
+        <div>
+          <button type="button" onClick={() => toggleSection('email')}
+            className="w-full flex items-center justify-between p-5 sm:p-6 text-left">
+            <div>
+              <h2 className="text-sm font-semibold text-[#222222]">E-Mail-Adresse</h2>
+              <p className="text-xs text-[#222222]/40 mt-0.5">{email}</p>
+            </div>
+            <ChevronDown size={16} className={`text-[#222222]/30 transition-transform duration-200 ${openSection === 'email' ? 'rotate-180' : ''}`} />
+          </button>
+          {openSection === 'email' && (
+            <form onSubmit={handleEmail} className="px-5 sm:px-6 pb-5 sm:pb-6">
+              <div className="flex flex-col gap-4">
+                <Field label="E-Mail" hint="Nach der Änderung erhältst du eine Bestätigungs-E-Mail">
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                    placeholder="deine@email.de" className={input} />
+                </Field>
+                <SaveRow saving={emailSaving} saved={emailSaved} error={emailError} label="E-Mail ändern" />
+              </div>
+            </form>
+          )}
         </div>
-      </form>
+
+        <div className="border-t border-[#222222]/6" />
+
+        {/* Passwort */}
+        <div>
+          <button type="button" onClick={() => toggleSection('password')}
+            className="w-full flex items-center justify-between p-5 sm:p-6 text-left">
+            <div>
+              <h2 className="text-sm font-semibold text-[#222222]">Passwort ändern</h2>
+              <p className="text-xs text-[#222222]/40 mt-0.5">••••••••</p>
+            </div>
+            <ChevronDown size={16} className={`text-[#222222]/30 transition-transform duration-200 ${openSection === 'password' ? 'rotate-180' : ''}`} />
+          </button>
+          {openSection === 'password' && (
+            <form onSubmit={handlePassword} className="px-5 sm:px-6 pb-5 sm:pb-6">
+              <div className="flex items-center justify-end mb-3">
+                <button type="button" onClick={() => setShowPw(v => !v)}
+                  className="text-xs text-[#222222]/30 hover:text-[#222222] transition-colors flex items-center gap-1">
+                  {showPw ? <EyeOff size={12} /> : <Eye size={12} />}
+                  {showPw ? 'Verstecken' : 'Anzeigen'}
+                </button>
+              </div>
+              <div className="flex flex-col gap-4">
+                <Field label="Aktuelles Passwort">
+                  <input type={showPw ? 'text' : 'password'} value={currentPw}
+                    onChange={e => setCurrentPw(e.target.value)}
+                    placeholder="••••••••" className={input} />
+                </Field>
+                <Field label="Neues Passwort" hint="Mindestens 8 Zeichen">
+                  <input type={showPw ? 'text' : 'password'} value={newPw}
+                    onChange={e => setNewPw(e.target.value)}
+                    placeholder="••••••••" className={input} />
+                </Field>
+                <Field label="Neues Passwort bestätigen">
+                  <input type={showPw ? 'text' : 'password'} value={confirmPw}
+                    onChange={e => setConfirmPw(e.target.value)}
+                    placeholder="••••••••" className={input} />
+                </Field>
+                <SaveRow saving={pwSaving} saved={pwSaved} error={pwError} label="Passwort ändern" />
+              </div>
+            </form>
+          )}
+        </div>
+
+      </div>
 
     </div>
   )
