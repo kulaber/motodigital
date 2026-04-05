@@ -771,6 +771,116 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          email_comments: boolean | null
+          email_follows: boolean | null
+          email_inquiries: boolean | null
+          email_likes: boolean | null
+          email_messages: boolean | null
+          email_tags: boolean | null
+          inapp_comments: boolean | null
+          inapp_follows: boolean | null
+          inapp_inquiries: boolean | null
+          inapp_likes: boolean | null
+          inapp_messages: boolean | null
+          inapp_tags: boolean | null
+          profile_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          email_comments?: boolean | null
+          email_follows?: boolean | null
+          email_inquiries?: boolean | null
+          email_likes?: boolean | null
+          email_messages?: boolean | null
+          email_tags?: boolean | null
+          inapp_comments?: boolean | null
+          inapp_follows?: boolean | null
+          inapp_inquiries?: boolean | null
+          inapp_likes?: boolean | null
+          inapp_messages?: boolean | null
+          inapp_tags?: boolean | null
+          profile_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          email_comments?: boolean | null
+          email_follows?: boolean | null
+          email_inquiries?: boolean | null
+          email_likes?: boolean | null
+          email_messages?: boolean | null
+          email_tags?: boolean | null
+          inapp_comments?: boolean | null
+          inapp_follows?: boolean | null
+          inapp_inquiries?: boolean | null
+          inapp_likes?: boolean | null
+          inapp_messages?: boolean | null
+          inapp_tags?: boolean | null
+          profile_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string | null
+          email_sent_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          read_at: string | null
+          recipient_id: string
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string | null
+          email_sent_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string | null
+          email_sent_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_views: {
         Row: {
           created_at: string
@@ -1414,6 +1524,16 @@ export type Database = {
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       gettransactionid: { Args: never; Returns: unknown }
+      insert_notification: {
+        Args: {
+          p_actor_id: string
+          p_entity_id: string
+          p_entity_type: string
+          p_recipient_id: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
