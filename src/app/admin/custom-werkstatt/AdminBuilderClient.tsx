@@ -7,7 +7,7 @@ import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { resendVerificationEmail } from '@/lib/actions/riders'
 
-type VerifiedFilter = 'alle' | 'verified' | 'unverified'
+type StatusFilter = 'alle' | 'active' | 'invited' | 'unclaimed'
 
 export type BuilderRow = {
   slug: string
@@ -17,7 +17,7 @@ export type BuilderRow = {
   specialty: string | null
   dbId: string | null
   email: string | null
-  email_confirmed: boolean
+  status: 'unclaimed' | 'invited' | 'active'
   is_verified: boolean
   bikeCount: number
   is_unclaimed: boolean
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export default function AdminBuilderClient({ builders }: Props) {
-  const [filter, setFilter] = useState<VerifiedFilter>('alle')
+  const [filter, setFilter] = useState<StatusFilter>('alle')
   const [deleteTarget, setDeleteTarget] = useState<BuilderRow | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -74,13 +74,17 @@ export default function AdminBuilderClient({ builders }: Props) {
       body: JSON.stringify({ profileId: emailTarget.dbId, email: emailValue.trim() }),
     })
     const data = await res.json()
-    setAssigningEmail(false)
 
     if (!res.ok) {
+      setAssigningEmail(false)
       setEmailError(data.error ?? 'Fehler beim Zuweisen')
       return
     }
 
+    // Auto-send magic link after assigning email
+    await resendVerificationEmail(emailValue.trim())
+
+    setAssigningEmail(false)
     setEmailTarget(null)
     setEmailValue('')
     router.refresh()
@@ -100,14 +104,13 @@ export default function AdminBuilderClient({ builders }: Props) {
 
   const filtered = filter === 'alle'
     ? builders
-    : filter === 'verified'
-    ? builders.filter(b => b.email_confirmed)
-    : builders.filter(b => !b.email_confirmed)
+    : builders.filter(b => b.status === filter)
 
-  const filters: { value: VerifiedFilter; label: string }[] = [
-    { value: 'alle', label: 'Alle' },
-    { value: 'verified', label: 'Verifiziert' },
-    { value: 'unverified', label: 'Nicht verifiziert' },
+  const filters: { value: StatusFilter; label: string }[] = [
+    { value: 'alle',      label: 'Alle' },
+    { value: 'active',    label: 'Aktiv' },
+    { value: 'invited',   label: 'Eingeladen' },
+    { value: 'unclaimed', label: 'Nicht zugewiesen' },
   ]
 
   return (
@@ -151,7 +154,7 @@ export default function AdminBuilderClient({ builders }: Props) {
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Standort</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Bikes</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
-                <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Verif.</th>
+                <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Status</th>
                 <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
               </tr>
             </thead>
@@ -180,19 +183,34 @@ export default function AdminBuilderClient({ builders }: Props) {
                     <span className="text-xs text-[#222222]/50 truncate max-w-[160px] block">{b.email ?? '—'}</span>
                   </td>
                   <td className="px-4 py-3.5 text-center">
-                    {b.email_confirmed
-                      ? <BadgeCheck size={14} className="text-green-500 mx-auto" />
-                      : <span className="text-xs text-[#222222]/20">—</span>
-                    }
+                    {b.status === 'active' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                        <BadgeCheck size={10} /> Aktiv
+                      </span>
+                    ) : b.status === 'invited' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        <Mail size={10} /> Eingeladen
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#222222]/20">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-2 flex-wrap">
-                      {!b.email_confirmed && (
-                        b.email && resendSuccess.has(b.email) ? (
+                      {b.status === 'unclaimed' && (
+                        <button
+                          onClick={() => { setEmailTarget(b); setEmailValue(''); setEmailError(null) }}
+                          className="inline-flex items-center gap-1 text-xs text-amber-500/80 hover:text-amber-600 border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
+                        >
+                          <Mail size={10} /> Mail zuweisen
+                        </button>
+                      )}
+                      {b.status === 'invited' && b.email && (
+                        resendSuccess.has(b.email) ? (
                           <span className="inline-flex items-center gap-1 text-xs text-green-500 px-3 py-1.5 whitespace-nowrap">
                             <Mail size={10} /> Gesendet
                           </span>
-                        ) : b.email ? (
+                        ) : (
                           <button
                             onClick={() => handleResendEmail(b.email!)}
                             disabled={resendingEmail === b.email}
@@ -200,13 +218,6 @@ export default function AdminBuilderClient({ builders }: Props) {
                           >
                             <Mail size={10} />
                             {resendingEmail === b.email ? 'Sende…' : 'Mail senden'}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => { setEmailTarget(b); setEmailValue(''); setEmailError(null) }}
-                            className="inline-flex items-center gap-1 text-xs text-amber-500/80 hover:text-amber-600 border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-full transition-all whitespace-nowrap"
-                          >
-                            <Mail size={10} /> Mail zuweisen
                           </button>
                         )
                       )}
@@ -299,7 +310,7 @@ export default function AdminBuilderClient({ builders }: Props) {
                 className="inline-flex items-center gap-1.5 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <UserPlus size={11} />
-                {assigningEmail ? 'Wird zugewiesen...' : 'Zuweisen'}
+                {assigningEmail ? 'Wird zugewiesen…' : 'Zuweisen & einladen'}
               </button>
             </div>
           </div>

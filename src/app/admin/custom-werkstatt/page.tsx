@@ -18,7 +18,6 @@ type SupabaseBuilder = {
   is_verified: boolean
   created_at: string
   email: string | null
-  email_confirmed: boolean
 }
 
 export default async function AdminBuilderPage() {
@@ -61,13 +60,17 @@ export default async function AdminBuilderPage() {
 
   const UNCLAIMED_SUFFIX = '@motodigital.local'
 
-  const dbRows: (SupabaseBuilder & { is_unclaimed: boolean })[] = (dbBuilders ?? []).map(b => {
+  const dbRows = (dbBuilders ?? []).map(b => {
     const auth = authMap.get(b.id)
     const isUnclaimed = !!auth?.email?.endsWith(UNCLAIMED_SUFFIX)
+    let status: 'unclaimed' | 'invited' | 'active'
+    if (isUnclaimed) status = 'unclaimed'
+    else if (!auth?.last_sign_in_at) status = 'invited'
+    else status = 'active'
     return {
       ...b,
-      email: auth?.email ?? null,
-      email_confirmed: isUnclaimed ? false : !!auth?.email_confirmed_at,
+      email: isUnclaimed ? null : (auth?.email ?? null),
+      status,
       is_unclaimed: isUnclaimed,
     }
   })
@@ -89,13 +92,15 @@ export default async function AdminBuilderPage() {
     specialty: db.specialty,
     dbId: db.id,
     email: db.email,
-    email_confirmed: db.email_confirmed,
+    status: db.status,
     is_verified: db.is_verified,
     bikeCount: bikeCountById.get(db.id) ?? 0,
     is_unclaimed: db.is_unclaimed,
   }))
 
-  const verifiedCount = rows.filter(r => r.email_confirmed).length
+  const activeCount = rows.filter(r => r.status === 'active').length
+  const invitedCount = rows.filter(r => r.status === 'invited').length
+  const unclaimedCount = rows.filter(r => r.status === 'unclaimed').length
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
@@ -112,11 +117,12 @@ export default async function AdminBuilderPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Werkstätten gesamt',  value: rows.length },
-            { label: 'Verifiziert',     value: verifiedCount },
-            { label: 'Nicht verifiziert', value: rows.length - verifiedCount },
+            { label: 'Gesamt',            value: rows.length },
+            { label: 'Aktiv',             value: activeCount },
+            { label: 'Eingeladen',        value: invitedCount },
+            { label: 'Nicht zugewiesen',  value: unclaimedCount },
           ].map(s => (
             <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
               <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
