@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
-import { resendVerificationEmail } from '@/lib/actions/riders'
+import { resendInvitation } from '@/lib/actions/invite'
 
 type StatusFilter = 'alle' | 'active' | 'invited' | 'unclaimed'
 
@@ -81,24 +81,21 @@ export default function AdminBuilderClient({ builders }: Props) {
       return
     }
 
-    // Auto-send magic link after assigning email
-    await resendVerificationEmail(emailValue.trim())
-
     setAssigningEmail(false)
     setEmailTarget(null)
     setEmailValue('')
     router.refresh()
   }
 
-  const [resendingEmail, setResendingEmail] = useState<string | null>(null)
+  const [resendingId, setResendingId] = useState<string | null>(null)
   const [resendSuccess, setResendSuccess] = useState<Set<string>>(new Set())
 
-  async function handleResendEmail(email: string) {
-    setResendingEmail(email)
-    const result = await resendVerificationEmail(email)
-    setResendingEmail(null)
+  async function handleResendInvite(profileId: string) {
+    setResendingId(profileId)
+    const result = await resendInvitation(profileId)
+    setResendingId(null)
     if (result.success) {
-      setResendSuccess(prev => new Set(prev).add(email))
+      setResendSuccess(prev => new Set(prev).add(profileId))
     }
   }
 
@@ -205,19 +202,19 @@ export default function AdminBuilderClient({ builders }: Props) {
                           <Mail size={10} /> Mail zuweisen
                         </button>
                       )}
-                      {b.status === 'invited' && b.email && (
-                        resendSuccess.has(b.email) ? (
+                      {b.status === 'invited' && b.dbId && (
+                        resendSuccess.has(b.dbId) ? (
                           <span className="inline-flex items-center gap-1 text-xs text-green-500 px-3 py-1.5 whitespace-nowrap">
                             <Mail size={10} /> Gesendet
                           </span>
                         ) : (
                           <button
-                            onClick={() => handleResendEmail(b.email!)}
-                            disabled={resendingEmail === b.email}
+                            onClick={() => handleResendInvite(b.dbId!)}
+                            disabled={resendingId === b.dbId}
                             className="inline-flex items-center gap-1 text-xs text-amber-500/80 hover:text-amber-600 border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-full transition-all whitespace-nowrap disabled:opacity-50"
                           >
                             <Mail size={10} />
-                            {resendingEmail === b.email ? 'Sende…' : 'Mail senden'}
+                            {resendingId === b.dbId ? 'Sende…' : 'Erneut einladen'}
                           </button>
                         )
                       )}

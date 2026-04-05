@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { sendInvitationEmail } from '@/lib/invite'
 
 /** Superadmin guard — returns profile or error response */
 async function requireSuperadmin() {
@@ -211,6 +212,23 @@ export async function PATCH(request: Request) {
 
     if (authError) {
       return NextResponse.json({ error: authError.message }, { status: 500 })
+    }
+
+    // Fetch werkstatt name and send invitation email
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('full_name, username')
+      .eq('id', profileId)
+      .maybeSingle()
+
+    const werkstattName = (profile as { full_name: string | null; username: string | null } | null)?.full_name
+      ?? (profile as { full_name: string | null; username: string | null } | null)?.username
+      ?? 'Werkstatt'
+
+    try {
+      await sendInvitationEmail(email, profileId, werkstattName)
+    } catch (err) {
+      console.error('[PATCH /api/admin/werkstatt] Invitation email error:', err)
     }
 
     return NextResponse.json({ success: true })
