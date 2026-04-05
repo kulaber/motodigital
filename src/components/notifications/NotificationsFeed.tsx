@@ -20,6 +20,7 @@ type NotificationRow = {
     username: string
     slug: string | null
     avatar_url: string | null
+    role: string | null
   } | null
 }
 
@@ -36,7 +37,11 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string }> = 
 const PAGE_SIZE = 20
 
 function getEntityHref(n: NotificationRow): string | null {
-  if (n.type === 'follow' && n.actor?.slug) return `/rider/${n.actor.slug}`
+  if (n.type === 'follow' && n.actor?.slug) {
+    return n.actor.role === 'custom-werkstatt'
+      ? `/custom-werkstatt/${n.actor.slug}`
+      : `/rider/${n.actor.slug}`
+  }
   if (n.type === 'message') return '/dashboard/messages'
   if (n.type === 'inquiry') return '/dashboard/messages'
   if (n.entity_type === 'bike' && n.entity_id) return `/bikes/${n.entity_id}`
@@ -54,7 +59,7 @@ export default function NotificationsFeed({ userId }: { userId: string }) {
     const { data } = await (supabase.from('notifications') as any)
       .select(`
         id, type, entity_type, entity_id, read_at, created_at,
-        actor:actor_id (id, username, slug, avatar_url)
+        actor:actor_id (id, username, slug, avatar_url, role)
       `)
       .eq('recipient_id', userId)
       .order('created_at', { ascending: false })

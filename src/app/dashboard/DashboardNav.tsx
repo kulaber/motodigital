@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Bike, MessageCircle, Bookmark,
+  LayoutDashboard, Bike, MessageCircle, Bookmark, Bell,
   User, Settings, Wrench, Users, BookOpen, Calendar, LogOut,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -68,6 +68,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
     ...(role !== 'superadmin'
       ? [
           { label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> },
+          { label: 'Benachrichtigungen', href: '/dashboard/notifications', icon: <Bell size={15} /> },
           { label: 'Merkliste', href: '/dashboard/merkliste', icon: <Bookmark size={15} /> },
         ]
       : []),
