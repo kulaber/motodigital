@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import MobileNav from './MobileNav'
+import { NotificationDropdownSection } from '@/components/notifications/NotificationDropdownSection'
 
 const LoginModal = dynamic(() => import('@/components/ui/LoginModal').then(m => m.LoginModal), { ssr: false })
 
@@ -33,7 +34,8 @@ export default function Header({ activePage }: Props) {
   const [loginMode, setLoginMode] = useState<'login' | 'register'>('login')
 
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { user, role, slug, avatarUrl, fullName, loading, unreadCount } = useAuth()
+  const { user, role, slug, avatarUrl, fullName, loading, unreadCount, unreadNotificationCount } = useAuth()
+  const totalBadge = unreadCount + unreadNotificationCount
   const router  = useRouter()
   const supabase = createClient()
 
@@ -130,16 +132,17 @@ export default function Header({ activePage }: Props) {
                         <Image src="/pin-logo.svg" alt="MotoDigital" width={20} height={20} className="w-full h-full object-contain" />
                       </span>
                     )}
-                    {unreadCount > 0 && (
+                    {totalBadge > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-0.5 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-[#06a5a5]">
-                        {unreadCount > 9 ? '9+' : unreadCount}
+                        {totalBadge > 9 ? '9+' : totalBadge}
                       </span>
                     )}
                   </span>
                   <ChevronDown size={12} className={`transition-transform ${dashDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {dashDropdown && (
-                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
+                  <div className="absolute top-full right-0 mt-1 w-72 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
+                    <NotificationDropdownSection userId={user.id} onClose={() => setDashDropdown(false)} />
                     <Link href="/dashboard" onClick={() => setDashDropdown(false)}
                       className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                       <LayoutDashboard size={14} /> Dashboard

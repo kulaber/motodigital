@@ -14,6 +14,7 @@ interface AuthContextValue {
   fullName: string | null
   loading: boolean
   unreadCount: number
+  unreadNotificationCount: number
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextValue>({
   fullName: null,
   loading: true,
   unreadCount: 0,
+  unreadNotificationCount: 0,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [fullName, setFullName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0)
   const supabase = createClient()
   const fetchUnreadRef = useRef<() => void>(() => {})
 
@@ -127,8 +130,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Unread notification count + realtime
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!user) { setUnreadNotificationCount(0); return }
+    const uid = user.id
+
+    async function fetchNotifCount() {
+      const { count } = await (supabase.from('notifications') as any)
+        .select('id', { count: 'exact', head: true })
+        .eq('recipient_id', uid)
+        .is('read_at', null)
+      setUnreadNotificationCount(count ?? 0)
+    }
+
+    fetchNotifCount()
+
+    const handler = () => fetchNotifCount()
+    window.addEventListener('notifications-read', handler)
+
+    const notifChannel = supabase
+      .channel('notif-badge')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${uid}` },
+        () => setUnreadNotificationCount(c => c + 1))
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${uid}` },
+        () => fetchNotifCount())
+      .subscribe()
+
+    return () => {
+      window.removeEventListener('notifications-read', handler)
+      supabase.removeChannel(notifChannel)
+    }
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <AuthContext.Provider value={{ user, role, slug, avatarUrl, fullName, loading, unreadCount }}>
+    <AuthContext.Provider value={{ user, role, slug, avatarUrl, fullName, loading, unreadCount, unreadNotificationCount }}>
       {children}
     </AuthContext.Provider>
   )
