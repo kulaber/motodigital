@@ -914,7 +914,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
             {userId && (
               <Link
                 href="/dashboard/notifications"
-                className="absolute right-0 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/8 shadow-sm hover:bg-gray-50 transition-colors"
+                className="absolute -top-1 -right-2 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/8 shadow-sm hover:bg-gray-50 transition-colors"
               >
                 <Bell className="w-[18px] h-[18px] text-[#111111]" />
                 {unreadNotificationCount > 0 && (
