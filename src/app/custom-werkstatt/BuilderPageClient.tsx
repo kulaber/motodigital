@@ -645,7 +645,7 @@ export default function BuilderPageClient({ builders }: Props) {
       style: 'mapbox://styles/mapbox/light-v11',
       center: [10.5, 51.2],
       zoom: 5,
-      minZoom: 5,
+      minZoom: 4,
       attributionControl: false,
     })
     mapRef.current = map
@@ -656,6 +656,7 @@ export default function BuilderPageClient({ builders }: Props) {
       addMarkersRef.current()
       setMapBounds(map.getBounds())
       setMapReady(true)
+      // Initial fitBounds is handled by the filter-change effect
     })
     map.on('move',    () => setMapBounds(map.getBounds() ?? null))
     map.on('moveend', () => { setMapBounds(map.getBounds() ?? null); setMarkerEpoch(e => e + 1) })
@@ -683,6 +684,27 @@ export default function BuilderPageClient({ builders }: Props) {
     const map = mapRef.current
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
+
+  /* ── fit map bounds when filtered builders change ── */
+  const prevFilteredRef = useRef(filtered)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map?.loaded()) return
+    // Skip if only hover/selection changed (same filtered list)
+    if (prevFilteredRef.current === filtered && mapReady) {
+      prevFilteredRef.current = filtered
+      return
+    }
+    prevFilteredRef.current = filtered
+    const withCoords = filtered.filter(b => b.lat && b.lng)
+    if (withCoords.length > 1) {
+      const bounds = new mapboxgl.LngLatBounds()
+      withCoords.forEach(b => bounds.extend([b.lng!, b.lat!]))
+      map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 400 })
+    } else if (withCoords.length === 1) {
+      map.flyTo({ center: [withCoords[0].lng!, withCoords[0].lat!], zoom: 12, duration: 400 })
+    }
+  }, [filtered, mapReady])
 
   /* ── Resize map + adjust inset when mobile view changes ── */
   useEffect(() => {

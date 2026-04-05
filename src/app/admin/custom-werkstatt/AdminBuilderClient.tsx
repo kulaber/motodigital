@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BadgeCheck, Mail, MailX, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
-import { deleteBuilder } from '@/lib/actions/builders'
 import { resendVerificationEmail } from '@/lib/actions/riders'
 
 type VerifiedFilter = 'alle' | 'verified' | 'unverified'
@@ -32,6 +31,7 @@ export default function AdminBuilderClient({ builders }: Props) {
   const [filter, setFilter] = useState<VerifiedFilter>('alle')
   const [deleteTarget, setDeleteTarget] = useState<BuilderRow | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [emailTarget, setEmailTarget] = useState<BuilderRow | null>(null)
   const [emailValue, setEmailValue] = useState('')
   const [assigningEmail, setAssigningEmail] = useState(false)
@@ -41,11 +41,25 @@ export default function AdminBuilderClient({ builders }: Props) {
   async function handleDelete() {
     if (!deleteTarget?.dbId) return
     setDeleting(true)
-    const result = await deleteBuilder(deleteTarget.dbId)
-    setDeleting(false)
-    setDeleteTarget(null)
-    if (result.success) {
+    setDeleteError(null)
+    try {
+      const res = await fetch('/api/admin/werkstatt', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: deleteTarget.dbId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setDeleteError(data.error ?? 'Fehler beim Loeschen')
+        setDeleting(false)
+        return
+      }
+      setDeleting(false)
+      setDeleteTarget(null)
       router.refresh()
+    } catch {
+      setDeleteError('Netzwerkfehler')
+      setDeleting(false)
     }
   }
 
@@ -236,10 +250,12 @@ export default function AdminBuilderClient({ builders }: Props) {
 
       <DeleteConfirmModal
         open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        onClose={() => { setDeleteTarget(null); setDeleteError(null) }}
         onConfirm={handleDelete}
         loading={deleting}
         title={`Möchtest Du die Custom Werkstatt „${deleteTarget?.name}" wirklich löschen?`}
+        description={deleteError ? undefined : 'Alle Bikes, Medien und der Account werden unwiderruflich gelöscht.'}
+        error={deleteError ?? undefined}
       />
 
       {/* E-Mail zuweisen Modal */}

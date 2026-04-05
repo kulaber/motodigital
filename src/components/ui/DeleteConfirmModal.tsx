@@ -10,9 +10,11 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void
   loading?: boolean
   title?: string
+  description?: string
+  error?: string
 }
 
-export function DeleteConfirmModal({ open, onClose, onConfirm, loading, title }: DeleteConfirmModalProps) {
+export function DeleteConfirmModal({ open, onClose, onConfirm, loading, title, description, error }: DeleteConfirmModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const cancelRef = useRef<HTMLButtonElement>(null)
 
@@ -78,9 +80,13 @@ export function DeleteConfirmModal({ open, onClose, onConfirm, loading, title }:
           <h3 id="delete-modal-title" className="text-base font-bold text-[#222222] mb-1">
             {title ?? 'Willst du diesen Beitrag wirklich löschen?'}
           </h3>
-          <p className="text-sm text-[#717171] mb-6">
-            Diese Aktion kann nicht rückgängig gemacht werden.
+          <p className="text-sm text-[#717171] mb-2">
+            {description ?? 'Diese Aktion kann nicht rückgängig gemacht werden.'}
           </p>
+          {error && (
+            <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-4 w-full">{error}</p>
+          )}
+          {!error && <div className="mb-4" />}
 
           <div className="flex gap-3 w-full">
             <button

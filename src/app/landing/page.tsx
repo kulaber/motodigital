@@ -225,11 +225,15 @@ export default async function LandingPage() {
             {BUILDS.map((build, i) => (
               <Link key={build.slug} href={build.href ?? `/custom-bike/${build.slug}`}
                   className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200 h-full">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image src={build.img} alt={build.title}
-                      fill sizes="(max-width: 768px) 100vw, 400px"
-                      {...(i < 3 ? { priority: true } : {})}
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
+                  <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                    {build.img ? (
+                      <Image src={build.img} alt={build.title}
+                        fill sizes="(max-width: 768px) 100vw, 400px"
+                        {...(i < 3 ? { priority: true } : {})}
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#AAAAAA] text-xs">Kein Foto</div>
+                    )}
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
