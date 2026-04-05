@@ -1,0 +1,21 @@
+-- Beschreibungen und Gruendungsjahre fuer alle Marken nachtragen
+UPDATE base_bike_brands SET founded = 1948, description = 'Zuverlaessige Klassiker — perfekte Basis fuer Cafe Racer, Scrambler und Bobber.' WHERE slug = 'honda';
+UPDATE base_bike_brands SET founded = 1955, description = 'Von der XSR bis zur SR500 — Yamaha liefert vielseitige Custom-Plattformen.' WHERE slug = 'yamaha';
+UPDATE base_bike_brands SET founded = 1896, description = 'Robuste Technik zu fairen Preisen — ideal fuer erste Custom-Projekte.' WHERE slug = 'kawasaki';
+UPDATE base_bike_brands SET founded = 1909, description = 'Guenstig, zuverlaessig, anpassbar — Suzuki ist der Geheimtipp unter Custom Buildern.' WHERE slug = 'suzuki';
+UPDATE base_bike_brands SET founded = 1923, description = 'Ikonischer Boxer-Motor — seit Jahrzehnten die Wahl fuer Premium Custom Builds.' WHERE slug = 'bmw';
+UPDATE base_bike_brands SET founded = 1902, description = 'Britisches Erbe trifft modernes Custom-Handwerk — Bonneville und Thruxton als Klassiker.' WHERE slug = 'triumph';
+UPDATE base_bike_brands SET founded = 1903, description = 'Amerikanische Ikone — unschlagbar als Basis fuer Bobber und Chopper.' WHERE slug = 'harley-davidson';
+UPDATE base_bike_brands SET founded = 1921, description = 'Laengseinbau-V2 aus Mandello del Lario — fuer Custom Builds mit Charakter.' WHERE slug = 'moto-guzzi';
+UPDATE base_bike_brands SET founded = 1926, description = 'Italienische Leidenschaft — Monster und Scrambler als moderne Custom-Plattformen.' WHERE slug = 'ducati';
+UPDATE base_bike_brands SET founded = 1901, description = 'Erschwinglich und authentisch — die Interceptor 650 als neue Custom-Basis.' WHERE slug = 'royal-enfield';
+UPDATE base_bike_brands SET founded = 1901, description = 'Amerikanische Tradition neu interpretiert — Scout und FTR fuer moderne Customs.' WHERE slug = 'indian';
+UPDATE base_bike_brands SET founded = 1934, description = 'Leichte Einzylinder und V-Twins — perfekt fuer Tracker und Supermoto.' WHERE slug = 'ktm';
+UPDATE base_bike_brands SET founded = 1903, description = 'Vitpilen und Svartpilen — ab Werk schon fast Custom.' WHERE slug = 'husqvarna';
+UPDATE base_bike_brands SET founded = 1898, description = 'Die Commando als Inbegriff des britischen Cafe Racers.' WHERE slug = 'norton';
+UPDATE base_bike_brands SET founded = 1919, description = 'Gold Star und A65 — britische Legenden fuer puristische Builds.' WHERE slug = 'bsa';
+UPDATE base_bike_brands SET founded = 1911, description = 'Vom Sechszylinder-Klassiker bis zum modernen Leoncino.' WHERE slug = 'benelli';
+UPDATE base_bike_brands SET founded = 1945, description = 'Italienische Renngeschichte — Brutale und Dragster als Streetfighter-Basis.' WHERE slug = 'mv-agusta';
+UPDATE base_bike_brands SET founded = 1873, description = 'Die Jota als eine der schnellsten Serienmotorraeder der 70er.' WHERE slug = 'laverda';
+UPDATE base_bike_brands SET founded = 1856, description = 'DDR-Kult — S51 und Schwalbe als beliebte Custom-Basis im DACH-Raum.' WHERE slug = 'simson';
+UPDATE base_bike_brands SET founded = 1958, description = 'Spanische Zweitakt-Legenden — Pursang und Metralla fuer puristische Builds.' WHERE slug = 'bultaco';

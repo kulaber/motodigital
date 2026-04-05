@@ -86,16 +86,18 @@ export default async function MarkenPage() {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] font-medium text-[#717171]">
                     {modelCount} {modelCount === 1 ? 'Modell' : 'Modelle'}
                   </span>
                   {buildCount > 0 && (
-                    <span className="text-[10px] font-semibold text-[#06a5a5]">{buildCount} {buildCount === 1 ? 'Build' : 'Builds'}</span>
+                    <span className="text-xs font-semibold text-[#06a5a5] bg-[#06a5a5]/8 px-2.5 py-1 rounded-full">
+                      {buildCount} {buildCount === 1 ? 'Custom Bike' : 'Custom Bikes'}
+                    </span>
                   )}
                 </div>
 
-                <p className="mt-4 text-[10px] font-semibold text-[#06a5a5] group-hover:text-[#058f8f] transition-colors">
+                <p className="text-[10px] font-semibold text-[#06a5a5] group-hover:text-[#058f8f] transition-colors">
                   Alle {brand.name} Modelle →
                 </p>
               </Link>
