@@ -14,7 +14,6 @@ export async function resendVerificationEmail(email: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Nicht autorisiert' }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: me } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -35,7 +34,6 @@ export async function deleteRider(riderId: string) {
 
   if (!user) return { error: 'Nicht autorisiert' }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: me } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -60,14 +58,12 @@ export async function deleteRider(riderId: string) {
   }
 
   // 3. Clean up bike-images (user's bikes → bike_images)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikes } = await (supabase.from('bikes') as any)
     .select('id')
     .eq('seller_id', riderId)
 
   if (bikes?.length) {
     for (const bike of bikes) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: images } = await (supabase.from('bike_images') as any)
         .select('url, thumbnail_url')
         .eq('bike_id', bike.id)
@@ -88,7 +84,6 @@ export async function deleteRider(riderId: string) {
   }
 
   // 4. Clean up community-media (community_posts.media_urls)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: posts } = await (supabase.from('community_posts') as any)
     .select('media_urls')
     .eq('user_id', riderId)
@@ -113,7 +108,6 @@ export async function deleteRider(riderId: string) {
   }
 
   // 6. Delete profile — cascades to bikes, bike_images, builder_media, community_posts, etc.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('profiles') as any)
     .delete()
     .eq('id', riderId)

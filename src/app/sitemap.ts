@@ -9,7 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch dynamic slugs from Supabase
   const [{ data: builders }, { data: bikes }] = await Promise.all([
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase.from('profiles') as any)
       .select('slug, updated_at')
       .eq('role', 'custom-werkstatt')

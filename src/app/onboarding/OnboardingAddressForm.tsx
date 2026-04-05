@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MapPin, Wrench, Check } from 'lucide-react'
 import Image from 'next/image'
@@ -89,7 +88,6 @@ function AddressAutocomplete({
 }
 
 export default function OnboardingAddressForm({ userId }: { userId: string }) {
-  const _router = useRouter()
   const supabase = createClient()
   const [addressData, setAddressData] = useState({
     address: '',
@@ -112,7 +110,6 @@ export default function OnboardingAddressForm({ userId }: { userId: string }) {
     setSaving(true)
     setError(null)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any)
       .update({
         address: addressData.address,

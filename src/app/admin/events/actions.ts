@@ -8,7 +8,6 @@ async function requireSuperadmin() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -49,14 +48,12 @@ export async function saveEvent(formData: FormData) {
   }
 
   if (id) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('events') as any)
       .update(payload)
       .eq('id', id)
 
     if (error) return { error: error.message }
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('events') as any)
       .insert(payload)
 
@@ -94,7 +91,6 @@ export async function uploadEventImage(formData: FormData) {
 export async function deleteEvent(id: string) {
   const { supabase } = await requireSuperadmin()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('events') as any)
     .delete()
     .eq('id', id)

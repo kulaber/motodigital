@@ -15,7 +15,6 @@ export default async function EditBikePage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bike } = await (supabase.from('bikes') as any)
     .select('id, slug, title, make, model, year, style, mileage_km, price, city, description, modifications, status, seller_id, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .eq('id', slug)
@@ -23,7 +22,6 @@ export default async function EditBikePage({ params }: Props) {
 
   if (!bike) notFound()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, full_name, avatar_url').eq('id', user.id).maybeSingle()
   if (bike.seller_id !== user.id && profile?.role !== 'superadmin') redirect('/dashboard')

@@ -28,7 +28,6 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
     setLoading(true)
 
     // Find existing conversation (check both directions)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
       .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${user.id}),and(seller_id.eq.${user.id},buyer_id.eq.${sellerId})`)
@@ -36,7 +35,6 @@ export default function ContactButton({ bikeId, sellerId }: Props) {
       .maybeSingle()
 
     if (!conv?.id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: created } = await (supabase.from('conversations') as any)
         .insert({ seller_id: sellerId, buyer_id: user.id, bike_id: bikeId })
         .select('id')

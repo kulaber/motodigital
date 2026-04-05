@@ -20,13 +20,6 @@ type DashboardBike = Pick<BikeRow, 'id' | 'title' | 'status' | 'price' | 'view_c
   bike_images: Pick<BikeImageRow, 'url' | 'is_cover'>[]
 }
 
-type DashboardConversation = {
-  id: string
-  last_message_at: string | null
-  bikes: { title: string } | null
-  profiles: { username: string; full_name: string | null } | null
-}
-
 export const metadata: Metadata = { title: 'Dashboard' }
 
 export default async function DashboardPage() {
@@ -39,18 +32,12 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; bio_long: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null; tags: string[] | null; address: string | null; lat: number | null; lng: number | null; instagram_url: string | null; tiktok_url: string | null; website_url: string | null; youtube_url: string | null } | null }
 
-  const [{ data: bikes }, { data: _conversations }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
+  const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
       .select('id, title, slug, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .eq('seller_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: DashboardBike[] | null, error: unknown }>,
-    supabase
-      .from('conversations')
-      .select('id, last_message_at, bikes(title), profiles:buyer_id(username, full_name)')
-      .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
-      .order('last_message_at', { ascending: false })
-      .limit(10) as unknown as Promise<{ data: DashboardConversation[] | null, error: unknown }>,
     supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
     supabase.from('saved_builders').select('builder_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
     (supabase.from('builder_media') as any)

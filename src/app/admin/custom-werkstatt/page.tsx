@@ -26,7 +26,6 @@ export default async function AdminBuilderPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -35,7 +34,6 @@ export default async function AdminBuilderPage() {
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
   // Fetch all builder profiles from Supabase
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbBuilders } = await (supabase.from('profiles') as any)
     .select('id, username, full_name, city, address, specialty, since_year, is_verified, created_at')
     .eq('role', 'custom-werkstatt')
@@ -75,7 +73,6 @@ export default async function AdminBuilderPage() {
   })
 
   // Fetch bike counts per seller from Supabase
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikeCounts } = await (supabase.from('bikes') as any)
     .select('seller_id') as { data: { seller_id: string }[] | null }
 

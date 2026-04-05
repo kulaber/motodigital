@@ -33,7 +33,6 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
       // Wenn keine builderId übergeben wurde, per Slug in DB nachschlagen
       let resolvedId = initialBuilderId
       if (!resolvedId) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: profile } = await (supabase.from('profiles') as any)
           .select('id')
           .eq('slug', slug)
@@ -44,7 +43,6 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
       }
 
       if (!resolvedId) return
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('saved_builders') as any)
         .select('builder_id')
         .eq('user_id', user.id)
@@ -70,14 +68,12 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
     if (!builderId || loadingSave) return
     setLoadingSave(true)
     if (saved) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_builders') as any)
         .delete()
         .eq('user_id', userId)
         .eq('builder_id', builderId)
       setSaved(false)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_builders') as any)
         .insert({ user_id: userId, builder_id: builderId })
       setSaved(true)

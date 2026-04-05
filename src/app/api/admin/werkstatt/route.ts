@@ -8,7 +8,6 @@ async function requireSuperadmin() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 }) }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)

@@ -12,13 +12,11 @@ export async function DELETE(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   // Check if user is post owner or superadmin
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
     .maybeSingle()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: post } = await (supabase.from('community_posts') as any)
     .select('user_id, media_urls')
     .eq('id', id)

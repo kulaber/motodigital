@@ -55,12 +55,10 @@ export default function AdminEditRiderPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/auth/login'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: me } = await (supabase.from('profiles') as any)
         .select('role').eq('id', user.id).maybeSingle()
       if (me?.role !== 'superadmin') { router.push('/dashboard'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
         .select('id, full_name, username, bio, city, avatar_url, instagram_url, tiktok_url, website_url, tags, is_verified')
         .eq('id', id)
@@ -116,7 +114,6 @@ export default function AdminEditRiderPage() {
     const supabase = createClient()
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('profiles') as any)
       .update({
         full_name:     form.full_name     || null,

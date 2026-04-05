@@ -52,7 +52,6 @@ export function useMessages(conversationId: string) {
   }, [conversationId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function sendMessage(body: string, senderId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.from('messages') as any)
       .insert({ conversation_id: conversationId, sender_id: senderId, body })
       .select()
@@ -62,7 +61,6 @@ export function useMessages(conversationId: string) {
     if (!error && data) {
       setMessages(prev => [...prev, data as Message])
       // Update last_message_at so conversation sorts to top
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('conversations') as any)
         .update({ last_message_at: (data as Message).created_at })
         .eq('id', conversationId)

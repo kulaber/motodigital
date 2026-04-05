@@ -90,16 +90,13 @@ export default async function BikeSlugPage({ params }: Props) {
     const styleSupabase = await createSupabaseClient()
 
     // Fetch ALL active bikes (same as /bikes page) so BikesClient filters work fully
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: rows } = await (styleSupabase.from('bikes') as any)
       .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const allBuilds: Build[] = (rows ?? []).map((r: any) => {
       const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
       const profile = r.profiles
       return {
@@ -122,7 +119,7 @@ export default async function BikeSlugPage({ params }: Props) {
         displacement:  '',
         builder:       { name: profile?.full_name ?? '', slug: '', initials: '', city: '', specialty: '', verified: false },
         coverImg:      cover,
-        images:        images.map((i: any) => i.url), // eslint-disable-line @typescript-eslint/no-explicit-any
+        images:        images.map((i: any) => i.url),
         publishedAt:   r.created_at,
         role:          profile?.role ?? 'rider',
         viewCount:     r.view_count ?? 0,
@@ -163,7 +160,7 @@ export default async function BikeSlugPage({ params }: Props) {
 
   if (!bike) notFound()
 
-  ;(supabase.from('bikes') as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+  ;(supabase.from('bikes') as any)
     .update({ view_count: (bike.view_count ?? 0) + 1 })
     .eq('id', slug)
     .then(() => {})
@@ -349,7 +346,6 @@ export default async function BikeSlugPage({ params }: Props) {
 
 async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
   const supabase = await createSupabaseClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
@@ -357,9 +353,9 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
     .order('created_at', { ascending: false })
     .limit(3)
 
-  const related = (rows ?? []).map((r: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const related = (rows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
-    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null // eslint-disable-line @typescript-eslint/no-explicit-any
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
     const profile = r.profiles
     return {
       slug: r.slug ?? r.id,
@@ -390,7 +386,7 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
         </Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {related.map((b: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+        {related.map((b: any) => (
           <Link
             key={b.slug}
             href={b.href}

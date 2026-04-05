@@ -11,6 +11,8 @@ import type { Event } from '@/lib/data/events'
 import EventInterestButton from './EventInterestButton'
 import EventLocationMap from './EventLocationMap'
 
+export const revalidate = 3600 // ISR: event details change infrequently
+
 async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   if (!token) return null
@@ -51,7 +53,7 @@ export default async function EventDetailPage({ params }: Props) {
   const supabase = await createClient()
 
   const { data } = await (supabase.from('events') as any)
-    .select('*')
+    .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
     .eq('slug', slug)
     .maybeSingle()
 

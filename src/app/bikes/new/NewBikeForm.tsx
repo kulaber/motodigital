@@ -165,7 +165,6 @@ export default function NewBikeForm() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { toastError('Nicht eingeloggt.'); setLoading(false); return }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bike, error: bikeError } = await (supabase.from('bikes') as any).insert({
       seller_id:    user.id,
       title:        title.trim(),
@@ -191,7 +190,6 @@ export default function NewBikeForm() {
     // Generate and save slug after insert (needs the ID)
     if (bike?.id) {
       const slug = generateBikeSlug(title.trim(), bike.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('bikes') as any).update({ slug }).eq('id', bike.id)
     }
 
@@ -224,7 +222,6 @@ export default function NewBikeForm() {
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('bike_images') as any).insert({
           bike_id:       bike.id,
           url:           urlData.publicUrl,

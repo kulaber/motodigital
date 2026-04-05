@@ -24,7 +24,6 @@ export default function FooterBikeStyles() {
 
   useEffect(() => {
     const supabase = createClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase.from('bikes') as any)
       .select('style')
       .eq('status', 'active')

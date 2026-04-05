@@ -175,7 +175,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         }
       }
       // Delete from DB
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('bike_images') as any).delete().eq('id', item.img.id)
       setDeleteLoading(false)
     }
@@ -204,7 +203,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { toastError('Nicht eingeloggt.'); setLoading(false); return }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('bikes') as any).update({
       title:       title.trim(),
       make:        finalMake.trim(),
@@ -226,7 +224,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
     for (let i = 0; i < gallery.length; i++) {
       const item = gallery[i]
       if (item.type === 'existing') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase.from('bike_images') as any).update({ position: i, is_cover: i === 0 }).eq('id', item.img.id)
       } else {
         const ext = item.file.name.split('.').pop()
@@ -247,7 +244,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
             }
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase.from('bike_images') as any).insert({
             bike_id: bike.id, url: publicUrl, position: i, is_cover: i === 0,
             media_type: item.isVideo ? 'video' : 'image',

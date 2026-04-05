@@ -59,12 +59,10 @@ export default function EditBuilderPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/auth/login'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: me } = await (supabase.from('profiles') as any)
         .select('role').eq('id', user.id).maybeSingle()
       if (me?.role !== 'superadmin') { router.push('/dashboard'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
         .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, opening_hours, is_verified')
         .or(`username.eq.${slug},slug.eq.${slug}`)
@@ -75,7 +73,6 @@ export default function EditBuilderPage() {
         setIsVerified(data.is_verified)
 
         // Load media
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: mediaData } = await (supabase.from('builder_media') as any)
           .select('id, url, type, title, position')
           .eq('builder_id', data.id)
@@ -93,7 +90,6 @@ export default function EditBuilderPage() {
     setSavingVerified(true)
     const newVal = !isVerified
     const supabase = createClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('profiles') as any)
       .update({ is_verified: newVal })
       .eq('id', dbProfile.id)

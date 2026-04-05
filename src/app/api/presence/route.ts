@@ -13,7 +13,6 @@ export async function POST() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (admin.from('profiles') as any)
       .update({ last_seen_at: new Date().toISOString() })
       .eq('id', user.id)

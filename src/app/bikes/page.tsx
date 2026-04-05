@@ -25,14 +25,12 @@ export default async function BikesPage() {
   const isLoggedIn = !!user
 
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(100)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbBuilds: Build[] = (rows ?? []).map((r: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''

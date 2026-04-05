@@ -10,7 +10,6 @@ export default async function AdminCustomBikesPage() {
   const supabase = await createClient()
 
   // Fetch all bikes (all statuses)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikes } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, year, price, status, created_at, seller_id, slug, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .order('created_at', { ascending: false }) as {
@@ -25,7 +24,6 @@ export default async function AdminCustomBikesPage() {
 
   // Fetch seller profiles
   const sellerIds = [...new Set((bikes ?? []).map(b => b.seller_id))]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profiles } = sellerIds.length > 0
     ? await (supabase.from('profiles') as any)
         .select('id, full_name, role')

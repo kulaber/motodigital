@@ -30,7 +30,6 @@ export default async function RiderOverviewPage() {
   if (!user) return <AuthGate />
 
   // Fetch riders + all rider bikes in parallel (avoids sequential waterfall)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: dbRiders }, { data: allBikeRows }] = await Promise.all([
     (supabase.from('profiles') as any)
       .select('id, full_name, slug, username, city, address, avatar_url, riding_style, last_seen_at')

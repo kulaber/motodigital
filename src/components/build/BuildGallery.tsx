@@ -50,7 +50,6 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       setUserId(user.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('saved_bikes') as any)
         .select('bike_id')
         .eq('user_id', user.id)
@@ -86,14 +85,12 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
     if (!bikeId) return
     setLoadingSave(true)
     if (saved) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_bikes') as any)
         .delete()
         .eq('user_id', userId)
         .eq('bike_id', bikeId)
       setSaved(false)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_bikes') as any)
         .insert({ user_id: userId, bike_id: bikeId })
       setSaved(true)
@@ -177,7 +174,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
       window.removeEventListener('keydown', onKey)
       clearTimeout(timer)
     }
-  }, [lightbox]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lightbox])
 
   const [i1, i2, i3, i4] = images
 

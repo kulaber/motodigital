@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import type { Event } from '@/lib/data/events'
 import EventsClient from './EventsClient'
 
+export const revalidate = 3600 // ISR: events change infrequently
+
 export const metadata: Metadata = {
   title: 'Custom Motorcycle Events 2026 — MotoDigital',
   description: 'Die wichtigsten Custom-Motorcycle-Events in Europa 2026 — Glemseck 101, Wheels & Waves, Cafe Racer Festival und mehr.',
@@ -13,8 +15,9 @@ export const metadata: Metadata = {
 export default async function EventsPage() {
   const supabase = await createClient()
   const { data } = await (supabase.from('events') as any)
-    .select('*')
+    .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
     .order('date_start', { ascending: true })
+    .limit(200)
 
   const events = (data ?? []) as Event[]
 

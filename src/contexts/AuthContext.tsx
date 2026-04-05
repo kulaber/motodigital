@@ -102,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: convs } = await (supabase.from('conversations') as any)
           .select('id')
           .or(`seller_id.eq.${uid},buyer_id.eq.${uid}`)
+          .limit(500)
         convIdsRef.current = convs?.map((c: { id: string }) => c.id) ?? []
       }
       if (convIdsRef.current.length === 0) { setUnreadCount(0); return }

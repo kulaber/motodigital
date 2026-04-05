@@ -41,7 +41,6 @@ export default async function AdminRidersPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -49,7 +48,6 @@ export default async function AdminRidersPage() {
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: dbRiders } = await (supabase.from('profiles') as any)
     .select('id, username, slug, full_name, city, bio, is_verified, created_at')
     .eq('role', 'rider')

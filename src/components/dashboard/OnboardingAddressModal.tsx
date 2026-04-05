@@ -113,7 +113,6 @@ export default function OnboardingAddressModal({ userId }: { userId: string }) {
     setSaving(true)
     setError(null)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase.from('profiles') as any)
       .update({
         address: addressData.address,

@@ -18,7 +18,6 @@ export default async function OnboardingPage() {
     redirect(`/verify-email?email=${encodeURIComponent(user.email ?? '')}`)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role, address')
     .eq('id', user.id)

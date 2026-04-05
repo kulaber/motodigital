@@ -57,7 +57,6 @@ export default async function SearchPage({
     const pattern = `%${query}%`
 
     const [bikeRes, builderRes] = await Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (supabase.from('bikes') as any)
         .select('id, title, make, model, city, slug, style, price, bike_images(url, is_cover, position)')
         .eq('status', 'active')
@@ -65,7 +64,6 @@ export default async function SearchPage({
         .order('created_at', { ascending: false })
         .limit(12),
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (supabase.from('profiles') as any)
         .select('id, full_name, city, specialty, slug, avatar_url')
         .eq('role', 'custom-werkstatt')
@@ -84,9 +82,8 @@ export default async function SearchPage({
   if (query.length >= 2) {
     const supabase = await createClient()
     const pattern = `%${query}%`
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: eventData } = await (supabase.from('events') as any)
-      .select('*')
+      .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
       .or(`name.ilike.${pattern},location.ilike.${pattern}`)
       .order('date_start', { ascending: true })
       .limit(6)

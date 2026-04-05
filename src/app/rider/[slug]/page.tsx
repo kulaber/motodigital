@@ -81,7 +81,6 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url, last_seen_at'
 
   // Try slug + username lookups in parallel (2 queries instead of 2 sequential)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: bySlug }, { data: byUsername }] = await Promise.all([
     (supabase.from('profiles') as any).select(cols).eq('slug', slug).eq('role', 'rider').maybeSingle(),
     (supabase.from('profiles') as any).select(cols).eq('username', slug).eq('role', 'rider').maybeSingle(),
@@ -91,7 +90,6 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   if (!row) {
     // Last resort: try matching by generated slug from full_name
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: allRiders } = await (supabase.from('profiles') as any)
       .select(cols)
       .eq('role', 'rider')
@@ -107,7 +105,6 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   if (!row) return null
 
   // Fetch bikes, event interests, cover image, and follow counts in parallel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: bikeRows }, { data: eventRows }, { data: coverRow }, { count: followerCount }, { count: followingCount }] = await Promise.all([
     (supabase.from('bikes') as any)
       .select('id, slug, title, make, model, style, listing_type, bike_images(id, url, is_cover, position)')
@@ -132,7 +129,6 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bikes = (bikeRows ?? []).map((b: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = b.bike_images ?? []
     const cover = images.find(i => i.is_cover)?.url ?? images.sort((a: { position: number }, z: { position: number }) => a.position - z.position)[0]?.url ?? ''
@@ -160,7 +156,6 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     })),
     // Fetch event details
     eventSlugs.length > 0
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? (supabase.from('events') as any).select('slug, name, image, date_start, date_end, location').in('slug', eventSlugs)
       : Promise.resolve({ data: [] }),
   ])
@@ -286,7 +281,7 @@ export default async function RiderProfilePage({ params }: Props) {
             {/* Actions — top right, desktop only (non-owner) */}
             {!isOwnProfile && (
               <div className="hidden lg:flex items-center gap-2.5 pb-1">
-                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                <FollowButton riderId={rider.id} />
                 <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
               </div>
             )}
@@ -339,7 +334,7 @@ export default async function RiderProfilePage({ params }: Props) {
               </div>
             ) : (
               <div className="flex items-center gap-2.5 mt-4 lg:hidden">
-                <FollowButton riderId={rider.id} riderFirstName={rider.name.split(' ')[0]} />
+                <FollowButton riderId={rider.id} />
                 <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
               </div>
             )}

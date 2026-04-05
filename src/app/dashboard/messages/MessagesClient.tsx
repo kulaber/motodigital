@@ -54,7 +54,7 @@ function BikeRefCard({ title, img }: { title: string; img?: string }) {
 }
 
 /* ─── Message body renderer (text, image, or combined) ─── */
-function MessageBody({ body, isOwn: _isOwn, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
+function MessageBody({ body, onImageClick }: { body: string; isOwn: boolean; onImageClick: (url: string) => void }) {
   // Bike reference: "[bike:Title|imgUrl]\ntext"
   const bikeMatch = body.match(/^\[bike:([^|]*)\|([^\]]*)\]\n?([\s\S]*)$/)
   if (bikeMatch) {

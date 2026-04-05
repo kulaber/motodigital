@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       dynamic: 30,  // cache dynamic pages 30s client-side (back-nav = instant)
       static: 180,  // cache static/ISR pages 3min client-side
     },
+    optimizePackageImports: ['lucide-react', 'date-fns'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],

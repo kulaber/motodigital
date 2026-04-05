@@ -74,7 +74,6 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   const supabase = await createClient()
 
   // Try slug first, then fall back to username
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data: row } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
     .eq('slug', slug)
@@ -82,7 +81,6 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     .maybeSingle()
 
   if (!row) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: fallback } = await (supabase.from('profiles') as any)
       .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
       .eq('username', slug)
@@ -93,7 +91,6 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   if (!row) return null
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: mediaRows }, { data: bikeRows }] = await Promise.all([
     (supabase.from('builder_media') as any)
       .select('url, type, title, position')
@@ -115,7 +112,6 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
   const media         = allMedia.filter(m => m.title === 'cover')
   const galleryImages = allMedia.filter(m => m.title !== 'cover')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const featuredBuilds = (bikeRows ?? []).map((b: any) => {
     const images: { url: string; is_cover: boolean }[] = b.bike_images ?? []
     const coverImg = images.find(i => i.is_cover)?.url ?? images[0]?.url ?? null

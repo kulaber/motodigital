@@ -10,7 +10,6 @@ function extractStoragePath(url: string): string | null {
 
 /** Helper: delete all bike_images storage files for a bike */
 async function deleteBikeStorage(supabase: Awaited<ReturnType<typeof createClient>>, bikeId: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: images } = await (supabase.from('bike_images') as any)
     .select('url, thumbnail_url')
     .eq('bike_id', bikeId)
@@ -37,7 +36,6 @@ export async function deleteBike(id: string) {
 
   if (!user) return { error: 'Nicht autorisiert' }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -47,7 +45,6 @@ export async function deleteBike(id: string) {
 
   await deleteBikeStorage(supabase, id)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('bikes') as any).delete().eq('id', id)
 
   if (error) return { error: error.message }
@@ -62,7 +59,6 @@ export async function deleteOwnBike(id: string) {
   if (!user) return { error: 'Nicht autorisiert' }
 
   // Verify ownership
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bike } = await (supabase.from('bikes') as any)
     .select('seller_id')
     .eq('id', id)
@@ -73,7 +69,6 @@ export async function deleteOwnBike(id: string) {
 
   await deleteBikeStorage(supabase, id)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('bikes') as any).delete().eq('id', id)
 
   if (error) return { error: error.message }

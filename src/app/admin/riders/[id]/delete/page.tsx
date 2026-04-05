@@ -30,12 +30,10 @@ export default function AdminDeleteRiderPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/auth/login'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: me } = await (supabase.from('profiles') as any)
         .select('role').eq('id', user.id).maybeSingle()
       if (me?.role !== 'superadmin') { router.push('/dashboard'); return }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('profiles') as any)
         .select('id, full_name, username')
         .eq('id', id)

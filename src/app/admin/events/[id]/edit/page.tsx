@@ -13,7 +13,6 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
@@ -21,9 +20,8 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase.from('events') as any)
-    .select('*')
+    .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
     .eq('id', id)
     .maybeSingle()
 

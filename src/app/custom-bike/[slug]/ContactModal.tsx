@@ -50,7 +50,6 @@ function Modal({
     setSending(true)
 
     // Find existing conversation (check both directions)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let { data: conv } = await (supabase.from('conversations') as any)
       .select('id')
       .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${sellerId})`)
@@ -58,14 +57,12 @@ function Modal({
       .maybeSingle()
 
     if (!conv?.id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: created, error: insertError } = await (supabase.from('conversations') as any)
         .insert({ seller_id: sellerId, buyer_id: userId, bike_id: bikeId })
         .select('id')
         .maybeSingle()
       if (insertError) {
         // Unique constraint hit → conversation exists in other direction, re-fetch
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: existing } = await (supabase.from('conversations') as any)
           .select('id')
           .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${sellerId})`)
@@ -79,11 +76,9 @@ function Modal({
 
     if (conv?.id) {
       const body = `[bike:${bikeTitle}|${coverImage ?? ''}]\n${trimmed}`
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('messages') as any)
         .insert({ conversation_id: conv.id, sender_id: userId, body })
       // Update last_message_at so conversation sorts to top
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('conversations') as any)
         .update({ last_message_at: new Date().toISOString() })
         .eq('id', conv.id)

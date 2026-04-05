@@ -148,7 +148,6 @@ export default async function ArticlePage({
   const supabase = await createClient()
   let relatedBuilder: { slug: string; name: string; initials: string; city: string; specialty: string } | undefined
   if (article.relatedBuilderSlug) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bp } = await (supabase.from('profiles') as any)
       .select('slug, full_name, city, specialty')
       .eq('slug', article.relatedBuilderSlug)
@@ -169,7 +168,6 @@ export default async function ArticlePage({
   // Fetch related build from DB
   let relatedBuild: { slug: string; title: string; base: string; style: string; coverImg: string } | undefined
   if (article.relatedBuildSlug) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: bike } = await (supabase.from('bikes') as any)
       .select('id, title, make, model, style, slug, bike_images(url, is_cover, position)')
       .eq('slug', article.relatedBuildSlug)

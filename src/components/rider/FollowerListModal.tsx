@@ -36,7 +36,6 @@ export default function FollowerListModal({ riderId, riderName, followerCount, f
       const supabase = createClient()
 
       // Get follower/following IDs
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: rows } = await (supabase.from('followers') as any)
         .select(tab === 'followers' ? 'follower_id' : 'following_id')
         .eq(tab === 'followers' ? 'following_id' : 'follower_id', riderId)
@@ -52,7 +51,6 @@ export default function FollowerListModal({ riderId, riderName, followerCount, f
       }
 
       // Fetch profiles for those IDs
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: profiles } = await (supabase.from('profiles') as any)
         .select('id, slug, username, full_name, avatar_url')
         .in('id', ids)

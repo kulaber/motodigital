@@ -212,9 +212,7 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
 
 /* ── Builder card list (shared between desktop & mobile) ── */
 function BuilderList({
-  builders: _builders,
   visible,
-  mapReady: _mapReady,
   selectedBuilder,
   savedIds,
   onToggleSave,
@@ -370,7 +368,6 @@ export default function BuilderPageClient({ builders }: Props) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setAuthReady(true); return }
       setUserId(user.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('saved_builders') as any)
         .select('builder_id')
         .eq('user_id', user.id) as { data: { builder_id: string }[] | null }
@@ -390,11 +387,9 @@ export default function BuilderPageClient({ builders }: Props) {
       return next
     })
     if (isSaved) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_builders') as any).delete()
         .eq('user_id', userId).eq('builder_id', builderId)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('saved_builders') as any).insert({ user_id: userId, builder_id: builderId })
     }
   }
@@ -667,7 +662,7 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current = []
       mapEl.remove()
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   /* ── scroll list to top when visible results change ── */
   const visibleKey = useMemo(() => visible.map(b => b.slug).join(','), [visible])

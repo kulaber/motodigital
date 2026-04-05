@@ -34,7 +34,7 @@ export default function CommunityCircle() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <section className="bg-[#111111] py-24 overflow-hidden">

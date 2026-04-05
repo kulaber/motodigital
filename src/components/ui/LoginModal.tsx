@@ -278,7 +278,6 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('waitlist') as any)
       .update({ invited_at: new Date().toISOString() })
       .eq('email', email.trim())

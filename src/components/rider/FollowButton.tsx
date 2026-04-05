@@ -8,29 +8,18 @@ import { LoginModal } from '@/components/ui/LoginModal'
 
 interface Props {
   riderId: string
-  riderFirstName: string
 }
 
-export default function FollowButton({ riderId, riderFirstName: _riderFirstName }: Props) {
+export default function FollowButton({ riderId }: Props) {
   const { user, loading: authLoading } = useAuth()
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-  const [_followerCount, setFollowerCount] = useState(0)
   const supabase = createClient()
 
-  // Check if already following + get follower count
   useEffect(() => {
     async function check() {
-      // Get follower count
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count } = await (supabase.from('followers') as any)
-        .select('*', { count: 'exact', head: true })
-        .eq('following_id', riderId)
-      setFollowerCount(count ?? 0)
-
       if (!user) return
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase.from('followers') as any)
         .select('follower_id')
         .eq('follower_id', user.id)
@@ -52,19 +41,15 @@ export default function FollowButton({ riderId, riderFirstName: _riderFirstName 
 
     setLoading(true)
     if (isFollowing) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('followers') as any)
         .delete()
         .eq('follower_id', user.id)
         .eq('following_id', riderId)
       setIsFollowing(false)
-      setFollowerCount(c => Math.max(0, c - 1))
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('followers') as any)
         .insert({ follower_id: user.id, following_id: riderId })
       setIsFollowing(true)
-      setFollowerCount(c => c + 1)
     }
     setLoading(false)
   }

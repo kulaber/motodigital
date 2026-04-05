@@ -24,7 +24,6 @@ export async function POST(request: Request) {
 
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('waitlist') as any)
     .insert({ name, email, role })
 

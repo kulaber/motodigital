@@ -91,6 +91,7 @@ async function BuilderContent() {
     .eq('role', 'custom-werkstatt')
     .not('slug', 'is', null)
     .order('created_at', { ascending: false })
+    .limit(500)
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
 

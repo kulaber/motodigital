@@ -75,7 +75,6 @@ export default async function LandingPage() {
   const isLoggedIn = !!user
 
   // ── Fetch bikes + workshops in parallel ──
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
     (supabase.from('bikes') as any)
       .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
@@ -94,7 +93,6 @@ export default async function LandingPage() {
   const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: Record<string, unknown>) => r.seller_id as string))]
   const workshopIds = (dbRows ?? []).map((r: Record<string, unknown>) => r.id as string)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: sellerProfiles }, bikeCountResult] = await Promise.all([
     sellerIds.length > 0
       ? (supabase.from('profiles') as any).select('id, full_name, role').in('id', sellerIds)
@@ -111,7 +109,6 @@ export default async function LandingPage() {
     ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbBuilds: FeaturedBuild[] = (bikeRows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
     const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null

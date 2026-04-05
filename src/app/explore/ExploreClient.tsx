@@ -562,7 +562,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
 
   // Load events from Supabase
   useEffect(() => {
-    (supabase.from('events') as any).select('*').order('date_start', { ascending: true })
+    (supabase.from('events') as any).select('id, slug, name, date_start, date_end, location, image').order('date_start', { ascending: true }).limit(100)
       .then(({ data }: { data: Event[] | null }) => { if (data) setAllEvents(data) })
   }, [supabase])
 
