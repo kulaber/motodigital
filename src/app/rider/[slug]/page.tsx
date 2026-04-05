@@ -310,7 +310,7 @@ export default async function RiderProfilePage({ params }: Props) {
 
             {/* Bio */}
             {rider.bio && (
-              <p className="text-sm text-[#717171] truncate max-w-lg mt-3">{rider.bio}</p>
+              <p className="text-sm text-[#717171] truncate max-w-lg mt-1">{rider.bio}</p>
             )}
 
             {/* Actions — below bio, mobile only */}
