@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -94,9 +95,11 @@ export default function WieEsFunktioniertPage() {
 
               {/* Image block */}
               <div className="flex-shrink-0 w-full lg:w-[44%] flex items-center justify-center">
-                <img
+                <Image
                   src={s.image}
                   alt={s.tag}
+                  width={576}
+                  height={400}
                   className="w-full sm:w-full max-w-xl object-contain drop-shadow-sm"
                 />
               </div>

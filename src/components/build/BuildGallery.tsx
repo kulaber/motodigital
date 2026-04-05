@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, LayoutGrid, Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
@@ -294,6 +295,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
             }}
           >
             {images.map((img, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={img}
                 src={img}
@@ -342,7 +344,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
           className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
           style={{ gridRow: '1 / 3', gridColumn: images.length === 1 ? '1 / 4' : '1 / 2' }}
         >
-          <img src={i1} alt={title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+          <Image src={i1} alt={title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" priority />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         </button>
 
@@ -353,7 +355,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
             className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
             style={{ gridRow: images.length === 2 ? '1 / 3' : '1 / 2', gridColumn: '2 / 4' }}
           >
-            <img src={i2} alt={`${title} 2`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+            <Image src={i2} alt={`${title} 2`} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           </button>
         )}
@@ -365,7 +367,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
             className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
             style={{ gridRow: '2 / 3', gridColumn: images.length === 3 ? '2 / 4' : '2 / 3' }}
           >
-            <img src={i3} alt={`${title} 3`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+            <Image src={i3} alt={`${title} 3`} fill sizes="25vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           </button>
         )}
@@ -377,7 +379,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
             className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
             style={{ gridRow: '2 / 3', gridColumn: '3 / 4' }}
           >
-            <img src={i4} alt={`${title} 4`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+            <Image src={i4} alt={`${title} 4`} fill sizes="25vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           </button>
         )}
@@ -562,6 +564,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
                   className="break-inside-avoid mb-1 cursor-zoom-in"
                   onClick={() => openViewer(i)}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img}
                     alt={`${title} ${i + 1}`}
@@ -602,6 +605,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
                   <ChevronLeft size={22} />
                 </button>
                 <div className="flex-1 min-w-0 h-full flex items-center justify-center p-4 sm:p-6">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     key={viewerIdx}
                     src={images[viewerIdx]}

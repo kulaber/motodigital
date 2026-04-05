@@ -619,6 +619,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
                     {item.isVideo ? (
                       <>
                         {item.thumbFile ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={URL.createObjectURL(item.thumbFile)} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : (
                           <video src={item.preview} className="w-full h-full object-cover" muted preload="metadata" />
@@ -630,6 +631,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
                         </div>
                       </>
                     ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img src={item.preview} alt={`Bild ${i + 1}`} className="w-full h-full object-cover" />
                     )}
                     {i === 0 && (

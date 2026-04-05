@@ -32,8 +32,25 @@ function getInitials(name: string | null, username: string): string {
   return username.slice(0, 2).toUpperCase()
 }
 
-export default function RiderList({ riders }: { riders: Rider[] }) {
-  if (!riders.length) return null
+function RiderSkeletons() {
+  return (
+    <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
+      <div className="h-3 w-24 bg-[#F0EDE4] rounded-full mx-4 mt-4 mb-2" />
+      <div className="flex gap-3.5 px-4 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-1.5 flex-shrink-0">
+            <div className="size-14 rounded-full bg-[#F0EDE4] animate-pulse" />
+            <div className="h-2.5 w-10 bg-[#F0EDE4] rounded-full animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+export default function RiderList({ riders, loading }: { riders: Rider[]; loading?: boolean }) {
+  if (loading) return <RiderSkeletons />
+  if (!riders.length) return <RiderSkeletons />
 
   return (
     <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">

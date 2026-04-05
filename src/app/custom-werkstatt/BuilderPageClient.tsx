@@ -141,11 +141,13 @@ function MapBuilderCard({ b, onClose }: { b: Builder; onClose: () => void }) {
           {images.length > 0 ? (
             <>
               {images.map((img, i) => (
-                <img
+                <Image
                   key={i}
                   src={img.url}
                   alt={img.title ?? b.name}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+                  fill
+                  sizes="360px"
+                  className={`object-cover transition-opacity duration-300 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
                 />
               ))}
               {images.length > 1 && (

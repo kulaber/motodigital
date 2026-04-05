@@ -13,14 +13,14 @@ import { formatRelativeTime } from '@/lib/utils'
 import { compressImage } from '@/lib/utils/compressImage'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
-import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { getProfileUrl } from '@/lib/utils/profileLink'
 import dynamic from 'next/dynamic'
 import RiderList from '@/components/explore/RiderStories'
 import { useAuth } from '@/hooks/useAuth'
+import LazyMap from '@/components/map/LazyMap'
 
-const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
+const MapboxAddressInput = dynamic(() => import('@/components/ui/MapboxAddressInput'), { ssr: false })
 
 /* ── Types ─────────────────────────────────────────────── */
 
@@ -146,7 +146,7 @@ interface Comment {
   liked_by_me: boolean
 }
 
-function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired, allEvents }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void; allEvents: Event[] }) {
+function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired, allEvents, postIndex = 99 }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void; allEvents: Event[]; postIndex?: number }) {
   const [commentInputOpen, setCommentInputOpen] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -360,6 +360,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           <PostImageCarousel
             items={urlsToMediaItems(imageUrls)}
             alt={post.author_name}
+            isPriority={postIndex < 3}
             onDoubleClick={() => {
               if (!loggedIn) { onLoginRequired?.('like'); return }
               if (!post.liked_by_me) onLike()
@@ -389,7 +390,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             </div>
           )}
           <div className="rounded-lg overflow-hidden border border-[#222222]/6">
-            <MiniMap lat={post.latitude} lng={post.longitude} locationName={post.location_name} />
+            <LazyMap lat={post.latitude} lng={post.longitude} label={post.location_name} />
           </div>
         </div>
       )}
@@ -527,10 +528,17 @@ interface Props {
   events?: Event[]
 }
 
+const PAGE_SIZE = 10
+
 export default function ExploreClient({ userId, isSuperadmin, riders = [], events: initialEvents = [] }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const offsetRef = useRef(0)
+  const loadingMoreRef = useRef(false)
+  const hasMoreRef = useRef(true)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
@@ -573,26 +581,25 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     return () => observer.disconnect()
   }, [])
 
-  // Load community posts from Supabase
-  const loadPosts = useCallback(async () => {
-    const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
-      .order('created_at', { ascending: false })
-      .limit(50)
+  // Enrich raw posts with profile + like data
+  const enrichPosts = useCallback(async (postsData: { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null }[]): Promise<CommunityPost[]> => {
+    if (postsData.length === 0) return []
 
-    if (!postsData || postsData.length === 0) { setCommunityPosts([]); setLoadingPosts(false); return }
+    const userIds = [...new Set(postsData.map(p => p.user_id))]
+    const postIds = postsData.map(p => p.id)
 
-    const userIds = [...new Set((postsData as { user_id: string }[]).map(p => p.user_id))]
-    const { data: profilesData } = await (supabase.from('profiles') as any)
-      .select('id, full_name, avatar_url, role, slug, username')
-      .in('id', userIds)
+    // Parallel: fetch profiles + likes for these posts
+    const [{ data: profilesData }, { data: likesData }] = await Promise.all([
+      (supabase.from('profiles') as any)
+        .select('id, full_name, avatar_url, role, slug, username')
+        .in('id', userIds),
+      (supabase.from('community_post_likes') as any)
+        .select('post_id, user_id')
+        .in('post_id', postIds),
+    ])
 
     const profileMap: Record<string, { full_name: string | null; avatar_url: string | null; role: string | null; slug: string | null; username: string | null }> = {}
     for (const prof of (profilesData ?? [])) profileMap[prof.id] = prof
-
-    // Load likes
-    const { data: likesData } = await (supabase.from('community_post_likes') as any)
-      .select('post_id, user_id')
 
     const likesMap: Record<string, { count: number; byMe: boolean }> = {}
     for (const l of (likesData ?? [])) {
@@ -601,7 +608,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
-    const mapped: CommunityPost[] = (postsData as { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null }[]).map(p => {
+    return postsData.map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
       return {
@@ -626,13 +633,65 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
           ?? (profile?.role === 'rider' && name !== 'Unbekannt' ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null),
       }
     })
-
-    setCommunityPosts(mapped)
-    setLoadingPosts(false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
+  // Load first page of posts
+  const loadPosts = useCallback(async () => {
+    setLoadingPosts(true)
+    hasMoreRef.current = true
+    offsetRef.current = 0
+
+    const { data: postsData } = await (supabase.from('community_posts') as any)
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
+      .order('created_at', { ascending: false })
+      .range(0, PAGE_SIZE - 1)
+
+    const mapped = await enrichPosts(postsData ?? [])
+    setCommunityPosts(mapped)
+    offsetRef.current = mapped.length
+    const more = (postsData ?? []).length >= PAGE_SIZE
+    hasMoreRef.current = more
+    setLoadingPosts(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enrichPosts])
+
+  // Load next page (uses refs to avoid stale closures / observer churn)
+  const loadMorePosts = useCallback(async () => {
+    if (loadingMoreRef.current || !hasMoreRef.current) return
+    loadingMoreRef.current = true
+    setLoadingMore(true)
+
+    const from = offsetRef.current
+    const { data: postsData } = await (supabase.from('community_posts') as any)
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1)
+
+    const mapped = await enrichPosts(postsData ?? [])
+    setCommunityPosts(prev => [...prev, ...mapped])
+    offsetRef.current = from + mapped.length
+    const more = (postsData ?? []).length >= PAGE_SIZE
+    hasMoreRef.current = more
+    loadingMoreRef.current = false
+    setLoadingMore(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enrichPosts])
+
   useEffect(() => { loadPosts() }, [loadPosts])
+
+  // Infinite scroll: observe sentinel only after initial load is done
+  useEffect(() => {
+    if (loadingPosts) return
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMorePosts() },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [loadingPosts, loadMorePosts])
 
   // Load IDs of users the current user follows + their profiles for @mention
   useEffect(() => {
@@ -1235,11 +1294,19 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                 Keine Einträge in dieser Kategorie.
               </div>
             ) : (
-              filteredPosts.map(post => (
-                <CommunityPostCard key={post.id} post={post} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} allEvents={allEvents} />
+              filteredPosts.map((post, idx) => (
+                <CommunityPostCard key={post.id} post={post} postIndex={idx} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} allEvents={allEvents} />
               ))
             )}
           </div>
+
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} className="h-1" />
+          {loadingMore && (
+            <div className="flex justify-center py-6">
+              <div className="w-6 h-6 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />
+            </div>
+          )}
         </div>
       </main>
 

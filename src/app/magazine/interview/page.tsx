@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -79,12 +80,12 @@ export default function InterviewPage() {
                 >
                   <article>
                     <div className="relative aspect-[16/9] overflow-hidden">
-                      <img
+                      <Image
                         src={article.coverImage}
                         alt={article.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute top-3 left-3">

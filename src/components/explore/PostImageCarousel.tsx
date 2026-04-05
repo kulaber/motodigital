@@ -10,6 +10,7 @@ interface PostImageCarouselProps {
   items: MediaItem[]
   alt: string
   onDoubleClick?: () => void
+  isPriority?: boolean
 }
 
 // Clamp ratio: min 16:9 (landscape floor), max 4:3 portrait (0.75)
@@ -17,7 +18,7 @@ function clampRatio(r: number) {
   return Math.min(16 / 9, Math.max(3 / 4, r))
 }
 
-export default function PostImageCarousel({ items, alt, onDoubleClick }: PostImageCarouselProps) {
+export default function PostImageCarousel({ items, alt, onDoubleClick, isPriority = false }: PostImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const multi = items.length > 1
@@ -94,7 +95,7 @@ export default function PostImageCarousel({ items, alt, onDoubleClick }: PostIma
                 fill
                 sizes="(max-width: 640px) 100vw, 468px"
                 className="object-cover object-center"
-                priority={i === 0}
+                priority={isPriority && i === 0}
                 onLoad={i === 0 ? (e) => {
                   const img = e.currentTarget as HTMLImageElement
                   setRatio(clampRatio(img.naturalWidth / img.naturalHeight))

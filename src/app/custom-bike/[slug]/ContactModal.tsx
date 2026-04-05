@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import Image from 'next/image'
 import { X, MessageCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -99,7 +100,7 @@ function Modal({
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
             {sellerAvatarUrl ? (
-              <img src={sellerAvatarUrl} alt={sellerName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              <Image src={sellerAvatarUrl} alt={sellerName} width={36} height={36} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                 {initials}
@@ -131,7 +132,7 @@ function Modal({
               {/* Bike reference */}
               <div className="flex items-center gap-3 bg-[#F7F7F7] rounded-xl px-3 py-2.5 mb-3">
                 {coverImage && (
-                  <img src={coverImage} alt={bikeTitle} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
+                  <Image src={coverImage} alt={bikeTitle} width={80} height={56} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest font-semibold">Anfrage zu</p>

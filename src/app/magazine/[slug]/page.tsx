@@ -90,10 +90,12 @@ function RenderSection({ section }: { section: ArticleSection }) {
     case 'image':
       return (
         <figure className="my-10 -mx-4 sm:mx-0">
-          <img
+          <Image
             src={section.src}
             alt={section.caption ?? ''}
-            className="w-full sm:rounded-xl object-cover max-h-[520px]"
+            width={800}
+            height={450}
+            className="w-full h-auto sm:rounded-xl object-cover max-h-[520px]"
           />
           {section.caption && (
             <figcaption className="mt-3 text-xs text-[#222222]/35 text-center px-4 sm:px-0">
@@ -211,10 +213,13 @@ export default async function ArticlePage({
 
       {/* ── Hero — dark overlay ── */}
       <div className="relative h-[62vh] min-h-[420px] w-full overflow-hidden">
-        <img
+        <Image
           src={article.coverImage}
           alt={article.title}
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          sizes="100vw"
+          priority
+          className="object-cover"
         />
         {/* Schwarzes Gradient-Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/45 to-black/10" />
@@ -314,10 +319,12 @@ export default async function ArticlePage({
               {relatedBuild && (
                 <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
                   <div className="relative aspect-[16/9] overflow-hidden">
-                    <img
+                    <Image
                       src={relatedBuild.coverImg}
                       alt={relatedBuild.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 340px"
+                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-3 left-4 right-4">

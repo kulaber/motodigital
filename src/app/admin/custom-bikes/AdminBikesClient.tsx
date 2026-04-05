@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Pencil, ExternalLink, Bike } from 'lucide-react'
 
@@ -87,7 +88,7 @@ export default function AdminBikesClient({ bikes }: Props) {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {b.coverUrl ? (
-                          <img src={b.coverUrl} alt="" className="w-12 h-9 rounded-lg object-cover flex-shrink-0 border border-[#222222]/8" />
+                          <Image src={b.coverUrl} alt="" width={48} height={36} className="w-12 h-9 rounded-lg object-cover flex-shrink-0 border border-[#222222]/8" />
                         ) : (
                           <div className="w-12 h-9 rounded-lg bg-[#F7F7F7] flex items-center justify-center flex-shrink-0 border border-[#222222]/8">
                             <Bike size={14} className="text-[#222222]/20" />

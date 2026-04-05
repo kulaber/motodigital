@@ -548,8 +548,10 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                     {isVideo ? (
                       <>
                         {isExisting && item.img.thumbnail_url ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={item.img.thumbnail_url} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : !isExisting && item.thumbFile ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={URL.createObjectURL(item.thumbFile)} alt={`Video-Vorschau ${i + 1}`} className="w-full h-full object-cover" />
                         ) : (
                           <video src={src} className="w-full h-full object-cover" muted preload="metadata" />
@@ -561,6 +563,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
                         </div>
                       </>
                     ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img src={src} alt={`Bild ${i + 1}`} className="w-full h-full object-cover" />
                     )}
                     {i === 0 && (
