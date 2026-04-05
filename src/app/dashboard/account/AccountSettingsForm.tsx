@@ -5,6 +5,7 @@ import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/utils/compressImage'
 import { CheckCircle, Eye, EyeOff, Camera, User, Trash2, ChevronDown } from 'lucide-react'
+import { requestAccountDeletion } from '@/lib/actions/account-deletion'
 
 type Props = {
   userId: string
@@ -175,9 +176,25 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     setPwSaving(false)
   }
 
+  // ── Account löschen ──
+  const [deletePw, setDeletePw]       = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteSent, setDeleteSent]   = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault()
+    if (!deletePw) return
+    setDeleteLoading(true); setDeleteError(null)
+    const result = await requestAccountDeletion(deletePw)
+    if (result.error) setDeleteError(result.error)
+    else setDeleteSent(true)
+    setDeleteLoading(false)
+  }
+
   // ── Accordion ──
-  const [openSection, setOpenSection] = useState<'username' | 'email' | 'password' | null>(null)
-  function toggleSection(s: 'username' | 'email' | 'password') {
+  const [openSection, setOpenSection] = useState<'username' | 'email' | 'password' | 'delete' | null>(null)
+  function toggleSection(s: 'username' | 'email' | 'password' | 'delete') {
     setOpenSection(prev => prev === s ? null : s)
   }
 
@@ -346,6 +363,60 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
                 <SaveRow saving={pwSaving} saved={pwSaved} error={pwError} label="Passwort ändern" />
               </div>
             </form>
+          )}
+        </div>
+
+        <div className="border-t border-[#222222]/6" />
+
+        {/* Account löschen */}
+        <div>
+          <button type="button" onClick={() => toggleSection('delete')}
+            className="w-full flex items-center justify-between p-5 sm:p-6 text-left">
+            <div>
+              <h2 className="text-sm font-semibold text-[#222222]">Account löschen</h2>
+              <p className="text-xs text-[#222222]/40 mt-0.5">Alle Daten endgültig entfernen</p>
+            </div>
+            <ChevronDown size={16} className={`text-[#222222]/30 transition-transform duration-200 ${openSection === 'delete' ? 'rotate-180' : ''}`} />
+          </button>
+          {openSection === 'delete' && (
+            <div className="px-5 sm:px-6 pb-5 sm:pb-6">
+              {deleteSent ? (
+                <div className="bg-[#F7F7F7] rounded-xl p-4">
+                  <p className="text-sm text-[#222222] font-medium">
+                    Bestätigungs-E-Mail wurde gesendet.
+                  </p>
+                  <p className="text-xs text-[#222222]/40 mt-1">
+                    Klicke auf den Link in der E-Mail, um die Löschung zu bestätigen. Der Link ist 24 Stunden gültig.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-[#222222]/40 mb-4">
+                    Dein Account, Bikes, Nachrichten, Medien und alle anderen Inhalte werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+                  </p>
+                  <form onSubmit={handleDelete} className="flex flex-col gap-4">
+                    <Field label="Passwort bestätigen">
+                      <input
+                        type="password"
+                        value={deletePw}
+                        onChange={e => setDeletePw(e.target.value)}
+                        placeholder="Dein aktuelles Passwort"
+                        className={input}
+                        required
+                      />
+                    </Field>
+                    {deleteError && <p className="text-xs text-red-500">{deleteError}</p>}
+                    <button
+                      type="submit"
+                      disabled={deleteLoading || !deletePw}
+                      className="bg-[#222222] text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-[#333] disabled:opacity-50 transition-all self-start"
+                    >
+                      {deleteLoading ? 'Wird verarbeitet…' : 'Account endgültig löschen'}
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
           )}
         </div>
 
