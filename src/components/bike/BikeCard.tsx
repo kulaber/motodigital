@@ -4,6 +4,7 @@ import { formatPrice } from '@/lib/utils'
 import MediaSlider from './MediaSlider'
 import type { MediaItem } from './MediaSlider'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import BikePlaceholder from './BikePlaceholder'
 import type { Database } from '@/types/database'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -64,12 +65,8 @@ export default function BikeCard({ bike, highlighted = false }: Props) {
             )}
           </div>
         ) : (
-          <div className="aspect-[16/9] bg-[#F7F7F7] flex items-center justify-center rounded-t-2xl">
-            <svg width="48" height="34" viewBox="0 0 48 34" fill="none">
-              <circle cx="8" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>
-              <circle cx="40" cy="26" r="7" stroke="#444" strokeWidth="1.5"/>
-              <path d="M8 26 L15 8 L24 11 L33 6 L40 26" stroke="#444" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
-            </svg>
+          <div className="aspect-[16/9] rounded-t-2xl overflow-hidden">
+            <BikePlaceholder />
           </div>
         )}
       </Link>

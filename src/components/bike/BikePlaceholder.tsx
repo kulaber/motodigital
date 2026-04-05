@@ -1,0 +1,16 @@
+export default function BikePlaceholder({ className = '' }: { className?: string }) {
+  return (
+    <div className={`w-full h-full bg-[#2AABAB] flex items-center justify-center ${className}`}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 2834.6 2834.6"
+        className="w-1/4 h-1/4 opacity-25"
+      >
+        <path
+          fill="white"
+          d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z"
+        />
+      </svg>
+    </div>
+  )
+}

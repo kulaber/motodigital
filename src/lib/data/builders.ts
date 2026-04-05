@@ -53,5 +53,6 @@ export type Builder = {
     style: string
     year: number
     img: string
+    listingType?: string | null
   }[]
 }

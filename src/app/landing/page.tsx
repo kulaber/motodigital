@@ -10,6 +10,7 @@ import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import { createClient } from '@/lib/supabase/server'
 import { cityFromAddress } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
 export const metadata: Metadata = {
   title: 'MotoDigital — Custom Bikes, Builder & Builds',
@@ -23,7 +24,7 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 interface FeaturedBuild {
-  slug: string; href?: string; title: string; style: string; base: string; builder: string; city: string; img: string; role?: string
+  slug: string; href?: string; title: string; style: string; base: string; year?: number | null; builder: string; city: string; img: string | null; role?: string; listingType?: string | null; priceAmount?: number | null; priceOnRequest?: boolean | null; publishedAt?: string
 }
 
 const USPS = [
@@ -73,7 +74,7 @@ export default async function LandingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
     (supabase.from('bikes') as any)
-      .select('id, title, make, model, style, city, slug, seller_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(6),
@@ -109,16 +110,21 @@ export default async function LandingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbBuilds: FeaturedBuild[] = (bikeRows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
-    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
     return {
       slug:    r.id as string,
       href:    `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
       title:   r.title as string,
       style:   STYLE_LABELS[r.style] ?? (r.style as string),
       base:    `${r.make} ${r.model}`,
+      year:    r.year as number | null,
       builder: sellerName[r.seller_id] ?? '',
       city:    (r.city as string) ?? '',
       img:     cover,
+      listingType: r.listing_type as string | null,
+      priceAmount: r.price_amount as number | null,
+      priceOnRequest: r.price_on_request as boolean | null,
+      publishedAt: r.created_at as string | undefined,
       role:    sellerRole[r.seller_id] ?? 'rider',
     }
   })
@@ -232,11 +238,16 @@ export default async function LandingPage() {
                         {...(i < 3 ? { priority: true } : {})}
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#AAAAAA] text-xs">Kein Foto</div>
+                      <BikePlaceholder />
                     )}
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
+                    {build.listingType === 'for_sale' && (
+                      <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                        Zu verkaufen
+                      </span>
+                    )}
                     {build.role && (
                       <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                         {build.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
@@ -244,8 +255,24 @@ export default async function LandingPage() {
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{build.title}</h3>
-                    <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.builder} · {build.city}</p>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
+                      {build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
+                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
+                        </span>
+                      )}
+                      {build.listingType === 'for_sale' && build.priceOnRequest && (
+                        <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                      )}
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year}</p>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className="text-[10px] text-[#222222]/25 truncate">{build.builder}</p>
+                      {build.city && (
+                        <p className="text-[10px] text-[#222222]/25 flex-shrink-0">{build.city}</p>
+                      )}
+                    </div>
                   </div>
                 </Link>
             ))}

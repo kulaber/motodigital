@@ -13,6 +13,7 @@ import Footer from '@/components/layout/Footer'
 import BuildGallery from '@/components/build/BuildGallery'
 import { sortBikeImages, sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 import type { Build } from '@/lib/data/builds'
+import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from '../BikesClient'
 
@@ -98,7 +99,7 @@ export default async function BikeSlugPage({ params }: Props) {
     const allBuilds: Build[] = (rows ?? []).map((r: any) => {
       const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? ''
+      const cover = images.find((i: any) => i.is_cover)?.url ?? images.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null
       const profile = r.profiles
       return {
         slug:          r.id,
@@ -349,7 +350,7 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
   const supabase = await createSupabaseClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, city, slug, bike_images(id, url, is_cover, position)')
+    .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .neq('id', excludeId)
     .order('created_at', { ascending: false })
@@ -357,8 +358,24 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
 
   const related = (rows ?? []).map((r: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
-    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? '' // eslint-disable-line @typescript-eslint/no-explicit-any
-    return { slug: r.slug ?? r.id, title: r.title as string, base: `${r.make} ${r.model}`, city: (r.city as string) ?? '', img: cover }
+    const cover = imgs.find((i: any) => i.is_cover)?.url ?? imgs.sort((a: any, b: any) => a.position - b.position)[0]?.url ?? null // eslint-disable-line @typescript-eslint/no-explicit-any
+    const profile = r.profiles
+    return {
+      slug: r.slug ?? r.id,
+      href: `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
+      title: r.title as string,
+      style: STYLE_LABELS[r.style] ?? (r.style as string),
+      base: `${r.make} ${r.model}`,
+      year: r.year as number | null,
+      city: (r.city as string) ?? '',
+      img: cover,
+      listingType: r.listing_type as string | null,
+      priceAmount: r.price_amount as number | null,
+      priceOnRequest: r.price_on_request as boolean | null,
+      publishedAt: r.created_at as string | undefined,
+      role: profile?.role ?? 'rider',
+      builder: profile?.full_name ?? '',
+    }
   })
 
   if (related.length === 0) return null
@@ -375,15 +392,48 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
         {related.map((b: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
           <Link
             key={b.slug}
-            href={`/custom-bike/${b.slug}`}
-            className="group rounded-xl overflow-hidden border border-[#EBEBEB] hover:border-[#DDDDDD] transition-all"
+            href={b.href}
+            className="group block rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-[#222222]/6 hover:border-[#222222]/20 transition-all duration-200"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-              <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+              {b.img ? (
+                <Image src={b.img} alt={b.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+              ) : (
+                <BikePlaceholder />
+              )}
+              <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                {b.style}
+              </span>
+              {b.listingType === 'for_sale' && (
+                <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                  Zu verkaufen
+                </span>
+              )}
+              {b.role && (
+                <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                  {b.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
+                </span>
+              )}
             </div>
-            <div className="p-3">
-              <p className="text-xs font-semibold text-[#222222] line-clamp-1">{b.title}</p>
-              <p className="text-[10px] text-[#AAAAAA] mt-0.5">{b.base} · {b.city}</p>
+            <div className="p-3 sm:p-4">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{b.title}</h3>
+                {b.listingType === 'for_sale' && b.priceAmount && !b.priceOnRequest && (
+                  <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                    {Number(b.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
+                  </span>
+                )}
+                {b.listingType === 'for_sale' && b.priceOnRequest && (
+                  <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                )}
+              </div>
+              <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.base} · {b.year}</p>
+              <div className="flex items-center justify-between gap-2 mt-0.5">
+                <p className="text-[10px] text-[#222222]/25 truncate">{b.builder}</p>
+                {b.city && (
+                  <p className="text-[10px] text-[#222222]/25 flex-shrink-0">{b.city}</p>
+                )}
+              </div>
             </div>
           </Link>
         ))}

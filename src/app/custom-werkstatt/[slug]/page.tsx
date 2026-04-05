@@ -100,7 +100,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       .eq('builder_id', row.id)
       .order('position', { ascending: true }),
     (supabase.from('bikes') as any)
-      .select('id, slug, title, make, model, year, style, price, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .select('id, slug, title, make, model, year, style, price, listing_type, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
       .eq('seller_id', row.id)
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
@@ -126,6 +126,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       style: (b.style as string) ?? '',
       year:  (b.year as number) ?? new Date().getFullYear(),
       img:   coverImg ?? '',
+      listingType: (b.listing_type as string | null) ?? null,
     }
   })
 
@@ -390,6 +391,11 @@ export default async function BuilderProfilePage({ params }: Props) {
                       <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
                         {build.style.replace(/_/g, ' ')}
                       </span>
+                      {build.listingType === 'for_sale' && (
+                        <span className="absolute top-3 right-3 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                          Zu verkaufen
+                        </span>
+                      )}
                     </div>
                     {/* Info */}
                     <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">

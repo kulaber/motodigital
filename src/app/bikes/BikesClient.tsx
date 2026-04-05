@@ -12,6 +12,7 @@ function isNew(publishedAt?: string): boolean {
   return diff < 3 * 24 * 60 * 60 * 1000
 }
 import type { Build } from '@/lib/data/builds'
+import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
 function getMake(base: string) { return base.split(' ')[0] }
 function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
@@ -466,7 +467,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#AAAAAA] text-xs">Kein Foto</div>
+                      <BikePlaceholder />
                     )}
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
