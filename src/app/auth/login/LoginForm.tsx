@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { getPostLoginRedirect, validateRedirectTo } from '@/lib/auth/redirectAfterLogin'
 
 function LoginFormInner() {
   const [email, setEmail] = useState('')
@@ -15,7 +16,7 @@ function LoginFormInner() {
   const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/explore'
+  const redirectTo = searchParams.get('redirectTo')
   const supabase = createClient()
 
   async function handlePassword(e: React.FormEvent) {
@@ -28,7 +29,24 @@ function LoginFormInner() {
       setError(translateAuthError(error.message))
       setLoading(false)
     } else {
-      router.push(redirectTo)
+      // If there's a valid redirectTo, go there directly.
+      // Otherwise fetch role for role-based default redirect.
+      const validRedirect = validateRedirectTo(redirectTo)
+      if (validRedirect) {
+        router.push(validRedirect)
+      } else {
+        const { data: { user } } = await supabase.auth.getUser()
+        let role: string | null = null
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle()
+          role = (profile as { role: string | null } | null)?.role ?? null
+        }
+        router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+      }
       router.refresh()
     }
   }
@@ -46,9 +64,13 @@ function LoginFormInner() {
   async function handleMagicLink() {
     if (!email) { setError('Bitte E-Mail eingeben'); return }
     setLoading(true)
+    // Pass redirectTo to callback if present; callback handles role-based default
+    const callbackUrl = redirectTo
+      ? `/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`
+      : '/auth/callback'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}` },
+      options: { emailRedirectTo: `${window.location.origin}${callbackUrl}` },
     })
     if (error) setError(error.message)
     else setMagicSent(true)

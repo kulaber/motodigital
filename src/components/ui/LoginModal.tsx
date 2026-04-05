@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { getPostLoginRedirect, getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 /* ─── Trigger Context ────────────────────────────────────── */
@@ -57,11 +58,13 @@ interface LoginModalProps {
   onClose: () => void
   triggerContext?: TriggerContext
   initialMode?: 'login' | 'register'
+  /** URL to redirect to after login. Falls back to role-based default. */
+  redirectTo?: string
 }
 
 /* ─── Component ──────────────────────────────────────────── */
 
-export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'login' }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'login', redirectTo }: LoginModalProps) {
   useHideNavOnModal(isOpen)
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>(initialMode)
@@ -167,9 +170,13 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     setLoading('magic')
     setError(null)
 
+    // Pass redirectTo to callback if set; callback handles role-based default
+    const callbackUrl = redirectTo
+      ? `/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`
+      : '/auth/callback'
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore` },
+      options: { emailRedirectTo: `${window.location.origin}${callbackUrl}` },
     })
 
     if (error) {
@@ -187,9 +194,12 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     setLoading('magic')
     setError(null)
 
+    const resendCallbackUrl = redirectTo
+      ? `/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`
+      : '/auth/callback'
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/explore` },
+      options: { emailRedirectTo: `${window.location.origin}${resendCallbackUrl}` },
     })
 
     if (error) {
@@ -223,7 +233,22 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       setLoading(null)
     } else {
       onClose()
-      router.push('/explore')
+      // If redirectTo is set, go there. Otherwise use role-based default.
+      if (redirectTo) {
+        router.push(redirectTo)
+      } else {
+        const { data: { user: loggedInUser } } = await supabase.auth.getUser()
+        let userRole: string | null = null
+        if (loggedInUser) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', loggedInUser.id)
+            .maybeSingle()
+          userRole = (profile as { role: string | null } | null)?.role ?? null
+        }
+        router.push(getPostLoginRedirect(userRole as Parameters<typeof getPostLoginRedirect>[0]))
+      }
       router.refresh()
     }
   }
@@ -240,12 +265,14 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const username = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase()
 
+    // Use redirectTo if set, otherwise role-based default for newly selected role
+    const registerRedirect = redirectTo ?? getRoleDefaultRedirect(role as Parameters<typeof getRoleDefaultRedirect>[0])
     const { error: signUpError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: { full_name: name.trim(), username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(registerRedirect)}`,
       },
     })
 

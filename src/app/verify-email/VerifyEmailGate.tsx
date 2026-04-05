@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
 
 const COOLDOWN_SECONDS = 60
 const POLL_INTERVAL_MS = 3000
@@ -16,13 +17,19 @@ export default function VerifyEmailGate({ email }: { email: string }) {
   const router = useRouter()
   const supabase = createClient()
 
-  // Poll for email confirmation
+  // Poll for email confirmation — redirect based on role
   useEffect(() => {
     const interval = setInterval(async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email_confirmed_at) {
         clearInterval(interval)
-        router.push('/dashboard')
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle()
+        const role = (profile as { role: string | null } | null)?.role ?? null
+        router.push(getRoleDefaultRedirect(role as Parameters<typeof getRoleDefaultRedirect>[0]))
       }
     }, POLL_INTERVAL_MS)
 

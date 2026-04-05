@@ -47,7 +47,9 @@ export async function middleware(request: NextRequest) {
   if (!user && PROTECTED_ROUTES.some(r => r === '/rider' ? path === '/rider' : path.startsWith(r))) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/auth/login'
-    loginUrl.searchParams.set('redirectTo', path)
+    // Preserve full path + search params so user lands back after login
+    const fullPath = request.nextUrl.search ? `${path}${request.nextUrl.search}` : path
+    loginUrl.searchParams.set('redirectTo', fullPath)
     return NextResponse.redirect(loginUrl)
   }
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
 
 type Role = 'rider' | 'custom-werkstatt'
 
@@ -52,7 +53,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
       password,
       options: {
         data: { full_name: name, username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(getRoleDefaultRedirect(role as Parameters<typeof getRoleDefaultRedirect>[0]))}`,
       },
     })
 
