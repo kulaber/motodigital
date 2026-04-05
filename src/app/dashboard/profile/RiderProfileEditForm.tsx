@@ -508,15 +508,16 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
 
           <div>
             <h2 className="text-sm font-semibold text-[#222222] mb-5">Social Media</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-3">
               {[
-                { label: 'Instagram', value: instagram, onChange: setInstagram, placeholder: '@dein_account' },
-                { label: 'TikTok', value: tiktok, onChange: setTiktok, placeholder: '@dein_account' },
-                { label: 'Website', value: website, onChange: setWebsite, placeholder: 'https://…' },
+                { label: 'Instagram', value: instagram, onChange: setInstagram, placeholder: 'https://instagram.com/dein_account' },
+                { label: 'TikTok', value: tiktok, onChange: setTiktok, placeholder: 'https://tiktok.com/@dein_account' },
+                { label: 'Website', value: website, onChange: setWebsite, placeholder: 'https://deine-website.de' },
               ].map(f => (
                 <div key={f.label} className="flex flex-col gap-1.5">
                   <span className="text-[11px] text-[#222222]/35 font-medium">{f.label}</span>
                   <input
+                    type="url"
                     value={f.value}
                     onChange={e => f.onChange(e.target.value)}
                     placeholder={f.placeholder}

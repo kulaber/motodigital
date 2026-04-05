@@ -73,12 +73,13 @@ function RiderItem({ rider }: { rider: SidebarRider }) {
   return (
     <Link href={`/rider/${rider.slug}`} className="flex items-center gap-3 group py-2">
       <div className="relative flex-shrink-0">
-        <div className="w-9 h-9 rounded-full bg-[#F0F0F0] overflow-hidden">
+        <div className="w-9 h-9 rounded-full bg-[#2AABAB] overflow-hidden">
           {rider.avatar ? (
             <Image src={rider.avatar} alt={rider.name} width={36} height={36} className="object-cover w-full h-full" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[11px] font-bold text-[#222222]/40">
-              {rider.initials}
+            <div className="w-full h-full flex items-center justify-center p-1.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pin-logo.svg" alt="" className="w-full h-full object-contain" />
             </div>
           )}
         </div>
@@ -280,11 +281,14 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         {(() => {
           const profileHref = getProfileUrl(post.author_role, post.author_slug)
           const avatar = (
-            <div className="w-10 h-10 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-[#2AABAB] flex items-center justify-center overflow-hidden flex-shrink-0">
               {post.author_avatar ? (
                 <Image src={post.author_avatar} alt={post.author_name} width={40} height={40} className="object-cover w-full h-full" />
               ) : (
-                <span className="text-xs font-bold text-[#222222]/40">{post.author_initials}</span>
+                <div className="p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/pin-logo.svg" alt="" className="w-full h-full object-contain" />
+                </div>
               )}
             </div>
           )
@@ -427,19 +431,21 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
               return (
               <div key={c.id} className="flex gap-2.5 items-start">
                 {commentProfileHref ? (
-                  <Link href={commentProfileHref} className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
+                  <Link href={commentProfileHref} className="w-7 h-7 rounded-full bg-[#2AABAB] flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
                     {c.user_avatar ? (
                       <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
                     ) : (
-                      <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src="/pin-logo.svg" alt="" className="w-4 h-4 object-contain" />
                     )}
                   </Link>
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-[#F7F7F7] border border-[#222222]/8 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-full bg-[#2AABAB] flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
                     {c.user_avatar ? (
                       <Image src={c.user_avatar} alt={c.user_name} width={28} height={28} className="object-cover w-full h-full" />
                     ) : (
-                      <span className="text-[9px] font-bold text-[#222222]/40">{c.user_initials}</span>
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src="/pin-logo.svg" alt="" className="w-4 h-4 object-contain" />
                     )}
                   </div>
                 )}

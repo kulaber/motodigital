@@ -183,11 +183,14 @@ export default function RiderListClient({ riders }: Props) {
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-[#06a5a5] overflow-hidden flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-[#2AABAB] overflow-hidden flex items-center justify-center">
                   {rider.avatar ? (
                     <Image src={rider.avatar} alt={rider.name} width={48} height={48} className="object-cover w-full h-full" />
                   ) : (
-                    <span className="text-sm font-bold text-white">{rider.initials}</span>
+                    <div className="p-2.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/pin-logo.svg" alt="" className="w-full h-full object-contain" />
+                    </div>
                   )}
                 </div>
                 {rider.isOnline && (

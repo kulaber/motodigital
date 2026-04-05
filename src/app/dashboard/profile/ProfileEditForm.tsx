@@ -712,19 +712,31 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       {/* ── SOCIAL MEDIA ── */}
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Social Media</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input value={instagram} onChange={e => setInstagram(e.target.value)}
-            placeholder="Instagram @handle"
-            className={input} />
-          <input value={tiktok} onChange={e => setTiktok(e.target.value)}
-            placeholder="TikTok @handle"
-            className={input} />
-          <input value={youtube} onChange={e => setYoutube(e.target.value)}
-            placeholder="YouTube URL oder @handle"
-            className={input} />
-          <input value={website} onChange={e => setWebsite(e.target.value)}
-            placeholder="Website"
-            className={input} />
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] text-[#222222]/35 font-medium">Instagram</span>
+            <input type="url" value={instagram} onChange={e => setInstagram(e.target.value)}
+              placeholder="https://instagram.com/dein_account"
+              className={input} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] text-[#222222]/35 font-medium">TikTok</span>
+            <input type="url" value={tiktok} onChange={e => setTiktok(e.target.value)}
+              placeholder="https://tiktok.com/@dein_account"
+              className={input} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] text-[#222222]/35 font-medium">YouTube</span>
+            <input type="url" value={youtube} onChange={e => setYoutube(e.target.value)}
+              placeholder="https://youtube.com/@dein_kanal"
+              className={input} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] text-[#222222]/35 font-medium">Website</span>
+            <input type="url" value={website} onChange={e => setWebsite(e.target.value)}
+              placeholder="https://deine-website.de"
+              className={input} />
+          </div>
         </div>
       </div>
 

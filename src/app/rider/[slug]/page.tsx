@@ -266,11 +266,14 @@ export default async function RiderProfilePage({ params }: Props) {
           {/* Avatar row — only avatar overlaps cover */}
           <div className="flex items-end justify-between -mt-14 sm:-mt-16">
             <div className="relative flex-shrink-0">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#06a5a5] border-4 border-white overflow-hidden flex items-center justify-center shadow-lg">
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#2AABAB] border-4 border-white overflow-hidden flex items-center justify-center shadow-lg">
                 {rider.avatarUrl ? (
                   <Image src={rider.avatarUrl} alt={rider.name} fill sizes="128px" className="object-cover" />
                 ) : (
-                  <span className="text-2xl sm:text-3xl font-bold text-white">{rider.initials}</span>
+                  <div className="p-6 sm:p-7">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/pin-logo.svg" alt="MotoDigital" className="w-full h-full object-contain" />
+                  </div>
                 )}
               </div>
               {rider.isOnline && (
