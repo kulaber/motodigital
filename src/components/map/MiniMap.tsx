@@ -16,14 +16,18 @@ interface VisitedCity {
 }
 
 interface Props {
-  lat: number
-  lng: number
+  lat?: number
+  lng?: number
   locationName?: string | null
   visitedCities?: VisitedCity[]
   riderName?: string
 }
 
 export default function MiniMap({ lat, lng, locationName, visitedCities = [], riderName }: Props) {
+  // Determine map center: rider location > first visited city > fallback
+  const hasRiderLocation = lat !== undefined && lng !== undefined
+  const centerLat = lat ?? visitedCities[0]?.lat ?? 51
+  const centerLng = lng ?? visitedCities[0]?.lng ?? 10
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const [activated, setActivated] = useState(false)
@@ -39,8 +43,8 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: 'mapbox://styles/mapbox/light-v11',
-      center: [lng, lat],
-      zoom: 13,
+      center: [centerLng, centerLat],
+      zoom: hasRiderLocation ? 13 : 4,
       interactive: false,
       attributionControl: false,
     })
@@ -49,55 +53,59 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false, showZoom: true }), 'top-right')
 
-    // Custom MotoDigital logo marker with pulse
-    const el = document.createElement('div')
-    el.style.cssText = `
-      width: 40px; height: 40px;
-      position: relative;
-      display: flex; align-items: center; justify-content: center;
-    `
-    const pulse = document.createElement('div')
-    pulse.style.cssText = `
-      position: absolute; inset: 0;
-      border-radius: 50%;
-      background: rgba(6,165,165,0.15);
-      animation: minimap-pulse 2.5s ease-out infinite;
-    `
-    el.appendChild(pulse)
-    const circle = document.createElement('div')
-    circle.style.cssText = `
-      position: relative;
-      width: 32px; height: 32px;
-      background: #06a5a5;
-      border: 2px solid #fff;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      display: flex; align-items: center; justify-content: center;
-    `
-    const logo = document.createElement('img')
-    logo.src = '/pin-logo.svg'
-    logo.style.cssText = 'width: 16px; height: 16px; opacity: 0.9;'
-    circle.appendChild(logo)
-    el.appendChild(circle)
+    // Rider home marker (only if rider has a location)
+    const allPoints: [number, number][] = []
 
-    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-      .setLngLat([lng, lat])
+    if (hasRiderLocation) {
+      const el = document.createElement('div')
+      el.style.cssText = `
+        width: 40px; height: 40px;
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+      `
+      const pulse = document.createElement('div')
+      pulse.style.cssText = `
+        position: absolute; inset: 0;
+        border-radius: 50%;
+        background: rgba(6,165,165,0.15);
+        animation: minimap-pulse 2.5s ease-out infinite;
+      `
+      el.appendChild(pulse)
+      const circle = document.createElement('div')
+      circle.style.cssText = `
+        position: relative;
+        width: 32px; height: 32px;
+        background: #06a5a5;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        display: flex; align-items: center; justify-content: center;
+      `
+      const logo = document.createElement('img')
+      logo.src = '/pin-logo.svg'
+      logo.style.cssText = 'width: 16px; height: 16px; opacity: 0.9;'
+      circle.appendChild(logo)
+      el.appendChild(circle)
 
-    if (locationName) {
-      marker.setPopup(
-        new mapboxgl.Popup({ offset: 18, closeButton: false })
-          .setHTML(`
-            <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 2px 0;">
-              <p style="font-size: 12px; font-weight: 600; color: var(--color-text); margin: 0;">${escapeHtml(locationName)}</p>
-            </div>
-          `)
-      )
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([centerLng, centerLat])
+
+      if (locationName) {
+        marker.setPopup(
+          new mapboxgl.Popup({ offset: 18, closeButton: false })
+            .setHTML(`
+              <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 2px 0;">
+                <p style="font-size: 12px; font-weight: 600; color: var(--color-text); margin: 0;">${escapeHtml(locationName)}</p>
+              </div>
+            `)
+        )
+      }
+
+      marker.addTo(map)
+      allPoints.push([centerLng, centerLat])
     }
 
-    marker.addTo(map)
-
     // Visited cities markers
-    const allPoints: [number, number][] = [[lng, lat]]
 
     visitedCities.forEach(city => {
       const pin = document.createElement('div')
@@ -131,7 +139,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
     })
 
     // Fit bounds to show all markers
-    if (visitedCities.length > 0) {
+    if (allPoints.length > 1 || (!hasRiderLocation && allPoints.length > 0)) {
       const bounds = new mapboxgl.LngLatBounds()
       allPoints.forEach(p => bounds.extend(p))
       map.fitBounds(bounds, { padding: 50, maxZoom: 8 })
@@ -142,7 +150,7 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
       mapRef.current = null
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lat, lng, locationName])
+  }, [centerLat, centerLng, locationName])
 
   function handleActivate() {
     setActivated(true)

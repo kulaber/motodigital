@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic'
 const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
 
 interface Props {
-  lat: number
-  lng: number
+  lat?: number
+  lng?: number
   city: string
   visitedCities?: { name: string; lat: number; lng: number }[]
   riderName?: string

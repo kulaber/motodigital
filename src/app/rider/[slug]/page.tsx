@@ -395,8 +395,8 @@ export default async function RiderProfilePage({ params }: Props) {
                 <VisitedCitiesCarousel cities={rider.visitedCityCoords} riderName={rider.name} />
               )}
 
-              {/* Map */}
-              {rider.lat && rider.lng && (
+              {/* Map — shown when rider has location OR visited cities */}
+              {((rider.lat && rider.lng) || rider.visitedCityCoords.length > 0) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden">
                   <RiderMapClient lat={rider.lat} lng={rider.lng} city={rider.city} visitedCities={rider.visitedCityCoords} riderName={rider.name} />
                   {rider.city && (
