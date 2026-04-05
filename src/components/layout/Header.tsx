@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   LayoutDashboard, LogOut, ChevronDown,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, CircleUserRound, ExternalLink, MessageCircle, Star, Wrench,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Wrench,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/hooks/useAuth'
@@ -125,12 +125,10 @@ export default function Header({ activePage }: Props) {
                       <span className="block w-[34px] h-[34px] rounded-full overflow-hidden border border-[#222222]/10 flex-shrink-0">
                         <Image src={avatarUrl} alt="Avatar" width={34} height={34} className="w-full h-full object-cover" />
                       </span>
-                    ) : role === 'custom-werkstatt' ? (
+                    ) : (
                       <span className="flex w-[34px] h-[34px] rounded-full overflow-hidden bg-[#2AABAB] items-center justify-center p-1.5">
                         <Image src="/pin-logo.svg" alt="MotoDigital" width={20} height={20} className="w-full h-full object-contain" />
                       </span>
-                    ) : (
-                      <CircleUserRound size={19} />
                     )}
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-0.5 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none border-2 border-[#06a5a5]">
