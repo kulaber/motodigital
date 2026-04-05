@@ -274,54 +274,6 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
         </div>
       )}
 
-      {/* ── Titelbild ── */}
-      <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-5">Titelbild</h2>
-        <input ref={coverInputRef} type="file" accept="image/*" className="hidden"
-          onChange={e => { handleCoverUpload(e.target.files); e.target.value = '' }} />
-        {!cover ? (
-          <div
-            className="border-2 border-dashed border-[#222222]/8 rounded-xl p-8 text-center cursor-pointer hover:border-[#DDDDDD]/30 transition-colors"
-            onClick={() => coverInputRef.current?.click()}
-          >
-            <ImageIcon size={24} className="text-[#222222]/15 mx-auto mb-2" />
-            <p className="text-sm text-[#222222]/30">Titelbild hinzufügen</p>
-            <p className="text-xs text-[#222222]/15 mt-1">JPG, PNG · max. 50 MB</p>
-          </div>
-        ) : (
-          <div className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/6">
-            <div className="relative aspect-[16/9] w-full overflow-hidden">
-              <Image src={cover.url} alt="Titelbild" fill sizes="100vw" className="object-cover" />
-            </div>
-            {/* Mobile: bottom gradient, always visible · Desktop: full overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent sm:from-transparent sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end sm:items-center justify-center gap-2 sm:gap-3 p-3 sm:p-0">
-              <button
-                type="button"
-                onClick={() => coverInputRef.current?.click()}
-                disabled={coverUploading}
-                className="flex items-center gap-1.5 text-xs font-semibold bg-white text-[#222222] px-4 py-2 rounded-full hover:bg-white/90 transition-colors disabled:opacity-50"
-              >
-                <Upload size={12} /> Ersetzen
-              </button>
-              <button
-                type="button"
-                onClick={() => requestDelete('Titelbild', handleCoverDelete)}
-                disabled={coverUploading}
-                className="flex items-center gap-1.5 text-xs font-semibold bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
-              >
-                <Trash2 size={12} /> Entfernen
-              </button>
-            </div>
-            {coverUploading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                <span className="w-4 h-4 rounded-full border-2 border-[#222222]/20 border-t-[#222222]/60 animate-spin" />
-              </div>
-            )}
-          </div>
-        )}
-        <p className="text-[10px] text-[#222222]/25 mt-1">Wird als breites Titelbild auf deinem Profil angezeigt</p>
-      </div>
-
       {/* ── Profilbild ── */}
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profilbild</h2>
@@ -374,6 +326,54 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
           </div>
         </div>
         <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
+      </div>
+
+      {/* ── Titelbild ── */}
+      <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#222222] mb-5">Titelbild</h2>
+        <input ref={coverInputRef} type="file" accept="image/*" className="hidden"
+          onChange={e => { handleCoverUpload(e.target.files); e.target.value = '' }} />
+        {!cover ? (
+          <div
+            className="border-2 border-dashed border-[#222222]/8 rounded-xl p-8 text-center cursor-pointer hover:border-[#DDDDDD]/30 transition-colors"
+            onClick={() => coverInputRef.current?.click()}
+          >
+            <ImageIcon size={24} className="text-[#222222]/15 mx-auto mb-2" />
+            <p className="text-sm text-[#222222]/30">Titelbild hinzufügen</p>
+            <p className="text-xs text-[#222222]/15 mt-1">JPG, PNG · max. 50 MB</p>
+          </div>
+        ) : (
+          <div className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/6">
+            <div className="relative aspect-[16/9] w-full overflow-hidden">
+              <Image src={cover.url} alt="Titelbild" fill sizes="100vw" className="object-cover" />
+            </div>
+            {/* Mobile: bottom gradient, always visible · Desktop: full overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent sm:from-transparent sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end sm:items-center justify-center gap-2 sm:gap-3 p-3 sm:p-0">
+              <button
+                type="button"
+                onClick={() => coverInputRef.current?.click()}
+                disabled={coverUploading}
+                className="flex items-center gap-1.5 text-xs font-semibold bg-white text-[#222222] px-4 py-2 rounded-full hover:bg-white/90 transition-colors disabled:opacity-50"
+              >
+                <Upload size={12} /> Ersetzen
+              </button>
+              <button
+                type="button"
+                onClick={() => requestDelete('Titelbild', handleCoverDelete)}
+                disabled={coverUploading}
+                className="flex items-center gap-1.5 text-xs font-semibold bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={12} /> Entfernen
+              </button>
+            </div>
+            {coverUploading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                <span className="w-4 h-4 rounded-full border-2 border-[#222222]/20 border-t-[#222222]/60 animate-spin" />
+              </div>
+            )}
+          </div>
+        )}
+        <p className="text-[10px] text-[#222222]/25 mt-1">Wird als breites Titelbild auf deinem Profil angezeigt</p>
       </div>
 
       {/* ── PROFILE FORM (single form, one save button) ── */}
