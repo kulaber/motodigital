@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -23,10 +24,22 @@ interface Props {
   slug?: string | null
 }
 
-export default function DashboardNav({ role, userName, avatarUrl, slug }: Props) {
+export default function DashboardNav({ role, userName: initialUserName, avatarUrl: initialAvatarUrl, slug }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const [liveAvatarUrl, setLiveAvatarUrl] = useState(initialAvatarUrl)
+  const [liveUserName, setLiveUserName] = useState(initialUserName)
+
+  useEffect(() => {
+    function handleProfileUpdated(e: Event) {
+      const detail = (e as CustomEvent<{ avatarUrl?: string | null; fullName?: string | null }>).detail
+      if (detail.avatarUrl !== undefined) setLiveAvatarUrl(detail.avatarUrl || null)
+      if (detail.fullName !== undefined) setLiveUserName(detail.fullName || null)
+    }
+    window.addEventListener('profile-updated', handleProfileUpdated)
+    return () => window.removeEventListener('profile-updated', handleProfileUpdated)
+  }, [])
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -87,17 +100,17 @@ export default function DashboardNav({ role, userName, avatarUrl, slug }: Props)
 
       {/* Card 1 — User identity */}
       <Link href={role === 'rider' && slug ? `/rider/${slug}` : role === 'custom-werkstatt' && slug ? `/custom-werkstatt/${slug}` : '/dashboard/profile'} className="bg-white rounded-2xl border border-[#222222]/6 hover:border-[#222222]/15 p-4 flex items-center gap-3 transition-colors">
-        <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-[#F7F7F7] border border-[#222222]/8">
-          {avatarUrl ? (
-            <Image src={avatarUrl} alt={userName ?? ''} width={48} height={48} className="w-full h-full object-cover" />
+        <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden border border-[#222222]/8">
+          {liveAvatarUrl ? (
+            <Image src={liveAvatarUrl} alt={liveUserName ?? ''} width={48} height={48} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] p-2">
-              <Image src="/logo-dark.svg" alt="MotoDigital" width={40} height={40} className="w-full h-full object-contain opacity-30" />
+            <div className="w-full h-full flex items-center justify-center bg-[#2AABAB] p-2.5">
+              <Image src="/pin-logo.svg" alt="MotoDigital" width={32} height={32} className="w-full h-full object-contain" />
             </div>
           )}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-[#222222] truncate leading-tight mb-1.5">{userName ?? '—'}</p>
+          <p className="text-sm font-bold text-[#222222] truncate leading-tight mb-1.5">{liveUserName ?? '—'}</p>
           <span className={`inline-flex items-center text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${
             role === 'custom-werkstatt'
               ? 'bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20'

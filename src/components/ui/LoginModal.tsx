@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
+import { getPostLoginRedirect } from '@/lib/auth/redirectAfterLogin'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 /* ─── Trigger Context ────────────────────────────────────── */
@@ -156,8 +157,11 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     return () => clearInterval(timer)
   }, [cooldown])
 
-  // Modal is always opened in-context — default to current page so user stays here after login
-  const effectiveRedirectTo = redirectTo ?? `${window.location.pathname}${window.location.search}${window.location.hash}`
+  // If caller provided an explicit redirectTo, pass it through to the callback.
+  // Otherwise leave it empty so the callback uses role-based defaults (e.g. /dashboard for workshops).
+  const callbackRedirectParam = redirectTo
+    ? `?redirectTo=${encodeURIComponent(redirectTo)}`
+    : ''
 
   if (!isOpen) return null
 
@@ -174,7 +178,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(effectiveRedirectTo)}` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}` },
     })
 
     if (error) {
@@ -194,7 +198,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(effectiveRedirectTo)}` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}` },
     })
 
     if (error) {
@@ -228,7 +232,21 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       setLoading(null)
     } else {
       onClose()
-      router.push(effectiveRedirectTo)
+      // If caller passed an explicit redirectTo, use it. Otherwise determine by role.
+      if (redirectTo) {
+        router.push(redirectTo)
+      } else {
+        const { data: { user } } = await supabase.auth.getUser()
+        let role: string | null = null
+        if (user) {
+          const { data: profile } = await (supabase.from('profiles') as any)
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle() as { data: { role: string | null } | null }
+          role = profile?.role ?? null
+        }
+        router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+      }
       router.refresh()
     }
   }
@@ -250,7 +268,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       password,
       options: {
         data: { full_name: name.trim(), username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(effectiveRedirectTo)}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}`,
       },
     })
 

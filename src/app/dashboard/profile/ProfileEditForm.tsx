@@ -1,9 +1,9 @@
 'use client'
 
 import NextImage from 'next/image'
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock } from 'lucide-react'
+import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock, RefreshCw } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 
@@ -160,7 +160,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [website, setWebsite]       = useState(profile.website_url ?? '')
   const [youtube, setYoutube]       = useState(profile.youtube_url ?? '')
   const [avatarUrl, setAvatarUrl]   = useState(profile.avatar_url ?? '')
-  const [avatarCacheBust, setAvatarCacheBust] = useState('')
   const [openingHours, setOpeningHours] = useState<{ day: string; hours: string }[]>(
     profile.opening_hours ?? []
   )
@@ -171,6 +170,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
   const [media, setMedia]           = useState<MediaItem[]>(initialMedia)
   const [uploading, setUploading]   = useState(false)
   const [saving, setSaving]         = useState(false)
+
+  // Confirm-delete modal
+  const [confirmDelete, setConfirmDelete] = useState<{ label: string; onConfirm: () => void } | null>(null)
+  const requestDelete = useCallback((label: string, onConfirm: () => void) => {
+    setConfirmDelete({ label, onConfirm })
+  }, [])
 
   const fileInput    = useRef<HTMLInputElement>(null)
   const galleryInput = useRef<HTMLInputElement>(null)
@@ -192,26 +197,78 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     )
   }
 
+  /** Extract the storage path from a Supabase public URL */
+  function storagePathFromUrl(url: string): string | null {
+    const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+?)(\?|$)/)
+    return match ? match[1] : null
+  }
+
+  /** Broadcast avatar change to Sidebar + Header */
+  function broadcastAvatar(url: string | null) {
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: url } }))
+  }
+
   async function handleAvatarUpload(file: File) {
     setUploading(true)
+    const oldUrl = avatarUrl // snapshot before async work
     try {
+      // 1. Upload with UNIQUE filename so URL always changes (defeats browser + Next.js image cache)
       const compressed = await compressImage(file, 800, 0.85)
       const ext  = file.name.split('.').pop()
-      const path = `${profile.id}/avatar.${ext}`
+      const path = `${profile.id}/avatar-${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage
         .from('builder-media')
-        .upload(path, compressed, { upsert: true })
+        .upload(path, compressed)
       if (upErr) throw upErr
+
       const { data: { publicUrl } } = supabase.storage
         .from('builder-media')
         .getPublicUrl(path)
+
+      // 2. Save new URL to DB
+      const { error: dbErr } = await (supabase.from('profiles') as any)
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id)
+      if (dbErr) throw dbErr
+
+      // 3. Clean up old file from storage
+      if (oldUrl) {
+        const oldPath = storagePathFromUrl(oldUrl)
+        if (oldPath) await supabase.storage.from('builder-media').remove([oldPath])
+      }
+
+      // 4. Update all UI — URL is unique, no cache-bust needed
       setAvatarUrl(publicUrl)
-      setAvatarCacheBust(`?t=${Date.now()}`)
-      // Sofort in DB speichern & Header aktualisieren
-      await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', profile.id)
-      window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: `${publicUrl}?t=${Date.now()}` } }))
+      broadcastAvatar(publicUrl)
+      toastSuccess('Logo gespeichert')
     } catch (e: unknown) {
       toastError(e instanceof Error ? e.message : 'Logo-Upload fehlgeschlagen')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function handleAvatarDelete() {
+    setUploading(true)
+    try {
+      // 1. Clear in DB first
+      const { error: dbErr } = await (supabase.from('profiles') as any)
+        .update({ avatar_url: null })
+        .eq('id', profile.id)
+      if (dbErr) throw dbErr
+
+      // 2. Delete file from storage
+      if (avatarUrl) {
+        const oldPath = storagePathFromUrl(avatarUrl)
+        if (oldPath) await supabase.storage.from('builder-media').remove([oldPath])
+      }
+
+      // 3. Update all UI
+      setAvatarUrl('')
+      broadcastAvatar(null)
+      toastSuccess('Logo entfernt')
+    } catch (e: unknown) {
+      toastError(e instanceof Error ? e.message : 'Logo konnte nicht entfernt werden')
     } finally {
       setUploading(false)
     }
@@ -227,7 +284,6 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
       full_name:    fullName || null,
       slug:         slug || null,
       bio_long:     bioLong || null,
-      avatar_url:   avatarUrl || null,
       tags:         leistungen.length ? leistungen : null,
       specialty:    umbaustile.length ? umbaustile.join(' · ') : null,
       address:      addressData.address || null,
@@ -245,7 +301,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     } else {
       toastSuccess('Profil gespeichert')
       window.dispatchEvent(new CustomEvent('profile-updated', {
-        detail: { avatarUrl, fullName: fullName || null },
+        detail: { fullName: fullName || null },
       }))
     }
     setSaving(false)
@@ -346,6 +402,42 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
     <div className="flex flex-col gap-6 pb-28">
       <ToastContainer toasts={toasts} />
 
+      {/* ── CONFIRM DELETE MODAL ── */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-[90vw] max-w-sm mx-auto flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+              <Trash2 size={20} className="text-red-500" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-[#222222]">
+                {confirmDelete.label} wirklich löschen?
+              </p>
+              <p className="text-xs text-[#222222]/40 mt-1">
+                Diese Aktion kann nicht rückgängig gemacht werden.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={() => { confirmDelete.onConfirm(); setConfirmDelete(null) }}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors"
+              >
+                Löschen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── PROFILE FORM ── */}
       <form id="profile-form" onSubmit={handleSaveProfile} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 overflow-hidden">
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profil-Informationen</h2>
@@ -353,34 +445,57 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         {/* Logo */}
         <Field label="Logo" className="mb-5">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0 bg-[#06a5a5]">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0 bg-[#2AABAB]">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={`${avatarUrl}${avatarCacheBust}`} alt="Logo" className="w-full h-full object-cover" />
+                <img src={avatarUrl} alt="Logo" className="w-full h-full object-cover" />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="36" height="36">
                   <path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z" />
                 </svg>
               )}
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={() => avatarInput.current?.click()}
-                disabled={uploading}
-                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-40"
-              >
-                <Upload size={11} />
-                {uploading ? 'Wird hochgeladen…' : 'Logo hochladen'}
-              </button>
-              <p className="text-[10px] text-[#222222]/25 mt-1">JPG, PNG oder SVG, max. 5 MB</p>
+            <div className="flex flex-col gap-1.5">
+              {avatarUrl ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => avatarInput.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-40"
+                  >
+                    <RefreshCw size={11} />
+                    Ersetzen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => requestDelete('Logo', handleAvatarDelete)}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border border-red-200 text-red-400 hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-all disabled:opacity-40"
+                  >
+                    <Trash2 size={11} />
+                    Entfernen
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => avatarInput.current?.click()}
+                  disabled={uploading}
+                  className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all disabled:opacity-40"
+                >
+                  <Upload size={11} />
+                  {uploading ? 'Wird hochgeladen…' : 'Logo hochladen'}
+                </button>
+              )}
+              <p className="text-[10px] text-[#222222]/25">JPG, PNG oder SVG, max. 5 MB</p>
             </div>
             <input
               ref={avatarInput}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/svg+xml"
               className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f) }}
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f); e.target.value = '' }}
             />
           </div>
         </Field>
@@ -403,7 +518,8 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
               <div className="relative aspect-[16/9] w-full overflow-hidden">
                 <NextImage src={coverImage.url} alt="Titelbild" fill sizes="100vw" className="object-cover" />
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              {/* Mobile: bottom gradient, always visible · Desktop: full overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent sm:from-transparent sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end sm:items-center justify-center gap-2 sm:gap-3 p-3 sm:p-0">
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
@@ -414,7 +530,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDeleteMedia(coverImage)}
+                  onClick={() => requestDelete('Titelbild', () => handleDeleteMedia(coverImage))}
                   disabled={uploading}
                   className="flex items-center gap-1.5 text-xs font-semibold bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
                 >
@@ -642,11 +758,12 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
             {galleryImages.map(item => (
               <div key={item.id} className="group relative rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#222222]/6 aspect-[4/3]">
                 <NextImage src={item.url} alt="" fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
+                {/* Mobile: delete button always visible · Desktop: overlay on hover */}
+                <div className="absolute inset-0 sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-start justify-end p-1.5 sm:p-2">
                   <button
                     type="button"
-                    onClick={() => handleDeleteMedia(item)}
-                    className="w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                    onClick={() => requestDelete('Bild', () => handleDeleteMedia(item))}
+                    className="w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors shadow-lg sm:shadow-none"
                   >
                     <Trash2 size={12} className="text-white" />
                   </button>
@@ -671,7 +788,7 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         <button
           type="submit"
           form="profile-form"
-          disabled={saving}
+          disabled={saving || uploading}
           className="inline-flex items-center gap-2.5 bg-[#06a5a5] text-white text-sm font-semibold px-7 py-3.5 rounded-full shadow-2xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
           style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
         >

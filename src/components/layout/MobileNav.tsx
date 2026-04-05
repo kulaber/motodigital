@@ -99,6 +99,10 @@ export default function MobileNav({
               <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden">
                 {avatarUrl ? (
                   <Image src={avatarUrl} alt="Avatar" width={48} height={48} className="w-full h-full object-cover" />
+                ) : role === 'custom-werkstatt' ? (
+                  <div className="w-full h-full bg-[#2AABAB] flex items-center justify-center p-2.5">
+                    <Image src="/pin-logo.svg" alt="MotoDigital" width={32} height={32} className="w-full h-full object-contain" />
+                  </div>
                 ) : (
                   <div className="w-full h-full bg-[#2AABAB] flex items-center justify-center text-white text-sm font-bold">
                     {getInitials(fullName, user.email)}

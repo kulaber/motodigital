@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, Camera, User, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
+import { CheckCircle, Camera, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
@@ -43,6 +43,12 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
   const fileInputRef = useRef<HTMLInputElement>(null)
   const coverInputRef = useRef<HTMLInputElement>(null)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
+
+  // ── Confirm-delete modal ──
+  const [confirmDelete, setConfirmDelete] = useState<{ label: string; onConfirm: () => void } | null>(null)
+  const requestDelete = useCallback((label: string, onConfirm: () => void) => {
+    setConfirmDelete({ label, onConfirm })
+  }, [])
 
   // ── Cover image (saves immediately on upload) ──
   const [cover, setCover] = useState<CoverImage | null>(initialCover)
@@ -104,42 +110,77 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
   // ── Avatar (saves immediately on upload) ──
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? '')
   const [avatarUploading, setAvatarUploading] = useState(false)
-  const [avatarDeleting, setAvatarDeleting] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
   const [avatarSaved, setAvatarSaved] = useState(false)
 
+  /** Broadcast avatar change to Sidebar + Header */
+  function broadcastAvatar(url: string | null) {
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: url } }))
+  }
+
   async function handleAvatarDelete() {
-    if (!avatarUrl) return
-    setAvatarDeleting(true); setAvatarError(null); setAvatarSaved(false)
+    setAvatarUploading(true); setAvatarError(null); setAvatarSaved(false)
+
+    // 1. Clear in DB
+    const { error: dbErr } = await (supabase.from('profiles') as any)
+      .update({ avatar_url: null })
+      .eq('id', profile.id)
+    if (dbErr) { toastError(dbErr.message); setAvatarUploading(false); return }
+
+    // 2. Delete all files in avatars/{userId}/
     const { data: files } = await supabase.storage.from('avatars').list(profile.id)
     if (files?.length) {
       await supabase.storage.from('avatars').remove(files.map(f => `${profile.id}/${f.name}`))
     }
-    await (supabase.from('profiles') as any).update({ avatar_url: null }).eq('id', profile.id)
+
+    // 3. Update UI
     setAvatarUrl('')
-    setAvatarDeleting(false)
+    setAvatarUploading(false)
     setAvatarSaved(true)
-    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: null } }))
+    broadcastAvatar(null)
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
+    e.target.value = '' // reset so same file can be re-selected
     if (!file) return
     if (file.size > 5 * 1024 * 1024) { setAvatarError('Maximale Dateigröße: 5 MB'); return }
     setAvatarUploading(true); setAvatarError(null); setAvatarSaved(false)
-    const compressed = await compressImage(file, 400, 0.82, 400)
-    const ext = compressed.name.split('.').pop()
-    const path = `${profile.id}/avatar.${ext}`
-    const { error: upErr } = await supabase.storage
-      .from('avatars')
-      .upload(path, compressed, { upsert: true, contentType: compressed.type })
-    if (upErr) { setAvatarError(upErr.message); setAvatarUploading(false); return }
-    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', profile.id)
-    setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
-    setAvatarSaved(true)
-    setAvatarUploading(false)
-    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { avatarUrl: `${publicUrl}?t=${Date.now()}` } }))
+
+    const oldUrl = avatarUrl
+    try {
+      // 1. Upload with unique filename (defeats cache)
+      const compressed = await compressImage(file, 400, 0.82, 400)
+      const ext = compressed.name.split('.').pop()
+      const path = `${profile.id}/avatar-${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, compressed, { contentType: compressed.type })
+      if (upErr) throw upErr
+
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+
+      // 2. Save to DB
+      const { error: dbErr } = await (supabase.from('profiles') as any)
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id)
+      if (dbErr) throw dbErr
+
+      // 3. Clean up old file
+      if (oldUrl) {
+        const match = oldUrl.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+?)(\?|$)/)
+        if (match) await supabase.storage.from('avatars').remove([match[1]])
+      }
+
+      // 4. Update UI
+      setAvatarUrl(publicUrl)
+      setAvatarSaved(true)
+      broadcastAvatar(publicUrl)
+    } catch (err: unknown) {
+      setAvatarError(err instanceof Error ? err.message : 'Upload fehlgeschlagen')
+    } finally {
+      setAvatarUploading(false)
+    }
   }
 
   // ── All profile fields ──
@@ -187,7 +228,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
     } else {
       toastSuccess('Profil gespeichert')
       window.dispatchEvent(new CustomEvent('profile-updated', {
-        detail: { avatarUrl, fullName: fullName || null },
+        detail: { fullName: fullName || null },
       }))
     }
     setSaving(false)
@@ -196,6 +237,42 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
   return (
     <div className="flex flex-col gap-5 pb-28">
       <ToastContainer toasts={toasts} />
+
+      {/* ── CONFIRM DELETE MODAL ── */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-[90vw] max-w-sm mx-auto flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+              <Trash2 size={20} className="text-red-500" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-[#222222]">
+                {confirmDelete.label} wirklich löschen?
+              </p>
+              <p className="text-xs text-[#222222]/40 mt-1">
+                Diese Aktion kann nicht rückgängig gemacht werden.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl border border-[#222222]/12 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/25 transition-all"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={() => { confirmDelete.onConfirm(); setConfirmDelete(null) }}
+                className="flex-1 text-sm font-semibold py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors"
+              >
+                Löschen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Titelbild ── */}
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
@@ -216,7 +293,8 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
             <div className="relative aspect-[16/9] w-full overflow-hidden">
               <Image src={cover.url} alt="Titelbild" fill sizes="100vw" className="object-cover" />
             </div>
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+            {/* Mobile: bottom gradient, always visible · Desktop: full overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent sm:from-transparent sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end sm:items-center justify-center gap-2 sm:gap-3 p-3 sm:p-0">
               <button
                 type="button"
                 onClick={() => coverInputRef.current?.click()}
@@ -227,7 +305,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
               </button>
               <button
                 type="button"
-                onClick={handleCoverDelete}
+                onClick={() => requestDelete('Titelbild', handleCoverDelete)}
                 disabled={coverUploading}
                 className="flex items-center gap-1.5 text-xs font-semibold bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
               >
@@ -249,11 +327,15 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
         <h2 className="text-sm font-semibold text-[#222222] mb-5">Profilbild</h2>
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
-            <div className="relative w-20 h-20 rounded-full bg-[#F7F7F7] border border-[#222222]/10 overflow-hidden flex items-center justify-center">
-              {avatarUrl
-                ? <Image src={avatarUrl} alt="Avatar" fill sizes="80px" className="object-cover" />
-                : <User size={28} className="text-[#222222]/20" />
-              }
+            <div className="relative w-20 h-20 rounded-full overflow-hidden flex items-center justify-center">
+              {avatarUrl ? (
+                <Image src={avatarUrl} alt="Avatar" fill sizes="80px" className="object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-[#2AABAB] p-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/pin-logo.svg" alt="MotoDigital" className="w-full h-full object-contain" />
+                </div>
+              )}
             </div>
             <button
               type="button"
@@ -269,7 +351,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={avatarUploading || avatarDeleting}
+                disabled={avatarUploading}
                 className="text-sm font-semibold text-[#222222] border border-[#222222]/12 px-4 py-2 rounded-full hover:border-[#222222]/30 transition-colors disabled:opacity-50"
               >
                 {avatarUploading ? 'Wird hochgeladen…' : avatarUrl ? 'Foto ändern' : 'Foto hochladen'}
@@ -277,12 +359,12 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
               {avatarUrl && (
                 <button
                   type="button"
-                  onClick={handleAvatarDelete}
-                  disabled={avatarDeleting || avatarUploading}
+                  onClick={() => requestDelete('Profilbild', handleAvatarDelete)}
+                  disabled={avatarUploading}
                   className="flex items-center gap-1.5 text-sm text-red-400 border border-red-400/20 px-3 py-2 rounded-full hover:bg-red-50 hover:border-red-400/40 transition-colors disabled:opacity-50"
                 >
                   <Trash2 size={13} />
-                  {avatarDeleting ? 'Wird gelöscht…' : 'Entfernen'}
+                  Entfernen
                 </button>
               )}
             </div>
@@ -364,7 +446,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
                     <button
                       type="button"
                       onClick={() => removeCity(city)}
-                      className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/40 hover:text-white text-xs transition-colors opacity-0 group-hover:opacity-100"
+                      className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/40 hover:text-white text-xs transition-colors sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       ×
                     </button>
@@ -454,7 +536,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
         <button
           type="submit"
           form="rider-profile-form"
-          disabled={saving}
+          disabled={saving || avatarUploading || coverUploading}
           className="inline-flex items-center gap-2.5 bg-[#06a5a5] text-white text-sm font-semibold px-7 py-3.5 rounded-full shadow-2xl hover:bg-[#058f8f] disabled:opacity-50 transition-all"
           style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
         >

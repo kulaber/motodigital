@@ -125,6 +125,10 @@ export default function Header({ activePage }: Props) {
                       <span className="block w-[34px] h-[34px] rounded-full overflow-hidden border border-[#222222]/10 flex-shrink-0">
                         <Image src={avatarUrl} alt="Avatar" width={34} height={34} className="w-full h-full object-cover" />
                       </span>
+                    ) : role === 'custom-werkstatt' ? (
+                      <span className="flex w-[34px] h-[34px] rounded-full overflow-hidden bg-[#2AABAB] items-center justify-center p-1.5">
+                        <Image src="/pin-logo.svg" alt="MotoDigital" width={20} height={20} className="w-full h-full object-contain" />
+                      </span>
                     ) : (
                       <CircleUserRound size={19} />
                     )}
