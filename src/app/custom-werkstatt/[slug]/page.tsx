@@ -172,6 +172,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     bioLong:     (row.bio_long as string | null) ?? '',
     bases:       (row.bases as string[] | null) ?? [],
     instagram:   (row.instagram_url as string | null) ?? undefined,
+    tiktok:      (row.tiktok_url as string | null) ?? undefined,
     website:     (row.website_url as string | null) ?? undefined,
     youtube:     (row.youtube_url as string | null) ?? undefined,
     avatarUrl:   (row.avatar_url as string | null) ?? undefined,
@@ -598,38 +599,48 @@ export default async function BuilderProfilePage({ params }: Props) {
               )}
 
               {/* Links */}
-              {(builder.instagram || builder.youtube || builder.website) && (
+              {(builder.instagram || builder.tiktok || builder.youtube || builder.website) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
-                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Social Media</p>
+                  <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {builder.instagram && (
                       <a
-                        href={`https://instagram.com/${builder.instagram.replace('@', '')}`}
+                        href={builder.instagram.startsWith('http') ? builder.instagram : `https://instagram.com/${builder.instagram.replace('@', '')}`}
                         target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
                       >
-                        <Instagram size={13} className="flex-shrink-0 transition-colors" />
-                        <span>{builder.instagram}</span>
+                        <Instagram size={13} className="flex-shrink-0" />
+                        <span>Zum Instagram Profil</span>
+                      </a>
+                    )}
+                    {builder.tiktok && (
+                      <a
+                        href={builder.tiktok.startsWith('http') ? builder.tiktok : `https://tiktok.com/@${builder.tiktok.replace('@', '')}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
+                      >
+                        <Globe size={13} className="flex-shrink-0" />
+                        <span>Zum TikTok Profil</span>
                       </a>
                     )}
                     {builder.youtube && (
                       <a
                         href={builder.youtube.startsWith('http') ? builder.youtube : `https://youtube.com/${builder.youtube}`}
                         target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
                       >
-                        <Youtube size={13} className="flex-shrink-0 transition-colors" />
-                        <span>{builder.youtube.startsWith('http') ? builder.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '') : builder.youtube}</span>
+                        <Youtube size={13} className="flex-shrink-0" />
+                        <span>Zum YouTube Kanal</span>
                       </a>
                     )}
                     {builder.website && (
                       <a
                         href={builder.website.startsWith('http') ? builder.website : `https://${builder.website}`}
                         target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors group"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
                       >
-                        <Globe size={13} className="flex-shrink-0 transition-colors" />
-                        <span>{builder.website}</span>
+                        <Globe size={13} className="flex-shrink-0" />
+                        <span>Zur Website</span>
                       </a>
                     )}
                   </div>

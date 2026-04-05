@@ -489,18 +489,28 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
 
               {/* Links */}
-              {(rider.instagram || rider.website) && (
+              {(rider.instagram || rider.tiktok || rider.website) && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
                   <p className="text-base font-bold text-[#222222] tracking-tight mb-3">Links</p>
                   <div className="flex flex-col gap-2.5">
                     {rider.instagram && (
                       <a
-                        href={`https://instagram.com/${rider.instagram.replace('@', '')}`}
+                        href={rider.instagram.startsWith('http') ? rider.instagram : `https://instagram.com/${rider.instagram.replace('@', '')}`}
                         target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
                       >
                         <Instagram size={13} className="flex-shrink-0" />
-                        <span>{rider.instagram}</span>
+                        <span>Zum Instagram Profil</span>
+                      </a>
+                    )}
+                    {rider.tiktok && (
+                      <a
+                        href={rider.tiktok.startsWith('http') ? rider.tiktok : `https://tiktok.com/@${rider.tiktok.replace('@', '')}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
+                      >
+                        <Globe size={13} className="flex-shrink-0" />
+                        <span>Zum TikTok Profil</span>
                       </a>
                     )}
                     {rider.website && (
@@ -510,7 +520,7 @@ export default async function RiderProfilePage({ params }: Props) {
                         className="flex items-center gap-2.5 text-xs text-[#717171] hover:text-[#222222] transition-colors"
                       >
                         <Globe size={13} className="flex-shrink-0" />
-                        <span>{rider.website}</span>
+                        <span>Zur Website</span>
                       </a>
                     )}
                   </div>
