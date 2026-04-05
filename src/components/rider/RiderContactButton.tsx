@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
+import Image from 'next/image'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
 import { LoginModal } from '@/components/ui/LoginModal'
 
@@ -95,7 +96,7 @@ function Modal({
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
             {riderAvatarUrl ? (
-              <img src={riderAvatarUrl} alt={riderName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              <Image src={riderAvatarUrl} alt={riderName} width={36} height={36} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                 {initials}

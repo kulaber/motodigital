@@ -10,6 +10,7 @@ import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import { useMessages } from '@/hooks/useMessages'
 import { formatRelativeTime } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compressImage'
 import type { Conversation } from './page'
 
 interface Props {
@@ -505,12 +506,13 @@ function MessageThread({
   async function handleImageSend(file: File, caption = '') {
     setUploading(true)
     const blobUrl = previewFile!.url
-    const ext = file.name.split('.').pop() ?? 'jpg'
+    const compressed = await compressImage(file, 1200, 0.82)
+    const ext = compressed.name.split('.').pop() ?? 'jpg'
     const path = `${conversationId}/${Date.now()}.${ext}`
 
     const { data, error } = await (supabase.storage as any)
       .from('chat-images')
-      .upload(path, file, { contentType: file.type })
+      .upload(path, compressed, { contentType: compressed.type })
 
     const imgUrl = (!error && data)
       ? (supabase.storage as any).from('chat-images').getPublicUrl(data.path).data.publicUrl

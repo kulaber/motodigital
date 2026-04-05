@@ -97,7 +97,7 @@ function Modal({
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div className="flex items-center gap-3">
             {builderAvatarUrl ? (
-              <img src={builderAvatarUrl} alt={builderName} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              <Image src={builderAvatarUrl} alt={builderName} width={36} height={36} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
                 <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={20} height={20} className="opacity-90" />

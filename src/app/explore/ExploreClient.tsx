@@ -524,9 +524,10 @@ interface Props {
   userId: string | null
   isSuperadmin?: boolean
   riders?: StoryRider[]
+  events?: Event[]
 }
 
-export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Props) {
+export default function ExploreClient({ userId, isSuperadmin, riders = [], events: initialEvents = [] }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -557,14 +558,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [] }: Pro
   const [mentionQuery, setMentionQuery] = useState<string | null>(null)
   const [mentionIndex, setMentionIndex] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [allEvents, setAllEvents] = useState<Event[]>([])
+  const allEvents = initialEvents
   const { unreadNotificationCount } = useAuth()
-
-  // Load events from Supabase
-  useEffect(() => {
-    (supabase.from('events') as any).select('id, slug, name, date_start, date_end, location, image').order('date_start', { ascending: true }).limit(100)
-      .then(({ data }: { data: Event[] | null }) => { if (data) setAllEvents(data) })
-  }, [supabase])
 
   // Detect when composer becomes sticky
   useEffect(() => {

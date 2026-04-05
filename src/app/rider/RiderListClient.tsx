@@ -188,8 +188,7 @@ export default function RiderListClient({ riders }: Props) {
                     <Image src={rider.avatar} alt={rider.name} width={48} height={48} className="object-cover w-full h-full" />
                   ) : (
                     <div className="p-2.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/pin-logo.svg" alt="" className="w-full h-full object-contain" />
+                      <Image src="/pin-logo.svg" alt="" width={48} height={48} className="w-full h-full object-contain" />
                     </div>
                   )}
                 </div>

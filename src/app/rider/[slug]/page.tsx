@@ -268,8 +268,7 @@ export default async function RiderProfilePage({ params }: Props) {
                   <Image src={rider.avatarUrl} alt={rider.name} fill sizes="128px" className="object-cover" />
                 ) : (
                   <div className="p-6 sm:p-7">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/pin-logo.svg" alt="MotoDigital" className="w-full h-full object-contain" />
+                    <Image src="/pin-logo.svg" alt="MotoDigital" width={128} height={128} className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>

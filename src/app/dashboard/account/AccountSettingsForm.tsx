@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compressImage'
 import { CheckCircle, Eye, EyeOff, Camera, User, Trash2 } from 'lucide-react'
 
 type Props = {
@@ -76,12 +77,13 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     if (file.size > 5 * 1024 * 1024) { setAvatarError('Maximale Dateigröße: 5 MB'); return }
     setAvatarUploading(true); setAvatarError(null); setAvatarSaved(false)
 
-    const ext  = file.name.split('.').pop()
+    const compressed = await compressImage(file, 400, 0.82)
+    const ext  = compressed.name.split('.').pop()
     const path = `${userId}/avatar.${ext}`
 
     const { error: upErr } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true, contentType: file.type })
+      .upload(path, compressed, { upsert: true, contentType: compressed.type })
 
     if (upErr) {
       setAvatarError(upErr.message)

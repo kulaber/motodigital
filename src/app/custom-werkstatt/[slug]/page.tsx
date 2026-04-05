@@ -272,8 +272,7 @@ export default async function BuilderProfilePage({ params }: Props) {
           <div className="flex items-end gap-3">
             <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
               {builder.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={builder.avatarUrl} alt={`Logo von ${builder.name}`} className="w-full h-full object-cover" />
+                <Image src={builder.avatarUrl} alt={`Logo von ${builder.name}`} width={56} height={56} className="w-full h-full object-cover" />
               ) : (
                 <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={36} height={36} className="w-8 h-8 opacity-90" />
               )}
@@ -320,8 +319,7 @@ export default async function BuilderProfilePage({ params }: Props) {
           <div className="max-w-7xl mx-auto flex items-end gap-4">
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
               {builder.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={builder.avatarUrl} alt={`Logo von ${builder.name}`} className="w-full h-full object-cover" />
+                <Image src={builder.avatarUrl} alt={`Logo von ${builder.name}`} width={56} height={56} className="w-full h-full object-cover" />
               ) : (
                 <Image src="/pin-logo.svg" alt="MotoDigital Logo" width={36} height={36} className="w-8 h-8 sm:w-11 sm:h-11 opacity-90" />
               )}
