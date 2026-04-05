@@ -125,7 +125,7 @@ function Modal({
               {/* Bike reference */}
               <div className="flex items-center gap-3 bg-[#F7F7F7] rounded-xl px-3 py-2.5 mb-3">
                 {coverImage && (
-                  <img src={coverImage} alt={bikeTitle} className="w-12 h-9 rounded-lg object-cover flex-shrink-0" />
+                  <img src={coverImage} alt={bikeTitle} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest font-semibold">Anfrage zu</p>
@@ -135,7 +135,7 @@ function Modal({
               <textarea
                 value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder={`Hallo ${sellerName.split(' ')[0]}, ich interessiere mich für dein Bike…`}
+                placeholder={`Hallo ${sellerName.split(' ')[0]}, ich interessiere mich für ${bikeTitle}…`}
                 rows={5}
                 className="w-full bg-[#F7F7F7] rounded-xl px-4 py-3 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:ring-2 focus:ring-[#06a5a5]/30 transition-all resize-none"
               />
