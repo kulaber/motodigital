@@ -26,7 +26,7 @@ export default async function BikesPage() {
 
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(url, is_cover, position), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(100)

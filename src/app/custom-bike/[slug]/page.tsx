@@ -320,7 +320,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
 
   // Single query with JOIN — fetch bikes + seller profiles together
   let query = (supabase.from('bikes') as any)
-    .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role, address)')
+    .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(url, is_cover, position), profiles!seller_id(full_name, role, address)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(4)

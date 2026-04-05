@@ -7,7 +7,8 @@ import Footer from '@/components/layout/Footer'
 import StickySearch from './StickySearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { unstable_cache } from 'next/cache'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
@@ -69,44 +70,59 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
   }
 }
 
+// ── Cached data fetching (revalidates every 2 minutes) ──
+const getLandingData = unstable_cache(
+  async () => {
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+
+    const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
+      supabase.from('bikes')
+        .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(url, is_cover, position)')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(6),
+      supabase.from('profiles')
+        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
+        .eq('role', 'custom-werkstatt')
+        .not('slug', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(10),
+    ])
+
+    const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: any) => r.seller_id))]
+    const workshopIds = (dbRows ?? []).map((r: any) => r.id as string)
+
+    const [{ data: sellerProfiles }, { data: bikeCounts }] = await Promise.all([
+      sellerIds.length > 0
+        ? supabase.from('profiles').select('id, full_name, role').in('id', sellerIds)
+        : Promise.resolve({ data: [] as any[] }),
+      workshopIds.length > 0
+        ? supabase.from('bikes').select('seller_id').in('seller_id', workshopIds).eq('status', 'active')
+        : Promise.resolve({ data: [] as any[] }),
+    ])
+
+    return {
+      bikeRows: bikeRows ?? [],
+      dbRows: dbRows ?? [],
+      sellerProfiles: sellerProfiles ?? [],
+      bikeCounts: bikeCounts ?? [],
+    }
+  },
+  ['landing-page-data'],
+  { revalidate: 120 }
+)
+
 export default async function LandingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const isLoggedIn = !!user
-
-  // ── Fetch bikes + workshops in parallel ──
-  const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
-    (supabase.from('bikes') as any)
-      .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(6),
-    (supabase.from('profiles') as any)
-      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
-      .eq('role', 'custom-werkstatt')
-      .not('slug', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(10),
-  ])
-
-  // ── Fetch seller profiles + workshop bike counts in parallel ──
-  const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: Record<string, unknown>) => r.seller_id as string))]
-  const workshopIds = (dbRows ?? []).map((r: Record<string, unknown>) => r.id as string)
-
-  const [{ data: sellerProfiles }, bikeCountResult] = await Promise.all([
-    sellerIds.length > 0
-      ? (supabase.from('profiles') as any).select('id, full_name, role').in('id', sellerIds)
-      : Promise.resolve({ data: [] }),
-    workshopIds.length > 0
-      ? supabase.from('bikes').select('seller_id').in('seller_id', workshopIds).eq('status', 'active') as unknown as Promise<{ data: { seller_id: string }[] | null }>
-      : Promise.resolve({ data: [] as { seller_id: string }[] }),
-  ])
+  const { bikeRows, dbRows, sellerProfiles, bikeCounts } = await getLandingData()
 
   const sellerName: Record<string, string> = Object.fromEntries(
-    ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.full_name ?? ''])
+    (sellerProfiles as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.full_name ?? ''])
   )
   const sellerRole: Record<string, string> = Object.fromEntries(
-    ((sellerProfiles ?? []) as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
+    (sellerProfiles as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.role ?? 'rider'])
   )
 
   const dbBuilds: FeaturedBuild[] = (bikeRows ?? []).map((r: any) => {
@@ -134,10 +150,8 @@ export default async function LandingPage() {
 
   // Count bikes per workshop
   const bikeCountMap = new Map<string, number>()
-  if (bikeCountResult.data) {
-    for (const row of bikeCountResult.data) {
-      bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
-    }
+  for (const row of bikeCounts as { seller_id: string }[]) {
+    bikeCountMap.set(row.seller_id, (bikeCountMap.get(row.seller_id) ?? 0) + 1)
   }
 
   const dbBuilders: Builder[] = (dbRows ?? []).map((row: Record<string, unknown>) => ({
@@ -258,7 +272,7 @@ export default async function LandingPage() {
                       {build.listingType === 'for_sale' && build.priceOnRequest && (
                         <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
                       )}
-                      {isLoggedIn && build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
+                      {build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
                         <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
                           {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">€</span>
                         </span>

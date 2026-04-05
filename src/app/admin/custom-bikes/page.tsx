@@ -11,7 +11,7 @@ export default async function AdminCustomBikesPage() {
 
   // Fetch all bikes (all statuses)
   const { data: bikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, listing_type, price_amount, price_on_request, bike_images(url, is_cover, position)')
     .order('created_at', { ascending: false }) as {
       data: {
         id: string; title: string; make: string; model: string; year: number

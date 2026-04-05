@@ -87,7 +87,7 @@ export default async function ModelDetailPage({ params }: Props) {
 
   // Fetch builds that use this base bike (via base_bike_id)
   const { data: linkedBuilds } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
     .eq('base_bike_id', baseBike.id)
     .eq('status', 'active')
     .order('created_at', { ascending: false })

@@ -35,7 +35,7 @@ export default async function DashboardPage() {
   const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
-      .select('id, title, slug, status, price, view_count, created_at, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .select('id, title, slug, status, price, view_count, created_at, bike_images(url, is_cover, position)')
       .eq('seller_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: DashboardBike[] | null, error: unknown }>,
     supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,

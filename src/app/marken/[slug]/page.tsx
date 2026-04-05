@@ -77,7 +77,7 @@ export default async function MarkeDetailPage({ params }: Props) {
 
   // Fetch custom builds from bikes table matching this brand
   const { data: dbBikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
     .ilike('make', brand.name)
     .eq('status', 'active')
     .order('created_at', { ascending: false })

@@ -91,7 +91,7 @@ export default async function BikeSlugPage({ params }: Props) {
 
     // Fetch ALL active bikes (same as /bikes page) so BikesClient filters work fully
     const { data: rows } = await (styleSupabase.from('bikes') as any)
-      .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
+      .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(url, is_cover, position), profiles!seller_id(full_name, role)')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
 

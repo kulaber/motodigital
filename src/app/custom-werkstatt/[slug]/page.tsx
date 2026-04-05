@@ -97,7 +97,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       .eq('builder_id', row.id)
       .order('position', { ascending: true }),
     (supabase.from('bikes') as any)
-      .select('id, slug, title, make, model, year, style, price, listing_type, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+      .select('id, slug, title, make, model, year, style, price, listing_type, bike_images(url, is_cover, position)')
       .eq('seller_id', row.id)
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
