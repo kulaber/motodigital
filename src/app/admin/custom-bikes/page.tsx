@@ -12,12 +12,13 @@ export default async function AdminCustomBikesPage() {
   // Fetch all bikes (all statuses)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: bikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
+    .select('id, title, make, model, year, price, status, created_at, seller_id, slug, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url)')
     .order('created_at', { ascending: false }) as {
       data: {
         id: string; title: string; make: string; model: string; year: number
         price: number; status: string; created_at: string
         seller_id: string; slug: string | null
+        listing_type?: string; price_amount?: number | null; price_on_request?: boolean
         bike_images: { url: string; is_cover: boolean }[]
       }[] | null
     }
@@ -49,6 +50,9 @@ export default async function AdminCustomBikesPage() {
       coverUrl: cover,
       sellerName: seller?.full_name ?? null,
       sellerRole: seller?.role ?? null,
+      listingType: b.listing_type ?? 'showcase',
+      priceAmount: b.price_amount ?? null,
+      priceOnRequest: b.price_on_request ?? false,
     }
   })
 

@@ -27,6 +27,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const [activeMake,    setActiveMake]    = useState('Alle')
   const [activeModel,   setActiveModel]   = useState('Alle')
   const [searchQuery,   setSearchQuery]   = useState('')
+  const [activeListing, setActiveListing] = useState<'Alle' | 'showcase' | 'for_sale'>('Alle')
   const [activeSort,    setActiveSort]    = useState<'popular' | 'newest' | 'oldest'>('newest')
   const [showFilterModal, setShowFilterModal] = useState(false)
   useHideNavOnModal(showFilterModal)
@@ -34,6 +35,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
   const PER_PAGE = 12
 
   const SORT_LABELS: Record<string, string> = { popular: 'Beliebt', newest: 'Neueste zuerst', oldest: 'Älteste zuerst' }
+  const LISTING_LABELS: Record<string, string> = { Alle: 'Typ', showcase: 'Showcase', for_sale: 'Zu verkaufen' }
 
   const filterRef = useRef<HTMLDivElement>(null)
   const gridAnchorRef = useRef<HTMLDivElement>(null)
@@ -96,7 +98,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
       const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
       const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
       const modelMatch   = activeModel === 'Alle' || getModel(b.base) === activeModel
-      return styleMatch && countryMatch && makeMatch && modelMatch
+      const listingMatch = activeListing === 'Alle' || b.listingType === activeListing
+      return styleMatch && countryMatch && makeMatch && modelMatch && listingMatch
     })
     if (activeSort === 'popular') {
       result.sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
@@ -106,7 +109,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
       result.sort((a, b) => new Date(a.publishedAt ?? '1970').getTime() - new Date(b.publishedAt ?? '1970').getTime())
     }
     return result
-  }, [searchFiltered, activeStyle, activeCountry, activeMake, activeModel, activeSort])
+  }, [searchFiltered, activeStyle, activeCountry, activeMake, activeModel, activeListing, activeSort])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -118,8 +121,8 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
     }, 50)
   }
 
-  const activeFilterCount = (activeCountry !== 'Alle' ? 1 : 0) + (activeStyle !== 'Alle' ? 1 : 0) + (activeMake !== 'Alle' ? 1 : 0) + (activeModel !== 'Alle' ? 1 : 0) + (activeSort !== 'newest' ? 1 : 0)
-  const resetAllFilters = () => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setActiveSort('newest'); setPage(1) }
+  const activeFilterCount = (activeCountry !== 'Alle' ? 1 : 0) + (activeStyle !== 'Alle' ? 1 : 0) + (activeMake !== 'Alle' ? 1 : 0) + (activeModel !== 'Alle' ? 1 : 0) + (activeListing !== 'Alle' ? 1 : 0) + (activeSort !== 'newest' ? 1 : 0)
+  const resetAllFilters = () => { setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setActiveListing('Alle'); setActiveSort('newest'); setPage(1) }
 
   return (
     <>
@@ -179,6 +182,20 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
 
             {/* Desktop: inline filters */}
             <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
+              activeListing !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
+            }`}>
+              <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
+                {LISTING_LABELS[activeListing]}
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <select value={activeListing} onChange={e => { setActiveListing(e.target.value as 'Alle' | 'showcase' | 'for_sale'); setPage(1); scrollToFilter() }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <option value="Alle">Typ</option>
+                <option value="showcase">Showcase</option>
+                <option value="for_sale">Zu verkaufen</option>
+              </select>
+            </div>
+
+            <div className={`hidden lg:block relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
               activeCountry !== 'Alle' ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
             }`}>
               <div className="flex items-center h-full pl-3.5 pr-7 text-[13px] font-medium text-[#333] pointer-events-none">
@@ -233,7 +250,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             )}
 
             {/* Desktop: Reset */}
-            {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle' || searchQuery) && (
+            {(activeStyle !== 'Alle' || activeCountry !== 'Alle' || activeMake !== 'Alle' || activeListing !== 'Alle' || searchQuery) && (
               <button
                 onClick={() => { setSearchQuery(''); resetAllFilters() }}
                 aria-label="Filter zurücksetzen"
@@ -290,6 +307,26 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     }`}
                   >
                     {c === 'Alle' ? 'Alle Länder' : c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Typ */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#222222] mb-3">Typ</h3>
+              <div className="flex flex-wrap gap-2">
+                {(['Alle', 'showcase', 'for_sale'] as const).map(val => (
+                  <button
+                    key={val}
+                    onClick={() => setActiveListing(val)}
+                    className={`h-9 px-4 text-[13px] font-medium rounded-full border transition-colors cursor-pointer ${
+                      activeListing === val
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#333] border-[#d4d4d4] hover:border-[#999]'
+                    }`}
+                  >
+                    {val === 'Alle' ? 'Alle' : val === 'showcase' ? 'Showcase' : 'Zu verkaufen'}
                   </button>
                 ))}
               </div>
@@ -405,7 +442,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
             <div className="text-center py-20">
               <p className="text-[#222222]/25 text-sm">Keine Bikes für diese Filter gefunden.</p>
               <button
-                onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setPage(1) }}
+                onClick={() => { setSearchQuery(''); setActiveStyle('Alle'); setActiveCountry('Alle'); setActiveMake('Alle'); setActiveModel('Alle'); setActiveListing('Alle'); setPage(1) }}
                 className="mt-4 text-xs text-[#717171] hover:text-[#06a5a5] transition-colors"
               >
                 Filter zurücksetzen
@@ -430,11 +467,15 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
                       {build.style}
                     </span>
-                    {isNew(build.publishedAt) && (
+                    {build.listingType === 'for_sale' ? (
+                      <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                        Zu verkaufen
+                      </span>
+                    ) : isNew(build.publishedAt) ? (
                       <span className="absolute top-2 right-2 bg-[#06a5a5] text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
                         Neu
                       </span>
-                    )}
+                    ) : null}
                     {build.role && (
                       <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                         {build.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
@@ -442,8 +483,16 @@ export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
-                    <div className="mb-1">
+                    <div className="flex items-start justify-between gap-2 mb-1">
                       <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
+                      {build.listingType === 'for_sale' && build.priceAmount && !build.priceOnRequest && (
+                        <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
+                          {Number(build.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">EUR</span>
+                        </span>
+                      )}
+                      {build.listingType === 'for_sale' && build.priceOnRequest && (
+                        <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
+                      )}
                     </div>
                     <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{build.base} · {build.year} · {build.city}</p>
                     <p className="text-[10px] text-[#222222]/25 mt-0.5 truncate">{build.builder.name}</p>

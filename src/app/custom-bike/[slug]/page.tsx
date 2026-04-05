@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BadgeCheck, MapPin, ArrowLeft } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, Lock, Tag } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BikeGallerySection from './BikeGallerySection'
@@ -58,7 +58,7 @@ export default async function CustomBikePage({ params }: Props) {
 
   {
     const supabase = await createClient()
-    const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, workshop_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug'
+    const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, workshop_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug, listing_type, price_amount, price_on_request'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bike: any = null
@@ -99,6 +99,10 @@ export default async function CustomBikePage({ params }: Props) {
             .maybeSingle() as Promise<{ data: { logo_url: string | null } | null }>
         : Promise.resolve({ data: null }),
     ])
+
+    // Check if user is logged in (for price visibility)
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    const isLoggedIn = !!currentUser
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = sortedBikeImageUrls(rawImages)
@@ -144,12 +148,35 @@ export default async function CustomBikePage({ params }: Props) {
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full">
                   {styleLabel}
                 </span>
+                {bike.listing_type === 'for_sale' && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-[#06a5a5] border border-[#06a5a5]/30 bg-[#06a5a5]/8 px-2.5 py-1 rounded-full">
+                    <Tag size={10} /> Zu verkaufen
+                  </span>
+                )}
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight leading-tight mb-2">
                 {bike.title}
               </h1>
               <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
             </div>
+
+            {bike.listing_type === 'for_sale' && (
+              <div className="sm:text-right flex-shrink-0 sm:pt-6">
+                {isLoggedIn ? (
+                  bike.price_on_request ? (
+                    <p className="text-lg font-semibold text-[#222222]">Preis auf Anfrage</p>
+                  ) : bike.price_amount ? (
+                    <p className="text-2xl sm:text-3xl font-bold text-[#222222]">
+                      {Number(bike.price_amount).toLocaleString('de-DE')} <span className="text-base font-semibold text-[#222222]/50">EUR</span>
+                    </p>
+                  ) : null
+                ) : (
+                  <Link href="/auth/login" className="inline-flex items-center gap-2 text-xs text-[#222222]/40 hover:text-[#06a5a5] transition-colors">
+                    <Lock size={12} /> Anmelden um den Preis zu sehen
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">

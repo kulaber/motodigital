@@ -17,6 +17,9 @@ export type AdminBike = {
   coverUrl: string | null
   sellerName: string | null
   sellerRole: string | null
+  listingType?: string
+  priceAmount?: number | null
+  priceOnRequest?: boolean
 }
 
 interface Props {
@@ -93,7 +96,10 @@ export default function AdminBikesClient({ bikes }: Props) {
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-[#222222] truncate max-w-[220px]">{b.title}</p>
                           <p className="text-[10px] text-[#222222]/30">
-                            {b.price ? `€ ${Number(b.price).toLocaleString('de-DE')}` : '—'} · {b.year}
+                            {b.listingType === 'for_sale'
+                              ? (b.priceOnRequest ? 'Preis auf Anfrage' : b.priceAmount ? `${Number(b.priceAmount).toLocaleString('de-DE')} EUR` : '—')
+                              : 'Showcase'
+                            } · {b.year}
                           </p>
                         </div>
                       </div>

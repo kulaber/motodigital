@@ -14,6 +14,7 @@ export type Json =
 
 export type UserRole = 'rider' | 'custom-werkstatt' | 'superadmin'
 export type BikeStatus = 'draft' | 'active' | 'sold'
+export type ListingType = 'showcase' | 'for_sale'
 export type BikeStyle =
   | 'naked'
   | 'cafe_racer'
@@ -120,6 +121,9 @@ export interface Database {
           status: BikeStatus
           is_verified: boolean
           view_count: number
+          listing_type: ListingType
+          price_amount: number | null
+          price_on_request: boolean
           created_at: string
           updated_at: string
         }

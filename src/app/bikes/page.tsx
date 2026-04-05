@@ -25,7 +25,7 @@ export default async function BikesPage() {
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
+    .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, listing_type, price_amount, price_on_request, bike_images(id, url, is_cover, position, media_type, thumbnail_url), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(100)
@@ -59,6 +59,9 @@ export default async function BikesPage() {
       publishedAt:   r.created_at,
       role:          profile?.role ?? 'rider',
       viewCount:     r.view_count ?? 0,
+      listingType:   r.listing_type ?? 'showcase',
+      priceAmount:   r.price_amount ?? null,
+      priceOnRequest: r.price_on_request ?? false,
     }
   })
 

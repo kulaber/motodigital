@@ -57,6 +57,9 @@ export default function NewBikeForm() {
   const [description, setDescription] = useState('')
   const [modifications, setModifications] = useState<string[]>([''])
   const [status, setStatus]         = useState<'active' | 'draft'>('active')
+  const [listingType, setListingType] = useState<'showcase' | 'for_sale'>('showcase')
+  const [priceAmount, setPriceAmount] = useState('')
+  const [priceOnRequest, setPriceOnRequest] = useState(false)
 
   // ── Derived values ───────────────────────────────
   const isCustomMake = makeId === 'andere'
@@ -173,6 +176,9 @@ export default function NewBikeForm() {
       cc:           cc ? parseInt(cc) : null,
       mileage_km:   mileage ? parseInt(mileage) : null,
       price:        0,
+      listing_type: listingType,
+      price_amount: listingType === 'for_sale' && !priceOnRequest && priceAmount ? parseInt(priceAmount) : null,
+      price_on_request: listingType === 'for_sale' ? priceOnRequest : false,
       city:         null,
       lat:          null,
       lng:          null,
@@ -476,6 +482,57 @@ export default function NewBikeForm() {
             </div>
           </div>
 
+          {/* Verkauf */}
+          <div>
+            <label className={labelClass}>Verkauf</label>
+            <div className="grid grid-cols-2 gap-2">
+              {([['showcase', 'Showcase'], ['for_sale', 'Zu verkaufen']] as const).map(([val, label]) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => {
+                    setListingType(val)
+                    if (val === 'showcase') { setPriceAmount(''); setPriceOnRequest(false) }
+                  }}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all ${
+                    listingType === val
+                      ? 'bg-[#06a5a5]/10 border-[#06a5a5]/30 text-[#06a5a5]'
+                      : 'border-[#222222]/8 text-[#222222]/40 hover:border-[#222222]/20 hover:text-[#222222]'
+                  }`}
+                >{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {listingType === 'for_sale' && (
+            <div className="flex flex-col gap-3">
+              <div className="relative">
+                <input
+                  value={priceAmount ? Number(priceAmount).toLocaleString('de-DE') : ''}
+                  onChange={e => setPriceAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="z.B. 12.500"
+                  disabled={priceOnRequest}
+                  className={`${inputClass} pr-10 disabled:opacity-40 disabled:cursor-not-allowed`}
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#222222]/30 pointer-events-none">EUR</span>
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={priceOnRequest}
+                  onChange={e => {
+                    setPriceOnRequest(e.target.checked)
+                    if (e.target.checked) setPriceAmount('')
+                  }}
+                  className="w-4 h-4 rounded border-[#222222]/20 text-[#06a5a5] focus:ring-[#06a5a5] accent-[#06a5a5]"
+                />
+                <span className="text-xs text-[#222222]/60">Preis auf Anfrage</span>
+              </label>
+            </div>
+          )}
+
           <div className="flex justify-between pt-2">
             <button onClick={() => setStep(1)}
               className="text-sm text-[#222222]/40 hover:text-[#222222] transition-colors px-4 py-3">
@@ -483,7 +540,8 @@ export default function NewBikeForm() {
             </button>
             <button
               onClick={() => setStep(3)}
-              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] transition-all"
+              disabled={listingType === 'for_sale' && !priceOnRequest && !priceAmount}
+              className="flex items-center gap-2 bg-[#06a5a5] text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Weiter <ChevronRight size={16} />
             </button>
@@ -582,6 +640,14 @@ export default function NewBikeForm() {
                 <span className="text-[#222222]/40">Fotos</span>
                 <span className="text-[#222222]">{mediaFiles.length} hochgeladen</span>
               </div>
+              {listingType === 'for_sale' && (
+                <div className="flex justify-between">
+                  <span className="text-[#222222]/40">Verkauf</span>
+                  <span className="text-[#06a5a5] font-medium">
+                    {priceOnRequest ? 'Preis auf Anfrage' : priceAmount ? `${Number(priceAmount).toLocaleString('de-DE')} EUR` : '—'}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

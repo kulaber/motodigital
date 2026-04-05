@@ -30,4 +30,7 @@ export type Build = {
   href?: string          // override link (for Supabase bikes)
   role?: string          // seller role: 'custom-werkstatt' | 'rider'
   viewCount?: number     // number of page views
+  listingType?: 'showcase' | 'for_sale'
+  priceAmount?: number | null
+  priceOnRequest?: boolean
 }

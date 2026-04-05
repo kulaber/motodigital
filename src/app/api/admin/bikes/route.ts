@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     const {
       seller_id, workshop_id, title, make, model, year,
       style, cc, mileage_km, description, modifications, status,
+      listing_type, price_amount, price_on_request,
     } = body
 
     if (!seller_id || !title || !make || !model || !year || !style) {
@@ -70,6 +71,9 @@ export async function POST(request: Request) {
         modifications: (modifications ?? []).map((m: string) => m.trim()).filter(Boolean),
         status: status || 'draft',
         is_verified: false,
+        listing_type: listing_type || 'showcase',
+        price_amount: price_amount ?? null,
+        price_on_request: price_on_request ?? false,
       })
       .select('id')
       .maybeSingle()
