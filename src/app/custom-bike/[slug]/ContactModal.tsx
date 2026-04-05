@@ -59,11 +59,22 @@ function Modal({
 
     if (!conv?.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: created } = await (supabase.from('conversations') as any)
+      const { data: created, error: insertError } = await (supabase.from('conversations') as any)
         .insert({ seller_id: sellerId, buyer_id: userId, bike_id: bikeId })
         .select('id')
         .maybeSingle()
-      conv = created
+      if (insertError) {
+        // Unique constraint hit → conversation exists in other direction, re-fetch
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: existing } = await (supabase.from('conversations') as any)
+          .select('id')
+          .or(`and(seller_id.eq.${sellerId},buyer_id.eq.${userId}),and(seller_id.eq.${userId},buyer_id.eq.${sellerId})`)
+          .limit(1)
+          .maybeSingle()
+        conv = existing
+      } else {
+        conv = created
+      }
     }
 
     if (conv?.id) {

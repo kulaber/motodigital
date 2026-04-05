@@ -78,7 +78,7 @@ export default function MobileBottomNav() {
 }
 
 function MobileBottomNavInner() {
-  const { role, slug, unreadCount } = useAuth();
+  const { role, slug, unreadCount, unreadNotificationCount } = useAuth();
   const pathname = usePathname();
   const [optimistic, setOptimistic] = useState({ index: -1, href: null });
 
@@ -191,7 +191,7 @@ function MobileBottomNavInner() {
 
             {navItems.map((item, index) => {
               const isActive = activeIndex === index;
-              const showBadge = item.id === "nachrichten" && unreadCount > 0;
+              const showBadge = (item.id === "nachrichten" && unreadCount > 0) || (item.id === "explore" && unreadNotificationCount > 0);
 
               return (
                 <Link
@@ -240,7 +240,10 @@ function MobileBottomNavInner() {
                           border: "2px solid #06a5a5",
                         }}
                       >
-                        {unreadCount > 9 ? "9+" : unreadCount}
+                        {(() => {
+                          const count = item.id === "explore" ? unreadNotificationCount : unreadCount;
+                          return count > 9 ? "9+" : count;
+                        })()}
                       </span>
                     )}
                   </span>
