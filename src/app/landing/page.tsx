@@ -235,8 +235,8 @@ export default async function LandingPage() {
                 Aus der Community.
               </h2>
             </div>
-            <Link href="/bikes" className="w-full sm:w-auto text-center flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
-              Alle ansehen →
+            <Link href="/bikes" className="hidden sm:inline-flex flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Custom Bikes →
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -289,6 +289,11 @@ export default async function LandingPage() {
                 </Link>
             ))}
           </div>
+          <div className="sm:hidden mt-8 text-center">
+            <Link href="/bikes" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Custom Bikes →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -323,11 +328,16 @@ export default async function LandingPage() {
               für Deinen Umbau.
             </h2>
           </div>
-          <Link href="/custom-werkstatt" className="w-full sm:w-auto text-center flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+          <Link href="/custom-werkstatt" className="hidden sm:inline-flex flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
             Alle Custom Werkstätten →
           </Link>
         </div>
         <BuilderCarousel builders={builders} />
+        <div className="sm:hidden mt-8 text-center px-5">
+          <Link href="/custom-werkstatt" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+            Alle Custom Werkstätten →
+          </Link>
+        </div>
       </section>
 
       </div>{/* end sticky search wrapper */}
@@ -341,9 +351,9 @@ export default async function LandingPage() {
 
           {/* Headline */}
           <div className="text-center mb-16">
-            <p className="text-xs font-semibold text-[#06a5a5] uppercase tracking-widest mb-4">Für wen bist du hier?</p>
+            <p className="text-xs font-semibold text-[#06a5a5] uppercase tracking-widest mb-4">Worauf wartest Du?</p>
             <h2 className="font-bold text-white leading-tight mb-4" style={{ fontSize: 'clamp(2rem,4vw,3rem)' }}>
-              Werde Teil unserer Community.
+              Werde Teil der Community.
             </h2>
             <p className="text-sm text-white/35 max-w-md mx-auto leading-relaxed">
               Registriere dich kostenlos — als Rider oder als Custom Werkstatt.
@@ -366,10 +376,10 @@ export default async function LandingPage() {
                     Custom Werkstatt
                   </span>
                   <h3 className="text-xl font-bold text-white mb-2 leading-snug">
-                    Zeig deine Werkstatt.<br />Erreiche die Community.
+                    Zeige deine Werkstatt & Custom Bikes.<br />Erreiche die Community.
                   </h3>
                   <p className="text-sm text-white/35 mb-6 leading-relaxed">
-                    Kostenlose Profilseite, Galerie, Karte & Direktkontakt mit Kunden.
+                    Kostenlose Profilseite, Galerie, Custom Bikes, Karte & direkter Kontakt zu Ridern.
                   </p>
                   <span className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl self-start transition-all duration-300 group-hover:bg-[#058f8f] group-hover:gap-3">
                     Als Werkstatt registrieren →
@@ -391,10 +401,10 @@ export default async function LandingPage() {
                     Rider
                   </span>
                   <h3 className="text-xl font-bold text-white mb-2 leading-snug">
-                    Teil der Custom<br />Community sein.
+                    Werde Teil der Custom Bike Community.<br />Teile, was dich bewegt.
                   </h3>
                   <p className="text-sm text-white/35 mb-6 leading-relaxed">
-                    Präsentiere dein Bike, entdecke Werkstätten & werde Teil der Szene.
+                    Präsentiere dein Bike, entdecke Fahrgemeinschaften in der Nähe und vernetze dich mit der Community.
                   </p>
                   <span className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl self-start transition-all duration-300 group-hover:bg-[#058f8f] group-hover:gap-3">
                     Als Rider registrieren →

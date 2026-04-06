@@ -19,7 +19,7 @@ export default function WorkshopCTA() {
 
   return (
     <section className="max-w-6xl mx-auto px-5 lg:px-8 pb-16">
-      <Link href="/auth/register" className="group rounded-2xl overflow-hidden relative bg-[#111111] block">
+      <Link href="/auth/register?role=custom-werkstatt" className="group rounded-2xl overflow-hidden relative bg-[#111111] block">
         <div className="absolute inset-0">
           <Image
             src="/custom-werkstatt.png"

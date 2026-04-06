@@ -27,7 +27,7 @@ const sections = [
       'Direkter Kontakt mit Kunden',
       'Verifiziertes Profil für mehr Vertrauen',
     ],
-    cta: { label: 'Als Werkstatt registrieren', href: '/auth/register' },
+    cta: { label: 'Als Werkstatt registrieren', href: '/auth/register?role=custom-werkstatt' },
     accent: '#06a5a5',
   },
   {
@@ -51,17 +51,19 @@ const sections = [
     number: '03',
     image: '/rider.png',
     tag: 'Für Rider',
-    heading: 'Teil der Custom-\nCommunity\nsein.',
+    heading: 'Werde Teil der\nCustom-Bike\nCommunity.',
     description:
-      'Als Rider auf MotoDigital kannst du dein eigenes Bike präsentieren, Werkstätten entdecken und Teil einer Community sein, die Custom Motorcycle Culture wirklich lebt.',
+      'Als Rider auf MotoDigital kannst du dein eigenes Bike präsentieren oder verkaufen, Werkstätten entdecken, Rider in der Nähe finden, die das gleiche Mindset haben wie du. Erlebe die wirkliche Custom Motorcycle Culture.',
     usps: [
       'Eigenes Rider-Profil mit deinem Bike',
+      'Fahrten in der Nähe finden durch Map',
+      'Custom Bikes verkaufen',
       'Custom-Werkstätten in deiner Nähe',
       'Inspiration durch Builds & Magazin',
       'Events in der Community entdecken',
-      'Direkter Draht zu Werkstätten',
+      'Direkter Draht zu Werkstätten & Ridern',
     ],
-    cta: { label: 'Als Rider registrieren', href: '/auth/register' },
+    cta: { label: 'Als Rider registrieren', href: '/auth/register?role=rider' },
     accent: '#06a5a5',
   },
 ]
@@ -179,19 +181,19 @@ export default function WieEsFunktioniertPage() {
                 description: 'Eigene Rider-Profile mit Bike-Vorstellung und Vernetzung innerhalb der Community.',
               },
               {
-                status: 'Demnächst',
-                live: false,
+                status: 'Live',
+                live: true,
                 title: 'Custom Bike Marktplatz',
                 description: 'Kauf & Verkauf von handgefertigten Custom Bikes direkt zwischen Werkstätten und Ridern.',
               },
               {
-                status: 'Geplant',
+                status: 'Demnächst',
                 live: false,
-                title: 'App — iOS & Android',
-                description: 'Die MotoDigital App für unterwegs — Bikes entdecken, Werkstätten finden, Community erleben.',
+                title: 'Werkstatt Bewertungen',
+                description: 'Verifizierte Kundenbewertungen für Custom-Werkstätten — transparent und authentisch.',
               },
               {
-                status: 'Geplant',
+                status: 'Demnächst',
                 live: false,
                 title: 'Shop Integration',
                 description: 'Werkstätten können Merchandise, Teile und Services direkt über ihre Profilseite verkaufen.',
@@ -211,8 +213,8 @@ export default function WieEsFunktioniertPage() {
               {
                 status: 'Geplant',
                 live: false,
-                title: 'Werkstatt Bewertungen',
-                description: 'Verifizierte Kundenbewertungen für Custom-Werkstätten — transparent und authentisch.',
+                title: 'App — iOS & Android',
+                description: 'Die MotoDigital App für unterwegs — Bikes entdecken, Werkstätten finden, Community erleben.',
               },
               {
                 status: 'Geplant',
@@ -244,7 +246,7 @@ export default function WieEsFunktioniertPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="bg-[#222222] border-t border-white/5">
+      <section className="bg-[#111111] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-24 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-[#06a5a5] mb-4">Los geht&apos;s</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">

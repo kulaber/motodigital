@@ -12,15 +12,17 @@ type Role = 'rider' | 'custom-werkstatt'
 
 const WERKSTATT_BENEFITS = [
   'Öffentliches Werkstatt-Profil mit Galerie',
-  'Direktanfragen von Ridern — ohne Provision',
-  'Auf der Karte sichtbar & auffindbar',
-  'Custom Bikes inserieren & verkaufen',
+  'Direktanfragen von Ridern – ohne Provision',
+  'Auf der Karte sichtbar',
+  'Custom Bikes präsentieren & verkaufen',
+  'Dashboard mit Analysedaten',
 ]
 
 const RIDER_BENEFITS = [
-  'Custom Werkstätten entdecken & kontaktieren',
-  'Custom Bikes kaufen & Builds speichern',
-  'Magazin, Guides & Community',
+  'Präsentiere/Verkaufe dein Custom Bike',
+  'Nutze die Explore-Seite & Teile, was dich bewegt',
+  'Vernetze dich mit Fahrern in der Nähe',
+  'Bilde Fahrgemeinschaften in der Nähe',
   'Digitaler Bike-Pass (bald verfügbar)',
 ]
 
@@ -82,17 +84,18 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
         {/* Rider */}
         <button
           onClick={() => handleRoleSelect('rider')}
-          className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] transition-all duration-200 text-left px-5 py-4"
+          className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all duration-200 text-left px-5 py-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <Bike size={18} className="text-white/60" />
+            <Bike size={18} className="text-[#06a5a5]" />
             <p className="font-bold text-base text-white">Rider</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
           </div>
-          <p className="text-xs text-white/45 mb-3">Ich suche Custom Bikes & die richtige Werkstatt</p>
+          <p className="text-xs text-white/45 mb-3">Ich bin Custom-Bike interessiert / fahre ein Custom Bike</p>
           <ul className="flex flex-col gap-1.5">
             {RIDER_BENEFITS.map(b => (
               <li key={b} className="flex items-center gap-2">
-                <Check size={10} className="text-white/30 flex-shrink-0" />
+                <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
                 <span className="text-xs text-white/50">{b}</span>
               </li>
             ))}
@@ -107,9 +110,9 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
           <div className="flex items-center gap-2 mb-2">
             <Wrench size={18} className="text-[#06a5a5]" />
             <p className="font-bold text-base text-white">Custom Werkstatt</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">Beliebt</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
           </div>
-          <p className="text-xs text-white/45 mb-3">Ich baue Custom Bikes & will Kunden gewinnen</p>
+          <p className="text-xs text-white/45 mb-3">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">
             {WERKSTATT_BENEFITS.map(b => (
               <li key={b} className="flex items-center gap-2">
@@ -140,7 +143,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
         <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
             ? 'bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20'
-            : 'bg-white/5 text-white/60 border-white/10'
+            : 'bg-[#06a5a5]/10 text-[#06a5a5] border-[#06a5a5]/20'
         }`}>
           {isBuilder ? <Wrench size={11} /> : <Bike size={11} />}
           {isBuilder ? 'Custom Werkstatt' : 'Rider'}

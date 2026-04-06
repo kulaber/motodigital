@@ -43,16 +43,16 @@ export default async function RegisterPage(
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden">
             <Image src="/logo.svg" alt="MotoDigital" width={300} height={110}
-              className="h-12 sm:h-16 w-auto" priority />
+              className="h-14 sm:h-18 w-auto" priority />
           </Link>
 
           {/* Mobile illustration */}
-          <div className="lg:hidden mt-6">
-            <Image src="/rider.png" alt="" width={200} height={150} className="w-44 h-auto" />
+          <div className="lg:hidden mt-2">
+            <Image src="/rider.png" alt="" width={200} height={150} className="w-32 h-auto" />
           </div>
 
           {/* Headline — above the cards */}
-          <h1 className="text-xl sm:text-2xl lg:text-[1.7rem] font-bold mt-6 lg:mt-10 text-center leading-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-[1.7rem] font-bold mt-4 lg:mt-10 text-center leading-tight">
             Account erstellen
           </h1>
           <p className="text-sm text-white/35 mt-2 mb-6 lg:mb-8 text-center">

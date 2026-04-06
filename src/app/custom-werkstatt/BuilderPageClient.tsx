@@ -282,7 +282,7 @@ function BuilderList({
 
       {/* CTA card — only for logged-out users (guarded by authReady to prevent FOUC) */}
       {authReady && !userId && (
-        <Link href="/auth/register" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
+        <Link href="/auth/register?role=custom-werkstatt" className="group mt-6 rounded-2xl overflow-hidden relative bg-[#111111] block">
           <div className="absolute inset-0">
             <Image
               src="/custom-werkstatt.png"
