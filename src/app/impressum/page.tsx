@@ -34,7 +34,7 @@ export default function ImpressumPage() {
             <section>
               <h2>Kontakt</h2>
               <p>
-                E-Mail: hello@motodigital.io
+                E-Mail: info@motodigital.de
               </p>
             </section>
 

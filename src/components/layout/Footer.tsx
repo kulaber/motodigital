@@ -8,28 +8,27 @@ const NAV = [
   {
     heading: 'Plattform',
     links: [
-      { label: 'Custom Bikes',              href: '/bikes' },
-      { label: 'Custom Werkstatt',          href: '/custom-werkstatt' },
+      { label: 'Über MotoDigital',           href: '/ueber-motodigital' },
+      { label: 'Registrieren',              href: '/auth/register' },
+      { label: 'Anmelden',                  href: '/auth/login' },
       { label: 'Magazin',                   href: '/magazine' },
       { label: 'Events',                    href: '/events' },
-      { label: 'Über MotoDigital',           href: '/ueber-motodigital' },
     ],
   },
   {
-    heading: 'Custom Werkstatt',
+    heading: 'Community',
     links: [
-      { label: 'Registrieren',                    href: '/auth/register' },
-      { label: 'Anmelden',                        href: '/auth/login' },
+      { label: 'Explore',                   href: '/explore' },
+      { label: 'Custom Bikes finden',       href: '/bikes' },
+      { label: 'Custom Werkstatt finden',   href: '/custom-werkstatt' },
     ],
   },
   {
-    heading: 'Rechtliches',
+    heading: 'Support & Hilfe',
     links: [
-      { label: 'Impressum',           href: '/impressum' },
-      { label: 'Datenschutz',         href: '/datenschutz' },
-      { label: 'Nutzungsbedingungen', href: '/nutzungsbedingungen' },
       { label: 'Support & Kontakt',   href: '/support' },
       { label: 'FAQs',               href: '/faq' },
+      { label: 'Partner werden',      href: '/partner' },
     ],
   },
 ]
@@ -46,7 +45,7 @@ export default function Footer() {
           {/* Brand column */}
           <div>
             <Link href="/" className="inline-block mb-4">
-              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-9 w-auto opacity-80" />
+              <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-14 w-auto opacity-80" />
             </Link>
             <p className="text-sm text-white/35 leading-relaxed max-w-xs mb-6">
               Die Plattform für Custom Motorcycle Builder in Europa — direkt, kostenlos, ohne Umwege.
@@ -99,10 +98,11 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-white/20">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs text-white/20">Alle Systeme aktiv</p>
+          <p className="text-[10px] text-white/15">© 2026 MotoDigital. Alle Rechte vorbehalten.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/impressum" className="text-[10px] text-white/15 hover:text-white/30 transition-colors">Impressum</Link>
+            <Link href="/datenschutz" className="text-[10px] text-white/15 hover:text-white/30 transition-colors">Datenschutz</Link>
+            <Link href="/nutzungsbedingungen" className="text-[10px] text-white/15 hover:text-white/30 transition-colors">Nutzungsbedingungen</Link>
           </div>
         </div>
       </div>

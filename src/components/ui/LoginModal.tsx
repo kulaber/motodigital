@@ -38,17 +38,19 @@ const CONTEXT_MESSAGES: Record<TriggerContext, string> = {
 type Role = 'rider' | 'custom-werkstatt'
 
 const RIDER_BENEFITS = [
-  'Custom Werkstätten entdecken & kontaktieren',
-  'Custom Bikes kaufen & Builds speichern',
-  'Magazin, Guides & Community',
+  'Präsentiere/Verkaufe dein Custom Bike',
+  'Nutze die Explore-Seite & Teile, was dich bewegt',
+  'Vernetze dich mit Fahrern in der Nähe',
+  'Bilde Fahrgemeinschaften in der Nähe',
   'Digitaler Bike-Pass (bald verfügbar)',
 ]
 
 const WERKSTATT_BENEFITS = [
   'Öffentliches Werkstatt-Profil mit Galerie',
-  'Direktanfragen von Ridern — ohne Provision',
-  'Auf der Karte sichtbar & auffindbar',
-  'Custom Bikes inserieren & verkaufen',
+  'Direktanfragen von Ridern – ohne Provision',
+  'Auf der Karte sichtbar',
+  'Custom Bikes präsentieren & verkaufen',
+  'Dashboard mit Analysedaten',
 ]
 
 /* ─── Props ──────────────────────────────────────────────── */
@@ -384,18 +386,19 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       <button
         type="button"
         onClick={() => { setRole('rider'); setRegStep(2); setError(null) }}
-        className="rounded-2xl border border-white/10 hover:border-white/25 transition-all text-left group"
+        className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all text-left group"
       >
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <Bike size={18} className="text-accent" />
             <p className="font-bold text-xl text-white">Rider</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
           </div>
-          <p className="text-xs text-white/40 mb-2.5">Ich suche Custom Bikes & die richtige Werkstatt</p>
+          <p className="text-xs text-white/40 mb-2.5">Ich bin Custom-Bike interessiert / fahre ein Custom Bike</p>
           <ul className="flex flex-col gap-1.5">
             {RIDER_BENEFITS.map(b => (
               <li key={b} className="flex items-center gap-2">
-                <Check size={10} className="text-white/25 flex-shrink-0" />
+                <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
                 <span className="text-xs text-white/40">{b}</span>
               </li>
             ))}
@@ -407,18 +410,19 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       <button
         type="button"
         onClick={() => { setRole('custom-werkstatt'); setRegStep(2); setError(null) }}
-        className="rounded-2xl border border-white/10 hover:border-accent/50 transition-all text-left group"
+        className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all text-left group"
       >
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <Wrench size={18} className="text-accent" />
             <p className="font-bold text-xl text-white">Custom Werkstatt</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
           </div>
-          <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden gewinnen</p>
+          <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">
             {WERKSTATT_BENEFITS.map(b => (
               <li key={b} className="flex items-center gap-2">
-                <Check size={10} className="text-accent/60 flex-shrink-0" />
+                <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
                 <span className="text-xs text-white/40">{b}</span>
               </li>
             ))}
@@ -444,7 +448,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
             ? 'bg-accent/10 text-accent border-accent/20'
-            : 'bg-white/5 text-white/50 border-white/10'
+            : 'bg-accent/10 text-accent border-accent/20'
         }`}>
           {isBuilder ? <Wrench size={11} /> : <Bike size={11} />}
           {isBuilder ? 'Custom Werkstatt' : 'Rider'}
@@ -598,7 +602,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       content = registerDoneView
       showModeSwitch = false
     } else if (regStep === 1) {
-      title = 'Wähle Deine Rolle:'
+      title = ''
       content = registerRoleView
     } else {
       content = registerFormView
@@ -692,7 +696,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             {/* Legal */}
             <p className="text-[11px] text-white/25 text-center mt-3 leading-relaxed">
               Mit der {mode === 'login' ? 'Anmeldung' : 'Registrierung'} akzeptierst du unsere{' '}
-              <a href="/agb" className="underline hover:text-white/40 transition-colors">
+              <a href="/nutzungsbedingungen" className="underline hover:text-white/40 transition-colors">
                 AGB
               </a>{' '}
               und{' '}

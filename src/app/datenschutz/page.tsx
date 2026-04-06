@@ -114,7 +114,7 @@ export default function DatenschutzPage() {
                 Deutschland
               </p>
               <p>
-                E-Mail: hello@motodigital.io
+                E-Mail: info@motodigital.de
               </p>
               <p>
                 Verantwortliche Stelle ist die natürliche oder juristische
@@ -302,7 +302,7 @@ export default function DatenschutzPage() {
                 wenden:
               </p>
               <p>
-                E-Mail: hello@motodigital.io
+                E-Mail: info@motodigital.de
               </p>
             </section>
 
