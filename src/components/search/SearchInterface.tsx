@@ -20,9 +20,10 @@ const TABS: { key: Tab; label: string }[] = [
 interface Props {
   initialQuery: string
   initialTab: Tab
+  defaultResults: SearchResults
 }
 
-export function SearchInterface({ initialQuery, initialTab }: Props) {
+export function SearchInterface({ initialQuery, initialTab, defaultResults }: Props) {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [activeTab, setActiveTab] = useState<Tab>(initialTab)
@@ -30,6 +31,8 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
   const [isPending, startTransition] = useTransition()
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const showDefaults = !query || query.length < 2
 
   // Auto-focus search field
   useEffect(() => {
@@ -136,11 +139,58 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
         {/* ── RESULTS ── */}
         <div className="flex flex-col gap-8 mt-4">
 
-          {/* Empty state: no query yet */}
-          {!query && <EmptyState />}
+          {/* Defaults: curated content when no query */}
+          {showDefaults && (
+            <>
+              <SuggestionChips onSelect={setQuery} />
+
+              <p className="text-[10px] uppercase tracking-widest text-[#222222]/25 font-semibold -mb-4">
+                Entdecke MotoDigital
+              </p>
+
+              {defaultResults.bikes.length > 0 && (
+                <ResultSection
+                  title="Neue Builds"
+                  count={defaultResults.bikes.length}
+                  showAll
+                  onShowAll={() => {}}
+                >
+                  {defaultResults.bikes.map((bike) => (
+                    <BikeResultCard key={bike.id} bike={bike} />
+                  ))}
+                </ResultSection>
+              )}
+
+              {defaultResults.workshops.length > 0 && (
+                <ResultSection
+                  title="Werkstätten"
+                  count={defaultResults.workshops.length}
+                  showAll
+                  onShowAll={() => {}}
+                >
+                  {defaultResults.workshops.map((w) => (
+                    <WorkshopResultCard key={w.id} workshop={w} />
+                  ))}
+                </ResultSection>
+              )}
+
+              {defaultResults.riders.length > 0 && (
+                <ResultSection
+                  title="Rider"
+                  count={defaultResults.riders.length}
+                  showAll
+                  onShowAll={() => {}}
+                >
+                  {defaultResults.riders.map((r) => (
+                    <RiderResultCard key={r.id} rider={r} />
+                  ))}
+                </ResultSection>
+              )}
+            </>
+          )}
 
           {/* No results */}
-          {isEmpty && (
+          {!showDefaults && isEmpty && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
               <p className="text-sm font-medium text-[#222222]">
                 Keine Ergebnisse für &ldquo;{query}&rdquo;
@@ -151,8 +201,8 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
             </div>
           )}
 
-          {/* Bikes */}
-          {results && results.bikes.length > 0 && (
+          {/* Search results: Bikes */}
+          {!showDefaults && results && results.bikes.length > 0 && (
             <ResultSection
               title="Custom Bikes"
               count={results.bikes.length}
@@ -165,8 +215,8 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
             </ResultSection>
           )}
 
-          {/* Workshops */}
-          {results && results.workshops.length > 0 && (
+          {/* Search results: Workshops */}
+          {!showDefaults && results && results.workshops.length > 0 && (
             <ResultSection
               title="Werkstätten"
               count={results.workshops.length}
@@ -179,8 +229,8 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
             </ResultSection>
           )}
 
-          {/* Rider */}
-          {results && results.riders.length > 0 && (
+          {/* Search results: Rider */}
+          {!showDefaults && results && results.riders.length > 0 && (
             <ResultSection
               title="Rider"
               count={results.riders.length}
@@ -239,41 +289,27 @@ function ResultSection({
   )
 }
 
-// ── Empty state with suggestion chips ──
-function EmptyState() {
-  const [, setQuery] = useState('')
+// ── Suggestion chips ──
+function SuggestionChips({ onSelect }: { onSelect: (q: string) => void }) {
   const suggestions = ['Café Racer', 'Scrambler', 'BMW R nineT', 'Bobber', 'Hamburg']
 
   return (
-    <div className="flex flex-col gap-6 pt-2">
-      <div>
-        <p className="text-[10px] uppercase tracking-widest text-[#222222]/25 font-semibold mb-3">
-          Beliebte Suchen
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                // Set the input value directly
-                const input = document.querySelector<HTMLInputElement>('input[placeholder*="suchen"]')
-                if (input) {
-                  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                    window.HTMLInputElement.prototype, 'value'
-                  )?.set
-                  nativeInputValueSetter?.call(input, s)
-                  input.dispatchEvent(new Event('input', { bubbles: true }))
-                }
-                setQuery(s)
-              }}
-              className="px-3 py-1.5 rounded-full text-xs
-                         bg-[#222222]/3 border border-[#222222]/6 text-[#222222]/40
-                         hover:text-[#222222]/70 hover:border-[#222222]/15 transition-colors"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+    <div>
+      <p className="text-[10px] uppercase tracking-widest text-[#222222]/25 font-semibold mb-3">
+        Beliebte Suchen
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {suggestions.map((s) => (
+          <button
+            key={s}
+            onClick={() => onSelect(s)}
+            className="px-3 py-1.5 rounded-full text-xs
+                       bg-[#222222]/3 border border-[#222222]/6 text-[#222222]/40
+                       hover:text-[#222222]/70 hover:border-[#222222]/15 transition-colors"
+          >
+            {s}
+          </button>
+        ))}
       </div>
     </div>
   )

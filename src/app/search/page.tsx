@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { SearchInterface } from '@/components/search/SearchInterface'
+import { getSearchDefaults } from '@/lib/actions/search'
 
 export const metadata: Metadata = {
   title: 'Suche — MotoDigital',
@@ -18,12 +19,18 @@ export default async function SearchPage({
   const query = (q ?? '').trim()
   const activeTab = (tab ?? 'all') as 'all' | 'bikes' | 'workshops' | 'riders'
 
+  const defaultResults = await getSearchDefaults()
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header />
 
       <Suspense fallback={<SearchSkeleton />}>
-        <SearchInterface initialQuery={query} initialTab={activeTab} />
+        <SearchInterface
+          initialQuery={query}
+          initialTab={activeTab}
+          defaultResults={defaultResults}
+        />
       </Suspense>
 
       <Footer />

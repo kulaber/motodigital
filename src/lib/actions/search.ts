@@ -87,6 +87,61 @@ interface RiderRow {
   followers: { count: number }[]
 }
 
+// ── Shared mapping functions ──
+
+function mapBikes(rows: unknown[]): BikeResult[] {
+  return (rows as BikeRow[]).map((b) => {
+    const imgs = b.bike_images ?? []
+    const cover =
+      imgs.find((i) => i.is_cover)?.url ??
+      imgs.sort((a, z) => a.position - z.position)[0]?.url ??
+      null
+    return {
+      id: b.id,
+      title: b.title,
+      slug: b.slug ?? b.id,
+      make: b.make,
+      model: b.model,
+      year: b.year,
+      style: b.style,
+      city: b.city,
+      cover_url: cover,
+      price: b.price,
+      price_on_request: b.price_on_request,
+      owner_name: b.workshops?.name ?? b.profiles?.full_name ?? b.profiles?.username ?? '',
+      owner_slug: b.workshops?.slug ?? b.profiles?.slug ?? b.profiles?.username ?? '',
+      owner_type: b.workshops ? ('workshop' as const) : ('rider' as const),
+    }
+  })
+}
+
+function mapWorkshops(rows: unknown[]): WorkshopResult[] {
+  return (rows as WorkshopRow[]).map((w) => ({
+    id: w.id,
+    name: w.name,
+    slug: w.slug,
+    city: w.city,
+    logo_url: w.logo_url,
+    services: w.services ?? [],
+    bike_count: w.bikes?.[0]?.count ?? 0,
+  }))
+}
+
+function mapRiders(rows: unknown[]): RiderResult[] {
+  return (rows as RiderRow[]).map((r) => ({
+    id: r.id,
+    username: r.username,
+    full_name: r.full_name,
+    avatar_url: r.avatar_url,
+    riding_style: r.riding_style,
+    city: r.city,
+    bike_count: r.bikes?.[0]?.count ?? 0,
+    follower_count: r.followers?.[0]?.count ?? 0,
+  }))
+}
+
+// ── Search ──
+
 type Tab = 'all' | 'bikes' | 'workshops' | 'riders'
 
 export async function searchAll(
@@ -117,30 +172,7 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'bikes' ? 20 : 5)
 
-    const bikes = (data ?? []) as unknown as BikeRow[]
-    results.bikes = bikes.map((b) => {
-      const imgs = b.bike_images ?? []
-      const cover =
-        imgs.find((i) => i.is_cover)?.url ??
-        imgs.sort((a, z) => a.position - z.position)[0]?.url ??
-        null
-      return {
-        id: b.id,
-        title: b.title,
-        slug: b.slug ?? b.id,
-        make: b.make,
-        model: b.model,
-        year: b.year,
-        style: b.style,
-        city: b.city,
-        cover_url: cover,
-        price: b.price,
-        price_on_request: b.price_on_request,
-        owner_name: b.workshops?.name ?? b.profiles?.full_name ?? b.profiles?.username ?? '',
-        owner_slug: b.workshops?.slug ?? b.profiles?.slug ?? b.profiles?.username ?? '',
-        owner_type: b.workshops ? ('workshop' as const) : ('rider' as const),
-      }
-    })
+    results.bikes = mapBikes(data ?? [])
   }
 
   // ── WORKSHOPS ──
@@ -154,16 +186,7 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'workshops' ? 20 : 5)
 
-    const workshops = (data ?? []) as unknown as WorkshopRow[]
-    results.workshops = workshops.map((w) => ({
-      id: w.id,
-      name: w.name,
-      slug: w.slug,
-      city: w.city,
-      logo_url: w.logo_url,
-      services: w.services ?? [],
-      bike_count: w.bikes?.[0]?.count ?? 0,
-    }))
+    results.workshops = mapWorkshops(data ?? [])
   }
 
   // ── RIDER ──
@@ -180,18 +203,60 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'riders' ? 20 : 5)
 
-    const riders = (data ?? []) as unknown as RiderRow[]
-    results.riders = riders.map((r) => ({
-      id: r.id,
-      username: r.username,
-      full_name: r.full_name,
-      avatar_url: r.avatar_url,
-      riding_style: r.riding_style,
-      city: r.city,
-      bike_count: r.bikes?.[0]?.count ?? 0,
-      follower_count: r.followers?.[0]?.count ?? 0,
-    }))
+    results.riders = mapRiders(data ?? [])
   }
 
   return results
+}
+
+// ── Curated defaults (shown when query is empty) ──
+
+export async function getSearchDefaults(): Promise<SearchResults> {
+  const supabase = await createClient()
+
+  const [
+    { data: bikes },
+    { data: workshops },
+    { data: riders },
+  ] = await Promise.all([
+    // Newest 4 bikes
+    (supabase.from('bikes') as ReturnType<typeof supabase.from>)
+      .select(`
+        id, title, slug, make, model, year, style, city,
+        price, price_on_request,
+        bike_images(url, is_cover, position),
+        profiles!bikes_seller_id_fkey(username, full_name, slug),
+        workshops(name, slug)
+      `)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(4),
+
+    // 3 workshops
+    (supabase.from('workshops') as ReturnType<typeof supabase.from>)
+      .select(`
+        id, name, slug, city, logo_url, services,
+        bikes(count)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(3),
+
+    // 3 active riders with avatar
+    (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+      .select(`
+        id, username, full_name, avatar_url, riding_style, city,
+        bikes(count),
+        followers!followers_following_id_fkey(count)
+      `)
+      .eq('role', 'rider')
+      .not('avatar_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(3),
+  ])
+
+  return {
+    bikes: mapBikes(bikes ?? []),
+    workshops: mapWorkshops(workshops ?? []),
+    riders: mapRiders(riders ?? []),
+  }
 }
