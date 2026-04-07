@@ -66,12 +66,12 @@ export default function Header({ activePage }: Props) {
   return (
     <>
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#222222]/5 bg-white/95 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-12 md:h-16 relative">
 
         {/* Logo — mobile: zentriert wenn eingeloggt, linksbündig wenn nicht */}
         <div className={`${loading || user ? 'absolute left-1/2 -translate-x-1/2' : ''} lg:static lg:translate-x-0 lg:flex-1 min-w-0 flex items-center`}>
           <Link href={user && (role === 'rider' || role === 'custom-werkstatt') ? '/explore' : '/'} className="inline-flex items-center">
-            <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
+            <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-5 md:h-7 w-auto" priority />
           </Link>
         </div>
 
@@ -287,7 +287,7 @@ export default function Header({ activePage }: Props) {
       </div>
     </header>
     {/* Spacer to offset content below fixed header */}
-    <div className="h-16" />
+    <div className="h-12 md:h-16" />
 
     <LoginModal
       isOpen={showLogin}
