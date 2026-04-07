@@ -218,6 +218,18 @@ export default async function BuilderProfilePage({ params }: Props) {
   const builder = await getBuilderBySlugFromDB(slug)
   if (!builder) notFound()
 
+  // Ownership check (server-side)
+  const supabaseAuth = await createClient()
+  const { data: { user } } = await supabaseAuth.auth.getUser()
+  let isOwner = false
+  if (user) {
+    const { data: profile } = await (supabaseAuth.from('profiles') as any)
+      .select('role, slug')
+      .eq('id', user.id)
+      .maybeSingle()
+    isOwner = profile?.role === 'custom-werkstatt' && profile?.slug === slug
+  }
+
   const coverImage = builder.media.find(m => m.type === 'image')
 
   // JSON-LD: LocalBusiness
@@ -254,6 +266,18 @@ export default async function BuilderProfilePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify([localBusinessJsonLd, breadcrumbJsonLd]) }}
       />
       <Header activePage="custom-werkstatt" />
+
+      {/* ── OWNER BANNER ── */}
+      {isOwner && (
+        <div className="bg-[#06a5a5]/8 border-b border-[#06a5a5]/15 px-4 py-2.5 text-center">
+          <p className="text-xs text-[#06a5a5] font-medium">
+            Du siehst dein Profil wie Besucher es sehen —{' '}
+            <Link href="/dashboard/profile" className="underline font-semibold hover:text-[#058f8f]">
+              Werkstatt bearbeiten
+            </Link>
+          </p>
+        </div>
+      )}
 
       {/* ── MOBILE STICKY TOP BAR ── */}
       <MobileStickyBar>
@@ -559,19 +583,35 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* RIGHT sidebar */}
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
-              {/* Contact CTA */}
-              <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
-                <p className="text-xs text-[#717171] leading-relaxed mb-4">
-                  Schreib direkt an {builder.name}.
-                </p>
-                <BuilderContactButton
-                  builderId={builder.id ?? ''}
-                  builderFirstName={builder.name.split(' ')[0]}
-                  builderName={builder.name}
-                  builderAvatarUrl={builder.avatarUrl}
-                />
-              </div>
+              {/* Contact CTA / Owner Edit CTA */}
+              {isOwner ? (
+                <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+                  <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Dein Werkstatt-Profil</p>
+                  <p className="text-xs text-[#717171] leading-relaxed mb-4">
+                    Bearbeite dein Profil, Leistungen und Galerie.
+                  </p>
+                  <Link
+                    href="/dashboard/profile"
+                    className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white font-semibold text-sm py-3 rounded-xl hover:bg-[#058f8f] transition-colors"
+                  >
+                    <Pencil size={14} />
+                    Werkstatt bearbeiten
+                  </Link>
+                </div>
+              ) : (
+                <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+                  <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
+                  <p className="text-xs text-[#717171] leading-relaxed mb-4">
+                    Schreib direkt an {builder.name}.
+                  </p>
+                  <BuilderContactButton
+                    builderId={builder.id ?? ''}
+                    builderFirstName={builder.name.split(' ')[0]}
+                    builderName={builder.name}
+                    builderAvatarUrl={builder.avatarUrl}
+                  />
+                </div>
+              )}
 
               {/* Opening hours */}
               {builder.openingHours && builder.openingHours.length > 0 && (
