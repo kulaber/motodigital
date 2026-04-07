@@ -413,13 +413,19 @@ function MessageThread({
       : `/rider/${profileSlug}`
     : null
 
+  // Auto-scroll: instant on mount, smooth on new messages
   useEffect(() => {
-    initialLoadRef.current = false
     const el = scrollContainerRef.current
     if (!el) return
-    // Use requestAnimationFrame to ensure DOM is fully painted before scrolling
     requestAnimationFrame(() => {
-      el.scrollTop = el.scrollHeight
+      if (initialLoadRef.current) {
+        // First load: jump to bottom instantly
+        el.scrollTop = el.scrollHeight
+        initialLoadRef.current = false
+      } else {
+        // New message: scroll smoothly
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }
     })
   }, [messages])
 
