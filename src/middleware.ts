@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile', '/inserat-aufgeben', '/werkstatt-dashboard', '/onboarding', '/rider']
+const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile', '/inserat-aufgeben', '/werkstatt-dashboard', '/onboarding', '/willkommen', '/rider']
 // Routes only accessible when NOT logged in
 const AUTH_ROUTES = ['/auth/login', '/auth/register']
 // Routes that require a confirmed email (subset of PROTECTED_ROUTES)
@@ -67,6 +67,25 @@ export async function middleware(request: NextRequest) {
     verifyUrl.pathname = '/verify-email'
     verifyUrl.searchParams.set('email', user.email ?? '')
     return NextResponse.redirect(verifyUrl)
+  }
+
+  // Onboarding guard: redirect non-onboarded users to /willkommen
+  if (
+    user &&
+    !path.startsWith('/willkommen') &&
+    !path.startsWith('/auth') &&
+    !path.startsWith('/api') &&
+    !path.startsWith('/verify-email')
+  ) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.onboarding_completed === false) {
+      return NextResponse.redirect(new URL('/willkommen', request.url))
+    }
   }
 
   // Redirect authenticated users away from auth pages
