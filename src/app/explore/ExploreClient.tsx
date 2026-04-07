@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2, Pencil } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -133,7 +133,7 @@ function urlsToMediaItems(urls: string[]): MediaItem[] {
 
 /* ── Post Context Menu (3-dot dropdown) ───────────────── */
 
-function PostContextMenu({ onEdit, onShare, onDelete }: { onEdit: () => void; onShare: () => void; onDelete: () => void }) {
+function PostContextMenu({ onShare, onDelete }: { onShare: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -363,7 +363,6 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         )}
         {(isSuperadmin || post.user_id === userId) && onDelete && (
           <PostContextMenu
-            onEdit={() => {/* future: edit post */}}
             onShare={() => { navigator.clipboard.writeText(`${window.location.origin}/explore?post=${post.id}`) }}
             onDelete={onDelete}
           />
