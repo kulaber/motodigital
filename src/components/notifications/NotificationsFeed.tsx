@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow, isToday, isThisWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { Bell, Heart, MessageCircle, UserPlus, Tag, Store } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, Tag, Store, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -36,7 +36,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string }> = 
 
 const PAGE_SIZE = 6
 
-function getEntityHref(n: NotificationRow): string | null {
+function getEntityHref(n: NotificationRow): string {
   if (n.type === 'follow' && n.actor?.slug) {
     return n.actor.role === 'custom-werkstatt'
       ? `/custom-werkstatt/${n.actor.slug}`
@@ -44,9 +44,19 @@ function getEntityHref(n: NotificationRow): string | null {
   }
   if (n.type === 'message') return '/dashboard/messages'
   if (n.type === 'inquiry') return '/dashboard/messages'
-  if (n.entity_type === 'bike' && n.entity_id) return `/bikes/${n.entity_id}`
+  if (n.type === 'like' && n.entity_type === 'post' && n.entity_id) return `/explore?post=${n.entity_id}`
+  if (n.type === 'comment' && n.entity_id) return `/explore?post=${n.entity_id}`
+  if (n.type === 'tag' && n.entity_id) return `/explore?post=${n.entity_id}`
+  if (n.type === 'publish_celebration' && n.entity_id) return `/custom-bike/${n.entity_id}`
+  if (n.entity_type === 'bike' && n.entity_id) return `/custom-bike/${n.entity_id}`
   if (n.entity_type === 'post' && n.entity_id) return `/explore?post=${n.entity_id}`
-  return null
+  // Fallback: link to actor profile if available
+  if (n.actor?.slug) {
+    return n.actor.role === 'custom-werkstatt'
+      ? `/custom-werkstatt/${n.actor.slug}`
+      : `/rider/${n.actor.slug}`
+  }
+  return '/dashboard/notifications'
 }
 
 export default function NotificationsFeed({ userId }: { userId: string }) {
@@ -149,40 +159,35 @@ export default function NotificationsFeed({ userId }: { userId: string }) {
             const wasUnread = !n.read_at
             const href = getEntityHref(n)
 
-            const content = (
-              <div className={`flex items-start gap-3 px-5 py-3 transition-colors hover:bg-[#222222]/3 ${wasUnread ? 'border-l-2 border-[#06a5a5]' : 'border-l-2 border-transparent'}`}>
-                <div className="relative shrink-0 mt-0.5">
-                  {n.actor?.avatar_url ? (
-                    <Image src={n.actor.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-[#222222]/8 flex items-center justify-center">
-                      <span className="text-[11px] font-bold text-[#222222]/35">
-                        {n.actor?.username?.[0]?.toUpperCase() ?? '?'}
-                      </span>
-                    </div>
-                  )}
-                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center border border-[#222222]/8">
-                    <Icon size={9} className="text-[#06a5a5]" />
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-[#222222] leading-snug">
-                    <span className="font-semibold">{n.actor?.username ?? 'Jemand'}</span>{' '}
-                    <span className="text-[#222222]/55">{config.label}</span>
-                  </p>
-                  <p className="text-[11px] text-[#222222]/30 mt-0.5">
-                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: de })}
-                  </p>
-                </div>
-              </div>
-            )
-
-            return href ? (
+            return (
               <Link key={n.id} href={href} className="block">
-                {content}
+                <div className={`flex items-center gap-3 px-5 py-3 transition-colors hover:bg-[#222222]/3 ${wasUnread ? 'border-l-2 border-[#06a5a5] bg-[#06a5a5]/3' : 'border-l-2 border-transparent'}`}>
+                  <div className="relative shrink-0 mt-0.5">
+                    {n.actor?.avatar_url ? (
+                      <Image src={n.actor.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-[#222222]/8 flex items-center justify-center">
+                        <span className="text-[11px] font-bold text-[#222222]/35">
+                          {n.actor?.username?.[0]?.toUpperCase() ?? '?'}
+                        </span>
+                      </div>
+                    )}
+                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center border border-[#222222]/8">
+                      <Icon size={9} className="text-[#06a5a5]" />
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] text-[#222222] leading-snug">
+                      <span className="font-semibold">{n.actor?.username ?? 'Jemand'}</span>{' '}
+                      <span className="text-[#222222]/55">{config.label}</span>
+                    </p>
+                    <p className="text-[11px] text-[#222222]/30 mt-0.5">
+                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: de })}
+                    </p>
+                  </div>
+                  <ChevronRight size={14} className="text-[#222222]/15 flex-shrink-0" />
+                </div>
               </Link>
-            ) : (
-              <div key={n.id}>{content}</div>
             )
           })}
         </div>
