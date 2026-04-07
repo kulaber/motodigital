@@ -6,18 +6,16 @@ import { CheckCircle } from 'lucide-react'
 
 export default function ConfirmationToast() {
   const searchParams = useSearchParams()
-  const confirmed = searchParams.get('confirmed')
-  const [show, setShow] = useState(false)
+  const confirmed = searchParams.get('confirmed') === 'true'
+  const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    if (confirmed === 'true') {
-      setShow(true)
-      const timer = setTimeout(() => setShow(false), 5000)
-      return () => clearTimeout(timer)
-    }
+    if (!confirmed) return
+    const timer = setTimeout(() => setDismissed(true), 5000)
+    return () => clearTimeout(timer)
   }, [confirmed])
 
-  if (!show) return null
+  if (!confirmed || dismissed) return null
 
   return (
     <div className="fixed bottom-6 right-6 z-[999] pointer-events-none animate-slide-up-sm">
