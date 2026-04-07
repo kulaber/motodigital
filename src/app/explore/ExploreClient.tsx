@@ -57,6 +57,9 @@ interface CommunityPost {
   event_slug: string | null
   author_role: string | null
   author_slug: string | null
+  bike_id: string | null
+  bike_title: string | null
+  bike_slug: string | null
 }
 
 /* ── Sidebar: Rider list item ──────────────────────────── */
@@ -400,6 +403,26 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         )
       })()}
 
+      {/* Linked bike badge */}
+      {post.bike_id && post.bike_title && (
+        <div className="mx-4 mt-3">
+          {post.bike_slug ? (
+            <Link
+              href={`/custom-bike/${post.bike_slug}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7F7F7] border border-[#222222]/6 hover:border-[#06a5a5]/25 hover:bg-[#06a5a5]/3 transition-all text-xs font-medium text-[#222222] group"
+            >
+              <span className="text-[11px]">🏍</span>
+              <span className="group-hover:text-[#06a5a5] transition-colors truncate max-w-[200px]">{post.bike_title}</span>
+            </Link>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7F7F7] border border-[#222222]/6 text-xs font-medium text-[#222222]">
+              <span className="text-[11px]">🏍</span>
+              <span className="truncate max-w-[200px]">{post.bike_title}</span>
+            </span>
+          )}
+        </div>
+      )}
+
       {imageUrls.length > 0 && (
         <div className="mt-3">
           <PostImageCarousel
@@ -597,6 +620,9 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
   const [composerLocation, setComposerLocation] = useState<{ lat: number; lng: number; address: string } | null>(null)
   const [composerEventSlug, setComposerEventSlug] = useState<string | null>(null)
+  const [composerBikeId, setComposerBikeId] = useState<string | null>(null)
+  const [composerBikes, setComposerBikes] = useState<{ id: string; title: string }[]>([])
+  const [composerBikesLoaded, setComposerBikesLoaded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [composerStuck, setComposerStuck] = useState(false)
   const composerSentinelRef = useRef<HTMLDivElement>(null)
@@ -627,21 +653,28 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   }, [])
 
   // Enrich raw posts with profile + like data
-  const enrichPosts = useCallback(async (postsData: { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null }[]): Promise<CommunityPost[]> => {
+  const enrichPosts = useCallback(async (postsData: { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null; bike_id: string | null }[]): Promise<CommunityPost[]> => {
     if (postsData.length === 0) return []
 
     const userIds = [...new Set(postsData.map(p => p.user_id))]
     const postIds = postsData.map(p => p.id)
+    const bikeIds = [...new Set(postsData.map(p => p.bike_id).filter(Boolean))] as string[]
 
-    // Parallel: fetch profiles + likes for these posts
-    const [{ data: profilesData }, { data: likesData }] = await Promise.all([
+    // Parallel: fetch profiles + likes + bikes for these posts
+    const fetches: [any, any, any] = await Promise.all([
       (supabase.from('profiles') as any)
         .select('id, full_name, avatar_url, role, slug, username')
         .in('id', userIds),
       (supabase.from('community_post_likes') as any)
         .select('post_id, user_id')
         .in('post_id', postIds),
+      bikeIds.length > 0
+        ? (supabase.from('bikes') as any)
+            .select('id, title, slug')
+            .in('id', bikeIds)
+        : Promise.resolve({ data: [] }),
     ])
+    const [{ data: profilesData }, { data: likesData }, { data: bikesData }] = fetches
 
     const profileMap: Record<string, { full_name: string | null; avatar_url: string | null; role: string | null; slug: string | null; username: string | null }> = {}
     for (const prof of (profilesData ?? [])) profileMap[prof.id] = prof
@@ -653,9 +686,13 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
       if (l.user_id === userId) likesMap[l.post_id].byMe = true
     }
 
+    const bikeMap: Record<string, { title: string; slug: string | null }> = {}
+    for (const b of (bikesData ?? [])) bikeMap[b.id] = { title: b.title, slug: b.slug }
+
     return postsData.map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
+      const bike = p.bike_id ? bikeMap[p.bike_id] : null
       return {
         id: p.id,
         body: p.body,
@@ -676,6 +713,9 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         author_slug: profile?.slug
           ?? profile?.username
           ?? (profile?.role === 'rider' && name !== 'Unbekannt' ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null),
+        bike_id: p.bike_id ?? null,
+        bike_title: bike?.title ?? null,
+        bike_slug: bike?.slug ?? null,
       }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -688,7 +728,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     offsetRef.current = 0
 
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id')
       .order('created_at', { ascending: false })
       .range(0, PAGE_SIZE - 1)
 
@@ -709,7 +749,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
 
     const from = offsetRef.current
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id')
       .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1)
 
@@ -948,12 +988,14 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
       ...(composerTag === 'events' && composerEventSlug ? {
         event_slug: composerEventSlug,
       } : {}),
+      ...(composerBikeId ? { bike_id: composerBikeId } : {}),
     })
 
     setBody('')
     setComposerTag('allgemein')
     setComposerLocation(null)
     setComposerEventSlug(null)
+    setComposerBikeId(null)
     setMediaFiles([])
     setComposerOpen(false)
     setSubmitting(false)
@@ -1057,7 +1099,20 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
               {!composerOpen ? (
                 <button
                   type="button"
-                  onClick={() => setComposerOpen(true)}
+                  onClick={() => {
+                    setComposerOpen(true)
+                    // Lazy load user's bikes for bike selector
+                    if (!composerBikesLoaded && userId) {
+                      ;(supabase.from('bikes') as any)
+                        .select('id, title')
+                        .eq('seller_id', userId)
+                        .order('created_at', { ascending: false })
+                        .then(({ data }: { data: { id: string; title: string }[] | null }) => {
+                          setComposerBikes(data ?? [])
+                          setComposerBikesLoaded(true)
+                        })
+                    }
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
                 >
                   <span className="text-sm text-[#222222]/30 flex-1">Poste, was dich bewegt…</span>
@@ -1069,7 +1124,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                 <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
                   <button
                     type="button"
-                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setMediaFiles([]); setMentionQuery(null) }}
+                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setComposerBikeId(null); setMediaFiles([]); setMentionQuery(null) }}
                     className="absolute top-3 right-3 z-40 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
                   >
                     <X size={15} />
@@ -1222,6 +1277,24 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                         {allEvents.map(ev => (
                           <option key={ev.slug} value={ev.slug}>
                             {ev.name} — {formatEventDate(ev)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Bike selector */}
+                  {composerBikes.length > 0 && (
+                    <div className="mt-3">
+                      <select
+                        value={composerBikeId ?? ''}
+                        onChange={e => setComposerBikeId(e.target.value || null)}
+                        className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors"
+                      >
+                        <option value="">🏍 Bike verknüpfen (optional)</option>
+                        {composerBikes.map(b => (
+                          <option key={b.id} value={b.id}>
+                            {b.title}
                           </option>
                         ))}
                       </select>
