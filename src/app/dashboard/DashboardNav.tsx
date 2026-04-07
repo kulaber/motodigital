@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Bike, MessageCircle, Bookmark, Bell,
-  User, Settings, Wrench, Users, BookOpen, Calendar, LogOut,
+  User, Settings, Wrench, Users, BookOpen, Calendar, LogOut, Eye,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -63,7 +63,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
   const mainItems: NavItem[] = [
     { label: 'Übersicht', href: '/dashboard', icon: <LayoutDashboard size={15} /> },
     ...(role === 'rider' || role === 'custom-werkstatt'
-      ? [{ label: role === 'rider' ? 'Meine Garage' : 'Custom Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
+      ? [{ label: role === 'rider' ? 'Meine Garage' : 'Meine Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
       : []),
     ...(role !== 'superadmin'
       ? [
@@ -84,8 +84,15 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
       ]
     : []
 
+  const workshopProfileItems: NavItem[] = role === 'custom-werkstatt'
+    ? [
+        { label: 'Werkstatt-Profil bearbeiten', href: '/dashboard/profile', icon: <Wrench size={15} /> },
+        ...(slug ? [{ label: 'Profilansicht', href: `/custom-werkstatt/${slug}`, icon: <Eye size={15} /> }] : []),
+      ]
+    : []
+
   const accountItems: NavItem[] = [
-    ...(role !== 'superadmin'
+    ...(role !== 'superadmin' && role !== 'custom-werkstatt'
       ? [{ label: 'Profil', href: '/dashboard/profile', icon: <User size={15} /> }]
       : []),
     { label: 'Einstellungen', href: '/dashboard/account', icon: <Settings size={15} /> },
@@ -146,7 +153,19 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
         )}
       </div>
 
-      {/* Card 3 — Account + Logout */}
+      {/* Card 3 — Workshop profile (workshop role only) */}
+      {workshopProfileItems.length > 0 && (
+        <div className="bg-white rounded-2xl border border-[#222222]/6 p-2 flex flex-col gap-0.5">
+          {workshopProfileItems.map(item => (
+            <Link key={item.href} href={item.href} className={itemClass(item.href)}>
+              <span className={iconClass(item.href)}>{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Card 4 — Account + Logout */}
       <div className="bg-white rounded-2xl border border-[#222222]/6 p-2 flex flex-col gap-0.5">
         {accountItems.map(item => (
           <Link key={item.href} href={item.href} className={itemClass(item.href)}>
