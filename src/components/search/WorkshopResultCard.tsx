@@ -11,24 +11,15 @@ export function WorkshopResultCard({ workshop }: { workshop: WorkshopResult }) {
                  border border-[#222222]/6 hover:border-[#222222]/15
                  hover:shadow-sm transition-all"
     >
-      {/* Header with logo */}
-      <div className="relative h-28 bg-gradient-to-br from-[#F7F7F7] to-[#EFEFEF] flex items-center justify-center">
-        {workshop.logo_url ? (
-          <Image
-            src={workshop.logo_url}
-            alt={workshop.name}
-            fill
-            sizes="(max-width: 640px) 100vw, 50vw"
-            className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-16 h-16 rounded-2xl bg-white border border-[#222222]/8
-                          flex items-center justify-center shadow-sm">
-            <span className="text-xl font-bold text-[#222222]/20">
-              {workshop.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
+      {/* Cover */}
+      <div className="relative aspect-[4/3] bg-[#F7F7F7] overflow-hidden">
+        <Image
+          src={workshop.logo_url || '/images/workshop-default.png'}
+          alt={workshop.name}
+          fill
+          sizes="(max-width: 640px) 100vw, 50vw"
+          className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+        />
       </div>
 
       {/* Content */}

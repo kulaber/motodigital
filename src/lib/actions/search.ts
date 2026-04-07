@@ -122,10 +122,9 @@ function mapWorkshops(rows: unknown[]): WorkshopResult[] {
     const services: string[] = []
     if (w.specialty) services.push(w.specialty)
     if (w.tags) services.push(...w.tags)
-    const media = w.builder_media ?? []
-    const coverUrl = w.avatar_url
-      ?? media.sort((a, b) => a.position - b.position)[0]?.url
-      ?? null
+    const media = (w.builder_media ?? [])
+      .sort((a, b) => a.position - b.position)
+    const coverUrl = media[0]?.url ?? null
     return {
       id: w.id,
       name: w.full_name ?? 'Werkstatt',
