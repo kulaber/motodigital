@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2, Pencil } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -129,6 +129,55 @@ function urlsToMediaItems(urls: string[]): MediaItem[] {
       position: i,
     }
   })
+}
+
+/* ── Post Context Menu (3-dot dropdown) ───────────────── */
+
+function PostContextMenu({ onEdit, onShare, onDelete }: { onEdit: () => void; onShare: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [open])
+
+  return (
+    <div className="relative flex-shrink-0" ref={ref}>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
+        className="w-8 h-8 rounded-full flex items-center justify-center text-[#222222]/30 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors"
+      >
+        <MoreHorizontal size={16} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-2xl shadow-black/15 border border-[#222222]/8 overflow-hidden w-44 z-50">
+          <button
+            type="button"
+            onClick={() => { onShare(); setOpen(false) }}
+            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+          >
+            <Share2 size={14} className="text-[#222222]/40" />
+            Teilen
+          </button>
+          <div className="h-px bg-[#222222]/6 mx-3" />
+          <button
+            type="button"
+            onClick={() => { onDelete(); setOpen(false) }}
+            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-50 transition-colors"
+          >
+            <Trash2 size={14} />
+            Löschen
+          </button>
+        </div>
+      )}
+    </div>
+  )
 }
 
 /* ── Feed: Community Post Card (user-generated) ────────── */
@@ -313,14 +362,11 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
           </span>
         )}
         {(isSuperadmin || post.user_id === userId) && onDelete && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onDelete() }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
-            title="Beitrag löschen"
-          >
-            <Trash2 size={15} />
-          </button>
+          <PostContextMenu
+            onEdit={() => {/* future: edit post */}}
+            onShare={() => { navigator.clipboard.writeText(`${window.location.origin}/explore?post=${post.id}`) }}
+            onDelete={onDelete}
+          />
         )}
       </div>
 
@@ -1315,6 +1361,8 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         onClose={() => setDeleteTargetId(null)}
         onConfirm={handleDeletePost}
         loading={deleting}
+        title="Beitrag löschen?"
+        description="Dieser Beitrag wird unwiderruflich gelöscht."
       />
 
       <ToastContainer toasts={toasts} />
