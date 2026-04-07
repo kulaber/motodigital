@@ -171,8 +171,8 @@ function MobileBottomNavInner() {
             className="relative flex items-center justify-evenly"
             style={{ height: 68, padding: "0 4px" }}
           >
-            {/* Sliding pill — pure CSS positioning, no DOM measurement */}
-            {activeIndex >= 0 && (
+            {/* Sliding pill — pure CSS positioning, no DOM measurement (skip FAB center at index 2) */}
+            {activeIndex >= 0 && activeIndex !== 2 && (
               <span
                 style={{
                   position: "absolute",
@@ -192,6 +192,34 @@ function MobileBottomNavInner() {
             {navItems.map((item, index) => {
               const isActive = activeIndex === index;
               const showBadge = (item.id === "nachrichten" && unreadCount > 0) || (item.id === "explore" && unreadNotificationCount > 0);
+
+              // FAB for the center slot (index 2 = Explore position)
+              if (index === 2) {
+                return (
+                  <div key="fab-center" className="relative flex items-center justify-center" style={{ flex: 1, zIndex: 2 }}>
+                    <Link
+                      href="/bikes/new"
+                      prefetch={true}
+                      className="flex items-center justify-center active:scale-95 transition-transform"
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: "50%",
+                        background: "#2AABAB",
+                        boxShadow: "0 4px 16px rgba(42, 171, 171, 0.3)",
+                        WebkitTapHighlightColor: "transparent",
+                        marginTop: -4,
+                      }}
+                      aria-label="Bike hinzufügen"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                      </svg>
+                    </Link>
+                  </div>
+                );
+              }
 
               return (
                 <Link
