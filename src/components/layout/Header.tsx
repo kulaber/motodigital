@@ -102,8 +102,9 @@ export default function Header({ activePage }: Props) {
             Werkstattsuche
           </Link>
           <Link href="/search"
-            className="p-2 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5 transition-all ml-1">
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5 transition-all ml-1">
             <Search size={18} />
+            <kbd className="text-[10px] text-[#222222]/20 font-mono px-1.5 py-0.5 rounded border border-[#222222]/8">⌘K</kbd>
           </Link>
         </nav>
 
