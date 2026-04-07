@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   {
     id: "werkstatt",
     label: "Suche",
-    href: "/custom-werkstatt",
+    href: "/search",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />

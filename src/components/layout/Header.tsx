@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  LayoutDashboard, LogOut, ChevronDown,
+  LayoutDashboard, LogOut, ChevronDown, Search,
   Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Wrench,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
@@ -100,6 +100,10 @@ export default function Header({ activePage }: Props) {
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
             Werkstattsuche
+          </Link>
+          <Link href="/search"
+            className="p-2 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5 transition-all ml-1">
+            <Search size={18} />
           </Link>
         </nav>
 
