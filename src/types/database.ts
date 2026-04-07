@@ -928,7 +928,10 @@ export type Database = {
           opening_hours: Json | null
           rating: number | null
           riding_style: string | null
+          riding_styles: string[] | null
           role: Database["public"]["Enums"]["user_role"]
+          onboarding_completed: boolean
+          onboarding_step: number
           since_year: number | null
           slug: string | null
           specialty: string | null
@@ -958,7 +961,10 @@ export type Database = {
           opening_hours?: Json | null
           rating?: number | null
           riding_style?: string | null
+          riding_styles?: string[] | null
           role?: Database["public"]["Enums"]["user_role"]
+          onboarding_completed?: boolean
+          onboarding_step?: number
           since_year?: number | null
           slug?: string | null
           specialty?: string | null
@@ -988,7 +994,10 @@ export type Database = {
           opening_hours?: Json | null
           rating?: number | null
           riding_style?: string | null
+          riding_styles?: string[] | null
           role?: Database["public"]["Enums"]["user_role"]
+          onboarding_completed?: boolean
+          onboarding_step?: number
           since_year?: number | null
           slug?: string | null
           specialty?: string | null
