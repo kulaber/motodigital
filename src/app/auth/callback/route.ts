@@ -12,15 +12,22 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      // Fetch user role for role-based default redirect
+      // Fetch user role + onboarding status for redirect
       const { data: { user } } = await supabase.auth.getUser()
       let role: string | null = null
+      let onboardingCompleted = true
       if (user) {
         const { data: profile } = await (supabase.from('profiles') as any)
-          .select('role')
+          .select('role, onboarding_completed')
           .eq('id', user.id)
-          .maybeSingle() as { data: { role: string | null } | null }
+          .maybeSingle() as { data: { role: string | null; onboarding_completed: boolean | null } | null }
         role = profile?.role ?? null
+        onboardingCompleted = profile?.onboarding_completed ?? true
+      }
+
+      // New user needs onboarding → /willkommen
+      if (!onboardingCompleted) {
+        return NextResponse.redirect(`${origin}/willkommen?confirmed=true`)
       }
 
       const target = getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0], redirectTo)
