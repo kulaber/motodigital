@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, X, ChevronRight, ChevronDown, Plus, Play } from 'lucide-react'
+import { Upload, X, ChevronRight, ChevronDown, Plus, Play, Loader2, CheckCircle } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
 import { compressImage } from '@/lib/utils/compressImage'
@@ -40,6 +40,10 @@ export default function NewBikeForm() {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([])
   const dragIdx = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+  // Upload progress: index -> 'pending' | 'uploading' | 'done' | 'error'
+  const [uploadProgress, setUploadProgress] = useState<Record<number, string>>({})
+  const [uploadCurrent, setUploadCurrent] = useState(0)
+  const [uploadTotal, setUploadTotal] = useState(0)
 
   // ── Bike selection state ─────────────────────────
   const [makeId, setMakeId]       = useState('')
@@ -200,7 +204,18 @@ export default function NewBikeForm() {
       return
     }
 
-    for (let i = 0; i < mediaFiles.length; i++) {
+    // Initialize upload progress
+    const total = mediaFiles.length
+    setUploadTotal(total)
+    setUploadCurrent(0)
+    const initialProgress: Record<number, string> = {}
+    for (let i = 0; i < total; i++) initialProgress[i] = 'pending'
+    setUploadProgress(initialProgress)
+
+    for (let i = 0; i < total; i++) {
+      setUploadProgress(prev => ({ ...prev, [i]: 'uploading' }))
+      setUploadCurrent(i + 1)
+
       const { file, isVideo, thumbFile } = mediaFiles[i]
       const ext = file.name.split('.').pop()
       const path = `${user.id}/${bike.id}/${i}.${ext}`
@@ -230,8 +245,12 @@ export default function NewBikeForm() {
           media_type:    isVideo ? 'video' : 'image',
           thumbnail_url: thumbnailUrl,
         })
+        setUploadProgress(prev => ({ ...prev, [i]: 'done' }))
+      } else {
+        setUploadProgress(prev => ({ ...prev, [i]: 'error' }))
       }
     }
+    setUploadProgress({})
 
     toastSuccess('Bike erfolgreich gespeichert')
     const slug = generateBikeSlug(title.trim(), bike.id)
@@ -601,6 +620,23 @@ export default function NewBikeForm() {
                         Cover
                       </span>
                     )}
+                    {/* Upload progress overlay */}
+                    {uploadProgress[i] && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                        {uploadProgress[i] === 'pending' && (
+                          <span className="text-[10px] font-semibold text-white/70">Warten…</span>
+                        )}
+                        {uploadProgress[i] === 'uploading' && (
+                          <Loader2 size={20} className="text-white animate-spin" />
+                        )}
+                        {uploadProgress[i] === 'done' && (
+                          <CheckCircle size={20} className="text-[#06a5a5]" />
+                        )}
+                        {uploadProgress[i] === 'error' && (
+                          <X size={20} className="text-red-400" />
+                        )}
+                      </div>
+                    )}
                     <button
                       onClick={() => removeMedia(i)}
                       className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -609,6 +645,16 @@ export default function NewBikeForm() {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Upload progress toast */}
+            {uploadTotal > 0 && Object.keys(uploadProgress).length > 0 && (
+              <div className="mt-3 flex items-center gap-3 bg-[#F7F7F7] rounded-xl px-4 py-3 text-sm text-[#222222]">
+                <Loader2 size={16} className="text-[#06a5a5] animate-spin flex-shrink-0" />
+                <span>
+                  {uploadCurrent} von {uploadTotal} Dateien hochgeladen ({Math.round((uploadCurrent / uploadTotal) * 100)}%)
+                </span>
               </div>
             )}
           </div>
