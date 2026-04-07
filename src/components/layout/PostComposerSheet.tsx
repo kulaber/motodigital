@@ -209,8 +209,7 @@ export default function PostComposerSheet() {
     )
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     const hasContent = body.trim() || mediaFiles.length > 0 || (postType === 'in-der-naehe' && composerLocation) || (postType === 'events' && selectedEventSlug)
     if (!user || !hasContent) return
     setSubmitting(true)
@@ -314,7 +313,7 @@ export default function PostComposerSheet() {
         </div>
 
         {/* Scrollable content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-4">
           {/* ── POST TYPE PILLS ── */}
           <div className="flex gap-2">
             {POST_TYPE_PILLS.map(({ value, label, icon }) => (
@@ -554,7 +553,7 @@ export default function PostComposerSheet() {
           {error && (
             <p className="text-xs text-red-500">{error}</p>
           )}
-        </form>
+        </div>
 
         {/* ── FOOTER: Progress + Post Button ── */}
         <div
@@ -597,7 +596,7 @@ export default function PostComposerSheet() {
             </div>
             <button
               type="button"
-              onClick={handleSubmit as any}
+              onClick={handleSubmit}
               disabled={!canPost}
               className="flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
             >
