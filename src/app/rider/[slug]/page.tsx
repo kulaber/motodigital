@@ -15,6 +15,7 @@ import type { Event } from '@/lib/data/events'
 import { formatEventDate } from '@/lib/data/events'
 import VisitedCitiesCarousel from './VisitedCitiesCarousel'
 import FollowerListModal from '@/components/rider/FollowerListModal'
+import GarageBikeMenu from './GarageBikeMenu'
 
 export const dynamicParams = true
 
@@ -133,6 +134,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     const images: { url: string; is_cover: boolean; position: number }[] = b.bike_images ?? []
     const cover = images.find(i => i.is_cover)?.url ?? images.sort((a: { position: number }, z: { position: number }) => a.position - z.position)[0]?.url ?? ''
     return {
+      id: b.id as string,
       title: b.title as string,
       slug: (b.slug as string | null) ?? generateBikeSlug(b.title as string, b.id as string),
       base: [b.make, b.model].filter(Boolean).join(' '),
@@ -356,31 +358,36 @@ export default async function RiderProfilePage({ params }: Props) {
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     {rider.bikes.map(bike => (
-                      <Link key={bike.slug} href={`/custom-bike/${bike.slug}`} className="group">
-                        <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a1a] mb-2.5 relative">
-                          {bike.img ? (
-                            <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 50vw, 30vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-sm font-bold text-white/20">{bike.style?.replace(/_/g, ' ') || 'Bike'}</span>
-                            </div>
-                          )}
-                          {bike.style && (
-                            <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">
-                              {bike.style.replace(/_/g, ' ')}
-                            </span>
-                          )}
-                          {bike.listingType === 'for_sale' && (
-                            <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                              Zu verkaufen
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm font-semibold text-white group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5 truncate">
-                          {bike.title}
-                        </p>
-                        <p className="text-xs text-white/40">{bike.base}</p>
-                      </Link>
+                      <div key={bike.slug} className="relative group">
+                        <Link href={`/custom-bike/${bike.slug}`}>
+                          <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a1a] mb-2.5 relative">
+                            {bike.img ? (
+                              <Image src={bike.img} alt={bike.title} fill sizes="(max-width: 1024px) 50vw, 30vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <span className="text-sm font-bold text-white/20">{bike.style?.replace(/_/g, ' ') || 'Bike'}</span>
+                              </div>
+                            )}
+                            {bike.style && (
+                              <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5] text-white px-2 py-0.5 rounded-full">
+                                {bike.style.replace(/_/g, ' ')}
+                              </span>
+                            )}
+                            {bike.listingType === 'for_sale' && (
+                              <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                                Zu verkaufen
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-white group-hover:text-[#06a5a5] transition-colors leading-snug mb-0.5 truncate">
+                            {bike.title}
+                          </p>
+                          <p className="text-xs text-white/40">{bike.base}</p>
+                        </Link>
+                        {isOwnProfile && (
+                          <GarageBikeMenu bikeId={bike.id} />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
