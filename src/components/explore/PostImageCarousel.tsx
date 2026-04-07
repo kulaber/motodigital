@@ -73,7 +73,7 @@ export default function PostImageCarousel({ items, alt, onDoubleClick, isPriorit
         ref={scrollRef}
         onScroll={handleScroll}
         className="absolute inset-0 flex overflow-x-scroll overflow-y-hidden snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden"
-        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
+        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'manipulation' }}
       >
         {items.map((item, i) => (
           <div

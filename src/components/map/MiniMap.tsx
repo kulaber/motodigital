@@ -195,9 +195,10 @@ export default function MiniMap({ lat, lng, locationName, visitedCities = [], ri
           {!activated && (
             <div
               onClick={handleActivate}
-              className="absolute inset-0 cursor-pointer z-10 flex items-end justify-center pb-3 transition-opacity"
+              className="absolute inset-0 z-10 flex items-end justify-center pb-3 transition-opacity"
+              style={{ touchAction: 'pan-y' }}
             >
-              <span className="bg-white/90 backdrop-blur-sm text-[#222222] text-xs font-medium px-3 py-1.5 rounded-full border border-[#222222]/10 shadow-sm">
+              <span className="bg-white/90 backdrop-blur-sm text-[#222222] text-xs font-medium px-3 py-1.5 rounded-full border border-[#222222]/10 shadow-sm cursor-pointer">
                 Klicken, um Karte zu bedienen
               </span>
             </div>
