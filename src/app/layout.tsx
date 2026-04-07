@@ -64,10 +64,8 @@ export default function RootLayout({
     <html lang="de" className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
         <AuthProvider>
-          <div className="flex-1 overflow-y-auto overscroll-contain">
-            {children}
-            <MobileBottomNav />
-          </div>
+          {children}
+          <MobileBottomNav />
           <Suspense fallback={null}>
             <ConfirmationToast />
           </Suspense>
