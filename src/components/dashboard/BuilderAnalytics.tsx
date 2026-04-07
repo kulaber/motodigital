@@ -11,6 +11,14 @@ type Props = {
 }
 
 type FilterKey = 'all' | 'profile' | 'contact' | 'bikes'
+type TimeRange = 'all' | '30d' | '7d' | 'today'
+
+const TIME_RANGES: { key: TimeRange; label: string }[] = [
+  { key: 'all', label: 'Alle' },
+  { key: '30d', label: '30 Tage' },
+  { key: '7d', label: '7 Tage' },
+  { key: 'today', label: 'Heute' },
+]
 
 const FILTERS: { key: FilterKey; label: string; color: string; icon: React.ReactNode }[] = [
   { key: 'profile', label: 'Profilbesuche', color: '#06a5a5', icon: <Eye size={12} /> },
@@ -21,12 +29,23 @@ const FILTERS: { key: FilterKey; label: string; color: string; icon: React.React
 /** Extracted outside so React compiler doesn't flag Date.now() as impure */
 function getCurrentTimestamp() { return Date.now() }
 
-function last7Days(now: number) {
+function lastNDays(now: number, n: number) {
   const days = []
-  for (let i = 6; i >= 0; i--) {
+  for (let i = n - 1; i >= 0; i--) {
     days.push(new Date(now - i * 86400000).toISOString().split('T')[0])
   }
   return days
+}
+
+function filterByTimeRange<T extends { created_at: string }>(items: T[], range: TimeRange, now: number): T[] {
+  if (range === 'all') return items
+  const cutoff = range === 'today'
+    ? new Date(now).toISOString().split('T')[0]
+    : new Date(now - (range === '30d' ? 30 : 7) * 86400000).toISOString()
+  return items.filter(item => range === 'today'
+    ? item.created_at.split('T')[0] === cutoff
+    : item.created_at >= cutoff
+  )
 }
 
 function groupByDay(items: { created_at: string }[]) {
@@ -40,12 +59,20 @@ function groupByDay(items: { created_at: string }[]) {
 
 export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeSlugMap }: Props) {
   const [active, setActive] = useState<FilterKey>('all')
+  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
   const [now] = useState(getCurrentTimestamp)
-  const days = last7Days(now)
 
-  const profileByDay = groupByDay(profileViews)
-  const contactByDay = groupByDay(contactClicks)
-  const bikeByDay = groupByDay(bikeViews)
+  // Filter data by time range
+  const filteredProfile = useMemo(() => filterByTimeRange(profileViews, timeRange, now), [profileViews, timeRange, now])
+  const filteredContact = useMemo(() => filterByTimeRange(contactClicks, timeRange, now), [contactClicks, timeRange, now])
+  const filteredBikes = useMemo(() => filterByTimeRange(bikeViews, timeRange, now), [bikeViews, timeRange, now])
+
+  const chartDays = timeRange === 'today' ? 1 : timeRange === '30d' ? 30 : timeRange === '7d' ? 7 : 30
+  const days = lastNDays(now, chartDays)
+
+  const profileByDay = groupByDay(filteredProfile)
+  const contactByDay = groupByDay(filteredContact)
+  const bikeByDay = groupByDay(filteredBikes)
 
   const profileData = days.map(d => profileByDay.get(d) ?? 0)
   const contactData = days.map(d => contactByDay.get(d) ?? 0)
@@ -64,7 +91,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
   // Top bikes breakdown (for "bikes" or "all" filter)
   const topBikes = useMemo(() => {
     const map = new Map<string, number>()
-    for (const bv of bikeViews) {
+    for (const bv of filteredBikes) {
       const segments = bv.path.split('/').filter(Boolean)
       const key = segments[segments.length - 1]
       map.set(key, (map.get(key) ?? 0) + 1)
@@ -73,7 +100,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
       .map(([slug, count]) => ({ slug, title: bikeSlugMap[slug] ?? slug, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5)
-  }, [bikeViews, bikeSlugMap])
+  }, [filteredBikes, bikeSlugMap])
 
   // ── Chart (percentage-based, same approach as PageViewsChart) ──
   const n = days.length
@@ -111,14 +138,33 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
   const activeCurve = buildCurve(activeData)
   const pts = activeCurve.pts
 
+  const timeRangeLabel = TIME_RANGES.find(t => t.key === timeRange)?.label ?? ''
+
   return (
     <div className="space-y-3">
+      {/* Time range filter tabs */}
+      <div className="flex gap-1 bg-[#222222]/4 rounded-xl p-1">
+        {TIME_RANGES.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTimeRange(t.key)}
+            className={`flex-1 text-xs font-medium py-2 rounded-lg transition-all ${
+              timeRange === t.key
+                ? 'bg-white text-[#222222] shadow-sm'
+                : 'text-[#222222]/40 hover:text-[#222222]/60'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-3">
         {FILTERS.map(f => {
-          const total = f.key === 'profile' ? profileViews.length
-            : f.key === 'contact' ? contactClicks.length
-            : bikeViews.length
+          const total = f.key === 'profile' ? filteredProfile.length
+            : f.key === 'contact' ? filteredContact.length
+            : filteredBikes.length
           return (
             <button
               key={f.key}
@@ -134,7 +180,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
                 <span className="text-[10px] font-semibold uppercase tracking-wider opacity-60">{f.label}</span>
               </div>
               <p className="text-2xl font-bold text-[#222222]">{total}</p>
-              <p className="text-[10px] text-[#222222]/25 mt-0.5">Letzte 7 Tage</p>
+              <p className="text-[10px] text-[#222222]/25 mt-0.5">{timeRangeLabel}</p>
             </button>
           )
         })}
@@ -148,8 +194,8 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
             <p className="text-sm font-semibold text-[#222222]">{activeLabel}</p>
             <p className="text-xs text-[#222222]/30 mt-0.5">
               {activeTotal > 0
-                ? `${activeTotal.toLocaleString('de-DE')} in den letzten 7 Tagen`
-                : 'Letzte 7 Tage'}
+                ? `${activeTotal.toLocaleString('de-DE')} — ${timeRangeLabel}`
+                : timeRangeLabel}
             </p>
           </div>
           <span className="text-[10px] bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20 px-2.5 py-1 rounded-full font-semibold">
@@ -170,9 +216,9 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
             Alle
           </button>
           {FILTERS.map(f => {
-            const total = f.key === 'profile' ? profileViews.length
-              : f.key === 'contact' ? contactClicks.length
-              : bikeViews.length
+            const total = f.key === 'profile' ? filteredProfile.length
+              : f.key === 'contact' ? filteredContact.length
+              : filteredBikes.length
             return (
               <button
                 key={f.key}
@@ -328,10 +374,10 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-3">Nach Bereich</p>
             <div className="space-y-2">
               {FILTERS.map(f => {
-                const total = f.key === 'profile' ? profileViews.length
-                  : f.key === 'contact' ? contactClicks.length
-                  : bikeViews.length
-                const maxSection = Math.max(profileViews.length, contactClicks.length, bikeViews.length, 1)
+                const total = f.key === 'profile' ? filteredProfile.length
+                  : f.key === 'contact' ? filteredContact.length
+                  : filteredBikes.length
+                const maxSection = Math.max(filteredProfile.length, filteredContact.length, filteredBikes.length, 1)
                 return (
                   <button
                     key={f.key}
@@ -355,7 +401,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
 
         {activeTotal === 0 && (
           <p className="text-xs text-[#222222]/25 mt-3 text-center">
-            Noch keine Daten in den letzten 7 Tagen
+            Noch keine Daten für diesen Zeitraum
           </p>
         )}
       </div>

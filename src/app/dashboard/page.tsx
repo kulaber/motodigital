@@ -119,7 +119,7 @@ export default async function DashboardPage() {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
       )
-      const sevenDaysAgo = new Date(getCurrentTimestamp() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const thirtyDaysAgo = new Date(getCurrentTimestamp() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
       // Build bike slug → title map and path patterns
       const bikeSlugMap: Record<string, string> = {}
@@ -134,16 +134,16 @@ export default async function DashboardPage() {
         (adminClient.from('page_views') as any)
           .select('created_at')
           .eq('path', `/custom-werkstatt/${profile.slug}`)
-          .gte('created_at', sevenDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
+          .gte('created_at', thirtyDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
         (adminClient.from('page_views') as any)
           .select('created_at')
           .eq('path', `/__event/contact-click/${user.id}`)
-          .gte('created_at', sevenDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
+          .gte('created_at', thirtyDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
         bikePaths.length > 0
           ? (adminClient.from('page_views') as any)
               .select('path, created_at')
               .in('path', bikePaths)
-              .gte('created_at', sevenDaysAgo) as Promise<{ data: { path: string; created_at: string }[] | null }>
+              .gte('created_at', thirtyDaysAgo) as Promise<{ data: { path: string; created_at: string }[] | null }>
           : Promise.resolve({ data: [] as { path: string; created_at: string }[] }),
       ])
 
