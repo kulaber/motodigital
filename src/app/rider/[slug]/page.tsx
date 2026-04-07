@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Instagram, Globe, Calendar, Settings, ArrowLeft } from 'lucide-react'
+import { MapPin, Instagram, Globe, Calendar, Settings, ArrowLeft, Plus } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RiderMapClient from './RiderMapClient'
@@ -349,6 +349,30 @@ export default async function RiderProfilePage({ params }: Props) {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
             {/* ── Main Column (60%) ── */}
             <div className="flex flex-col gap-5 w-full lg:w-[60%]">
+              {/* Garage — Empty state */}
+              {rider.bikes.length === 0 && isOwnProfile && (
+                <div className="border-2 border-dashed border-[#2AABAB]/30 rounded-2xl bg-[#2AABAB]/5 flex flex-col items-center justify-center gap-3 p-10 text-center">
+                  <div className="w-12 h-12 rounded-full bg-[#2AABAB] flex items-center justify-center">
+                    <Plus size={24} className="text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-[#2AABAB]">Erstes Bike hinzufügen</p>
+                  <p className="text-xs text-[#222222]/40 max-w-[200px]">
+                    Zeig der Community was du fährst
+                  </p>
+                  <Link
+                    href="/bikes/new"
+                    className="inline-flex items-center gap-2 bg-[#2AABAB] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#2AABAB]/90 transition-colors"
+                  >
+                    Bike hinzufügen
+                  </Link>
+                </div>
+              )}
+              {rider.bikes.length === 0 && !isOwnProfile && (
+                <div className="bg-[#111111] rounded-2xl p-8 text-center">
+                  <p className="text-sm text-white/30">Noch keine Bikes</p>
+                </div>
+              )}
+
               {/* Garage — Dark Mode, 2-col grid */}
               {rider.bikes.length > 0 && (
                 <div className="bg-[#111111] rounded-2xl p-5 sm:p-6">
