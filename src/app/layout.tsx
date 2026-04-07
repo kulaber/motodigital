@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
-import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import AppBottomNav from '@/components/navigation/AppBottomNav'
 import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import './globals.css'
@@ -65,7 +65,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           {children}
-          <MobileBottomNav />
+          <AppBottomNav />
           <Suspense fallback={null}>
             <ConfirmationToast />
           </Suspense>

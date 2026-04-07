@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile', '/inserat-aufgeben', '/werkstatt-dashboard', '/onboarding', '/rider']
+const PROTECTED_ROUTES = ['/dashboard', '/bikes/new', '/profile', '/inserat-aufgeben', '/werkstatt-dashboard', '/werkstatt', '/onboarding', '/rider']
 // Routes only accessible when NOT logged in
 const AUTH_ROUTES = ['/auth/login', '/auth/register']
 // Routes that require a confirmed email (subset of PROTECTED_ROUTES)
@@ -72,6 +72,33 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (user && AUTH_ROUTES.some(r => path.startsWith(r))) {
     return NextResponse.redirect(new URL('/explore', request.url))
+  }
+
+  // ── Role-based routing (Dual Shell) ──────────────────────────
+  // Werkstatt users accessing rider dashboard → redirect to werkstatt dashboard
+  if (user && path.startsWith('/dashboard')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.role === 'custom-werkstatt') {
+      return NextResponse.redirect(new URL('/werkstatt/dashboard', request.url))
+    }
+  }
+
+  // Rider users accessing werkstatt routes → redirect to explore
+  if (user && path.startsWith('/werkstatt')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.role !== 'custom-werkstatt') {
+      return NextResponse.redirect(new URL('/explore', request.url))
+    }
   }
 
   return supabaseResponse

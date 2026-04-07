@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Shield, BadgeCheck, ExternalLink } from 'lucide-react'
-import ProfileEditForm from '@/app/dashboard/profile/ProfileEditForm'
+import ProfileEditForm from '@/app/(rider)/dashboard/profile/ProfileEditForm'
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
