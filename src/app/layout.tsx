@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
+import { SearchShortcut } from '@/components/search/SearchShortcut'
 import './globals.css'
 
 const bodoniModa = Bodoni_Moda({
@@ -69,6 +70,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <ConfirmationToast />
           </Suspense>
+          <SearchShortcut />
           <PageViewTracker />
           <Analytics />
         </AuthProvider>

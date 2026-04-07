@@ -8,41 +8,32 @@ import PostComposerSheet from "./PostComposerSheet";
 
 const NAV_ITEMS = [
   {
-    id: "werkstatt",
+    id: "home",
+    label: "Home",
+    href: "/explore",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    id: "suche",
     label: "Suche",
-    href: "/custom-werkstatt",
+    href: "/search",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        <circle cx="11" cy="11" r="3" />
       </svg>
     ),
   },
   {
-    id: "bikes",
-    label: "Custom Bikes",
-    href: "/bikes",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="4.5" cy="16.5" r="3" />
-        <circle cx="19.5" cy="16.5" r="3" />
-        <path d="M7.5 16.5l2-4.5h5l1.5 2L19.5 16.5" />
-        <path d="M9.5 12l2-4.5h2" />
-        <path d="M16 14l3-6.5" />
-      </svg>
-    ),
-  },
-  {
-    id: "explore",
-    label: "Explore",
-    href: "/explore",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-      </svg>
-    ),
+    id: "post",
+    label: "Posten",
+    href: "#",
+    icon: null,
   },
   {
     id: "nachrichten",
@@ -94,8 +85,8 @@ function MobileBottomNavInner() {
 
   const routeIndex = navItems.findIndex((item) => {
     if (pathname === item.href || pathname.startsWith(item.href + "/")) return true;
-    // Bikes: also match /custom-bike/* detail pages
-    if (item.id === "bikes" && pathname.startsWith("/custom-bike/")) return true;
+    // Explore-related pages highlight home
+    if (item.id === "home" && (pathname.startsWith("/custom-bike/") || pathname.startsWith("/bikes") || pathname.startsWith("/custom-werkstatt"))) return true;
     // Profil: match all /dashboard/* pages except /dashboard/messages
     if (item.dynamicHref && pathname.startsWith("/dashboard") && !pathname.startsWith("/dashboard/messages")) return true;
     return false;
@@ -195,7 +186,7 @@ function MobileBottomNavInner() {
 
             {navItems.map((item, index) => {
               const isActive = activeIndex === index;
-              const showBadge = (item.id === "nachrichten" && unreadCount > 0) || (item.id === "explore" && unreadNotificationCount > 0);
+              const showBadge = (item.id === "nachrichten" && unreadCount > 0) || (item.id === "home" && unreadNotificationCount > 0);
 
               // FAB for the center slot (index 2 = Explore position)
               if (index === 2) {
@@ -275,7 +266,7 @@ function MobileBottomNavInner() {
                         }}
                       >
                         {(() => {
-                          const count = item.id === "explore" ? unreadNotificationCount : unreadCount;
+                          const count = item.id === "home" ? unreadNotificationCount : unreadCount;
                           return count > 9 ? "9+" : count;
                         })()}
                       </span>

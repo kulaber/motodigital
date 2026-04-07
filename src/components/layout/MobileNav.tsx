@@ -7,8 +7,8 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 // Image still used for user avatar
 import {
-  LogOut, ChevronRight, BookOpen, CalendarDays, Tag, Info,
-  Users, MapPin, Settings, UserPen, MessageCircle, Bike, Grid3X3,
+  LogOut, ChevronRight, BookOpen, CalendarDays, Tag, Info, Search,
+  Users, Settings, UserPen, MessageCircle, Bike, Grid3X3,
 } from 'lucide-react'
 
 type UserRole = 'rider' | 'custom-werkstatt' | 'superadmin' | null
@@ -136,7 +136,7 @@ export default function MobileNav({
             </p>
             {navItem('/explore', <Users size={20} />, 'Explore', isActive('explore'))}
             {navItem('/bikes', <Bike size={20} />, 'Custom Bikes', isActive('bikes'))}
-            {navItem('/custom-werkstatt', <MapPin size={20} />, 'Werkstattsuche', isActive('custom-werkstatt'))}
+            {navItem('/search', <Search size={20} />, 'Suche', pathname === '/search')}
             {navItem('/rider', <Users size={20} />, 'Rider', isActive('rider'))}
           </div>
         )}
