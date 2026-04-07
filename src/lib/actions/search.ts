@@ -186,7 +186,7 @@ export async function searchAll(
     const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, full_name, slug, city, avatar_url, specialty, tags,
-        bikes(count)
+        bikes!bikes_seller_id_fkey(count)
       `)
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
@@ -202,7 +202,7 @@ export async function searchAll(
     const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, username, full_name, avatar_url, riding_style, city,
-        bikes(count),
+        bikes!bikes_seller_id_fkey(count),
         followers!followers_following_id_fkey(count)
       `)
       .eq('role', 'rider')
@@ -244,7 +244,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
     (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, full_name, slug, city, avatar_url, specialty, tags,
-        bikes(count)
+        bikes!bikes_seller_id_fkey(count)
       `)
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
@@ -255,7 +255,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
     (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, username, full_name, avatar_url, riding_style, city,
-        bikes(count),
+        bikes!bikes_seller_id_fkey(count),
         followers!followers_following_id_fkey(count)
       `)
       .eq('role', 'rider')
