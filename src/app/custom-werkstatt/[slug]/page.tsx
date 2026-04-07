@@ -15,6 +15,7 @@ import GallerySlider from './GallerySlider'
 import MobileStickyBar from './MobileStickyBar'
 import WorkshopCTA from './WorkshopCTA'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
+import RoutePlanenButton from './RoutePlanenButton'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
@@ -575,6 +576,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                         {builder.address ?? builder.city}
                       </p>
                     </div>
+                    <RoutePlanenButton adresse={builder.address ?? builder.city ?? ''} />
                   </div>
                 </div>
               )}
