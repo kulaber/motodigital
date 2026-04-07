@@ -137,8 +137,8 @@ function MobileBottomNavInner() {
 
   return (
     <>
-      {/* Spacer so page content isn't hidden (skip on viewport-locked pages) */}
-      {!pathname.startsWith("/dashboard/messages") && (
+      {/* Spacer so page content isn't hidden (skip on all dashboard pages — they manage own layout) */}
+      {!pathname.startsWith("/dashboard") && (
         <div className="block md:hidden" style={{ height: 96 }} />
       )}
 
