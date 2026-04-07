@@ -257,9 +257,12 @@ export default function PostComposerSheet() {
         payload.event_slug = selectedEventSlug
       }
 
-      await (supabase.from('community_posts') as any).insert(payload)
+      const { error: insertError } = await (supabase.from('community_posts') as any).insert(payload)
+      if (insertError) throw insertError
 
       handleClose()
+      // Signal ExploreClient to reload posts + show toast
+      window.dispatchEvent(new Event('post-created'))
       router.push('/explore')
       router.refresh()
     } catch {

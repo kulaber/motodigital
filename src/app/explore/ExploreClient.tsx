@@ -765,6 +765,16 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
 
   useEffect(() => { loadPosts() }, [loadPosts])
 
+  // Reload feed + show toast when a new post is created (from PostComposerSheet)
+  useEffect(() => {
+    function handlePostCreated() {
+      loadPosts()
+      showSuccess('Dein Beitrag ist live!')
+    }
+    window.addEventListener('post-created', handlePostCreated)
+    return () => window.removeEventListener('post-created', handlePostCreated)
+  }, [loadPosts, showSuccess])
+
   // Infinite scroll: observe sentinel only after initial load is done
   useEffect(() => {
     if (loadingPosts) return
@@ -1000,6 +1010,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     setComposerOpen(false)
     setSubmitting(false)
     await loadPosts()
+    showSuccess('Dein Beitrag ist live!')
   }
 
   const upcomingEvents = useMemo(() => {
