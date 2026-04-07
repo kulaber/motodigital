@@ -165,6 +165,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
                   <ResultSection
                     title="Werkstätten"
                     count={workshops.length}
+                    grid
                   >
                     {workshops.map((w) => (
                       <WorkshopResultCard key={w.id} workshop={w} />
