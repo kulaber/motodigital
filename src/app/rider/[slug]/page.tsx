@@ -49,6 +49,7 @@ interface RiderProfile {
   tiktok?: string
   website?: string
   bikes: {
+    id: string
     title: string
     slug: string
     base: string
