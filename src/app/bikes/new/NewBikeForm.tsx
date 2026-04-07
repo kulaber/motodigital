@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, ChevronRight, ChevronDown, Plus, Play, Loader2, CheckCircle } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
@@ -31,6 +31,8 @@ type Step = 1 | 2 | 3
 
 export default function NewBikeForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isOnboarding = searchParams.get('onboarding') === 'true'
   const supabase = createClient()
 
   const [step, setStep] = useState<Step>(1)
@@ -253,8 +255,12 @@ export default function NewBikeForm() {
     setUploadProgress({})
 
     toastSuccess('Bike erfolgreich gespeichert')
-    const slug = generateBikeSlug(title.trim(), bike.id)
-    router.push(`/custom-bike/${slug}`)
+    if (isOnboarding) {
+      router.push('/willkommen?step=4')
+    } else {
+      const slug = generateBikeSlug(title.trim(), bike.id)
+      router.push(`/custom-bike/${slug}`)
+    }
     router.refresh()
   }
 

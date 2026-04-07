@@ -6,7 +6,7 @@ import { WerkstattOnboarding } from '@/components/onboarding/WerkstattOnboarding
 export default async function WillkommenPage({
   searchParams,
 }: {
-  searchParams: Promise<{ confirmed?: string }>
+  searchParams: Promise<{ confirmed?: string; step?: string }>
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -26,7 +26,8 @@ export default async function WillkommenPage({
     redirect(profile.role === 'custom-werkstatt' ? '/dashboard' : '/explore')
   }
 
-  const { confirmed } = await searchParams
+  const { confirmed, step: stepParam } = await searchParams
+  const forcedStep = stepParam ? parseInt(stepParam, 10) : null
 
   // Werkstatt-Flow
   if (profile?.role === 'custom-werkstatt') {
@@ -41,7 +42,7 @@ export default async function WillkommenPage({
         profile={profile}
         werkstatt={werkstatt}
         confirmed={confirmed === 'true'}
-        initialStep={profile?.onboarding_step ?? 0}
+        initialStep={forcedStep ?? profile?.onboarding_step ?? 0}
       />
     )
   }
@@ -51,7 +52,7 @@ export default async function WillkommenPage({
     <RiderOnboarding
       profile={profile!}
       confirmed={confirmed === 'true'}
-      initialStep={profile?.onboarding_step ?? 0}
+      initialStep={forcedStep ?? profile?.onboarding_step ?? 0}
     />
   )
 }
