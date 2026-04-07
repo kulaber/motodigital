@@ -31,7 +31,7 @@ interface Profile {
 }
 
 export function WerkstattOnboarding({
-  profile,
+  profile: _profile,
   werkstatt,
   confirmed,
   initialStep,
@@ -97,7 +97,7 @@ export function WerkstattOnboarding({
 
   async function saveStep1() {
     if (!werkstatt?.id) return
-    await supabase.from('workshops').update({
+    await (supabase.from('workshops') as any).update({
       address: address.trim() || null,
       description: description.trim() || null,
     }).eq('id', werkstatt.id)
@@ -105,7 +105,7 @@ export function WerkstattOnboarding({
 
   async function saveStep2() {
     if (!werkstatt?.id) return
-    await supabase.from('workshops').update({
+    await (supabase.from('workshops') as any).update({
       services: selectedServices,
     }).eq('id', werkstatt.id)
   }
@@ -121,7 +121,7 @@ export function WerkstattOnboarding({
         .upload(path, logoFile, { upsert: true })
       if (!error) {
         const { data } = supabase.storage.from('builder-media').getPublicUrl(path)
-        await supabase.from('workshops').update({ logo_url: data.publicUrl }).eq('id', werkstatt.id)
+        await (supabase.from('workshops') as any).update({ logo_url: data.publicUrl }).eq('id', werkstatt.id)
       }
     }
   }
@@ -328,6 +328,7 @@ export function WerkstattOnboarding({
                          hover:bg-[#E8A829]/8 transition-colors"
             >
               {logoPreview
+                // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={logoPreview} alt="" className="w-full h-full object-cover" />
                 : <ImagePlus className="w-7 h-7 text-[#E8A829]" />
               }

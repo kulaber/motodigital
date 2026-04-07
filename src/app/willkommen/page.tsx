@@ -13,11 +13,13 @@ export default async function WillkommenPage({
 
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: profile } = await (supabase.from('profiles') as any)
     .select('id, username, avatar_url, role, onboarding_completed, onboarding_step, riding_styles')
     .eq('id', user.id)
-    .maybeSingle()
+    .maybeSingle() as { data: {
+      id: string; username: string; avatar_url: string | null; role: string;
+      onboarding_completed: boolean; onboarding_step: number; riding_styles: string[] | null;
+    } | null }
 
   // Bereits onboarded → weg hier
   if (profile?.onboarding_completed === true) {

@@ -70,23 +70,22 @@ export function RiderOnboarding({
       wasFollowing ? prev.filter(u => u !== username) : [...prev, username]
     )
 
-    const { data: target } = await supabase
-      .from('profiles')
+    const { data: target } = await (supabase.from('profiles') as any)
       .select('id')
       .eq('username', username)
-      .maybeSingle()
+      .maybeSingle() as { data: { id: string } | null }
 
     if (!target) return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
     if (wasFollowing) {
-      await supabase.from('followers')
+      await (supabase.from('followers') as any)
         .delete()
         .eq('follower_id', user.id)
         .eq('following_id', target.id)
     } else {
-      await supabase.from('followers')
+      await (supabase.from('followers') as any)
         .insert({ follower_id: user.id, following_id: target.id })
     }
   }
@@ -133,14 +132,14 @@ export function RiderOnboarding({
       }
     }
 
-    await supabase.from('profiles').update({
+    await (supabase.from('profiles') as any).update({
       username: username.trim() || profile.username,
       avatar_url: avatarUrl,
     }).eq('id', profile.id)
   }
 
   async function saveStep2() {
-    await supabase.from('profiles')
+    await (supabase.from('profiles') as any)
       .update({ riding_styles: selectedStyles })
       .eq('id', profile.id)
   }
@@ -221,6 +220,7 @@ export function RiderOnboarding({
                          hover:bg-[#2AABAB]/10 transition-colors"
             >
               {avatarPreview
+                // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
                 : <ImagePlus className="w-7 h-7 text-[#2AABAB]" />
               }
