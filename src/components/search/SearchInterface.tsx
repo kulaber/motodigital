@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, Loader2, ArrowLeft } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { searchAll, type SearchResults } from '@/lib/actions/search'
 import { BikeResultCard } from './BikeResultCard'
 import { WorkshopResultCard } from './WorkshopResultCard'
@@ -74,14 +74,6 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
     <section className="pt-4 pb-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-5 lg:px-8">
 
-        {/* Back link */}
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs text-[#222222]/40 hover:text-[#222222]/60 transition-colors mb-5"
-        >
-          <ArrowLeft size={14} /> Zurück
-        </button>
-
         {/* ── STICKY SEARCH HEADER ── */}
         <div className="sticky top-16 z-20 bg-white/95 backdrop-blur-xl pb-4 pt-1 -mx-4 px-4 sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8">
 
@@ -142,18 +134,13 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
           {/* Defaults: curated content when no query */}
           {showDefaults && (
             <>
-              <SuggestionChips onSelect={setQuery} />
-
-              <p className="text-[10px] uppercase tracking-widest text-[#222222]/25 font-semibold -mb-4">
-                Entdecke MotoDigital
-              </p>
-
               {defaultResults.bikes.length > 0 && (
                 <ResultSection
                   title="Neue Builds"
                   count={defaultResults.bikes.length}
                   showAll
                   onShowAll={() => {}}
+                  grid
                 >
                   {defaultResults.bikes.map((bike) => (
                     <BikeResultCard key={bike.id} bike={bike} />
@@ -208,6 +195,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
               count={results.bikes.length}
               showAll={activeTab === 'bikes'}
               onShowAll={() => setActiveTab('bikes')}
+              grid
             >
               {results.bikes.map((bike) => (
                 <BikeResultCard key={bike.id} bike={bike} />
@@ -254,12 +242,14 @@ function ResultSection({
   count,
   showAll,
   onShowAll,
+  grid,
   children,
 }: {
   title: string
   count: number
   showAll: boolean
   onShowAll: () => void
+  grid?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -282,34 +272,11 @@ function ResultSection({
           </button>
         )}
       </div>
-      <div className="flex flex-col gap-2.5">
+      <div className={grid
+        ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+        : 'flex flex-col gap-2.5'
+      }>
         {children}
-      </div>
-    </div>
-  )
-}
-
-// ── Suggestion chips ──
-function SuggestionChips({ onSelect }: { onSelect: (q: string) => void }) {
-  const suggestions = ['Café Racer', 'Scrambler', 'BMW R nineT', 'Bobber', 'Hamburg']
-
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-widest text-[#222222]/25 font-semibold mb-3">
-        Beliebte Suchen
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {suggestions.map((s) => (
-          <button
-            key={s}
-            onClick={() => onSelect(s)}
-            className="px-3 py-1.5 rounded-full text-xs
-                       bg-[#222222]/3 border border-[#222222]/6 text-[#222222]/40
-                       hover:text-[#222222]/70 hover:border-[#222222]/15 transition-colors"
-          >
-            {s}
-          </button>
-        ))}
       </div>
     </div>
   )

@@ -230,18 +230,18 @@ export async function getSearchDefaults(): Promise<SearchResults> {
       `)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
-      .limit(4),
+      .limit(12),
 
-    // 3 workshops
+    // Workshops
     (supabase.from('workshops') as ReturnType<typeof supabase.from>)
       .select(`
         id, name, slug, city, logo_url, services,
         bikes(count)
       `)
       .order('created_at', { ascending: false })
-      .limit(3),
+      .limit(6),
 
-    // 3 active riders with avatar
+    // Active riders with avatar
     (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, username, full_name, avatar_url, riding_style, city,
@@ -251,7 +251,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
       .eq('role', 'rider')
       .not('avatar_url', 'is', null)
       .order('created_at', { ascending: false })
-      .limit(3),
+      .limit(6),
   ])
 
   return {
