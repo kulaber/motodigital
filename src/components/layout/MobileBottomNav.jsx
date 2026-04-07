@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import PostComposerSheet from "./PostComposerSheet";
 
 const NAV_ITEMS = [
   {
@@ -137,6 +138,9 @@ function MobileBottomNavInner() {
 
   return (
     <>
+      {/* Post composer bottom sheet */}
+      <PostComposerSheet />
+
       {/* Spacer so page content isn't hidden (skip on all dashboard pages — they manage own layout) */}
       {!pathname.startsWith("/dashboard") && (
         <div className="block md:hidden" style={{ height: 96 }} />
@@ -197,9 +201,9 @@ function MobileBottomNavInner() {
               if (index === 2) {
                 return (
                   <div key="fab-center" className="relative flex items-center justify-center" style={{ flex: 1, zIndex: 2 }}>
-                    <Link
-                      href="/bikes/new"
-                      prefetch={true}
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
                       className="flex items-center justify-center active:scale-95 transition-transform"
                       style={{
                         width: 44,
@@ -209,14 +213,16 @@ function MobileBottomNavInner() {
                         boxShadow: "0 4px 16px rgba(42, 171, 171, 0.3)",
                         WebkitTapHighlightColor: "transparent",
                         marginTop: -4,
+                        border: "none",
+                        cursor: "pointer",
                       }}
-                      aria-label="Bike hinzufügen"
+                      aria-label="Posten"
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                       </svg>
-                    </Link>
+                    </button>
                   </div>
                 );
               }
