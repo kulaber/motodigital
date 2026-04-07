@@ -189,6 +189,12 @@ input, textarea, select {
   font-size: max(16px, 1em) !important;
 }
 
+/* ─── iOS viewport height (dvh fallback) ────────────────── */
+.full-height { height: 100vh; }
+@supports (height: 100dvh) {
+  .full-height { height: 100dvh; }
+}
+
 /* ─── Reduced motion ─────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
