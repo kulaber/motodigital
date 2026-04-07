@@ -68,11 +68,12 @@ interface BikeRow {
 
 interface WorkshopRow {
   id: string
-  name: string
+  full_name: string | null
   slug: string
   city: string | null
-  logo_url: string | null
-  services: string[]
+  avatar_url: string | null
+  specialty: string | null
+  tags: string[] | null
   bikes: { count: number }[]
 }
 
@@ -116,15 +117,20 @@ function mapBikes(rows: unknown[]): BikeResult[] {
 }
 
 function mapWorkshops(rows: unknown[]): WorkshopResult[] {
-  return (rows as WorkshopRow[]).map((w) => ({
-    id: w.id,
-    name: w.name,
-    slug: w.slug,
-    city: w.city,
-    logo_url: w.logo_url,
-    services: w.services ?? [],
-    bike_count: w.bikes?.[0]?.count ?? 0,
-  }))
+  return (rows as WorkshopRow[]).map((w) => {
+    const services: string[] = []
+    if (w.specialty) services.push(w.specialty)
+    if (w.tags) services.push(...w.tags)
+    return {
+      id: w.id,
+      name: w.full_name ?? 'Werkstatt',
+      slug: w.slug,
+      city: w.city,
+      logo_url: w.avatar_url,
+      services,
+      bike_count: w.bikes?.[0]?.count ?? 0,
+    }
+  })
 }
 
 function mapRiders(rows: unknown[]): RiderResult[] {
@@ -175,14 +181,16 @@ export async function searchAll(
     results.bikes = mapBikes(data ?? [])
   }
 
-  // ── WORKSHOPS ──
+  // ── WORKSHOPS (from profiles with role custom-werkstatt) ──
   if (tab === 'all' || tab === 'workshops') {
-    const { data } = await (supabase.from('workshops') as ReturnType<typeof supabase.from>)
+    const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
-        id, name, slug, city, logo_url, services,
+        id, full_name, slug, city, avatar_url, specialty, tags,
         bikes(count)
       `)
-      .or(`name.ilike.${pattern},city.ilike.${pattern},description.ilike.${pattern}`)
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
+      .or(`full_name.ilike.${pattern},city.ilike.${pattern},specialty.ilike.${pattern}`)
       .order('created_at', { ascending: false })
       .limit(tab === 'workshops' ? 20 : 5)
 
@@ -232,12 +240,14 @@ export async function getSearchDefaults(): Promise<SearchResults> {
       .order('created_at', { ascending: false })
       .limit(12),
 
-    // Workshops
-    (supabase.from('workshops') as ReturnType<typeof supabase.from>)
+    // Workshops (from profiles with role custom-werkstatt)
+    (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
-        id, name, slug, city, logo_url, services,
+        id, full_name, slug, city, avatar_url, specialty, tags,
         bikes(count)
       `)
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
       .order('created_at', { ascending: false })
       .limit(6),
 
