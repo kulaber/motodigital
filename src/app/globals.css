@@ -53,6 +53,9 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 body {
@@ -62,7 +65,10 @@ body {
   font-size: 16px;
   line-height: 1.6;
   max-width: 100%;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─── Heading font ───────────────────────────────────────── */
@@ -181,6 +187,12 @@ textarea:focus-visible {
 /* Kein Zoom beim Antippen auf iOS/Android — min. 16px font-size */
 input, textarea, select {
   font-size: max(16px, 1em) !important;
+}
+
+/* ─── iOS viewport height (dvh fallback) ────────────────── */
+.full-height { height: 100vh; }
+@supports (height: 100dvh) {
+  .full-height { height: 100dvh; }
 }
 
 /* ─── Reduced motion ─────────────────────────────────────── */

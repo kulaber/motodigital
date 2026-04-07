@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import './globals.css'
 
@@ -48,6 +50,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#2AABAB',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -59,8 +64,13 @@ export default function RootLayout({
     <html lang="de" className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
         <AuthProvider>
-          {children}
-          <MobileBottomNav />
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            {children}
+            <MobileBottomNav />
+          </div>
+          <Suspense fallback={null}>
+            <ConfirmationToast />
+          </Suspense>
           <PageViewTracker />
           <Analytics />
         </AuthProvider>

@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
       }
 
       const target = getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0], redirectTo)
-      return NextResponse.redirect(`${origin}${target}`)
+      const separator = target.includes('?') ? '&' : '?'
+      return NextResponse.redirect(`${origin}${target}${separator}confirmed=true`)
     }
   }
 

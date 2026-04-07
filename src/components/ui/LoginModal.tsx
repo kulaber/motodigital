@@ -631,9 +631,9 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           className={[
             'relative z-10 w-full bg-[#1A1A1A] flex flex-col',
             // Mobile: bottom sheet — anchored to bottom, max height with internal scroll
-            'rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up-sheet max-h-[90vh]',
+            'rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up-sheet max-h-[90dvh]',
             // Desktop: centered modal
-            'sm:rounded-3xl sm:max-w-[420px] sm:pb-0 sm:animate-scale-in sm:max-h-[90vh]',
+            'sm:rounded-3xl sm:max-w-[420px] sm:pb-0 sm:animate-scale-in sm:max-h-[90dvh]',
           ].join(' ')}
         >
           {/* Close button */}

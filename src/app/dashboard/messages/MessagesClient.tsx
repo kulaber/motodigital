@@ -134,8 +134,23 @@ function ConversationList({
   const [filter, setFilter] = useState<'alle' | 'ungelesen'>('alle')
   const [profileResults, setProfileResults] = useState<ProfileResult[]>([])
   const [searching, setSearching] = useState(false)
+  const [longPressTarget, setLongPressTarget] = useState<string | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressFired = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const supabase = createClient()
+
+  function handleTouchStart(convId: string) {
+    longPressFired.current = false
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true
+      setLongPressTarget(convId)
+    }, 500)
+  }
+
+  function handleTouchEnd() {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current)
+  }
 
   // Search profiles when query >= 2 chars
   function handleSearchChange(value: string) {
@@ -318,7 +333,10 @@ function ConversationList({
                 className={`group relative flex items-center gap-3 px-5 py-4 transition-colors cursor-pointer ${
                   isSelected ? 'bg-[#F7F7F7]' : hasUnread ? 'bg-[#06a5a5]/[0.04] hover:bg-[#06a5a5]/[0.07]' : 'hover:bg-[#FAFAFA]'
                 }`}
-                onClick={() => onSelect(conv.id)}
+                onClick={() => { if (!longPressFired.current) onSelect(conv.id) }}
+                onTouchStart={() => handleTouchStart(conv.id)}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={handleTouchEnd}
               >
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
@@ -352,10 +370,10 @@ function ConversationList({
                   )}
                 </div>
 
-                {/* Delete */}
+                {/* Delete — desktop hover only */}
                 <button
                   onClick={e => { e.stopPropagation(); onDelete(conv.id) }}
-                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-[#222222]/20 hover:text-red-400"
+                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-[#222222]/20 hover:text-red-400 hidden sm:block"
                   title="Löschen"
                 >
                   <Trash2 size={13} />
@@ -363,6 +381,32 @@ function ConversationList({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Long-press bottom sheet (mobile) */}
+      {longPressTarget && (
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end sm:hidden" onClick={() => setLongPressTarget(null)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="relative bg-white rounded-t-2xl pb-8 pt-2 animate-slide-up-sm"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-[#222222]/10 rounded-full mx-auto mb-4" />
+            <button
+              className="w-full flex items-center gap-4 px-6 py-4 active:bg-red-50 transition-colors"
+              onClick={() => {
+                const target = longPressTarget
+                setLongPressTarget(null)
+                onDelete(target)
+              }}
+            >
+              <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={20} className="text-red-500" />
+              </div>
+              <span className="text-[#222222] font-medium">Nachricht löschen</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -413,13 +457,19 @@ function MessageThread({
       : `/rider/${profileSlug}`
     : null
 
+  // Auto-scroll: instant on mount, smooth on new messages
   useEffect(() => {
-    initialLoadRef.current = false
     const el = scrollContainerRef.current
     if (!el) return
-    // Use requestAnimationFrame to ensure DOM is fully painted before scrolling
     requestAnimationFrame(() => {
-      el.scrollTop = el.scrollHeight
+      if (initialLoadRef.current) {
+        // First load: jump to bottom instantly
+        el.scrollTop = el.scrollHeight
+        initialLoadRef.current = false
+      } else {
+        // New message: scroll smoothly
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }
     })
   }, [messages])
 

@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react'
+import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check, Loader2 } from 'lucide-react'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
 import { notifyNewRegistration } from '@/lib/actions/admin-notifications'
+import { useToast, ToastContainer } from '@/components/ui/Toast'
 
 type Role = 'rider' | 'custom-werkstatt'
 
@@ -37,6 +38,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const toast = useToast()
 
   function handleRoleSelect(r: Role) {
     setRole(r)
@@ -73,6 +75,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
     // Notify superadmin (non-blocking)
     notifyNewRegistration({ name, email, role })
 
+    toast.success('Fast geschafft — check deine Mails!')
     router.push('/verify-email?email=' + encodeURIComponent(email))
   }
 
@@ -198,14 +201,20 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
       )}
 
       <button type="submit" disabled={loading}
-        className="w-full bg-[#06a5a5] text-white font-semibold py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 transition-all mt-1 cursor-pointer">
-        {loading ? 'Wird erstellt...' : 'Account erstellen'}
+        className="w-full bg-[#06a5a5] text-white font-semibold py-3 rounded-full text-sm hover:bg-[#058f8f] disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-1 cursor-pointer">
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <Loader2 size={16} className="animate-spin" />
+            Wird erstellt…
+          </span>
+        ) : 'Account erstellen'}
       </button>
 
       <p className="text-center text-xs text-white/25 leading-relaxed">
         Mit der Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu.
       </p>
     </form>
+    <ToastContainer toasts={toast.toasts} />
     </div>
   )
 }
