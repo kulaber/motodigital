@@ -49,10 +49,7 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
   useEffect(() => {
     clearTimeout(debounceRef.current)
 
-    if (!query || query.length < 2) {
-      setResults(null)
-      return
-    }
+    if (!query || query.length < 2) return
 
     debounceRef.current = setTimeout(() => {
       startTransition(async () => {
@@ -91,7 +88,11 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
             <input
               ref={inputRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value
+                setQuery(val)
+                if (!val || val.trim().length < 2) setResults(null)
+              }}
               placeholder="Bike, Werkstatt, Rider suchen…"
               className="w-full h-12 bg-[#F7F7F7] border border-[#222222]/8
                          rounded-xl pl-10 pr-10 text-sm text-[#222222]
@@ -103,7 +104,7 @@ export function SearchInterface({ initialQuery, initialTab }: Props) {
             )}
             {!isPending && query && (
               <button
-                onClick={() => setQuery('')}
+                onClick={() => { setQuery(''); setResults(null) }}
                 className="absolute right-3.5 w-5 h-5 rounded-full
                            bg-[#222222]/8 flex items-center justify-center
                            hover:bg-[#222222]/15 transition-colors"

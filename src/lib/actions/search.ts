@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-// ── Result types ──
+// ── Result types (exported for UI components) ──
 
 export interface BikeResult {
   id: string
@@ -48,6 +48,45 @@ export interface SearchResults {
   riders: RiderResult[]
 }
 
+// ── Internal row types for Supabase query results ──
+
+interface BikeRow {
+  id: string
+  title: string
+  slug: string | null
+  make: string
+  model: string
+  year: number
+  style: string
+  city: string | null
+  price: number
+  price_on_request: boolean
+  bike_images: { url: string; is_cover: boolean; position: number }[]
+  profiles: { username: string; full_name: string | null; slug: string | null } | null
+  workshops: { name: string; slug: string } | null
+}
+
+interface WorkshopRow {
+  id: string
+  name: string
+  slug: string
+  city: string | null
+  logo_url: string | null
+  services: string[]
+  bikes: { count: number }[]
+}
+
+interface RiderRow {
+  id: string
+  username: string
+  full_name: string | null
+  avatar_url: string | null
+  riding_style: string | null
+  city: string | null
+  bikes: { count: number }[]
+  followers: { count: number }[]
+}
+
 type Tab = 'all' | 'bikes' | 'workshops' | 'riders'
 
 export async function searchAll(
@@ -65,10 +104,10 @@ export async function searchAll(
 
   // ── BIKES ──
   if (tab === 'all' || tab === 'bikes') {
-    const { data: bikes } = await (supabase.from('bikes') as ReturnType<typeof supabase.from>)
+    const { data } = await (supabase.from('bikes') as ReturnType<typeof supabase.from>)
       .select(`
         id, title, slug, make, model, year, style, city,
-        price, price_on_request, seller_id, workshop_id,
+        price, price_on_request,
         bike_images(url, is_cover, position),
         profiles!bikes_seller_id_fkey(username, full_name, slug),
         workshops(name, slug)
@@ -78,12 +117,12 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'bikes' ? 20 : 5)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    results.bikes = ((bikes ?? []) as any[]).map((b) => {
+    const bikes = (data ?? []) as unknown as BikeRow[]
+    results.bikes = bikes.map((b) => {
       const imgs = b.bike_images ?? []
       const cover =
-        imgs.find((i: { is_cover: boolean }) => i.is_cover)?.url ??
-        imgs.sort((a: { position: number }, z: { position: number }) => a.position - z.position)[0]?.url ??
+        imgs.find((i) => i.is_cover)?.url ??
+        imgs.sort((a, z) => a.position - z.position)[0]?.url ??
         null
       return {
         id: b.id,
@@ -106,7 +145,7 @@ export async function searchAll(
 
   // ── WORKSHOPS ──
   if (tab === 'all' || tab === 'workshops') {
-    const { data: workshops } = await (supabase.from('workshops') as ReturnType<typeof supabase.from>)
+    const { data } = await (supabase.from('workshops') as ReturnType<typeof supabase.from>)
       .select(`
         id, name, slug, city, logo_url, services,
         bikes(count)
@@ -115,8 +154,8 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'workshops' ? 20 : 5)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    results.workshops = ((workshops ?? []) as any[]).map((w) => ({
+    const workshops = (data ?? []) as unknown as WorkshopRow[]
+    results.workshops = workshops.map((w) => ({
       id: w.id,
       name: w.name,
       slug: w.slug,
@@ -129,7 +168,7 @@ export async function searchAll(
 
   // ── RIDER ──
   if (tab === 'all' || tab === 'riders') {
-    const { data: riders } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+    const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, username, full_name, avatar_url, riding_style, city,
         bikes(count),
@@ -141,8 +180,8 @@ export async function searchAll(
       .order('created_at', { ascending: false })
       .limit(tab === 'riders' ? 20 : 5)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    results.riders = ((riders ?? []) as any[]).map((r) => ({
+    const riders = (data ?? []) as unknown as RiderRow[]
+    results.riders = riders.map((r) => ({
       id: r.id,
       username: r.username,
       full_name: r.full_name,
