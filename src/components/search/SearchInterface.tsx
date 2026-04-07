@@ -108,7 +108,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
             {TABS.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => { setActiveTab(tab.key); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-medium
                             border transition-all
                             ${activeTab === tab.key
