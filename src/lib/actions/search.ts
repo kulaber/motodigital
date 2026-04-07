@@ -75,6 +75,7 @@ interface WorkshopRow {
   specialty: string | null
   tags: string[] | null
   bikes: { count: number }[]
+  builder_media: { url: string; position: number }[]
 }
 
 interface RiderRow {
@@ -121,12 +122,16 @@ function mapWorkshops(rows: unknown[]): WorkshopResult[] {
     const services: string[] = []
     if (w.specialty) services.push(w.specialty)
     if (w.tags) services.push(...w.tags)
+    const media = w.builder_media ?? []
+    const coverUrl = w.avatar_url
+      ?? media.sort((a, b) => a.position - b.position)[0]?.url
+      ?? null
     return {
       id: w.id,
       name: w.full_name ?? 'Werkstatt',
       slug: w.slug,
       city: w.city,
-      logo_url: w.avatar_url,
+      logo_url: coverUrl,
       services,
       bike_count: w.bikes?.[0]?.count ?? 0,
     }
@@ -186,7 +191,8 @@ export async function searchAll(
     const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, full_name, slug, city, avatar_url, specialty, tags,
-        bikes!bikes_seller_id_fkey(count)
+        bikes!bikes_seller_id_fkey(count),
+        builder_media(url, position)
       `)
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
@@ -244,7 +250,8 @@ export async function getSearchDefaults(): Promise<SearchResults> {
     (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, full_name, slug, city, avatar_url, specialty, tags,
-        bikes!bikes_seller_id_fkey(count)
+        bikes!bikes_seller_id_fkey(count),
+        builder_media(url, position)
       `)
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
