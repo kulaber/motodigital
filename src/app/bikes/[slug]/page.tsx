@@ -293,7 +293,7 @@ export default async function BikeSlugPage({ params }: Props) {
                 <div className="mb-4 text-center py-3 bg-[#F7F7F7] rounded-xl">
                   <p className="text-2xl font-bold text-[#222222] tracking-tight">{price}</p>
                   <p className="text-xs text-[#AAAAAA] mt-0.5">
-                    {workshop ? 'Builder-Inserat' : 'Privates Inserat'} · {formatRelativeTime(bike.created_at)}
+                    {workshop ? 'Custom Werkstatt' : 'Privater Build'} · {formatRelativeTime(bike.created_at)}
                   </p>
                 </div>
               )}

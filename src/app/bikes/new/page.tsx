@@ -20,7 +20,7 @@ export default async function NewBikePage() {
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#222222]">Neues Custom-Bike</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">Erstelle ein Inserat für dein Custom Bike</p>
+          <p className="text-sm text-[#222222]/40 mt-1">Füge dein Custom Bike hinzu</p>
         </div>
         <NewBikeForm />
       </div>

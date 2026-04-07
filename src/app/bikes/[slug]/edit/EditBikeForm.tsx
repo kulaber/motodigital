@@ -298,7 +298,7 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
         <div className="flex flex-col gap-5 animate-fade-in">
 
           <div>
-            <label className={labelClass}>Inserat-Titel *</label>
+            <label className={labelClass}>Build-Titel *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
               placeholder="z.B. Honda CB550 Café Racer — The Midnight"
               className={inputClass} />

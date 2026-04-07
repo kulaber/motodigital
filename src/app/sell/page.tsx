@@ -5,8 +5,8 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
-  title: 'Custom Bike inserieren — MotoDigital',
-  description: 'Verkaufe dein Custom Bike auf MotoDigital — weltweit sichtbar, verifizierte Käufer, einfaches Inserieren.',
+  title: 'Custom Bike verkaufen — MotoDigital',
+  description: 'Verkaufe dein Custom Bike auf MotoDigital — weltweit sichtbar, verifizierte Käufer, einfach hochladen.',
 }
 
 const BENEFITS = [
@@ -23,7 +23,7 @@ const BENEFITS = [
   {
     icon: Zap,
     title: 'Schnell & einfach',
-    description: 'Inserat in wenigen Minuten erstellen. Fotos hochladen, Specs eingeben, fertig. Wir kümmern uns um den Rest.',
+    description: 'Build in wenigen Minuten hochladen. Fotos hinzufügen, Specs eingeben, fertig. Wir kümmern uns um den Rest.',
   },
 ]
 
@@ -46,7 +46,7 @@ export default function SellPage() {
             href="/bikes/new"
             className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-base font-bold px-8 py-4 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#06a5a5]/20"
           >
-            Jetzt inserieren
+            Bike hinzufügen
           </Link>
         </div>
       </section>
@@ -80,14 +80,14 @@ export default function SellPage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 text-center">
           <h2 className="text-2xl font-bold text-[#222222] mb-4">Bereit, dein Bike zu verkaufen?</h2>
           <p className="text-sm text-[#222222]/40 mb-8 leading-relaxed">
-            Erstelle dein Inserat in wenigen Minuten. Keine versteckten Gebühren, keine Überraschungen.
+            Lade deinen Build in wenigen Minuten hoch. Keine versteckten Gebühren, keine Überraschungen.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/bikes/new"
               className="inline-flex items-center justify-center gap-2 bg-[#06a5a5] text-white text-sm font-bold px-8 py-3.5 rounded-full hover:bg-[#064f4f] transition-all hover:-translate-y-0.5"
             >
-              Jetzt inserieren
+              Bike hinzufügen
             </Link>
             <Link
               href="/bikes"

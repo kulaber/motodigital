@@ -350,7 +350,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
           </div>
 
           <div>
-            <label className={labelClass}>Inserat-Titel *</label>
+            <label className={labelClass}>Build-Titel *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
               placeholder="z.B. Honda CB550 Cafe Racer — The Midnight Scrambler"
               className={inputClass} />
