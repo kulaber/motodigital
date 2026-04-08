@@ -367,11 +367,7 @@ export default async function DashboardPage() {
                 <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl overflow-hidden">
                   {/* Cover image banner */}
                   <div className="relative aspect-[3/1] w-full overflow-hidden">
-                    {coverImage ? (
-                      <Image src={coverImage.url} alt="Titelbild" fill sizes="(max-width: 640px) 100vw, 720px" className="object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#06a5a5]/10 to-[#F0EDE4]" />
-                    )}
+                    <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt="Titelbild" fill sizes="(max-width: 640px) 100vw, 720px" className="object-cover" />
                   </div>
 
                   <div className="px-5 pb-5">
