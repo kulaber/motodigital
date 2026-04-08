@@ -389,13 +389,13 @@ export default function PostComposerSheet() {
 
           {/* Tab pills */}
           <div className="flex justify-center">
-            <div className="flex bg-[#F7F7F7] rounded-full p-0.5">
+            <div className="flex bg-[#F7F7F7] rounded-full p-1">
               {(['beitrag', 'fahrt'] as const).map(t => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => { setTab(t); setRideStep(1) }}
-                  className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex-1 px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                     tab === t
                       ? 'bg-[#222222] text-white'
                       : 'text-[#717171]'

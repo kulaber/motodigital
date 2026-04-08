@@ -4,14 +4,13 @@ import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2 } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
 import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import { formatRelativeTime } from '@/lib/utils'
-import { compressImage } from '@/lib/utils/compressImage'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { LoginModal } from '@/components/ui/LoginModal'
@@ -691,23 +690,12 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   const { toasts, success: showSuccess, error: showError } = useToast()
 
   // Composer state
-  const [composerOpen, setComposerOpen] = useState(false)
-  const [body, setBody] = useState('')
-  const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
-  const [submitting, setSubmitting] = useState(false)
   const [composerStuck, setComposerStuck] = useState(false)
   const composerSentinelRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const canPost = !!userId
   const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
-  const [followingProfiles, setFollowingProfiles] = useState<{ id: string; username: string; full_name: string; avatar_url: string | null }[]>([])
-
-  // Mention autocomplete state
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
-  const [mentionIndex, setMentionIndex] = useState(0)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const allEvents = initialEvents
   const { unreadNotificationCount } = useAuth()
   const searchParams = useSearchParams()
@@ -898,7 +886,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     return () => observer.disconnect()
   }, [loadingPosts, loadMorePosts])
 
-  // Load IDs of users the current user follows + their profiles for @mention
+  // Load IDs of users the current user follows (for "Freunde" filter)
   useEffect(() => {
     if (!userId) return
     async function loadFollowing() {
@@ -906,26 +894,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         .select('following_id')
         .eq('follower_id', userId)
       if (!data) return
-      const ids = data.map((r: { following_id: string }) => r.following_id)
-      setFollowingIds(new Set(ids))
-
-      if (ids.length > 0) {
-        const { data: profiles } = await (supabase.from('profiles') as any)
-          .select('id, username, slug, full_name, avatar_url')
-          .in('id', ids)
-        if (profiles) {
-          setFollowingProfiles(
-            (profiles as { id: string; username: string | null; slug: string | null; full_name: string | null; avatar_url: string | null }[])
-              .filter(p => p.username || p.slug || p.full_name)
-              .map(p => ({
-                id: p.id,
-                username: p.slug ?? p.username ?? p.full_name!.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-                full_name: p.full_name ?? p.username ?? 'Unbekannt',
-                avatar_url: p.avatar_url,
-              }))
-          )
-        }
-      }
+      setFollowingIds(new Set(data.map((r: { following_id: string }) => r.following_id)))
     }
     loadFollowing()
   }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -1055,108 +1024,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     setLeavingRide(false)
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
-    const newFiles = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
-    setMediaFiles(prev => [...prev, ...newFiles].slice(0, 4))
-    e.target.value = ''
-  }
-
-  // Mention autocomplete: filtered suggestions
-  const mentionSuggestions = useMemo(() => {
-    if (mentionQuery === null) return []
-    const q = mentionQuery.toLowerCase()
-    return followingProfiles.filter(
-      p => p.username.toLowerCase().includes(q) || p.full_name.toLowerCase().includes(q)
-    ).slice(0, 6)
-  }, [mentionQuery, followingProfiles])
-
-  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const val = e.target.value
-    setBody(val)
-
-    // Detect @mention query from cursor position
-    const cursor = e.target.selectionStart ?? val.length
-    const textBefore = val.slice(0, cursor)
-    const match = textBefore.match(/@([a-zA-Z0-9_äöüÄÖÜß-]*)$/)
-    if (match) {
-      setMentionQuery(match[1])
-      setMentionIndex(0)
-    } else {
-      setMentionQuery(null)
-    }
-  }
-
-  function insertMention(username: string) {
-    const textarea = textareaRef.current
-    if (!textarea) return
-    const cursor = textarea.selectionStart ?? body.length
-    const textBefore = body.slice(0, cursor)
-    const atPos = textBefore.lastIndexOf('@')
-    if (atPos === -1) return
-    const newBody = body.slice(0, atPos) + `@${username} ` + body.slice(cursor)
-    setBody(newBody)
-    setMentionQuery(null)
-    // Refocus textarea after React re-render
-    requestAnimationFrame(() => {
-      textarea.focus()
-      const newCursor = atPos + username.length + 2
-      textarea.setSelectionRange(newCursor, newCursor)
-    })
-  }
-
-  function handleMentionKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (mentionQuery === null || mentionSuggestions.length === 0) return
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setMentionIndex(i => (i + 1) % mentionSuggestions.length)
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setMentionIndex(i => (i - 1 + mentionSuggestions.length) % mentionSuggestions.length)
-    } else if (e.key === 'Enter') {
-      e.preventDefault()
-      insertMention(mentionSuggestions[mentionIndex].username)
-    } else if (e.key === 'Escape') {
-      setMentionQuery(null)
-    }
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const hasContent = body.trim() || mediaFiles.length > 0
-    if (!userId || !hasContent) return
-    setSubmitting(true)
-
-    const uploadedUrls: string[] = []
-    for (const { file: rawFile } of mediaFiles) {
-      const isVideo = rawFile.type.startsWith('video/')
-      const file = isVideo ? rawFile : await compressImage(rawFile, 1200)
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { data, error } = await (supabase.storage as any)
-        .from('community-media')
-        .upload(path, file, { contentType: file.type })
-      if (!error && data) {
-        const { data: urlData } = (supabase.storage as any).from('community-media').getPublicUrl(data.path)
-        uploadedUrls.push(urlData.publicUrl)
-      }
-    }
-
-    await (supabase.from('community_posts') as any).insert({
-      user_id: userId,
-      body: body.trim() || null,
-      media_urls: uploadedUrls,
-      topic: 'allgemein',
-    })
-
-    setBody('')
-    setMediaFiles([])
-    setComposerOpen(false)
-    setSubmitting(false)
-    await loadPosts()
-    showSuccess('Dein Beitrag ist live!')
-  }
-
   const upcomingEvents = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
     return allEvents
@@ -1250,116 +1117,19 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
           {/* Composer sentinel */}
           <div ref={composerSentinelRef} className="h-0" />
 
-          {/* Composer — hidden on mobile (already in MobileBottomNav) */}
+          {/* Composer trigger — opens PostComposerSheet (same as mobile) */}
           {canPost ? (
-            <div className={`hidden md:block sticky top-[104px] lg:top-[120px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck && !composerOpen ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
-              {!composerOpen ? (
-                <button
-                  type="button"
-                  onClick={() => setComposerOpen(true)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
-                >
-                  <span className="text-sm text-[#222222]/30 flex-1">Poste, was dich bewegt…</span>
-                  <span className="w-8 h-8 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
-                    <Plus size={16} className="text-white" />
-                  </span>
-                </button>
-              ) : (
-                <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
-                  <button
-                    type="button"
-                    onClick={() => { setComposerOpen(false); setBody(''); setMediaFiles([]); setMentionQuery(null) }}
-                    className="absolute top-3 right-3 z-40 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
-                  >
-                    <X size={15} />
-                  </button>
-                  <div className="relative">
-                    <textarea
-                      ref={textareaRef}
-                      autoFocus
-                      value={body}
-                      onChange={handleBodyChange}
-                      onKeyDown={handleMentionKeyDown}
-                      placeholder="Was bewegt dich gerade?"
-                      rows={4}
-                      style={{ resize: 'none' }}
-                      className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
-                    />
-                    {/* @mention autocomplete dropdown */}
-                    {mentionQuery !== null && mentionSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 bottom-0 translate-y-full z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto">
-                        {mentionSuggestions.map((p, i) => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onMouseDown={(e) => { e.preventDefault(); insertMention(p.username) }}
-                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
-                              i === mentionIndex ? 'bg-[#06a5a5]/8' : 'hover:bg-[#F7F7F7]'
-                            }`}
-                          >
-                            <div className="w-7 h-7 rounded-full bg-[#F0F0F0] overflow-hidden flex-shrink-0">
-                              {p.avatar_url ? (
-                                <Image src={p.avatar_url} alt={p.full_name} width={28} height={28} className="object-cover w-full h-full" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">
-                                  {p.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight">{p.full_name}</p>
-                              <p className="text-[11px] text-[#717171] truncate">@{p.username}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Media previews */}
-                  {mediaFiles.length > 0 && (
-                    <div className="flex gap-2 mt-3 flex-wrap">
-                      {mediaFiles.map((m, i) => (
-                        <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#222222]/6 flex-shrink-0">
-                          {m.file.type.startsWith('video/') ? (
-                            <video src={m.url} className="w-full h-full object-cover" muted preload="metadata" />
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={m.url} alt="" className="w-full h-full object-cover" />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
-                            className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
-                          >
-                            <X size={10} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#F0F0F0]">
-                    <div className="flex items-center gap-1">
-                      <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
-                      <button type="button" onClick={() => fileInputRef.current?.click()} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors">
-                        <ImageIcon size={15} />
-                      </button>
-                      <button type="button" onClick={() => fileInputRef.current?.click()} className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors">
-                        <Video size={15} />
-                      </button>
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={submitting || (!body.trim() && mediaFiles.length === 0)}
-                      className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
-                    >
-                      <Send size={12} />
-                      {submitting ? 'Wird gepostet…' : 'Posten'}
-                    </button>
-                  </div>
-                </form>
-              )}
+            <div className={`hidden md:block sticky top-[104px] lg:top-[120px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
+              >
+                <span className="text-sm text-[#222222]/30 flex-1">Poste, was dich bewegt…</span>
+                <span className="w-8 h-8 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
+                  <Plus size={16} className="text-white" />
+                </span>
+              </button>
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-[#222222]/6 p-4 text-center mb-4">
