@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, Map as MapIcon, MessageCircle, ShieldCheck, Users, Route, Compass, Bike, Sparkles, HeartHandshake } from 'lucide-react'
+import { Send, Map as MapIcon, MessageCircle, ShieldCheck, Users, Route, Compass, Bike, Sparkles, HeartHandshake } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StickySearch from './StickySearch'
@@ -30,10 +30,10 @@ interface FeaturedBuild {
 }
 
 const USPS = [
-  { icon: <MapIcon size={20} className="text-[#717171]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
-  { icon: <BadgeCheck size={20} className="text-[#717171]" />,   title: 'Verified Builds',   desc: 'Jeder verifizierte Build wurde manuell geprüft — maximale Sicherheit.' },
-  { icon: <MessageCircle size={20} className="text-[#717171]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
-  { icon: <ShieldCheck size={20} className="text-[#717171]" />,  title: 'Marketplace',       desc: 'Bald: Custom Builds kaufen & verkaufen — direkt vom Builder.' },
+  { icon: <MapIcon size={20} className="text-[#06a5a5]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
+  { icon: <Send size={20} className="text-[#06a5a5]" />,         title: 'Custom Anfragen',   desc: 'Stelle direkt eine Anfrage bei deiner Wunschwerkstatt — mit Preisübersicht und allen Details.' },
+  { icon: <MessageCircle size={20} className="text-[#06a5a5]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
+  { icon: <ShieldCheck size={20} className="text-[#06a5a5]" />,  title: 'Marketplace',       desc: 'Custom Builds kaufen & verkaufen — direkt vom Builder.' },
 ]
 
 const RIDER_FEATURES = [
@@ -396,7 +396,7 @@ export default async function LandingPage() {
       )}
 
       {/* ── USP ── */}
-      <section className="py-20 lg:py-28 bg-white">
+      <section className="py-20 lg:py-28 bg-[#F7F7F7]">
         <div className="max-w-6xl mx-auto px-5 lg:px-8">
           <div className="max-w-xl mb-12">
             <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
@@ -405,8 +405,8 @@ export default async function LandingPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {USPS.map((usp, _i) => (
-              <div key={usp.title} className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#DDDDDD]/20 transition-colors duration-200 h-full">
-                <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center mb-4">
+              <div key={usp.title} className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#222222]/15 transition-colors duration-200 h-full">
+                <div className="w-10 h-10 rounded-xl bg-[#06a5a5]/8 flex items-center justify-center mb-4 text-[#06a5a5]">
                   {usp.icon}
                 </div>
                 <h3 className="text-sm font-semibold text-[#222222] mb-2">{usp.title}</h3>
