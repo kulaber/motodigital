@@ -336,15 +336,15 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
       {/* ── Desktop grid (md+) ── */}
       <div className="hidden md:flex flex-col relative rounded-2xl overflow-hidden">
       <div className="grid gap-1.5 h-[70vh] min-h-[500px] max-h-[800px]"
-        style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
+        style={{ gridTemplateColumns: images.length === 1 ? '1fr' : '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
       >
         {/* Main image — left, spans 2 rows */}
         <button
           onClick={() => openLightbox(0)}
           className="relative overflow-hidden cursor-zoom-in group focus:outline-none"
-          style={{ gridRow: '1 / 3', gridColumn: images.length === 1 ? '1 / 4' : '1 / 2' }}
+          style={{ gridRow: '1 / 3', gridColumn: images.length === 1 ? '1 / -1' : '1 / 2' }}
         >
-          <Image src={i1} alt={title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" priority />
+          <Image src={i1} alt={title} fill sizes={images.length === 1 ? '100vw' : '(max-width: 768px) 100vw, 50vw'} className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" priority />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         </button>
 

@@ -47,11 +47,13 @@ const TAG_ICON_MAP: Record<string, React.ReactNode> = {
   'Basis-Bike Beschaffung': <Bike size={14} />,
   'Restaurierung':          <RefreshCw size={14} />,
   'Cafe Racer':             <Flag size={14} />,
+  'Cafe-Racer':             <Flag size={14} />,
   'Bobber':                 <Bike size={14} />,
   'Scrambler':              <Mountain size={14} />,
   'Chopper':                <Wrench size={14} />,
   'Custom Paint':           <Palette size={14} />,
   'Tracker':                <Flag size={14} />,
+  'Flat Track':             <Flag size={14} />,
   'Street':                 <Navigation size={14} />,
   'Enduro':                 <Leaf size={14} />,
 }
@@ -503,6 +505,37 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </div>
                 </div>
               )}
+
+              {/* Umbaustile */}
+              {builder.specialty && (() => {
+                const styles = builder.specialty.split('·').map(s => s.trim()).filter(Boolean)
+                if (styles.length === 0) return null
+                return (
+                  <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-4">
+                    <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4 sm:mb-5">Umbaustile</h2>
+                    {/* Mobile: chip row */}
+                    <div className="flex flex-wrap gap-2 sm:hidden">
+                      {styles.map(style => (
+                        <span key={style} className="flex items-center gap-1.5 text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full">
+                          {style}
+                        </span>
+                      ))}
+                    </div>
+                    {/* Desktop: grid cards */}
+                    <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      {styles.map(style => {
+                        const icon = TAG_ICON_MAP[style] ?? <Bike size={14} />
+                        return (
+                          <div key={style} className="flex items-center gap-3 bg-[#F7F7F7] hover:bg-[#F0F0F0] rounded-xl px-3.5 py-3 transition-colors group">
+                            <span className="text-[#06a5a5] flex-shrink-0">{icon}</span>
+                            <span className="text-xs font-semibold text-[#222222] leading-snug">{style}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Team */}
               {builder.team && builder.team.length > 0 && (
