@@ -213,7 +213,7 @@ export function WerkstattOnboarding({
   }
 
   return (
-    <div className="flex flex-col min-h-[100dvh] px-5 max-w-md mx-auto w-full">
+    <div className="flex flex-col h-[100dvh] overflow-hidden px-5 max-w-md mx-auto w-full">
 
       {step >= 1 && step <= TOTAL && (
         <div className="pt-10 pb-6">

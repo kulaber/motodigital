@@ -65,7 +65,10 @@ const INACTIVE_ICON = "#B0B0B8";
 /* Gate — only mounts the inner nav when user is logged in */
 export default function MobileBottomNav() {
   const { user, loading } = useAuth();
+  const path = usePathname();
   if (loading || !user) return null;
+  // Hide during onboarding
+  if (path?.startsWith("/willkommen")) return null;
   return <MobileBottomNavInner />;
 }
 

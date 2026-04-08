@@ -110,7 +110,13 @@ export function RiderOnboarding({
 
   async function finish() {
     setSaving(true)
+    // Always ensure slug is set in DB before completing
+    const finalUsername = username.trim() || profile.username
+    const slug = finalUsername.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    await (supabase.from('profiles') as any).update({ slug }).eq('id', profile.id)
     await completeOnboarding()
+    // Notify AuthContext about the updated slug so profile links work
+    window.dispatchEvent(new CustomEvent('profile-updated', { detail: { slug } }))
     router.push('/explore')
     router.refresh()
   }
@@ -132,8 +138,11 @@ export function RiderOnboarding({
       }
     }
 
+    const finalUsername = username.trim() || profile.username
+    const slug = finalUsername.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     await (supabase.from('profiles') as any).update({
-      username: username.trim() || profile.username,
+      username: finalUsername,
+      slug,
       avatar_url: avatarUrl,
     }).eq('id', profile.id)
   }
@@ -145,7 +154,7 @@ export function RiderOnboarding({
   }
 
   return (
-    <div className="flex flex-col min-h-[100dvh] px-5 max-w-md mx-auto w-full">
+    <div className="flex flex-col h-[100dvh] overflow-hidden px-5 max-w-md mx-auto w-full">
 
       {step >= 1 && step <= TOTAL && (
         <div className="pt-10 pb-6">

@@ -72,9 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     function handleProfileUpdated(e: Event) {
-      const detail = (e as CustomEvent<{ avatarUrl?: string; fullName?: string }>).detail
+      const detail = (e as CustomEvent<{ avatarUrl?: string; fullName?: string; slug?: string }>).detail
       if (detail.avatarUrl !== undefined) setAvatarUrl(detail.avatarUrl || null)
       if (detail.fullName !== undefined) setFullName(detail.fullName || null)
+      if (detail.slug !== undefined) setSlug(detail.slug || null)
     }
     window.addEventListener('profile-updated', handleProfileUpdated)
 

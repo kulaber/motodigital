@@ -75,7 +75,8 @@ export async function middleware(request: NextRequest) {
     !path.startsWith('/willkommen') &&
     !path.startsWith('/auth') &&
     !path.startsWith('/api') &&
-    !path.startsWith('/verify-email')
+    !path.startsWith('/verify-email') &&
+    !path.startsWith('/bikes/new')
   ) {
     const { data: profile } = await supabase
       .from('profiles')
