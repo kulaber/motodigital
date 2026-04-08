@@ -154,7 +154,7 @@ export default function WieEsFunktioniertPage() {
       <CommunityCircle />
 
       {/* Roadmap */}
-      <section className="bg-[#222222]">
+      <section className="bg-[#222222]" id="roadmap">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-24">
 
           {/* Heading */}

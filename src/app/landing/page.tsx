@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, Map as MapIcon, MessageCircle, ShieldCheck } from 'lucide-react'
+import { BadgeCheck, Map as MapIcon, MessageCircle, ShieldCheck, Users, Route, Compass, Bike, Sparkles, HeartHandshake } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StickySearch from './StickySearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
+import EventsCarousel from '@/components/landing/EventsCarousel'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
@@ -33,6 +34,15 @@ const USPS = [
   { icon: <BadgeCheck size={20} className="text-[#717171]" />,   title: 'Verified Builds',   desc: 'Jeder verifizierte Build wurde manuell geprüft — maximale Sicherheit.' },
   { icon: <MessageCircle size={20} className="text-[#717171]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
   { icon: <ShieldCheck size={20} className="text-[#717171]" />,  title: 'Marketplace',       desc: 'Bald: Custom Builds kaufen & verkaufen — direkt vom Builder.' },
+]
+
+const RIDER_FEATURES = [
+  { icon: <Users size={20} />,           title: 'Vernetzen',              desc: 'Finde Rider in deiner Nähe und vernetze dich mit Gleichgesinnten.' },
+  { icon: <Route size={20} />,           title: 'Fahrten planen',         desc: 'Plane Fahrten, veröffentliche Routen und finde Mitfahrer.' },
+  { icon: <Compass size={20} />,         title: 'Explore',               desc: 'Entdecke Builds, Stories und Inspirationen aus der Community.' },
+  { icon: <Bike size={20} />,            title: 'Bike Showcase',          desc: 'Präsentiere dein eigenes Bike mit Fotos und Details.' },
+  { icon: <Sparkles size={20} />,        title: 'Inspirationen',          desc: 'Hol dir Ideen für deinen nächsten Umbau oder dein erstes Projekt.' },
+  { icon: <HeartHandshake size={20} />,  title: 'Gleichgesinnte treffen', desc: 'Triff andere Rider bei Events, Ausfahrten und Treffen.' },
 ]
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {
@@ -78,7 +88,7 @@ const getLandingData = unstable_cache(
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
 
-    const [{ data: bikeRows }, { data: dbRows }] = await Promise.all([
+    const [{ data: bikeRows }, { data: dbRows }, { data: eventRows }] = await Promise.all([
       supabase.from('bikes')
         .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(url, is_cover, position)')
         .eq('status', 'active')
@@ -90,6 +100,11 @@ const getLandingData = unstable_cache(
         .not('slug', 'is', null)
         .order('created_at', { ascending: false })
         .limit(10),
+      supabase.from('events')
+        .select('id, slug, name, date_start, date_end, location, tags, image')
+        .gte('date_start', new Date().toISOString().split('T')[0])
+        .order('date_start', { ascending: true })
+        .limit(7),
     ])
 
     const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: any) => r.seller_id))]
@@ -109,6 +124,7 @@ const getLandingData = unstable_cache(
       dbRows: dbRows ?? [],
       sellerProfiles: sellerProfiles ?? [],
       bikeCounts: bikeCounts ?? [],
+      eventRows: eventRows ?? [],
     }
   },
   ['landing-page-data'],
@@ -116,7 +132,7 @@ const getLandingData = unstable_cache(
 )
 
 export default async function LandingPage() {
-  const { bikeRows, dbRows, sellerProfiles, bikeCounts } = await getLandingData()
+  const { bikeRows, dbRows, sellerProfiles, bikeCounts, eventRows } = await getLandingData()
 
   const sellerName: Record<string, string> = Object.fromEntries(
     (sellerProfiles as { id: string; full_name: string | null; role: string | null }[]).map(p => [p.id, p.full_name ?? ''])
@@ -160,6 +176,9 @@ export default async function LandingPage() {
   }))
 
   const builders = dbBuilders.slice(0, 10)
+
+  // Events data for teaser section
+  const events = (eventRows as any[]).slice(0, 7)
   return (
     <div className="min-h-screen bg-white text-[#222222]">
 
@@ -297,24 +316,38 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ── USP ── */}
-      <section className="py-20 lg:py-28 bg-white">
+      {/* ── RIDER / COMMUNITY ── */}
+      <section className="py-20 lg:py-28 bg-[#F7F7F7]" id="rider">
         <div className="max-w-6xl mx-auto px-5 lg:px-8">
-          <div className="max-w-xl mb-12">
+          <div className="max-w-xl mb-4">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/10 text-[#06a5a5] mb-5">
+              Für Rider
+            </span>
             <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
-              Die Plattform, die Custom Culture verdient.
+              Deine Community.<br />Dein Netzwerk.
             </h2>
+            <p className="text-sm text-[#717171] leading-relaxed mt-4 max-w-md">
+              Entdecke, was MotoDigital für Rider bereithält — von der Vernetzung bis zur nächsten Ausfahrt.
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {USPS.map((usp, _i) => (
-              <div key={usp.title} className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#DDDDDD]/20 transition-colors duration-200 h-full">
-                <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center mb-4">
-                  {usp.icon}
+
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-10">
+            {RIDER_FEATURES.map((feat) => (
+              <div key={feat.title} className="bg-white rounded-2xl p-5 sm:p-6 border border-[#222222]/6 hover:border-[#222222]/15 transition-colors duration-200">
+                <div className="w-10 h-10 rounded-xl bg-[#06a5a5]/8 flex items-center justify-center mb-4 text-[#06a5a5]">
+                  {feat.icon}
                 </div>
-                <h3 className="text-sm font-semibold text-[#222222] mb-2">{usp.title}</h3>
-                <p className="text-sm text-[#222222]/40 leading-relaxed">{usp.desc}</p>
+                <h3 className="text-sm font-semibold text-[#222222] mb-1.5">{feat.title}</h3>
+                <p className="text-xs sm:text-sm text-[#222222]/40 leading-relaxed">{feat.desc}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link href="/auth/register?role=rider"
+              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-3 rounded-full hover:bg-[#058f8f] transition-colors duration-200">
+              Als Rider registrieren →
+            </Link>
           </div>
         </div>
       </section>
@@ -337,6 +370,55 @@ export default async function LandingPage() {
           <Link href="/custom-werkstatt" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
             Alle Custom Werkstätten →
           </Link>
+        </div>
+      </section>
+
+      {/* ── EVENTS & TREFFEN ── */}
+      {events.length > 0 && (
+        <section className="py-20 lg:py-28 bg-white overflow-hidden" id="events">
+          <div className="max-w-6xl mx-auto px-5 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+            <div>
+              <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
+                Events & Treffen.
+              </h2>
+            </div>
+            <Link href="/events" className="hidden sm:inline-flex flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Events →
+            </Link>
+          </div>
+          <EventsCarousel events={events} />
+          <div className="sm:hidden mt-8 text-center px-5">
+            <Link href="/events" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Events →
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ── USP ── */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-5 lg:px-8">
+          <div className="max-w-xl mb-12">
+            <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
+              Die Plattform, die Custom Culture verdient.
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {USPS.map((usp, _i) => (
+              <div key={usp.title} className="bg-white border border-[#222222]/6 rounded-2xl p-6 hover:border-[#DDDDDD]/20 transition-colors duration-200 h-full">
+                <div className="w-11 h-11 rounded-xl bg-[#222222]/10 border border-[#DDDDDD]/20 flex items-center justify-center mb-4">
+                  {usp.icon}
+                </div>
+                <h3 className="text-sm font-semibold text-[#222222] mb-2">{usp.title}</h3>
+                <p className="text-sm text-[#222222]/40 leading-relaxed">{usp.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link href="/ueber-motodigital#roadmap" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Zur Roadmap →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -364,53 +446,61 @@ export default async function LandingPage() {
           <div className="flex flex-col lg:flex-row items-stretch gap-5 max-w-4xl mx-auto">
 
             {/* Card: Custom Werkstatt */}
-            <div className="flex-1">
-              <Link href="/auth/register?role=custom-werkstatt"
-                className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
-                <Image src="/custom-werkstatt.png" alt="Custom Werkstatt"
-                  fill sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
-                <div className="relative z-10 flex flex-col h-full p-7 justify-end">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] mb-4 self-start">
-                    Custom Werkstatt
-                  </span>
-                  <h3 className="text-xl font-bold text-white mb-2 leading-snug">
-                    Zeige deine Werkstatt & Custom Bikes.<br />Erreiche die Community.
-                  </h3>
-                  <p className="text-sm text-white/35 mb-6 leading-relaxed">
-                    Kostenlose Profilseite, Galerie, Custom Bikes, Karte & direkter Kontakt zu Ridern.
-                  </p>
-                  <span className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl self-start transition-all duration-300 group-hover:bg-[#058f8f] group-hover:gap-3">
+            <div className="flex-1 group relative flex flex-col rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
+              <Image src="/custom-werkstatt.png" alt="Custom Werkstatt"
+                fill sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
+              <div className="relative z-10 flex flex-col h-full p-7">
+                <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] self-start">
+                  Custom Werkstatt
+                </span>
+                <h3 className="text-xl font-bold text-white mb-2 leading-snug mt-12">
+                  Zeige deine Werkstatt & Custom Bikes.<br />Erreiche die Community.
+                </h3>
+                <p className="text-sm text-white/35 leading-relaxed">
+                  Kostenlose Profilseite, Galerie, Custom Bikes, Karte & direkter Kontakt zu Ridern.
+                </p>
+                <div className="flex flex-col gap-3 items-start mt-auto pt-8">
+                  <Link href="/auth/register?role=custom-werkstatt"
+                    className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-300 hover:bg-[#058f8f] hover:gap-3">
                     Als Werkstatt registrieren →
-                  </span>
+                  </Link>
+                  <Link href="/vorteile?tab=werkstatt"
+                    className="text-white/35 hover:text-white/60 text-sm font-medium transition-colors duration-200">
+                    Mehr erfahren
+                  </Link>
                 </div>
-              </Link>
+              </div>
             </div>
 
             {/* Card: Rider */}
-            <div className="flex-1">
-              <Link href="/auth/register?role=rider"
-                className="group relative flex flex-col h-full min-h-[380px] rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
-                <Image src="/rider.png" alt="Rider"
-                  fill sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
-                <div className="relative z-10 flex flex-col h-full p-7 justify-end">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] mb-4 self-start">
-                    Rider
-                  </span>
-                  <h3 className="text-xl font-bold text-white mb-2 leading-snug">
-                    Werde Teil der Custom Bike Community.<br />Teile, was dich bewegt.
-                  </h3>
-                  <p className="text-sm text-white/35 mb-6 leading-relaxed">
-                    Präsentiere dein Bike, entdecke Fahrgemeinschaften in der Nähe und vernetze dich mit der Community.
-                  </p>
-                  <span className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl self-start transition-all duration-300 group-hover:bg-[#058f8f] group-hover:gap-3">
+            <div className="flex-1 group relative flex flex-col rounded-2xl overflow-hidden border border-white/6 hover:border-white/16 transition-all duration-500">
+              <Image src="/rider.png" alt="Rider"
+                fill sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover scale-100 group-hover:scale-110 opacity-20 group-hover:opacity-30 origin-center transition duration-[1200ms] ease-in-out" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
+              <div className="relative z-10 flex flex-col h-full p-7">
+                <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] self-start">
+                  Rider
+                </span>
+                <h3 className="text-xl font-bold text-white mb-2 leading-snug mt-12">
+                  Werde Teil der Custom Bike Community.<br />Teile, was dich bewegt.
+                </h3>
+                <p className="text-sm text-white/35 leading-relaxed">
+                  Präsentiere dein Bike, entdecke Fahrgemeinschaften in der Nähe und vernetze dich mit der Community.
+                </p>
+                <div className="flex flex-col gap-3 items-start mt-auto pt-8">
+                  <Link href="/auth/register?role=rider"
+                    className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-300 hover:bg-[#058f8f] hover:gap-3">
                     Als Rider registrieren →
-                  </span>
+                  </Link>
+                  <Link href="/vorteile?tab=rider"
+                    className="text-white/35 hover:text-white/60 text-sm font-medium transition-colors duration-200">
+                    Mehr erfahren
+                  </Link>
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
         </div>
