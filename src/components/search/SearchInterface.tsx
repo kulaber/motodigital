@@ -104,16 +104,16 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
           </div>
 
           {/* Tab switcher */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => { setActiveTab(tab.key); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-medium
-                            border transition-all
+                className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-full text-xs font-semibold
+                            border transition-all whitespace-nowrap
                             ${activeTab === tab.key
-                              ? 'bg-[#06a5a5]/10 border-[#06a5a5]/30 text-[#06a5a5]'
-                              : 'bg-[#222222]/3 border-[#222222]/6 text-[#222222]/40 hover:text-[#222222]/60 hover:border-[#222222]/12'
+                              ? 'bg-[#222222] text-white border-[#222222]'
+                              : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                             }`}
               >
                 {tab.label}

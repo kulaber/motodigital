@@ -1074,7 +1074,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
       </div>
 
       {/* ── Feed ────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8 bg-white lg:bg-transparent">
         {/* Mobile heading — outside max-w container so bell aligns with screen edge like Settings on profile */}
         <div className="lg:hidden relative flex items-center justify-center mb-4">
           <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
@@ -1094,7 +1094,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         </div>
 
         {/* Heading + filter pills — sticky on scroll */}
-        <div className="sticky top-[48px] lg:top-[64px] z-30 bg-white pt-2 pb-2 border-b border-[#222222]/8 -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
+        <div className="sticky top-[48px] lg:top-[64px] z-30 bg-white lg:bg-[#F7F7F7] pt-2 pb-2 border-b border-[#222222]/8 lg:border-b-0 -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
           <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Filter pills */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
