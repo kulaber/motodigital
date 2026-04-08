@@ -188,7 +188,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
       />
 
       {/* ── Mobile sticky top bar (< md) — overlays image initially, white bg on scroll ── */}
-      <div className={`md:hidden sticky top-16 z-30 -mx-4 sm:-mx-6 -mb-14 px-3 py-2 flex items-center justify-between transition-colors duration-200 ${scrolled ? 'bg-white shadow-sm' : ''}`}>
+      <div className={`md:hidden sticky top-12 lg:top-16 z-30 -mx-4 sm:-mx-6 -mb-14 px-3 py-2 flex items-center justify-between transition-colors duration-200 ${scrolled ? 'bg-white shadow-sm' : ''}`}>
         <button
           onClick={() => {
             document.documentElement.style.scrollBehavior = 'auto'

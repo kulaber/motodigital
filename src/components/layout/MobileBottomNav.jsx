@@ -141,9 +141,10 @@ function MobileBottomNavInner() {
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
         style={{
-          paddingBottom: "calc(6px + env(safe-area-inset-bottom, 0px))",
+          bottom: "env(safe-area-inset-bottom, 0px)",
           paddingLeft: 16,
           paddingRight: 16,
+          paddingBottom: 8,
           pointerEvents: "none",
           transform: navHidden ? "translateY(120%)" : "translateY(0)",
           transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",

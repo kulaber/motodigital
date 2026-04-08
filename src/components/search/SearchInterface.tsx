@@ -34,9 +34,9 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
 
   const showDefaults = !query || query.length < 2
 
-  // Auto-focus search field
+  // Auto-focus search field (desktop only — on mobile the keyboard covers too much)
   useEffect(() => {
-    inputRef.current?.focus()
+    if (window.innerWidth >= 768) inputRef.current?.focus()
   }, [])
 
   // Sync URL
