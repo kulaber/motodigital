@@ -13,12 +13,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('role, full_name, avatar_url, address, slug, username')
+    .select('role, full_name, avatar_url, address, slug, username, onboarding_completed')
     .eq('id', user.id)
     .maybeSingle()
 
   // Werkstatt ohne Onboarding → Willkommen-Flow erzwingen
-  if (profile?.role === 'custom-werkstatt' && !profile?.address) {
+  if (profile?.role === 'custom-werkstatt' && !profile?.onboarding_completed) {
     redirect('/willkommen')
   }
 
