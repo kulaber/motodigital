@@ -17,9 +17,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .maybeSingle()
 
-  // Werkstatt ohne Adresse → Onboarding erzwingen (außerhalb des Dashboard-Layouts)
+  // Werkstatt ohne Onboarding → Willkommen-Flow erzwingen
   if (profile?.role === 'custom-werkstatt' && !profile?.address) {
-    redirect('/onboarding')
+    redirect('/willkommen')
   }
 
   return (

@@ -2,10 +2,91 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronRight, ImagePlus, Loader2 } from 'lucide-react'
+import { ChevronRight, ImagePlus, Loader2, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { saveOnboardingStep, completeOnboarding } from '@/lib/onboarding'
 import { OnboardingProgressBar } from './OnboardingProgressBar'
+
+type MapboxFeature = {
+  id: string
+  place_name: string
+  center: [number, number]
+}
+
+function AddressAutocomplete({
+  value,
+  onChange,
+}: {
+  value: { address: string; lat: number | null; lng: number | null }
+  onChange: (v: { address: string; lat: number | null; lng: number | null }) => void
+}) {
+  const [query, setQuery] = useState(value.address)
+  const [suggestions, setSuggestions] = useState<MapboxFeature[]>([])
+  const [open, setOpen] = useState(false)
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+
+  function handleInput(val: string) {
+    setQuery(val)
+    onChange({ address: val, lat: null, lng: null })
+    if (debounce.current) clearTimeout(debounce.current)
+    if (!val.trim() || !token) { setSuggestions([]); return }
+    debounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(val)}.json?access_token=${token}&language=de&country=de,at,ch&types=address,place&limit=5`
+        )
+        const json = await res.json()
+        setSuggestions(json.features ?? [])
+        setOpen(true)
+      } catch { setSuggestions([]) }
+    }, 280)
+  }
+
+  function select(f: MapboxFeature) {
+    setQuery(f.place_name)
+    setSuggestions([])
+    setOpen(false)
+    onChange({ address: f.place_name, lat: f.center[1], lng: f.center[0] })
+  }
+
+  return (
+    <div className="relative">
+      <input
+        value={query}
+        onChange={e => handleInput(e.target.value)}
+        onFocus={() => suggestions.length > 0 && setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder="z.B. Hauptstraße 1, 68766 Hockenheim"
+        className="w-full h-12 bg-white/[0.05] border border-white/[0.08]
+                   rounded-xl px-4 text-sm text-[#F0EDE4]
+                   placeholder:text-white/20 outline-none
+                   focus:border-[#2AABAB]/40 transition-colors"
+      />
+      {open && suggestions.length > 0 && (
+        <ul className="absolute z-50 top-full mt-1 w-full bg-[#1a1a1a] border border-white/10 rounded-xl shadow-lg overflow-hidden">
+          {suggestions.map(f => (
+            <li key={f.id}>
+              <button
+                type="button"
+                onMouseDown={() => select(f)}
+                className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:bg-white/[0.06] transition-colors flex items-start gap-2.5"
+              >
+                <MapPin size={12} className="text-[#2AABAB] flex-shrink-0 mt-0.5" />
+                <span className="leading-snug">{f.place_name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {value.lat && value.lng && (
+        <p className="text-[10px] text-[#2AABAB] mt-1.5 flex items-center gap-1">
+          <MapPin size={9} /> Koordinaten gespeichert
+        </p>
+      )}
+    </div>
+  )
+}
 
 const SPECIALIZATIONS = [
   'Cafe Racer', 'Scrambler', 'Bobber', 'Tracker',
@@ -47,7 +128,7 @@ export function WerkstattOnboarding({
 
   const [step, setStep]                     = useState(initialStep === 0 ? 0 : initialStep)
   const [saving, setSaving]                 = useState(false)
-  const [address, setAddress]               = useState(werkstatt?.address ?? '')
+  const [addressData, setAddressData]       = useState({ address: werkstatt?.address ?? '', lat: null as number | null, lng: null as number | null })
   const [description, setDescription]       = useState(werkstatt?.description ?? '')
   const [selectedServices, setSelectedServices] = useState<string[]>(werkstatt?.services ?? [])
   const [logoFile, setLogoFile]             = useState<File | null>(null)
@@ -98,9 +179,15 @@ export function WerkstattOnboarding({
   async function saveStep1() {
     if (!werkstatt?.id) return
     await (supabase.from('workshops') as any).update({
-      address: address.trim() || null,
+      address: addressData.address.trim() || null,
       description: description.trim() || null,
     }).eq('id', werkstatt.id)
+    // Also save address + coordinates to profiles so the map works
+    await (supabase.from('profiles') as any).update({
+      address: addressData.address.trim() || null,
+      lat: addressData.lat,
+      lng: addressData.lng,
+    }).eq('id', _profile.id)
   }
 
   async function saveStep2() {
@@ -134,7 +221,7 @@ export function WerkstattOnboarding({
           <OnboardingProgressBar
             currentStep={step}
             totalSteps={TOTAL}
-            accentColor="#E8A829"
+            accentColor="#2AABAB"
           />
         </div>
       )}
@@ -145,7 +232,7 @@ export function WerkstattOnboarding({
                         text-center py-16">
           {confirmed && (
             <div className="px-3 py-1.5 rounded-full text-xs font-medium
-                            bg-[#E8A829]/10 border border-[#E8A829]/25 text-[#E8A829]">
+                            bg-[#2AABAB]/10 border border-[#2AABAB]/25 text-[#2AABAB]">
               E-Mail bestätigt
             </div>
           )}
@@ -154,7 +241,7 @@ export function WerkstattOnboarding({
             <h1 className="font-['Bebas_Neue'] text-[clamp(40px,12vw,60px)]
                            tracking-wide text-[#F0EDE4] leading-none">
               WILLKOMMEN,<br />
-              <span className="text-[#E8A829]">
+              <span className="text-[#2AABAB]">
                 {werkstatt?.name ?? 'WERKSTATT'}.
               </span>
             </h1>
@@ -175,7 +262,7 @@ export function WerkstattOnboarding({
           </div>
           <button
             onClick={() => next()}
-            className="w-full max-w-[280px] h-12 rounded-xl bg-[#E8A829] text-[#111111]
+            className="w-full max-w-[280px] h-12 rounded-xl bg-[#2AABAB] text-white
                        font-semibold text-sm flex items-center justify-center gap-2
                        active:scale-[0.97] transition-transform"
           >
@@ -209,17 +296,14 @@ export function WerkstattOnboarding({
 
           <div className="flex flex-col gap-2">
             <label className="text-[10px] uppercase tracking-widest text-white/40">
-              Adresse
+              Adresse <span className="text-[#2AABAB]">*</span>
             </label>
-            <input
-              value={address}
-              onChange={e => setAddress(e.target.value)}
-              placeholder="z.B. Hauptstraße 1, 68766 Hockenheim"
-              className="w-full h-12 bg-white/[0.05] border border-white/[0.08]
-                         rounded-xl px-4 text-sm text-[#F0EDE4]
-                         placeholder:text-white/20 outline-none
-                         focus:border-[#E8A829]/40 transition-colors"
-            />
+            <AddressAutocomplete value={addressData} onChange={setAddressData} />
+            {addressData.address && !addressData.lat && (
+              <p className="text-[10px] text-amber-400/70">
+                Bitte wähle eine Adresse aus den Vorschlägen.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -234,15 +318,15 @@ export function WerkstattOnboarding({
               className="w-full bg-white/[0.05] border border-white/[0.08]
                          rounded-xl px-4 py-3 text-sm text-[#F0EDE4]
                          placeholder:text-white/20 outline-none resize-none
-                         focus:border-[#E8A829]/40 transition-colors"
+                         focus:border-[#2AABAB]/40 transition-colors"
             />
           </div>
 
           <div className="mt-auto">
             <button
               onClick={() => next(saveStep1)}
-              disabled={saving}
-              className="w-full h-12 rounded-xl bg-[#E8A829] text-[#111111]
+              disabled={saving || !addressData.lat || !addressData.lng}
+              className="w-full h-12 rounded-xl bg-[#2AABAB] text-white
                          font-semibold text-sm flex items-center justify-center gap-2
                          disabled:opacity-50 active:scale-[0.97] transition-all"
             >
@@ -277,7 +361,7 @@ export function WerkstattOnboarding({
                   className={`px-4 py-2.5 rounded-full text-sm font-medium
                               border transition-all active:scale-[0.97]
                               ${sel
-                                ? 'bg-[#E8A829]/12 border-[#E8A829]/40 text-[#E8A829]'
+                                ? 'bg-[#2AABAB]/12 border-[#2AABAB]/40 text-[#2AABAB]'
                                 : 'bg-white/[0.04] border-white/[0.08] text-white/45'
                               }`}
                 >
@@ -291,7 +375,7 @@ export function WerkstattOnboarding({
             <button
               onClick={() => next(saveStep2)}
               disabled={saving || selectedServices.length === 0}
-              className="w-full h-12 rounded-xl bg-[#E8A829] text-[#111111]
+              className="w-full h-12 rounded-xl bg-[#2AABAB] text-white
                          font-semibold text-sm flex items-center justify-center gap-2
                          disabled:opacity-40 active:scale-[0.97] transition-all"
             >
@@ -323,14 +407,14 @@ export function WerkstattOnboarding({
             <button
               onClick={() => logoInputRef.current?.click()}
               className="w-24 h-24 rounded-xl overflow-hidden
-                         border-2 border-dashed border-[#E8A829]/30
-                         bg-[#E8A829]/5 flex items-center justify-center
-                         hover:bg-[#E8A829]/8 transition-colors"
+                         border-2 border-dashed border-[#2AABAB]/30
+                         bg-[#2AABAB]/5 flex items-center justify-center
+                         hover:bg-[#2AABAB]/8 transition-colors"
             >
               {logoPreview
                 // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={logoPreview} alt="" className="w-full h-full object-cover" />
-                : <ImagePlus className="w-7 h-7 text-[#E8A829]" />
+                : <ImagePlus className="w-7 h-7 text-[#2AABAB]" />
               }
             </button>
             <span className="text-xs text-white/30">Logo hochladen</span>
@@ -342,7 +426,7 @@ export function WerkstattOnboarding({
             <button
               onClick={() => next(saveStep3)}
               disabled={saving}
-              className="w-full h-12 rounded-xl bg-[#E8A829] text-[#111111]
+              className="w-full h-12 rounded-xl bg-[#2AABAB] text-white
                          font-semibold text-sm flex items-center justify-center gap-2
                          disabled:opacity-50 active:scale-[0.97] transition-all"
             >
@@ -376,16 +460,16 @@ export function WerkstattOnboarding({
               router.push('/bikes/new?onboarding=true')
             }}
             className="w-full h-48 rounded-2xl border-2 border-dashed
-                       border-[#E8A829]/20 bg-[#E8A829]/4
+                       border-[#2AABAB]/20 bg-[#2AABAB]/4
                        flex flex-col items-center justify-center gap-4
-                       active:bg-[#E8A829]/8 transition-colors"
+                       active:bg-[#2AABAB]/8 transition-colors"
           >
-            <div className="w-16 h-16 rounded-full bg-[#E8A829]
+            <div className="w-16 h-16 rounded-full bg-[#2AABAB]
                             flex items-center justify-center text-3xl">
               🏍
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-semibold text-[#E8A829]">
+              <span className="text-sm font-semibold text-[#2AABAB]">
                 Build hochladen
               </span>
               <span className="text-xs text-white/30">
@@ -430,7 +514,7 @@ export function WerkstattOnboarding({
           <button
             onClick={finish}
             disabled={saving}
-            className="w-full max-w-[280px] h-12 rounded-xl bg-[#E8A829] text-[#111111]
+            className="w-full max-w-[280px] h-12 rounded-xl bg-[#2AABAB] text-white
                        font-semibold text-sm flex items-center justify-center gap-2
                        disabled:opacity-50 active:scale-[0.97] transition-all"
           >
