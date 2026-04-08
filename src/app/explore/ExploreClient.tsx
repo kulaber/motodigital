@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MessageCircle, ChevronLeft, ChevronRight, Send, ImageIcon, Video, X, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2 } from 'lucide-react'
@@ -329,7 +330,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden">
+    <div id={`post-${post.id}`} className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden">
       <div className="flex items-center gap-3 p-4 pb-0">
         {(() => {
           const profileHref = getProfileUrl(post.author_role, post.author_slug)
@@ -639,6 +640,22 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const allEvents = initialEvents
   const { unreadNotificationCount } = useAuth()
+  const searchParams = useSearchParams()
+  const highlightPostId = searchParams.get('post')
+  const scrolledRef = useRef(false)
+
+  // Scroll to highlighted post after initial load
+  useEffect(() => {
+    if (!highlightPostId || loadingPosts || scrolledRef.current) return
+    scrolledRef.current = true
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`post-${highlightPostId}`)
+      if (!el) return
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('ring-2', 'ring-[#2AABAB]')
+      setTimeout(() => el.classList.remove('ring-2', 'ring-[#2AABAB]'), 2500)
+    })
+  }, [highlightPostId, loadingPosts])
 
   // Detect when composer becomes sticky
   useEffect(() => {

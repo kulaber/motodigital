@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/server'
 import type { Event } from '@/lib/data/events'
@@ -41,7 +42,9 @@ export default async function ExplorePage() {
       <Header activePage="explore" />
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
-          <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} events={(eventsData ?? []) as Event[]} />
+          <Suspense>
+            <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} events={(eventsData ?? []) as Event[]} />
+          </Suspense>
         </div>
       </div>
     </div>

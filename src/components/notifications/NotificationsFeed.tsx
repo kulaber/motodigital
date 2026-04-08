@@ -36,12 +36,16 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string }> = 
 
 const PAGE_SIZE = 6
 
+function getActorProfileHref(actor: NotificationRow['actor']): string | null {
+  const identifier = actor?.slug ?? actor?.username
+  if (!identifier) return null
+  return actor?.role === 'custom-werkstatt'
+    ? `/custom-werkstatt/${identifier}`
+    : `/rider/${identifier}`
+}
+
 function getEntityHref(n: NotificationRow): string {
-  if (n.type === 'follow' && n.actor?.slug) {
-    return n.actor.role === 'custom-werkstatt'
-      ? `/custom-werkstatt/${n.actor.slug}`
-      : `/rider/${n.actor.slug}`
-  }
+  if (n.type === 'follow') return getActorProfileHref(n.actor) ?? '/dashboard/notifications'
   if (n.type === 'message') return '/dashboard/messages'
   if (n.type === 'inquiry') return '/dashboard/messages'
   if (n.type === 'like' && n.entity_type === 'post' && n.entity_id) return `/explore?post=${n.entity_id}`
@@ -50,13 +54,7 @@ function getEntityHref(n: NotificationRow): string {
   if (n.type === 'publish_celebration' && n.entity_id) return `/custom-bike/${n.entity_id}`
   if (n.entity_type === 'bike' && n.entity_id) return `/custom-bike/${n.entity_id}`
   if (n.entity_type === 'post' && n.entity_id) return `/explore?post=${n.entity_id}`
-  // Fallback: link to actor profile if available
-  if (n.actor?.slug) {
-    return n.actor.role === 'custom-werkstatt'
-      ? `/custom-werkstatt/${n.actor.slug}`
-      : `/rider/${n.actor.slug}`
-  }
-  return '/dashboard/notifications'
+  return getActorProfileHref(n.actor) ?? '/dashboard/notifications'
 }
 
 export default function NotificationsFeed({ userId }: { userId: string }) {
