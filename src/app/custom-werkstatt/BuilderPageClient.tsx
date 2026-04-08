@@ -453,7 +453,8 @@ export default function BuilderPageClient({ builders }: Props) {
     const lngPad = (ne.lng - sw.lng) * 0.08
     const latPad = (ne.lat - sw.lat) * 0.08
     return filtered.filter(b => {
-      if (!b.lat || !b.lng) return false
+      // Keep workshops without coordinates visible in the list
+      if (!b.lat || !b.lng) return true
       return b.lng >= sw.lng - lngPad && b.lng <= ne.lng + lngPad &&
              b.lat >= sw.lat - latPad && b.lat <= ne.lat + latPad
     })
