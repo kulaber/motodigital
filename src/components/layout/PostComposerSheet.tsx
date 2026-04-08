@@ -1,64 +1,73 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
-import { X, ImageIcon, Video, Send, MapPin, ChevronDown, Loader2, Calendar } from 'lucide-react'
+import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
+import { X, ImageIcon, Video, Loader2, Plus, Minus, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { compressImage } from '@/lib/utils/compressImage'
 import Image from 'next/image'
+import LazyRideMap from '@/components/map/LazyRideMap'
 
-type PostType = 'allgemein' | 'in-der-naehe' | 'events'
+type SheetTab = 'beitrag' | 'fahrt'
 
-const POST_TYPE_PILLS: { value: PostType; label: string; icon: string }[] = [
-  { value: 'allgemein', label: 'Beitrag', icon: '📸' },
-  { value: 'in-der-naehe', label: 'In der Nähe', icon: '📍' },
-  { value: 'events', label: 'Event', icon: '🏁' },
-]
-
-interface UserBike {
-  id: string
-  title: string
-  make: string
-  model: string
-  year: number
-  cover_url: string | null
-  slug: string | null
+interface RideStop {
+  name: string
+  lon: number
+  lat: number
 }
 
-interface EventOption {
+interface MentionProfile {
   id: string
-  slug: string
-  name: string
-  date_start: string | null
-  location: string
+  username: string
+  full_name: string
+  avatar_url: string | null
+}
+
+interface GeocodingResult {
+  id: string
+  place_name: string
+  text: string
+  center: [number, number] // [lng, lat]
+  context?: { id: string; text: string }[]
 }
 
 export default function PostComposerSheet() {
   const [open, setOpen] = useState(false)
+  const [tab, setTab] = useState<SheetTab>('beitrag')
+
+  // ── Beitrag state ──
   const [body, setBody] = useState('')
-  const [postType, setPostType] = useState<PostType>('allgemein')
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
-  const [composerLocation, setComposerLocation] = useState<{ lat: number; lng: number; address: string } | null>(null)
-  const [locationLoading, setLocationLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadedCount, setUploadedCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  // Bike selector
-  const [userBikes, setUserBikes] = useState<UserBike[]>([])
-  const [bikesLoaded, setBikesLoaded] = useState(false)
-  const [selectedBike, setSelectedBike] = useState<UserBike | null>(null)
-  const [showBikeSelector, setShowBikeSelector] = useState(false)
+  // @-mention autocomplete
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
+  const [mentionIndex, setMentionIndex] = useState(0)
+  const [mentionProfiles, setMentionProfiles] = useState<MentionProfile[]>([])
+  const [mentionProfilesLoaded, setMentionProfilesLoaded] = useState(false)
 
-  // Event selector
-  const [events, setEvents] = useState<EventOption[]>([])
-  const [eventsLoaded, setEventsLoaded] = useState(false)
-  const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null)
+  // ── Fahrt state ──
+  const [rideStep, setRideStep] = useState<1 | 2>(1)
+  const [rideVisibility, setRideVisibility] = useState<'public' | 'friends'>('public')
+  const [rideStops, setRideStops] = useState<RideStop[]>([])
+  const [stopQuery, setStopQuery] = useState('')
+  const [stopSuggestions, setStopSuggestions] = useState<GeocodingResult[]>([])
+  const [stopLoading, setStopLoading] = useState(false)
+  const [rideDate, setRideDate] = useState('')
+  const [rideTime, setRideTime] = useState('')
+  const [rideMaxParticipants, setRideMaxParticipants] = useState(6)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const stopInputRef = useRef<HTMLInputElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const stopDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ left: number; right: number; bottom: number } | null>(null)
   const supabase = createClient()
   const { user } = useAuth()
   const router = useRouter()
@@ -74,9 +83,7 @@ export default function PostComposerSheet() {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
-      // Hide bottom nav
       window.dispatchEvent(new Event('modal-open'))
-      // Focus textarea after animation
       setTimeout(() => textareaRef.current?.focus(), 350)
     } else {
       document.body.style.overflow = ''
@@ -85,132 +92,185 @@ export default function PostComposerSheet() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  // Lazy load user's bikes when modal opens
+  // Lazy load profiles for @mention when sheet opens
   useEffect(() => {
-    if (!open || !user || bikesLoaded) return
-    async function loadBikes() {
-      const { data } = await (supabase.from('bikes') as any)
-        .select('id, title, make, model, year, slug, bike_images(url, is_cover, position)')
-        .eq('seller_id', user!.id)
-        .order('created_at', { ascending: false })
+    if (!open || !user || mentionProfilesLoaded) return
+    async function loadProfiles() {
+      const { data } = await (supabase.from('profiles') as any)
+        .select('id, username, slug, full_name, avatar_url')
+        .neq('id', user!.id)
+        .not('username', 'is', null)
+        .limit(200)
       if (data) {
-        setUserBikes(data.map((b: any) => {
-          const images = (b.bike_images ?? []) as { url: string; is_cover: boolean; position: number }[]
-          const cover = images.find(i => i.is_cover) ?? images.sort((a, b) => a.position - b.position)[0]
-          return {
-            id: b.id,
-            title: b.title,
-            make: b.make,
-            model: b.model,
-            year: b.year,
-            slug: b.slug,
-            cover_url: cover?.url ?? null,
-          }
-        }))
+        setMentionProfiles(
+          (data as { id: string; username: string | null; slug: string | null; full_name: string | null; avatar_url: string | null }[])
+            .filter(p => p.username || p.slug || p.full_name)
+            .map(p => ({
+              id: p.id,
+              username: p.slug ?? p.username ?? p.full_name!.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+              full_name: p.full_name ?? p.username ?? 'Unbekannt',
+              avatar_url: p.avatar_url,
+            }))
+        )
       }
-      setBikesLoaded(true)
+      setMentionProfilesLoaded(true)
     }
-    loadBikes()
-  }, [open, user, bikesLoaded, supabase])
-
-  // Lazy load events when event type selected
-  useEffect(() => {
-    if (postType !== 'events' || eventsLoaded) return
-    async function loadEvents() {
-      const today = new Date().toISOString().slice(0, 10)
-      const { data } = await (supabase.from('events') as any)
-        .select('id, slug, name, date_start, location')
-        .gte('date_end', today)
-        .order('date_start', { ascending: true })
-        .limit(30)
-      setEvents(data ?? [])
-      setEventsLoaded(true)
-    }
-    loadEvents()
-  }, [postType, eventsLoaded, supabase])
+    loadProfiles()
+  }, [open, user, mentionProfilesLoaded, supabase])
 
   function handleClose() {
     setOpen(false)
+    setTab('beitrag')
     setBody('')
-    setPostType('allgemein')
-    setComposerLocation(null)
-    setLocationLoading(false)
     setMediaFiles([])
     setError(null)
-    setSelectedBike(null)
-    setShowBikeSelector(false)
-    setSelectedEventSlug(null)
     setUploadProgress(0)
     setUploadedCount(0)
+    setMentionQuery(null)
+    // Reset ride state
+    setRideStep(1)
+    setRideVisibility('public')
+    setRideStops([])
+    setStopQuery('')
+    setStopSuggestions([])
+    setRideDate('')
+    setRideTime('')
+    setRideMaxParticipants(6)
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  // ── Beitrag: Media handling ──
+
+  function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     const newFiles = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
     setMediaFiles(prev => [...prev, ...newFiles].slice(0, 5))
     e.target.value = ''
   }
 
-  function handlePostTypeChange(type: PostType) {
-    setPostType(type)
-    if (type === 'in-der-naehe' && !composerLocation) {
-      requestLocation()
-    }
-    // Reset irrelevant state
-    if (type !== 'in-der-naehe') setComposerLocation(null)
-    if (type !== 'events') setSelectedEventSlug(null)
+  function handleVideoFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (files.length === 0) return
+    const f = files[0]
+    setMediaFiles(prev => [...prev, { file: f, url: URL.createObjectURL(f) }].slice(0, 5))
+    e.target.value = ''
   }
 
-  function requestLocation() {
-    setLocationLoading(true)
-    const reverseGeocode = (lat: number, lng: number) => {
-      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-      if (token) {
-        fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=de&limit=1&types=address,place,locality`)
-          .then(r => r.json())
-          .then(json => {
-            if (json.features?.[0]) {
-              setComposerLocation({ lat, lng, address: json.features[0].place_name })
-            }
-          })
-          .catch(() => {})
-          .finally(() => setLocationLoading(false))
-      } else {
-        setLocationLoading(false)
-      }
-    }
+  // ── Beitrag: @mention ──
 
-    const fallbackIPGeo = () => {
-      fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(data => {
-          if (data.latitude && data.longitude) {
-            const lat = data.latitude as number
-            const lng = data.longitude as number
-            const address = [data.city, data.region].filter(Boolean).join(', ') || 'Mein Standort'
-            setComposerLocation({ lat, lng, address })
-            reverseGeocode(lat, lng)
-          } else {
-            setLocationLoading(false)
-          }
-        })
-        .catch(() => setLocationLoading(false))
-    }
+  const mentionSuggestions = useMemo(() => {
+    if (mentionQuery === null) return []
+    const q = mentionQuery.toLowerCase()
+    return mentionProfiles.filter(
+      p => p.username.toLowerCase().includes(q) || p.full_name.toLowerCase().includes(q)
+    ).slice(0, 5)
+  }, [mentionQuery, mentionProfiles])
 
-    if (!navigator.geolocation) { fallbackIPGeo(); return }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords
-        setComposerLocation({ lat, lng, address: 'Mein Standort' })
-        reverseGeocode(lat, lng)
-      },
-      () => fallbackIPGeo(),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
-    )
+  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value
+    setBody(val)
+    // Auto-grow textarea
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = `${Math.max(120, ta.scrollHeight)}px`
+    // Detect @mention
+    const cursor = e.target.selectionStart ?? val.length
+    const textBefore = val.slice(0, cursor)
+    const match = textBefore.match(/@([a-zA-Z0-9_äöüÄÖÜß-]*)$/)
+    if (match) {
+      setMentionQuery(match[1])
+      setMentionIndex(0)
+    } else {
+      setMentionQuery(null)
+    }
   }
 
-  async function handleSubmit() {
-    const hasContent = body.trim() || mediaFiles.length > 0 || (postType === 'in-der-naehe' && composerLocation) || (postType === 'events' && selectedEventSlug)
+  function insertMention(username: string) {
+    const textarea = textareaRef.current
+    if (!textarea) return
+    const cursor = textarea.selectionStart ?? body.length
+    const textBefore = body.slice(0, cursor)
+    const atPos = textBefore.lastIndexOf('@')
+    if (atPos === -1) return
+    const newBody = body.slice(0, atPos) + `@${username} ` + body.slice(cursor)
+    setBody(newBody)
+    setMentionQuery(null)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const newCursor = atPos + username.length + 2
+      textarea.setSelectionRange(newCursor, newCursor)
+    })
+  }
+
+  function handleMentionKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (mentionQuery === null || mentionSuggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setMentionIndex(i => (i + 1) % mentionSuggestions.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setMentionIndex(i => (i - 1 + mentionSuggestions.length) % mentionSuggestions.length)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      insertMention(mentionSuggestions[mentionIndex].username)
+    } else if (e.key === 'Escape') {
+      setMentionQuery(null)
+    }
+  }
+
+  // ── Fahrt: Mapbox Geocoding for stops ──
+
+  const fetchStopSuggestions = useCallback(async (value: string) => {
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+    if (!token || value.length < 2) { setStopSuggestions([]); return }
+    setStopLoading(true)
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&types=place,locality&language=de&limit=5`
+      const res = await fetch(url)
+      const json = await res.json()
+      setStopSuggestions((json.features ?? []) as GeocodingResult[])
+    } finally {
+      setStopLoading(false)
+    }
+  }, [])
+
+  function handleStopQueryChange(value: string) {
+    setStopQuery(value)
+    if (stopDebounceRef.current) clearTimeout(stopDebounceRef.current)
+    stopDebounceRef.current = setTimeout(() => fetchStopSuggestions(value), 300)
+  }
+
+  function addStop(result: GeocodingResult) {
+    const countryCtx = result.context?.find(c => c.id.startsWith('country.'))
+    const displayName = countryCtx ? `${result.text}, ${countryCtx.text}` : result.text
+    setRideStops(prev => [...prev, { name: displayName, lon: result.center[0], lat: result.center[1] }])
+    setStopQuery('')
+    setStopSuggestions([])
+  }
+
+  // Position the dropdown portal relative to the sheet
+  useLayoutEffect(() => {
+    if (stopSuggestions.length === 0 || !stopInputRef.current || !sheetRef.current) {
+      setDropdownPos(null)
+      return
+    }
+    const inputRect = stopInputRef.current.getBoundingClientRect()
+    const sheetRect = sheetRef.current.getBoundingClientRect()
+    setDropdownPos({
+      left: inputRect.left - sheetRect.left,
+      right: sheetRect.right - inputRect.right,
+      bottom: sheetRect.bottom - inputRect.top + 4,
+    })
+  }, [stopSuggestions])
+
+  function removeStop(index: number) {
+    setRideStops(prev => prev.filter((_, i) => i !== index))
+  }
+
+
+  // ── Submit: Beitrag ──
+
+  async function handleSubmitBeitrag() {
+    const hasContent = body.trim() || mediaFiles.length > 0
     if (!user || !hasContent) return
     setSubmitting(true)
     setError(null)
@@ -236,32 +296,15 @@ export default function PostComposerSheet() {
         setUploadProgress(Math.round(((i + 1) / mediaFiles.length) * 100))
       }
 
-      const payload: Record<string, unknown> = {
+      const { error: insertError } = await (supabase.from('community_posts') as any).insert({
         user_id: user.id,
         body: body.trim() || null,
         media_urls: uploadedUrls,
-        topic: postType,
-      }
-
-      if (selectedBike) {
-        payload.bike_id = selectedBike.id
-      }
-
-      if (postType === 'in-der-naehe' && composerLocation) {
-        payload.latitude = composerLocation.lat
-        payload.longitude = composerLocation.lng
-        payload.location_name = composerLocation.address
-      }
-
-      if (postType === 'events' && selectedEventSlug) {
-        payload.event_slug = selectedEventSlug
-      }
-
-      const { error: insertError } = await (supabase.from('community_posts') as any).insert(payload)
+        topic: 'allgemein',
+      })
       if (insertError) throw insertError
 
       handleClose()
-      // Signal ExploreClient to reload posts + show toast
       window.dispatchEvent(new Event('post-created'))
       router.push('/explore')
       router.refresh()
@@ -272,351 +315,467 @@ export default function PostComposerSheet() {
     }
   }
 
-  const selectedEvent = useMemo(() =>
-    events.find(e => e.slug === selectedEventSlug) ?? null,
-    [events, selectedEventSlug]
-  )
+  // ── Submit: Fahrt ──
 
-  const canPost = (
-    !submitting &&
-    (body.trim() || mediaFiles.length > 0 || (postType === 'in-der-naehe' && composerLocation) || (postType === 'events' && selectedEventSlug)) &&
-    (postType !== 'events' || selectedEventSlug)
-  )
+  async function handleSubmitFahrt() {
+    if (!user || rideStops.length === 0 || !rideDate) return
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const startAt = rideTime
+        ? new Date(`${rideDate}T${rideTime}`).toISOString()
+        : new Date(`${rideDate}T00:00:00`).toISOString()
+
+      const { error: insertError } = await (supabase.from('community_posts') as any).insert({
+        user_id: user.id,
+        body: null,
+        media_urls: [],
+        topic: 'allgemein',
+        post_type: 'ride',
+        ride_visibility: rideVisibility,
+        ride_stops: rideStops,
+        ride_start_at: startAt,
+        ride_max_participants: rideMaxParticipants,
+      })
+      if (insertError) throw insertError
+
+      handleClose()
+      window.dispatchEvent(new Event('post-created'))
+      router.push('/explore')
+      router.refresh()
+    } catch {
+      setError('Fehler beim Erstellen der Fahrt. Bitte versuche es erneut.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const canPostBeitrag = !submitting && (body.trim().length > 0 || mediaFiles.length > 0)
+  const canPostFahrt = !submitting && rideStops.length >= 1 && rideDate.length > 0
 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[90] md:hidden">
+    <div className="fixed inset-0 z-[90]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={handleClose}
       />
 
-      {/* Bottom sheet */}
+      {/* Sheet — bottom on mobile, centered modal on desktop */}
       <div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-slide-up-sheet flex flex-col"
+        ref={sheetRef}
+        className="absolute bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-full md:rounded-2xl bg-white rounded-t-2xl shadow-2xl animate-slide-up-sheet md:animate-none flex flex-col"
         style={{ maxHeight: '90dvh' }}
       >
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+        {/* Drag handle (mobile only) */}
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0 md:hidden">
           <div className="w-10 h-1 rounded-full bg-[#222222]/10" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pb-3 border-b border-[#222222]/6 flex-shrink-0">
-          <h2 className="text-base font-bold text-[#222222]">Neuer Beitrag</h2>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-4">
-          {/* ── POST TYPE PILLS ── */}
-          <div className="flex gap-2">
-            {POST_TYPE_PILLS.map(({ value, label, icon }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => handlePostTypeChange(value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all flex-1 justify-center border ${
-                  postType === value
-                    ? 'bg-[#222222] text-white border-[#222222]'
-                    : 'text-[#222222]/40 border-[#222222]/6 hover:border-[#222222]/20'
-                }`}
-              >
-                <span>{icon}</span>
-                <span>{label}</span>
-              </button>
-            ))}
+        <div className="flex flex-col px-5 pb-3 border-b border-[#222222]/6 flex-shrink-0">
+          <div className="flex items-center justify-end mb-3 md:pt-4">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
+            >
+              <X size={16} />
+            </button>
           </div>
 
-          {/* ── LOCATION STATUS (In der Nähe) ── */}
-          {postType === 'in-der-naehe' && (
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs ${
-              composerLocation
-                ? 'bg-[#06a5a5]/8 border border-[#06a5a5]/20 text-[#06a5a5]'
-                : 'bg-[#F7F7F7] border border-[#222222]/6 text-[#717171]'
-            }`}>
-              {locationLoading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" />
-                  <span>Standort wird ermittelt…</span>
-                </>
-              ) : composerLocation ? (
-                <>
-                  <MapPin size={12} className="flex-shrink-0" />
-                  <span className="truncate">{composerLocation.address}</span>
-                </>
-              ) : (
-                <>
-                  <MapPin size={12} className="flex-shrink-0" />
-                  <span>Standort nicht verfügbar</span>
-                </>
-              )}
+          {/* Tab pills */}
+          <div className="flex justify-center">
+            <div className="flex bg-[#F7F7F7] rounded-full p-0.5">
+              {(['beitrag', 'fahrt'] as const).map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => { setTab(t); setRideStep(1) }}
+                  className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    tab === t
+                      ? 'bg-[#222222] text-white'
+                      : 'text-[#717171]'
+                  }`}
+                >
+                  {t === 'beitrag' ? 'Beitrag erstellen' : 'Fahrt eröffnen'}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* ── EVENT SELECTOR ── */}
-          {postType === 'events' && (
-            <div className="flex flex-col gap-2">
-              {selectedEvent ? (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-[#06a5a5]/6 border border-[#06a5a5]/20">
-                  <div className="w-8 h-8 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
-                    <Calendar size={14} className="text-[#06a5a5]" />
+        {/* ════════════════════════════════════════════════ */}
+        {/* TAB 1: Beitrag                                  */}
+        {/* ════════════════════════════════════════════════ */}
+        {tab === 'beitrag' && (
+          <>
+            <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-3">
+              {/* Textarea with @mention */}
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  value={body}
+                  onChange={handleBodyChange}
+                  onKeyDown={handleMentionKeyDown}
+                  placeholder="Was bewegt dich gerade?"
+                  style={{ resize: 'none', minHeight: '120px' }}
+                  className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
+                />
+
+                {/* @mention dropdown */}
+                {mentionQuery !== null && mentionSuggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto">
+                    {mentionSuggestions.map((p, i) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMention(p.username) }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                          i === mentionIndex ? 'bg-[#06a5a5]/8' : 'hover:bg-[#F7F7F7]'
+                        }`}
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#F0F0F0] overflow-hidden flex-shrink-0">
+                          {p.avatar_url ? (
+                            <Image src={p.avatar_url} alt={p.full_name} width={28} height={28} className="object-cover w-full h-full" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">
+                              {p.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight">{p.full_name}</p>
+                          <p className="text-[11px] text-[#717171] truncate">@{p.username}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-[#222222] truncate">{selectedEvent.name}</p>
-                    <p className="text-[10px] text-[#717171] truncate">
-                      {selectedEvent.date_start ? new Date(selectedEvent.date_start + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
-                      {selectedEvent.location ? ` · ${selectedEvent.location}` : ''}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedEventSlug(null)}
-                    className="p-1 rounded-full hover:bg-[#222222]/5"
-                  >
-                    <X size={14} className="text-[#717171]" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-1.5 max-h-44 overflow-y-auto">
-                  {events.length > 0 ? events.map(ev => (
+                )}
+              </div>
+
+              {/* Media preview grid */}
+              {mediaFiles.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {mediaFiles.map((m, i) => (
+                    <div key={i} className="relative flex-shrink-0">
+                      {m.file.type.startsWith('video/') ? (
+                        <div className="relative w-full max-w-[200px] aspect-video rounded-xl overflow-hidden border border-[#222222]/6">
+                          <video src={m.url} className="w-full h-full object-cover" muted preload="metadata" />
+                          <button
+                            type="button"
+                            onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
+                            className="absolute top-1.5 right-1.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden border border-[#222222]/6">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={m.url} alt="" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
+                            className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {mediaFiles.length < 5 && !mediaFiles.some(m => m.file.type.startsWith('video/')) && (
                     <button
-                      key={ev.slug}
                       type="button"
-                      onClick={() => setSelectedEventSlug(ev.slug)}
-                      className="flex items-center gap-3 p-2.5 rounded-xl text-left bg-[#F7F7F7] border border-[#222222]/4 hover:border-[#06a5a5]/25 hover:bg-[#06a5a5]/3 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-shrink-0 w-[72px] h-[72px] rounded-xl border border-dashed border-[#222222]/15 flex items-center justify-center text-[#222222]/30 hover:border-[#06a5a5]/30 hover:text-[#06a5a5] transition-colors"
                     >
-                      <div className="w-7 h-7 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
-                        <Calendar size={12} className="text-[#06a5a5]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-[#222222] truncate">{ev.name}</p>
-                        <p className="text-[10px] text-[#717171] truncate">
-                          {ev.date_start ? new Date(ev.date_start + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'long' }) : ''}
-                          {ev.location ? ` · ${ev.location}` : ''}
-                        </p>
-                      </div>
+                      <Plus size={18} />
                     </button>
-                  )) : (
-                    <p className="text-xs text-[#B0B0B0] py-2 text-center">
-                      {eventsLoaded ? 'Keine bevorstehenden Events.' : 'Events werden geladen…'}
-                    </p>
                   )}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* ── MEDIA UPLOAD ── */}
-          <div className="flex flex-col gap-2">
-            {mediaFiles.length > 0 ? (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                {mediaFiles.map((m, i) => (
-                  <div key={i} className="relative flex-shrink-0 w-[100px] h-[100px] rounded-xl overflow-hidden border border-[#222222]/6">
-                    {m.file.type.startsWith('video/') ? (
-                      <video src={m.url} className="w-full h-full object-cover" muted preload="metadata" />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={m.url} alt="" className="w-full h-full object-cover" />
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setMediaFiles(prev => prev.filter((_, j) => j !== i))}
-                      className="absolute top-1.5 right-1.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white"
-                    >
-                      <X size={10} />
-                    </button>
+              {/* Upload progress */}
+              {submitting && mediaFiles.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1.5 bg-[#222222]/8 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#06a5a5] rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
                   </div>
-                ))}
-                {mediaFiles.length < 5 && (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex-shrink-0 w-[100px] h-[100px] rounded-xl border-2 border-dashed border-[#06a5a5]/25 bg-[#06a5a5]/3 flex flex-col items-center justify-center gap-1"
-                  >
-                    <ImageIcon size={18} className="text-[#06a5a5]" />
-                    <span className="text-[10px] font-medium text-[#06a5a5]">Hinzufügen</span>
-                  </button>
-                )}
+                  <span className="text-xs text-[#06a5a5] font-medium flex-shrink-0">
+                    {uploadedCount} / {mediaFiles.length}
+                  </span>
+                </div>
+              )}
+
+              {error && <p className="text-xs text-red-500">{error}</p>}
+            </div>
+
+            {/* Bottom bar */}
+            <div
+              className="flex-shrink-0 px-5 pt-3 pb-4 border-t border-[#222222]/6 flex items-center justify-between"
+              style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
+            >
+              <div className="flex items-center gap-1">
+                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageFileChange} />
+                <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoFileChange} />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={mediaFiles.length >= 5}
+                  className="w-9 h-9 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors disabled:opacity-30"
+                >
+                  <ImageIcon size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={mediaFiles.length >= 5}
+                  className="w-9 h-9 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors disabled:opacity-30"
+                >
+                  <Video size={18} />
+                </button>
               </div>
-            ) : (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-36 rounded-xl border-2 border-dashed border-[#06a5a5]/20 bg-[#06a5a5]/3 flex flex-col items-center justify-center gap-1.5 active:bg-[#06a5a5]/6 transition-colors"
+                onClick={handleSubmitBeitrag}
+                disabled={!canPostBeitrag}
+                className="flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
               >
-                <ImageIcon size={24} className="text-[#06a5a5]" />
-                <span className="text-sm font-medium text-[#06a5a5]">Fotos oder Videos</span>
-                <span className="text-[11px] text-[#B0B0B0]">Bis zu 5 Dateien</span>
+                {submitting ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" />
+                    Wird gepostet…
+                  </>
+                ) : (
+                  'Posten'
+                )}
               </button>
-            )}
+            </div>
+          </>
+        )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          {/* ── CAPTION ── */}
-          <textarea
-            ref={textareaRef}
-            value={body}
-            onChange={e => setBody(e.target.value)}
-            placeholder="Was bewegt dich gerade?"
-            maxLength={500}
-            rows={4}
-            style={{ resize: 'none' }}
-            className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
-          />
-
-          {/* Character counter */}
-          {body.length > 400 && (
-            <div className="text-right -mt-3">
-              <span className={`text-xs ${body.length > 480 ? 'text-red-400' : 'text-[#B0B0B0]'}`}>
-                {500 - body.length}
+        {/* ════════════════════════════════════════════════ */}
+        {/* TAB 2: Fahrt                                    */}
+        {/* ════════════════════════════════════════════════ */}
+        {tab === 'fahrt' && (
+          <>
+            {/* Step indicator */}
+            <div className="px-5 pb-2 flex justify-end">
+              <span className="text-[10px] font-medium text-[#06a5a5] uppercase tracking-widest">
+                {rideStep} von 2
               </span>
             </div>
-          )}
 
-          {/* ── BIKE SELECTOR ── */}
-          {userBikes.length > 0 && (
-            <div className="border-t border-[#222222]/6 pt-3">
-              <button
-                type="button"
-                onClick={() => setShowBikeSelector(!showBikeSelector)}
-                className="flex items-center gap-2 text-xs text-[#717171] hover:text-[#222222] transition-colors w-full"
+            {/* 2-step carousel */}
+            <div className="flex-1 overflow-hidden">
+              <div
+                className="flex h-full transition-transform duration-300 ease-out"
+                style={{ transform: rideStep === 2 ? 'translateX(-100%)' : 'translateX(0)' }}
               >
-                <span>🏍</span>
-                <span>Bike verknüpfen</span>
-                {selectedBike && (
-                  <span className="text-[#06a5a5] font-semibold truncate">
-                    · {selectedBike.title}
-                  </span>
-                )}
-                <ChevronDown
-                  size={12}
-                  className={`ml-auto transition-transform ${showBikeSelector ? 'rotate-180' : ''}`}
-                />
-              </button>
+                {/* ── Step 1: Route ── */}
+                <div className="w-full flex-shrink-0 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-5">
+                  {/* Visibility toggle */}
+                  <div>
+                    <div className="flex bg-[#F7F7F7] rounded-full p-0.5">
+                      {(['public', 'friends'] as const).map(v => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => setRideVisibility(v)}
+                          className={`flex-1 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                            rideVisibility === v
+                              ? 'bg-[#222222] text-white'
+                              : 'text-[#717171]'
+                          }`}
+                        >
+                          {v === 'public' ? 'Öffentlich' : 'Nur Freunde'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {showBikeSelector && (
-                <div className="mt-2.5 flex flex-col gap-1.5">
-                  {userBikes.map(bike => (
-                    <button
-                      key={bike.id}
-                      type="button"
-                      onClick={() => setSelectedBike(selectedBike?.id === bike.id ? null : bike)}
-                      className={`flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors ${
-                        selectedBike?.id === bike.id
-                          ? 'bg-[#06a5a5]/8 border border-[#06a5a5]/25'
-                          : 'bg-[#F7F7F7] border border-[#222222]/4 hover:border-[#222222]/10'
-                      }`}
-                    >
-                      <div className="w-9 h-9 rounded-lg bg-[#F0F0F0] overflow-hidden flex-shrink-0">
-                        {bike.cover_url ? (
-                          <Image src={bike.cover_url} alt="" width={36} height={36} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-[#B0B0B0]">🏍</div>
-                        )}
+                  {/* Stops / Städte — Mapbox Geocoding */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Stops / Städte</label>
+
+                    {/* Stop chips */}
+                    {rideStops.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {rideStops.map((stop, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-medium"
+                          >
+                            <MapPin size={10} />
+                            {stop.name}
+                            <button
+                              type="button"
+                              onClick={() => removeStop(i)}
+                              className="ml-0.5 hover:text-red-500 transition-colors"
+                            >
+                              <X size={10} />
+                            </button>
+                          </span>
+                        ))}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-medium truncate ${
-                          selectedBike?.id === bike.id ? 'text-[#06a5a5]' : 'text-[#222222]'
-                        }`}>
-                          {bike.title}
-                        </p>
-                        <p className="text-[10px] text-[#717171]">
-                          {bike.make} {bike.model} · {bike.year}
-                        </p>
-                      </div>
-                      {selectedBike?.id === bike.id && (
-                        <div className="w-5 h-5 rounded-full bg-[#06a5a5] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-[10px]">✓</span>
-                        </div>
+                    )}
+
+                    {/* Search input */}
+                    <div className="relative">
+                      <input
+                        ref={stopInputRef}
+                        type="text"
+                        value={stopQuery}
+                        onChange={e => handleStopQueryChange(e.target.value)}
+                        placeholder="Stadt oder Ort hinzufügen..."
+                        autoComplete="off"
+                        className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/30 transition-colors"
+                      />
+                      {stopLoading && (
+                        <Loader2 size={13} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-[#222222]/25" />
                       )}
-                    </button>
-                  ))}
+                    </div>
+                  </div>
+
+                  {/* Route preview map */}
+                  {rideStops.length >= 2 && (
+                    <div className="rounded-2xl overflow-hidden border border-[#222222]/6">
+                      <LazyRideMap stops={rideStops} />
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Step 2: Details ── */}
+                <div className="w-full flex-shrink-0 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-5">
+                  {/* Date & Time */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Startdatum & Uhrzeit</label>
+                    <div className="flex gap-3">
+                      <input
+                        type="date"
+                        value={rideDate}
+                        onChange={e => setRideDate(e.target.value)}
+                        className="flex-1 bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
+                      />
+                      <input
+                        type="time"
+                        value={rideTime}
+                        onChange={e => setRideTime(e.target.value)}
+                        className="flex-1 bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Max participants stepper */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Max. Teilnehmer</label>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setRideMaxParticipants(p => Math.max(2, p - 1))}
+                        disabled={rideMaxParticipants <= 2}
+                        className="w-9 h-9 rounded-full border border-[#222222]/10 flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] disabled:opacity-30 transition-colors"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="text-sm font-semibold text-[#222222] min-w-[60px] text-center">
+                        {rideMaxParticipants} Rider
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setRideMaxParticipants(p => Math.min(20, p + 1))}
+                        disabled={rideMaxParticipants >= 20}
+                        className="w-9 h-9 rounded-full border border-[#222222]/10 flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] disabled:opacity-30 transition-colors"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {error && <p className="text-xs text-red-500">{error}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom bar — step-aware */}
+            <div
+              className="flex-shrink-0 px-5 pt-3 pb-4 border-t border-[#222222]/6"
+              style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
+            >
+              {rideStep === 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setRideStep(2)}
+                  disabled={rideStops.length < 1}
+                  className="w-full flex items-center justify-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
+                >
+                  Weiter
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRideStep(1)}
+                    className="text-sm font-semibold text-[#717171] px-4 py-3"
+                  >
+                    Zurück
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmitFahrt}
+                    disabled={!canPostFahrt}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        Wird erstellt…
+                      </>
+                    ) : (
+                      'Fahrt eröffnen'
+                    )}
+                  </button>
                 </div>
               )}
             </div>
-          )}
+          </>
+        )}
 
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
-        </div>
-
-        {/* ── FOOTER: Progress + Post Button ── */}
-        <div
-          className="flex-shrink-0 px-5 pt-3 pb-4 border-t border-[#222222]/6 flex flex-col gap-2.5"
-          style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
-        >
-          {/* Upload progress */}
-          {submitting && mediaFiles.length > 0 && (
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-[#222222]/8 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#06a5a5] rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-              <span className="text-xs text-[#06a5a5] font-medium flex-shrink-0">
-                {uploadedCount} / {mediaFiles.length}
-              </span>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={mediaFiles.length >= 5}
-                className="w-9 h-9 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors disabled:opacity-30"
-              >
-                <ImageIcon size={18} />
-              </button>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={mediaFiles.length >= 5}
-                className="w-9 h-9 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors disabled:opacity-30"
-              >
-                <Video size={18} />
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canPost}
-              className="flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 size={13} className="animate-spin" />
-                  Wird gepostet…
-                </>
-              ) : (
-                <>
-                  <Send size={13} />
-                  Posten
-                </>
-              )}
-            </button>
+        {/* Stop suggestions dropdown — portaled to sheet root to escape overflow-hidden */}
+        {stopSuggestions.length > 0 && dropdownPos && (
+          <div
+            className="absolute z-[200] bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto"
+            style={{
+              left: dropdownPos.left,
+              right: dropdownPos.right,
+              bottom: dropdownPos.bottom,
+            }}
+          >
+            {stopSuggestions.map((s, i) => {
+              const countryCtx = s.context?.find(c => c.id.startsWith('country.'))
+              const displayName = countryCtx ? `${s.text}, ${countryCtx.text}` : s.place_name
+              return (
+                <button
+                  key={`${s.id}-${i}`}
+                  type="button"
+                  onMouseDown={e => { e.preventDefault(); addStop(s) }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-[#F7F7F7] transition-colors border-b border-[#222222]/5 last:border-0"
+                >
+                  <MapPin size={12} className="text-[#222222]/25 flex-shrink-0" />
+                  <span className="text-sm text-[#222222]">{displayName}</span>
+                </button>
+              )
+            })}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

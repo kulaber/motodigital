@@ -16,12 +16,11 @@ import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { getProfileUrl } from '@/lib/utils/profileLink'
-import dynamic from 'next/dynamic'
 import RiderList from '@/components/explore/RiderStories'
 import { useAuth } from '@/hooks/useAuth'
 import LazyMap from '@/components/map/LazyMap'
+import LazyRideMap from '@/components/map/LazyRideMap'
 
-const MapboxAddressInput = dynamic(() => import('@/components/ui/MapboxAddressInput'), { ssr: false })
 
 /* ── Types ─────────────────────────────────────────────── */
 
@@ -39,6 +38,12 @@ const COMPOSER_TAGS: { value: Category; label: string }[] = [
   { value: 'in-der-naehe', label: 'In der Nähe' },
   { value: 'events', label: 'Events' },
 ]
+
+interface RideStop {
+  name: string
+  lon: number
+  lat: number
+}
 
 interface CommunityPost {
   id: string
@@ -58,9 +63,18 @@ interface CommunityPost {
   event_slug: string | null
   author_role: string | null
   author_slug: string | null
+  author_username: string | null
   bike_id: string | null
   bike_title: string | null
   bike_slug: string | null
+  // Ride fields
+  post_type: 'post' | 'ride'
+  ride_visibility: 'public' | 'friends' | null
+  ride_stops: RideStop[] | null
+  ride_start_at: string | null
+  ride_max_participants: number | null
+  ride_participant_count: number
+  ride_joined_by_me: boolean
 }
 
 /* ── Sidebar: Rider list item ──────────────────────────── */
@@ -199,7 +213,7 @@ interface Comment {
   liked_by_me: boolean
 }
 
-function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired, allEvents, postIndex = 99 }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void; allEvents: Event[]; postIndex?: number }) {
+function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDelete, onLoginRequired, onJoinRide, onLeaveRide, allEvents, postIndex = 99 }: { post: CommunityPost; onLike: () => void; loggedIn: boolean; userId: string | null; isSuperadmin?: boolean; onDelete?: () => void; onLoginRequired?: (context: 'like' | 'comment') => void; onJoinRide?: () => void; onLeaveRide?: () => void; allEvents: Event[]; postIndex?: number }) {
   const [commentInputOpen, setCommentInputOpen] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -424,7 +438,41 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         </div>
       )}
 
-      {imageUrls.length > 0 && (
+      {/* ── Ride post content ── */}
+      {post.post_type === 'ride' && post.ride_stops && post.ride_stops.length > 0 && (() => {
+        const stops = post.ride_stops
+        return (
+          <>
+            {/* Route pills */}
+            <div className="px-4 mt-3 flex flex-wrap gap-1.5">
+              {stops.map((s, i) => (
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-[11px] font-medium">
+                  <MapPin size={9} />
+                  {s.name}
+                </span>
+              ))}
+            </div>
+            {/* Meta row: date + participants */}
+            <div className="px-4 mt-2 flex items-center gap-3 text-[11px] text-[#717171]">
+              {post.ride_start_at && (
+                <span>{new Date(post.ride_start_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })} {new Date(post.ride_start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
+              )}
+              {post.ride_max_participants && (
+                <span className="font-semibold text-[#222222]/60">{post.ride_participant_count} / {post.ride_max_participants} Rider</span>
+              )}
+            </div>
+            {/* Route map — interactive, same style as explore maps */}
+            {stops.length >= 2 && (
+              <div className="mt-3 mx-4 rounded-2xl overflow-hidden border border-[#222222]/6">
+                <LazyRideMap stops={stops} />
+              </div>
+            )}
+          </>
+        )
+      })()}
+
+      {/* Regular media (not for ride posts with route maps) */}
+      {!(post.post_type === 'ride' && post.ride_stops && post.ride_stops.length >= 2) && imageUrls.length > 0 && (
         <div className="mt-3">
           <PostImageCarousel
             items={urlsToMediaItems(imageUrls)}
@@ -439,7 +487,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       )}
 
       {/* Location map */}
-      {post.latitude != null && post.longitude != null && (
+      {post.post_type !== 'ride' && post.latitude != null && post.longitude != null && (
         <div className="mt-3 mx-4 mb-1">
           {post.location_name && (
             <div className="flex items-center justify-between bg-[#F7F7F7] rounded-lg px-3 py-2 mb-2">
@@ -491,6 +539,34 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
             <span className="text-xs font-semibold text-[#222222]/40">{comments.length}</span>
           )}
         </button>
+        {/* Ride: Teilnehmen / Absagen */}
+        {post.post_type === 'ride' && (
+          <div className="ml-auto flex items-center gap-3">
+            {post.ride_joined_by_me ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onLeaveRide?.()}
+                  className="text-[11px] text-[#717171] hover:text-[#222222] transition-colors"
+                >
+                  Absagen
+                </button>
+                <span className="text-xs font-semibold text-[#717171] bg-[#F7F7F7] px-3 py-1.5 rounded-full">
+                  Angemeldet
+                </span>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => loggedIn ? onJoinRide?.() : onLoginRequired?.('like')}
+                disabled={post.ride_max_participants != null && post.ride_participant_count >= post.ride_max_participants}
+                className="text-xs font-semibold text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-colors disabled:opacity-40"
+              >
+                Teilnehmen
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Comments — only for logged-in users */}
@@ -617,13 +693,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   // Composer state
   const [composerOpen, setComposerOpen] = useState(false)
   const [body, setBody] = useState('')
-  const [composerTag, setComposerTag] = useState<Category>('allgemein')
   const [mediaFiles, setMediaFiles] = useState<{ file: File; url: string }[]>([])
-  const [composerLocation, setComposerLocation] = useState<{ lat: number; lng: number; address: string } | null>(null)
-  const [composerEventSlug, setComposerEventSlug] = useState<string | null>(null)
-  const [composerBikeId, setComposerBikeId] = useState<string | null>(null)
-  const [composerBikes, setComposerBikes] = useState<{ id: string; title: string }[]>([])
-  const [composerBikesLoaded, setComposerBikesLoaded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [composerStuck, setComposerStuck] = useState(false)
   const composerSentinelRef = useRef<HTMLDivElement>(null)
@@ -669,16 +739,17 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     return () => observer.disconnect()
   }, [])
 
-  // Enrich raw posts with profile + like data
-  const enrichPosts = useCallback(async (postsData: { id: string; body: string | null; media_urls: string[]; created_at: string; user_id: string; topic: string | null; latitude: number | null; longitude: number | null; location_name: string | null; event_slug: string | null; bike_id: string | null }[]): Promise<CommunityPost[]> => {
+  // Enrich raw posts with profile + like data + ride participants
+  const enrichPosts = useCallback(async (postsData: any[]): Promise<CommunityPost[]> => {
     if (postsData.length === 0) return []
 
-    const userIds = [...new Set(postsData.map(p => p.user_id))]
-    const postIds = postsData.map(p => p.id)
-    const bikeIds = [...new Set(postsData.map(p => p.bike_id).filter(Boolean))] as string[]
+    const userIds = [...new Set(postsData.map((p: any) => p.user_id))]
+    const postIds = postsData.map((p: any) => p.id)
+    const bikeIds = [...new Set(postsData.map((p: any) => p.bike_id).filter(Boolean))] as string[]
+    const ridePostIds = postsData.filter((p: any) => p.post_type === 'ride').map((p: any) => p.id)
 
-    // Parallel: fetch profiles + likes + bikes for these posts
-    const fetches: [any, any, any] = await Promise.all([
+    // Parallel: fetch profiles + likes + bikes + ride participants
+    const fetches: [any, any, any, any] = await Promise.all([
       (supabase.from('profiles') as any)
         .select('id, full_name, avatar_url, role, slug, username')
         .in('id', userIds),
@@ -690,8 +761,13 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
             .select('id, title, slug')
             .in('id', bikeIds)
         : Promise.resolve({ data: [] }),
+      ridePostIds.length > 0
+        ? (supabase.from('ride_participants') as any)
+            .select('ride_post_id, user_id')
+            .in('ride_post_id', ridePostIds)
+        : Promise.resolve({ data: [] }),
     ])
-    const [{ data: profilesData }, { data: likesData }, { data: bikesData }] = fetches
+    const [{ data: profilesData }, { data: likesData }, { data: bikesData }, { data: rideParticipantsData }] = fetches
 
     const profileMap: Record<string, { full_name: string | null; avatar_url: string | null; role: string | null; slug: string | null; username: string | null }> = {}
     for (const prof of (profilesData ?? [])) profileMap[prof.id] = prof
@@ -706,10 +782,19 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     const bikeMap: Record<string, { title: string; slug: string | null }> = {}
     for (const b of (bikesData ?? [])) bikeMap[b.id] = { title: b.title, slug: b.slug }
 
+    // Build ride participants map: { ride_post_id -> { count, joinedByMe } }
+    const rideParticipantsMap: Record<string, { count: number; joinedByMe: boolean }> = {}
+    for (const rp of (rideParticipantsData ?? []) as { ride_post_id: string; user_id: string }[]) {
+      if (!rideParticipantsMap[rp.ride_post_id]) rideParticipantsMap[rp.ride_post_id] = { count: 0, joinedByMe: false }
+      rideParticipantsMap[rp.ride_post_id].count++
+      if (rp.user_id === userId) rideParticipantsMap[rp.ride_post_id].joinedByMe = true
+    }
+
     return postsData.map(p => {
       const profile = profileMap[p.user_id] ?? null
       const name = profile?.full_name ?? 'Unbekannt'
       const bike = p.bike_id ? bikeMap[p.bike_id] : null
+      const rideP = rideParticipantsMap[p.id]
       return {
         id: p.id,
         body: p.body,
@@ -730,9 +815,17 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         author_slug: profile?.slug
           ?? profile?.username
           ?? (profile?.role === 'rider' && name !== 'Unbekannt' ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null),
+        author_username: profile?.username ?? profile?.slug ?? null,
         bike_id: p.bike_id ?? null,
         bike_title: bike?.title ?? null,
         bike_slug: bike?.slug ?? null,
+        post_type: (p.post_type as 'post' | 'ride') ?? 'post',
+        ride_visibility: (p.ride_visibility as 'public' | 'friends' | null) ?? null,
+        ride_stops: p.ride_stops ?? null,
+        ride_start_at: p.ride_start_at ?? null,
+        ride_max_participants: p.ride_max_participants ?? null,
+        ride_participant_count: rideP?.count ?? 0,
+        ride_joined_by_me: rideP?.joinedByMe ?? false,
       }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -745,7 +838,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     offsetRef.current = 0
 
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id, post_type, ride_visibility, ride_stops, ride_start_at, ride_max_participants')
       .order('created_at', { ascending: false })
       .range(0, PAGE_SIZE - 1)
 
@@ -766,7 +859,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
 
     const from = offsetRef.current
     const { data: postsData } = await (supabase.from('community_posts') as any)
-      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id')
+      .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id, post_type, ride_visibility, ride_stops, ride_start_at, ride_max_participants')
       .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1)
 
@@ -916,6 +1009,52 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     setDeleting(false)
   }
 
+  // Ride join modal state
+  const [joinRideTarget, setJoinRideTarget] = useState<CommunityPost | null>(null)
+  const [joiningRide, setJoiningRide] = useState(false)
+  const [leaveRideTarget, setLeaveRideTarget] = useState<CommunityPost | null>(null)
+  const [leavingRide, setLeavingRide] = useState(false)
+
+  async function handleJoinRide() {
+    if (!joinRideTarget || !userId) return
+    setJoiningRide(true)
+    const { error } = await (supabase.from('ride_participants') as any)
+      .insert({ ride_post_id: joinRideTarget.id, user_id: userId })
+    if (!error) {
+      setCommunityPosts(prev => prev.map(p => p.id === joinRideTarget.id ? {
+        ...p,
+        ride_joined_by_me: true,
+        ride_participant_count: p.ride_participant_count + 1,
+      } : p))
+      showSuccess('Du nimmst an der Fahrt teil!')
+    } else {
+      showError('Fehler beim Beitreten')
+    }
+    setJoinRideTarget(null)
+    setJoiningRide(false)
+  }
+
+  async function handleLeaveRide() {
+    if (!leaveRideTarget || !userId) return
+    setLeavingRide(true)
+    const { error } = await (supabase.from('ride_participants') as any)
+      .delete()
+      .eq('ride_post_id', leaveRideTarget.id)
+      .eq('user_id', userId)
+    if (!error) {
+      setCommunityPosts(prev => prev.map(p => p.id === leaveRideTarget.id ? {
+        ...p,
+        ride_joined_by_me: false,
+        ride_participant_count: Math.max(0, p.ride_participant_count - 1),
+      } : p))
+      showSuccess('Du hast die Fahrt abgesagt.')
+    } else {
+      showError('Fehler beim Absagen')
+    }
+    setLeaveRideTarget(null)
+    setLeavingRide(false)
+  }
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     const newFiles = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
@@ -984,13 +1123,14 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const hasContent = body.trim() || mediaFiles.length > 0 || (composerTag === 'in-der-naehe' && composerLocation) || (composerTag === 'events' && composerEventSlug)
+    const hasContent = body.trim() || mediaFiles.length > 0
     if (!userId || !hasContent) return
     setSubmitting(true)
 
     const uploadedUrls: string[] = []
     for (const { file: rawFile } of mediaFiles) {
-      const file = await compressImage(rawFile, 1200)
+      const isVideo = rawFile.type.startsWith('video/')
+      const file = isVideo ? rawFile : await compressImage(rawFile, 1200)
       const ext = file.name.split('.').pop() ?? 'jpg'
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       const { data, error } = await (supabase.storage as any)
@@ -1006,23 +1146,10 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
       user_id: userId,
       body: body.trim() || null,
       media_urls: uploadedUrls,
-      topic: composerTag,
-      ...(composerTag === 'in-der-naehe' && composerLocation ? {
-        latitude: composerLocation.lat,
-        longitude: composerLocation.lng,
-        location_name: composerLocation.address,
-      } : {}),
-      ...(composerTag === 'events' && composerEventSlug ? {
-        event_slug: composerEventSlug,
-      } : {}),
-      ...(composerBikeId ? { bike_id: composerBikeId } : {}),
+      topic: 'allgemein',
     })
 
     setBody('')
-    setComposerTag('allgemein')
-    setComposerLocation(null)
-    setComposerEventSlug(null)
-    setComposerBikeId(null)
     setMediaFiles([])
     setComposerOpen(false)
     setSubmitting(false)
@@ -1129,20 +1256,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
               {!composerOpen ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    setComposerOpen(true)
-                    // Lazy load user's bikes for bike selector
-                    if (!composerBikesLoaded && userId) {
-                      ;(supabase.from('bikes') as any)
-                        .select('id, title')
-                        .eq('seller_id', userId)
-                        .order('created_at', { ascending: false })
-                        .then(({ data }: { data: { id: string; title: string }[] | null }) => {
-                          setComposerBikes(data ?? [])
-                          setComposerBikesLoaded(true)
-                        })
-                    }
-                  }}
+                  onClick={() => setComposerOpen(true)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F7] transition-colors"
                 >
                   <span className="text-sm text-[#222222]/30 flex-1">Poste, was dich bewegt…</span>
@@ -1154,7 +1268,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                 <form onSubmit={handleSubmit} className="relative p-4 animate-expand">
                   <button
                     type="button"
-                    onClick={() => { setComposerOpen(false); setBody(''); setComposerTag('allgemein'); setComposerLocation(null); setComposerEventSlug(null); setComposerBikeId(null); setMediaFiles([]); setMentionQuery(null) }}
+                    onClick={() => { setComposerOpen(false); setBody(''); setMediaFiles([]); setMentionQuery(null) }}
                     className="absolute top-3 right-3 z-40 w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
                   >
                     <X size={15} />
@@ -1166,7 +1280,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                       value={body}
                       onChange={handleBodyChange}
                       onKeyDown={handleMentionKeyDown}
-                      placeholder="Poste, was dich bewegt…"
+                      placeholder="Was bewegt dich gerade?"
                       rows={4}
                       style={{ resize: 'none' }}
                       className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-transparent leading-relaxed"
@@ -1201,135 +1315,6 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                       </div>
                     )}
                   </div>
-
-                  {/* Tag selector */}
-                  <div className="flex gap-2 mt-3 flex-wrap">
-                    {COMPOSER_TAGS.map(t => (
-                      <button
-                        key={t.value}
-                        type="button"
-                        onClick={() => {
-                          if (composerTag === t.value) {
-                            // Toggle off → back to default
-                            setComposerTag('allgemein')
-                            if (t.value === 'in-der-naehe') setComposerLocation(null)
-                            if (t.value === 'events') setComposerEventSlug(null)
-                          } else {
-                            setComposerTag(t.value)
-                            // Auto-request geolocation for "In der Nähe"
-                            if (t.value === 'in-der-naehe') {
-                              const reverseGeocode = (lat: number, lng: number) => {
-                                const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-                                if (token) {
-                                  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=de&limit=1&types=address,place,locality`)
-                                    .then(r => r.json())
-                                    .then(json => {
-                                      if (json.features?.[0]) {
-                                        setComposerLocation({ lat, lng, address: json.features[0].place_name })
-                                      }
-                                    })
-                                    .catch(() => {})
-                                }
-                              }
-
-                              const tryBrowserGeo = () => {
-                                if (!navigator.geolocation) { fallbackIPGeo(); return }
-                                navigator.geolocation.getCurrentPosition(
-                                  (pos) => {
-                                    const { latitude: lat, longitude: lng } = pos.coords
-                                    setComposerLocation({ lat, lng, address: 'Mein Standort' })
-                                    reverseGeocode(lat, lng)
-                                  },
-                                  () => fallbackIPGeo(),
-                                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
-                                )
-                              }
-
-                              const fallbackIPGeo = () => {
-                                fetch('https://ipapi.co/json/')
-                                  .then(r => r.json())
-                                  .then(data => {
-                                    if (data.latitude && data.longitude) {
-                                      const lat = data.latitude as number
-                                      const lng = data.longitude as number
-                                      const address = [data.city, data.region].filter(Boolean).join(', ') || 'Mein Standort'
-                                      setComposerLocation({ lat, lng, address })
-                                      reverseGeocode(lat, lng)
-                                    } else {
-                                      showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.')
-                                    }
-                                  })
-                                  .catch(() => showError('Standort konnte nicht ermittelt werden. Bitte manuell eingeben.'))
-                              }
-
-                              tryBrowserGeo()
-                            }
-                          }
-                        }}
-                        className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
-                          composerTag === t.value
-                            ? 'bg-[#222222] text-white border-[#222222]'
-                            : 'text-[#222222]/40 border-[#222222]/6 hover:border-[#222222]/20'
-                        }`}
-                      >
-                        {t.value === 'in-der-naehe' && <MapPin size={11} />}
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Location picker for "In der Nähe" */}
-                  {composerTag === 'in-der-naehe' && (
-                    <div className="mt-3">
-                      <MapboxAddressInput
-                        initialValue={composerLocation?.address ?? ''}
-                        placeholder="Standort eingeben…"
-                        onSelect={(place) => {
-                          if (place) {
-                            setComposerLocation({ lat: place.lat, lng: place.lng, address: place.address })
-                          } else {
-                            setComposerLocation(null)
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Event selector for "Events" */}
-                  {composerTag === 'events' && (
-                    <div className="mt-3">
-                      <select
-                        value={composerEventSlug ?? ''}
-                        onChange={e => setComposerEventSlug(e.target.value || null)}
-                        className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors"
-                      >
-                        <option value="">Event auswählen…</option>
-                        {allEvents.map(ev => (
-                          <option key={ev.slug} value={ev.slug}>
-                            {ev.name} — {formatEventDate(ev)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Bike selector */}
-                  {composerBikes.length > 0 && (
-                    <div className="mt-3">
-                      <select
-                        value={composerBikeId ?? ''}
-                        onChange={e => setComposerBikeId(e.target.value || null)}
-                        className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#06a5a5] transition-colors"
-                      >
-                        <option value="">🏍 Bike verknüpfen (optional)</option>
-                        {composerBikes.map(b => (
-                          <option key={b.id} value={b.id}>
-                            {b.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
 
                   {/* Media previews */}
                   {mediaFiles.length > 0 && (
@@ -1366,7 +1351,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
                     </div>
                     <button
                       type="submit"
-                      disabled={submitting || (composerTag === 'in-der-naehe' && !composerLocation) || (!body.trim() && mediaFiles.length === 0 && !(composerTag === 'in-der-naehe' && composerLocation) && !(composerTag === 'events' && composerEventSlug))}
+                      disabled={submitting || (!body.trim() && mediaFiles.length === 0)}
                       className="flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] disabled:opacity-40 transition-all"
                     >
                       <Send size={12} />
@@ -1443,7 +1428,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
               </div>
             ) : (
               filteredPosts.map((post, idx) => (
-                <CommunityPostCard key={post.id} post={post} postIndex={idx} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} allEvents={allEvents} />
+                <CommunityPostCard key={post.id} post={post} postIndex={idx} onLike={() => handleLike(post.id)} loggedIn={!!userId} userId={userId} isSuperadmin={isSuperadmin} onDelete={() => setDeleteTargetId(post.id)} onJoinRide={() => setJoinRideTarget(post)} onLeaveRide={() => setLeaveRideTarget(post)} onLoginRequired={(ctx) => { setLoginContext(ctx); setShowLogin(true) }} allEvents={allEvents} />
               ))
             )}
           </div>
@@ -1466,6 +1451,82 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         title="Beitrag löschen?"
         description="Dieser Beitrag wird unwiderruflich gelöscht."
       />
+
+      {/* Ride join confirmation modal */}
+      {joinRideTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setJoinRideTarget(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-base font-bold text-[#222222] mb-3">Fahrt beitreten?</h3>
+            <div className="flex flex-col gap-2 mb-5">
+              {joinRideTarget.ride_stops && joinRideTarget.ride_stops.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {joinRideTarget.ride_stops.map((s, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-[11px] font-medium">
+                      <MapPin size={9} />
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {joinRideTarget.ride_start_at && (
+                <p className="text-xs text-[#717171]">
+                  {new Date(joinRideTarget.ride_start_at).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  {' '}um {new Date(joinRideTarget.ride_start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                </p>
+              )}
+              <p className="text-xs text-[#717171]">
+                Organisiert von <span className="font-semibold text-[#222222]">{joinRideTarget.author_name}</span>
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setJoinRideTarget(null)}
+                className="flex-1 text-sm font-semibold text-[#717171] py-2.5 rounded-full border border-[#222222]/10 hover:bg-[#F7F7F7] transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={handleJoinRide}
+                disabled={joiningRide}
+                className="flex-1 text-sm font-semibold text-white bg-[#06a5a5] py-2.5 rounded-full hover:bg-[#058f8f] disabled:opacity-50 transition-colors"
+              >
+                {joiningRide ? 'Wird beigetreten…' : 'Teilnehmen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Leave ride confirmation modal */}
+      {leaveRideTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setLeaveRideTarget(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-base font-bold text-[#222222] mb-2">Fahrt absagen?</h3>
+            <p className="text-sm text-[#717171] mb-5">Möchtest du wirklich die Fahrt absagen?</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setLeaveRideTarget(null)}
+                className="flex-1 text-sm font-semibold text-[#717171] py-2.5 rounded-full border border-[#222222]/10 hover:bg-[#F7F7F7] transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={handleLeaveRide}
+                disabled={leavingRide}
+                className="flex-1 text-sm font-semibold text-white bg-red-500 py-2.5 rounded-full hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {leavingRide ? 'Wird abgesagt…' : 'Absagen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} />
 
