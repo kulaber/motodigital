@@ -1125,7 +1125,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
 
           {/* Composer — hidden on mobile (already in MobileBottomNav) */}
           {canPost ? (
-            <div className={`hidden md:block sticky top-[64px] lg:top-[80px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck && !composerOpen ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
+            <div className={`hidden md:block sticky top-[104px] lg:top-[120px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck && !composerOpen ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
               {!composerOpen ? (
                 <button
                   type="button"
