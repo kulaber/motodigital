@@ -3,20 +3,47 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
+type Role = 'rider' | 'custom-werkstatt'
+
 const SLIDES = [
   { src: '/custom-werkstatt.png', alt: 'Custom Werkstatt' },
   { src: '/rider.png', alt: 'Rider' },
   { src: '/custom-bikes.png', alt: 'Custom Bikes' },
 ]
 
-export default function RegisterCarousel() {
+const ROLE_IMAGE: Record<Role, { src: string; alt: string }> = {
+  'rider': { src: '/rider.png', alt: 'Rider' },
+  'custom-werkstatt': { src: '/custom-werkstatt.png', alt: 'Custom Werkstatt' },
+}
+
+export default function RegisterCarousel({ selectedRole }: { selectedRole?: Role | null }) {
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {
+    if (selectedRole) return
     const id = setInterval(() => setCurrent(i => (i + 1) % SLIDES.length), 4000)
     return () => clearInterval(id)
-  }, [])
+  }, [selectedRole])
 
+  // Show single image when a role is selected
+  if (selectedRole) {
+    const img = ROLE_IMAGE[selectedRole]
+    return (
+      <div className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center animate-fade-in">
+          <Image
+            src={img.src}
+            alt={img.alt}
+            width={700}
+            height={525}
+            className="w-[80%] max-w-[580px] h-auto object-contain"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Carousel mode (no role selected)
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {SLIDES.map((slide, i) => (

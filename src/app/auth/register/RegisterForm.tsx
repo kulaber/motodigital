@@ -27,7 +27,7 @@ const RIDER_BENEFITS = [
   'Digitaler Bike-Pass (bald verfügbar)',
 ]
 
-export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
+export default function RegisterForm({ initialRole, onRoleChange }: { initialRole?: Role; onRoleChange?: (role: Role | null) => void }) {
   const [step, setStep] = useState<1 | 2>(initialRole ? 2 : 1)
   const [role, setRole] = useState<Role | null>(initialRole ?? null)
   const [name, setName] = useState('')
@@ -43,6 +43,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
   function handleRoleSelect(r: Role) {
     setRole(r)
     setStep(2)
+    onRoleChange?.(r)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -138,7 +139,7 @@ export default function RegisterForm({ initialRole }: { initialRole?: Role }) {
 
       {/* Back + role indicator */}
       <div className="flex items-center justify-between mb-1">
-        <button type="button" onClick={() => setStep(1)}
+        <button type="button" onClick={() => { setStep(1); onRoleChange?.(null) }}
           className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors">
           <ArrowLeft size={13} />
           Zurück
