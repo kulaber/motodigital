@@ -69,7 +69,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
       <div className="max-w-3xl mx-auto px-4 sm:px-5 lg:px-8">
 
         {/* ── STICKY SEARCH HEADER ── */}
-        <div className="sticky top-16 z-20 bg-white/95 backdrop-blur-xl pb-4 pt-1 -mx-4 px-4 sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8">
+        <div className="sticky top-12 lg:top-16 z-20 bg-white/95 backdrop-blur-xl pb-4 pt-1 -mx-4 px-4 sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8">
 
           {/* Search input */}
           <div className="relative flex items-center mb-3">

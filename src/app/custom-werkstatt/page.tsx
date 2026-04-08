@@ -169,7 +169,7 @@ export default function BuilderPage() {
       <Suspense fallback={
         <>
           {/* Sticky filter bar skeleton */}
-          <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+          <div className="sticky top-12 lg:top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
             <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto">
               <div className="lg:hidden h-8 w-20 bg-[#F0F0F0] animate-pulse rounded-full flex-shrink-0" />
               <div className="flex-1 lg:hidden" />

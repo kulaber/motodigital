@@ -66,7 +66,7 @@ export default function Header({ activePage }: Props) {
   return (
     <>
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#222222]/5 bg-white/95 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-16 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 flex items-center h-12 lg:h-16 relative">
 
         {/* Logo — mobile: zentriert wenn eingeloggt, linksbündig wenn nicht */}
         <div className={`${loading || user ? 'absolute left-1/2 -translate-x-1/2' : ''} lg:static lg:translate-x-0 lg:flex-1 min-w-0 flex items-center`}>
@@ -292,7 +292,7 @@ export default function Header({ activePage }: Props) {
       </div>
     </header>
     {/* Spacer to offset content below fixed header */}
-    <div className="h-16" />
+    <div className="h-12 lg:h-16" />
 
     <LoginModal
       isOpen={showLogin}

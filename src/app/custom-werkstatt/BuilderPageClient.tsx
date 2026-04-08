@@ -737,7 +737,7 @@ export default function BuilderPageClient({ builders }: Props) {
       `}</style>
 
       {/* ── Sticky filter bar ── */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+      <div className="sticky top-12 lg:top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="flex px-4 sm:px-5 lg:px-6 py-3 items-center gap-2 overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Mobile: Filter button (left) */}
           <button

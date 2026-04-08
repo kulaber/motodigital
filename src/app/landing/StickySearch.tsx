@@ -24,7 +24,7 @@ export default function StickySearch() {
   return (
     <>
       <div ref={sentinelRef} className="h-0" />
-      <section className="sticky top-16 z-40 py-3 sm:py-4 lg:py-5">
+      <section className="sticky top-12 lg:top-16 z-40 py-3 sm:py-4 lg:py-5">
         <div
           onFocusCapture={() => setFocused(true)}
           onBlurCapture={() => setFocused(false)}

@@ -13,8 +13,8 @@ const NAV_ITEMS = [
     href: "/explore",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
       </svg>
     ),
   },
@@ -141,7 +141,7 @@ function MobileBottomNavInner() {
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
         style={{
-          paddingBottom: "calc(4px + env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "calc(6px + env(safe-area-inset-bottom, 0px))",
           paddingLeft: 16,
           paddingRight: 16,
           pointerEvents: "none",

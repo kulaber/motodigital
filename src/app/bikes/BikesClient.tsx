@@ -129,7 +129,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
   return (
     <>
       {/* FILTER BAR */}
-      <div ref={filterRef} className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
+      <div ref={filterRef} className="sticky top-12 lg:top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#222222]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 py-3">
           <div className="flex items-center gap-2">
 

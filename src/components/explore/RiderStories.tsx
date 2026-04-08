@@ -39,7 +39,7 @@ function RiderSkeletons() {
       <div className="flex gap-3.5 px-4 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <div className="size-14 rounded-full bg-[#F0EDE4] animate-pulse" />
+            <div className="size-[72px] rounded-full bg-[#F0EDE4] animate-pulse" />
             <div className="h-2.5 w-10 bg-[#F0EDE4] rounded-full animate-pulse" />
           </div>
         ))}
@@ -66,24 +66,24 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
               href={`/rider/${rider.username}`}
               className="flex flex-col items-center gap-1.5 flex-shrink-0"
             >
-              <div className="w-[56px] h-[56px] rounded-full p-[2.5px] bg-gradient-to-br from-[#2AABAB] to-[#1d8a8a]">
+              <div className="w-[72px] h-[72px] rounded-full p-[2.5px] bg-gradient-to-br from-[#2AABAB] to-[#1d8a8a]">
                 {rider.avatar_url ? (
                   <Image
                     src={rider.avatar_url}
                     alt={rider.full_name ?? rider.username}
-                    width={56}
-                    height={56}
+                    width={72}
+                    height={72}
                     className="w-full h-full rounded-full border-2 border-white object-cover"
                   />
                 ) : (
                   <div
                     className={`w-full h-full rounded-full border-2 border-white flex items-center justify-center bg-gradient-to-br ${getGradient(rider.id)}`}
                   >
-                    <span className="text-[11px] font-black text-white">{initials}</span>
+                    <span className="text-[13px] font-black text-white">{initials}</span>
                   </div>
                 )}
               </div>
-              <span className="text-[10px] font-semibold text-[#111] max-w-[56px] truncate text-center">
+              <span className="text-[10px] font-semibold text-[#111] max-w-[72px] truncate text-center">
                 @{rider.username}
               </span>
             </Link>
