@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronRight, ImagePlus, Loader2, MapPin } from 'lucide-react'
+import { ChevronRight, ImagePlus, Loader2, MapPin, Check, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { saveOnboardingStep, completeOnboarding } from '@/lib/onboarding'
 import { OnboardingProgressBar } from './OnboardingProgressBar'
@@ -88,10 +88,9 @@ function AddressAutocomplete({
   )
 }
 
-const SPECIALIZATIONS = [
-  'Cafe Racer', 'Scrambler', 'Bobber', 'Tracker',
-  'Chopper', 'Restauration', 'Lackierung', 'Elektrik',
-  'BMW Spezialist', 'Honda Spezialist', 'Triumph Spezialist', 'Harley Spezialist',
+const UMBAUSTILE = [
+  'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker',
+  'Chopper', 'Street', 'Enduro',
 ]
 
 interface Werkstatt {
@@ -308,7 +307,7 @@ export function WerkstattOnboarding({
 
           <div className="flex flex-col gap-2">
             <label className="text-[10px] uppercase tracking-widest text-white/40">
-              Beschreibung
+              Über Deine Werkstatt
             </label>
             <textarea
               value={description}
@@ -344,15 +343,15 @@ export function WerkstattOnboarding({
         <div className="flex flex-col gap-6 flex-1 pb-10">
           <div>
             <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              EURE STÄRKEN.
+              WELCHE UMBAUTEN BIETET IHR AN?
             </h2>
             <p className="text-sm text-white/40 mt-1">
-              Rider suchen nach Spezialisten. Mehrfachauswahl möglich.
+              Mehrfachauswahl möglich. Rider filtern danach.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2.5">
-            {SPECIALIZATIONS.map(spez => {
+            {UMBAUSTILE.map(spez => {
               const sel = selectedServices.includes(spez)
               return (
                 <button
@@ -417,7 +416,27 @@ export function WerkstattOnboarding({
                 : <ImagePlus className="w-7 h-7 text-[#2AABAB]" />
               }
             </button>
-            <span className="text-xs text-white/30">Logo hochladen</span>
+            {logoPreview ? (
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#2AABAB] flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Logo ausgewählt
+                </span>
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  className="text-xs text-white/40 hover:text-white/60 transition-colors"
+                >
+                  Ändern
+                </button>
+                <button
+                  onClick={() => { setLogoFile(null); setLogoPreview('') }}
+                  className="text-xs text-red-400/60 hover:text-red-400 transition-colors flex items-center gap-0.5"
+                >
+                  <Trash2 className="w-3 h-3" /> Löschen
+                </button>
+              </div>
+            ) : (
+              <span className="text-xs text-white/30">Logo hochladen</span>
+            )}
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden"
                    onChange={handleFileChange} />
           </div>
@@ -447,7 +466,7 @@ export function WerkstattOnboarding({
         <div className="flex flex-col gap-7 flex-1 pb-10">
           <div>
             <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              ERSTEN BUILD ZEIGEN.
+              ERSTES CUSTOM BIKE HINZUFÜGEN.
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Werkstätten mit Builds werden sofort in der Suche angezeigt.
@@ -470,7 +489,7 @@ export function WerkstattOnboarding({
             </div>
             <div className="flex flex-col items-center gap-1">
               <span className="text-sm font-semibold text-[#2AABAB]">
-                Build hochladen
+                Custom Bike hinzufügen
               </span>
               <span className="text-xs text-white/30">
                 Fotos, Modell, Beschreibung
@@ -484,12 +503,12 @@ export function WerkstattOnboarding({
               disabled={saving}
               className="w-full h-12 rounded-xl bg-white/[0.05]
                          border border-white/[0.07]
-                         text-white/50 text-sm font-medium
+                         text-white/50 text-sm font-medium flex items-center justify-center
                          disabled:opacity-50 active:scale-[0.97] transition-all"
             >
               {saving
                 ? <Loader2 className="w-4 h-4 animate-spin" />
-                : 'Später — erst ins Dashboard'
+                : 'Überspringen'
               }
             </button>
           </div>
