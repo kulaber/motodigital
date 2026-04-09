@@ -94,7 +94,7 @@ export default function RideRouteMap({ stops }: Props) {
         try {
           const coords = stops.map(s => `${s.lon},${s.lat}`).join(';')
           const res = await fetch(
-            `https://api.mapbox.com/directions/v5/mapbox/driving/${coords}?geometries=geojson&overview=full&access_token=${token}`
+            `https://api.mapbox.com/directions/v5/mapbox/driving/${coords}?geometries=geojson&overview=full&exclude=motorway&access_token=${token}`
           )
           const json = await res.json()
           const route = json.routes?.[0]?.geometry
