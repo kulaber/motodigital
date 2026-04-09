@@ -490,7 +490,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
                   </div>
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
+                      <h3 className="min-w-0 text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1">{build.title}</h3>
                       {build.listingType === 'for_sale' && build.priceOnRequest && (
                         <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
                       )}
