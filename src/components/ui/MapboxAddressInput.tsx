@@ -85,7 +85,7 @@ export default function MapboxAddressInput({ initialValue = '', onSelect, placeh
 
     setLoading(true)
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&autocomplete=true&language=de&limit=5&types=${types}`
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&autocomplete=true&language=de&limit=5&types=${types}&country=de,at,ch`
       const res  = await fetch(url)
       const json = await res.json()
       const results: Suggestion[] = (json.features ?? []).map((f: Record<string, unknown>) => {

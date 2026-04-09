@@ -28,13 +28,13 @@ type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'alle', label: 'Explore' },
   { value: 'freunde', label: 'Freunde' },
-  { value: 'in-der-naehe', label: 'In der Nähe' },
+  { value: 'in-der-naehe', label: 'Fahrt in der Nähe' },
   { value: 'events', label: 'Events' },
 ]
 
 // Composer tags: categories the user can post in
 const COMPOSER_TAGS: { value: Category; label: string }[] = [
-  { value: 'in-der-naehe', label: 'In der Nähe' },
+  { value: 'in-der-naehe', label: 'Fahrt in der Nähe' },
   { value: 'events', label: 'Events' },
 ]
 
@@ -1075,7 +1075,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     )
     if (category === 'alle') return sorted
     if (category === 'freunde') return sorted.filter(p => followingIds.has(p.user_id))
-    if (category === 'in-der-naehe') return sorted.filter(p => p.latitude != null && p.longitude != null)
+    if (category === 'in-der-naehe') return sorted.filter(p => p.post_type === 'ride')
     return sorted.filter(p => p.topic === category)
   }, [category, communityPosts, followingIds])
 
