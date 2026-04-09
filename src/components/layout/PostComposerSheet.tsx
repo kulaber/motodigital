@@ -652,8 +652,8 @@ export default function PostComposerSheet() {
                     </div>
                   </div>
 
-                  {/* Route preview map */}
-                  {rideStops.length >= 2 && (
+                  {/* Route preview map (single stop = pin only, 2+ = with route) */}
+                  {rideStops.length >= 1 && (
                     <div className="rounded-2xl overflow-hidden border border-[#222222]/6">
                       <LazyRideMap stops={rideStops} />
                     </div>

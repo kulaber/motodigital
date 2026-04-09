@@ -494,7 +494,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
               </div>
             )}
             {/* Route map — interactive, same style as explore maps */}
-            {stops.length >= 2 && (
+            {stops.length >= 1 && (
               <div className="mt-3 mx-4 rounded-2xl overflow-hidden border border-[#222222]/6">
                 <LazyRideMap stops={stops} />
               </div>
@@ -504,7 +504,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       })()}
 
       {/* Regular media (not for ride posts with route maps) */}
-      {!(post.post_type === 'ride' && post.ride_stops && post.ride_stops.length >= 2) && imageUrls.length > 0 && (
+      {!(post.post_type === 'ride' && post.ride_stops && post.ride_stops.length >= 1) && imageUrls.length > 0 && (
         <div className="mt-3">
           <PostImageCarousel
             items={urlsToMediaItems(imageUrls)}

@@ -84,10 +84,58 @@ export default function RideRouteMap({ stops }: Props) {
           .addTo(map)
       })
 
-      // Fit bounds to show all stops
-      const bounds = new mapboxgl.LngLatBounds()
-      stops.forEach(s => bounds.extend([s.lon, s.lat]))
-      map.fitBounds(bounds, { padding: 70, maxZoom: 12 })
+      // Single stop: add a visual radius circle around the pin
+      if (stops.length === 1) {
+        const center = [stops[0].lon, stops[0].lat] as [number, number]
+        const radiusKm = 5
+        const points = 64
+        const coords: [number, number][] = []
+        for (let i = 0; i <= points; i++) {
+          const angle = (i / points) * 2 * Math.PI
+          const dx = radiusKm / (111.32 * Math.cos((center[1] * Math.PI) / 180))
+          const dy = radiusKm / 110.574
+          coords.push([center[0] + dx * Math.cos(angle), center[1] + dy * Math.sin(angle)])
+        }
+
+        map.addSource('radius-circle', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: { type: 'Polygon', coordinates: [coords] },
+          },
+        })
+
+        map.addLayer({
+          id: 'radius-circle-fill',
+          type: 'fill',
+          source: 'radius-circle',
+          paint: {
+            'fill-color': '#2AABAB',
+            'fill-opacity': 0.08,
+          },
+        })
+
+        map.addLayer({
+          id: 'radius-circle-border',
+          type: 'line',
+          source: 'radius-circle',
+          paint: {
+            'line-color': '#2AABAB',
+            'line-width': 1.5,
+            'line-opacity': 0.3,
+          },
+        })
+
+        // Fit map to show entire radius circle
+        const circleBounds = new mapboxgl.LngLatBounds()
+        coords.forEach(c => circleBounds.extend(c))
+        map.fitBounds(circleBounds, { padding: 40 })
+      } else {
+        const bounds = new mapboxgl.LngLatBounds()
+        stops.forEach(s => bounds.extend([s.lon, s.lat]))
+        map.fitBounds(bounds, { padding: 70, maxZoom: 12 })
+      }
 
       // Fetch driving route
       if (stops.length >= 2) {
