@@ -74,6 +74,7 @@ interface CommunityPost {
   ride_max_participants: number | null
   ride_participant_count: number
   ride_joined_by_me: boolean
+  ride_participant_avatars: { name: string; avatar_url: string | null }[]
 }
 
 /* ── Sidebar: Rider list item ──────────────────────────── */
@@ -442,24 +443,56 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         const stops = post.ride_stops
         return (
           <>
-            {/* Route pills */}
-            <div className="px-4 mt-3 flex flex-wrap gap-1.5">
+            {/* Route pills with arrows */}
+            <div className="px-4 mt-3 flex flex-wrap items-center gap-1">
               {stops.map((s, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-[11px] font-medium">
-                  <MapPin size={9} />
-                  {s.name}
+                <span key={i} className="contents">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-[11px] font-medium">
+                    <MapPin size={9} />
+                    {s.name}
+                  </span>
+                  {i < stops.length - 1 && (
+                    <ChevronRight size={12} className="text-[#222222]/20 flex-shrink-0 mx-0.5" />
+                  )}
                 </span>
               ))}
             </div>
-            {/* Meta row: date + participants */}
-            <div className="px-4 mt-2 flex items-center gap-3 text-[11px] text-[#717171]">
-              {post.ride_start_at && (
-                <span>{new Date(post.ride_start_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })} {new Date(post.ride_start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
-              )}
-              {post.ride_max_participants && (
-                <span className="font-semibold text-[#222222]/60">{post.ride_participant_count} / {post.ride_max_participants} Rider</span>
-              )}
-            </div>
+            {/* Date/time — prominent */}
+            {post.ride_start_at && (
+              <div className="px-4 mt-2.5 flex items-center gap-2">
+                <Calendar size={14} className="text-[#06a5a5] flex-shrink-0" />
+                <span className="text-[13px] font-semibold text-[#222222]">
+                  {new Date(post.ride_start_at).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+                  {', '}
+                  {new Date(post.ride_start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                </span>
+              </div>
+            )}
+            {/* Participants: avatar stack + count */}
+            {post.ride_max_participants && (
+              <div className="px-4 mt-2 flex items-center gap-2">
+                {post.ride_participant_avatars.length > 0 && (
+                  <div className="flex -space-x-1.5">
+                    {post.ride_participant_avatars.slice(0, 5).map((a, i) => (
+                      <div
+                        key={i}
+                        className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-[#F0F0F0] flex-shrink-0"
+                        title={a.name}
+                      >
+                        {a.avatar_url ? (
+                          <img src={a.avatar_url} alt={a.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-[#222222]/40">
+                            {a.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <span className="text-xs font-medium text-[#717171]">{post.ride_participant_count} / {post.ride_max_participants} Rider</span>
+              </div>
+            )}
             {/* Route map — interactive, same style as explore maps */}
             {stops.length >= 2 && (
               <div className="mt-3 mx-4 rounded-2xl overflow-hidden border border-[#222222]/6">
@@ -697,7 +730,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   const [sidebarRiders, setSidebarRiders] = useState<SidebarRider[]>([])
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
   const allEvents = initialEvents
-  const { unreadNotificationCount } = useAuth()
+  const { unreadNotificationCount, avatarUrl: myAvatarUrl, fullName: myFullName } = useAuth()
   const searchParams = useSearchParams()
   const highlightPostId = searchParams.get('post')
   const scrolledRef = useRef(false)
@@ -770,12 +803,14 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     const bikeMap: Record<string, { title: string; slug: string | null }> = {}
     for (const b of (bikesData ?? [])) bikeMap[b.id] = { title: b.title, slug: b.slug }
 
-    // Build ride participants map: { ride_post_id -> { count, joinedByMe } }
-    const rideParticipantsMap: Record<string, { count: number; joinedByMe: boolean }> = {}
+    // Build ride participants map: { ride_post_id -> { count, joinedByMe, avatars } }
+    const rideParticipantsMap: Record<string, { count: number; joinedByMe: boolean; avatars: { name: string; avatar_url: string | null }[] }> = {}
     for (const rp of (rideParticipantsData ?? []) as { ride_post_id: string; user_id: string }[]) {
-      if (!rideParticipantsMap[rp.ride_post_id]) rideParticipantsMap[rp.ride_post_id] = { count: 0, joinedByMe: false }
+      if (!rideParticipantsMap[rp.ride_post_id]) rideParticipantsMap[rp.ride_post_id] = { count: 0, joinedByMe: false, avatars: [] }
       rideParticipantsMap[rp.ride_post_id].count++
       if (rp.user_id === userId) rideParticipantsMap[rp.ride_post_id].joinedByMe = true
+      const prof = profileMap[rp.user_id]
+      if (prof) rideParticipantsMap[rp.ride_post_id].avatars.push({ name: prof.full_name ?? 'Unbekannt', avatar_url: prof.avatar_url })
     }
 
     return postsData.map(p => {
@@ -814,6 +849,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         ride_max_participants: p.ride_max_participants ?? null,
         ride_participant_count: rideP?.count ?? 0,
         ride_joined_by_me: rideP?.joinedByMe ?? false,
+        ride_participant_avatars: rideP?.avatars ?? [],
       }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -994,6 +1030,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         ...p,
         ride_joined_by_me: true,
         ride_participant_count: p.ride_participant_count + 1,
+        ride_participant_avatars: [...p.ride_participant_avatars, { name: myFullName ?? 'Ich', avatar_url: myAvatarUrl ?? null }],
       } : p))
       showSuccess('Du nimmst an der Fahrt teil!')
     } else {
@@ -1015,6 +1052,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         ...p,
         ride_joined_by_me: false,
         ride_participant_count: Math.max(0, p.ride_participant_count - 1),
+        ride_participant_avatars: p.ride_participant_avatars.filter(a => a.name !== (myFullName ?? 'Ich')),
       } : p))
       showSuccess('Du hast die Fahrt abgesagt.')
     } else {
