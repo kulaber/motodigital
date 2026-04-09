@@ -4,7 +4,7 @@ import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2 } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -700,14 +700,16 @@ interface StoryRider {
 
 interface Props {
   userId: string | null
+  isAuthenticated?: boolean
   isSuperadmin?: boolean
   riders?: StoryRider[]
   events?: Event[]
 }
 
 const PAGE_SIZE = 10
+const GUEST_LIMIT = 3
 
-export default function ExploreClient({ userId, isSuperadmin, riders = [], events: initialEvents = [] }: Props) {
+export default function ExploreClient({ userId, isAuthenticated = !!userId, isSuperadmin, riders = [], events: initialEvents = [] }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -720,6 +722,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
   const [deleting, setDeleting] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [loginContext, setLoginContext] = useState<'like' | 'comment'>('like')
+  const [loginInitialMode, setLoginInitialMode] = useState<'login' | 'register'>('login')
   const { toasts, success: showSuccess, error: showError } = useToast()
 
   // Composer state
@@ -861,15 +864,16 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     hasMoreRef.current = true
     offsetRef.current = 0
 
+    const limit = isAuthenticated ? PAGE_SIZE : GUEST_LIMIT
     const { data: postsData } = await (supabase.from('community_posts') as any)
       .select('id, body, media_urls, created_at, user_id, topic, latitude, longitude, location_name, event_slug, bike_id, post_type, ride_visibility, ride_stops, ride_start_at, ride_max_participants')
       .order('created_at', { ascending: false })
-      .range(0, PAGE_SIZE - 1)
+      .range(0, limit - 1)
 
     const mapped = await enrichPosts(postsData ?? [])
     setCommunityPosts(mapped)
     offsetRef.current = mapped.length
-    const more = (postsData ?? []).length >= PAGE_SIZE
+    const more = isAuthenticated && (postsData ?? []).length >= PAGE_SIZE
     hasMoreRef.current = more
     setLoadingPosts(false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -909,9 +913,9 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     return () => window.removeEventListener('post-created', handlePostCreated)
   }, [loadPosts, showSuccess])
 
-  // Infinite scroll: observe sentinel only after initial load is done
+  // Infinite scroll: observe sentinel only after initial load is done (disabled for guests)
   useEffect(() => {
-    if (loadingPosts) return
+    if (!isAuthenticated || loadingPosts) return
     const el = sentinelRef.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -920,7 +924,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [loadingPosts, loadMorePosts])
+  }, [isAuthenticated, loadingPosts, loadMorePosts])
 
   // Load IDs of users the current user follows (for "Freunde" filter)
   useEffect(() => {
@@ -1225,7 +1229,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
           )}
 
           {/* Card stream */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 relative">
             {loadingPosts ? (
               <div className="flex justify-center py-16">
                 <div className="w-7 h-7 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />
@@ -1241,12 +1245,79 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
             )}
           </div>
 
-          {/* Infinite scroll sentinel */}
-          <div ref={sentinelRef} className="h-1" />
-          {loadingMore && (
-            <div className="flex justify-center py-6">
-              <div className="w-6 h-6 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />
+          {/* Soft gate for unauthenticated users */}
+          {!isAuthenticated && !loadingPosts && filteredPosts.length > 0 && (
+            <div className="relative">
+              {/* Fade overlay bleeding upward over last post */}
+              <div className="absolute -top-32 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#F7F7F7] pointer-events-none z-10" />
+
+              {/* CTA block */}
+              <div className="flex flex-col items-center py-6 px-4 relative z-20">
+                {/* Dot row */}
+                <div className="flex gap-1.5 mb-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: i < 3 ? '#2AABAB' : 'rgba(34,34,34,0.1)' }}
+                    />
+                  ))}
+                </div>
+
+                {/* Text */}
+                <p className="text-[#222222] text-sm text-center mb-4">
+                  …und noch <strong className="text-[#2AABAB]">viel mehr</strong>!
+                </p>
+
+                {/* CTA button */}
+                <button
+                  onClick={() => { setLoginInitialMode('register'); setShowLogin(true) }}
+                  className="w-full bg-[#2AABAB] text-white font-semibold py-3 rounded-full text-center text-sm"
+                >
+                  Kostenlos registrieren
+                </button>
+
+                {/* Sub-text */}
+                <p className="text-[#222222]/40 text-xs mt-3">
+                  Bereits dabei?{' '}
+                  <button onClick={() => { setLoginInitialMode('login'); setShowLogin(true) }} className="text-[#222222]/60 underline">
+                    Einloggen
+                  </button>
+                </p>
+              </div>
+
+              {/* Ghost card */}
+              <div className="px-4 pb-8">
+                <div className="bg-white rounded-xl border border-[#222222]/6 overflow-hidden relative">
+                  <div className="h-48 bg-[#F0F0F0] animate-pulse" />
+                  <div className="p-3 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#E8E8E8] animate-pulse shrink-0" />
+                    <div className="flex flex-col gap-1.5 flex-1">
+                      <div className="h-3 w-2/3 bg-[#E8E8E8] rounded animate-pulse" />
+                      <div className="h-2.5 w-1/3 bg-[#E8E8E8] rounded animate-pulse" />
+                    </div>
+                  </div>
+                  {/* Lock overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-white/90 border border-[#222222]/10 flex items-center justify-center">
+                      <Lock size={16} className="text-[#222222]/25" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* Infinite scroll sentinel */}
+          {isAuthenticated && (
+            <>
+              <div ref={sentinelRef} className="h-1" />
+              {loadingMore && (
+                <div className="flex justify-center py-6">
+                  <div className="w-6 h-6 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -1342,6 +1413,7 @@ export default function ExploreClient({ userId, isSuperadmin, riders = [], event
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
         triggerContext={loginContext}
+        initialMode={loginInitialMode}
       />
     </>
   )

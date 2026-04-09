@@ -43,7 +43,7 @@ export default async function ExplorePage() {
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
           <Suspense>
-            <ExploreClient userId={user?.id ?? null} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} events={(eventsData ?? []) as Event[]} />
+            <ExploreClient userId={user?.id ?? null} isAuthenticated={!!user} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} events={(eventsData ?? []) as Event[]} />
           </Suspense>
         </div>
       </div>
