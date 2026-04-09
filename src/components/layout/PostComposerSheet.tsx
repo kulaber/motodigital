@@ -224,7 +224,7 @@ export default function PostComposerSheet() {
     if (!token || value.length < 2) { setStopSuggestions([]); return }
     setStopLoading(true)
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&types=place,locality&language=de&limit=5`
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&types=address,place,locality&language=de&limit=5`
       const res = await fetch(url)
       const json = await res.json()
       setStopSuggestions((json.features ?? []) as GeocodingResult[])
@@ -240,8 +240,15 @@ export default function PostComposerSheet() {
   }
 
   function addStop(result: GeocodingResult) {
-    const countryCtx = result.context?.find(c => c.id.startsWith('country.'))
-    const displayName = countryCtx ? `${result.text}, ${countryCtx.text}` : result.text
+    const isAddress = result.id.startsWith('address.')
+    let displayName: string
+    if (isAddress) {
+      const placeCtx = result.context?.find(c => c.id.startsWith('place.'))
+      displayName = placeCtx ? `${result.text}, ${placeCtx.text}` : result.text
+    } else {
+      const countryCtx = result.context?.find(c => c.id.startsWith('country.'))
+      displayName = countryCtx ? `${result.text}, ${countryCtx.text}` : result.text
+    }
     setRideStops(prev => [...prev, { name: displayName, lon: result.center[0], lat: result.center[1] }])
     setStopQuery('')
     setStopSuggestions([])
@@ -635,7 +642,7 @@ export default function PostComposerSheet() {
                         type="text"
                         value={stopQuery}
                         onChange={e => handleStopQueryChange(e.target.value)}
-                        placeholder="Stadt oder Ort hinzufügen..."
+                        placeholder="Adresse, Stadt oder Ort hinzufügen..."
                         autoComplete="off"
                         className="w-full bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] placeholder:text-[#222222]/25 outline-none focus:border-[#222222]/30 transition-colors"
                       />
