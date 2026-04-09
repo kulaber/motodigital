@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
-import { X, ImageIcon, Video, Loader2, Plus, Minus, MapPin } from 'lucide-react'
+import { X, ImageIcon, Video, Loader2, Plus, Minus, MapPin, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { compressImage } from '@/lib/utils/compressImage'
 import Image from 'next/image'
 import LazyRideMap from '@/components/map/LazyRideMap'
+import DatePicker from '@/components/ui/DatePicker'
+import TimePicker from '@/components/ui/TimePicker'
 
 type SheetTab = 'beitrag' | 'fahrt'
 
@@ -59,11 +61,13 @@ export default function PostComposerSheet() {
   const [stopLoading, setStopLoading] = useState(false)
   const [rideDate, setRideDate] = useState('')
   const [rideTime, setRideTime] = useState('')
-  const [rideMaxParticipants, setRideMaxParticipants] = useState(6)
+  const [rideMaxParticipants, setRideMaxParticipants] = useState(5)
+  const [rideMessage, setRideMessage] = useState('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const rideTextareaRef = useRef<HTMLTextAreaElement>(null)
   const stopInputRef = useRef<HTMLInputElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
   const stopDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -135,7 +139,8 @@ export default function PostComposerSheet() {
     setStopSuggestions([])
     setRideDate('')
     setRideTime('')
-    setRideMaxParticipants(6)
+    setRideMaxParticipants(5)
+    setRideMessage('')
   }
 
   // ── Beitrag: Media handling ──
@@ -217,6 +222,58 @@ export default function PostComposerSheet() {
     }
   }
 
+  // ── Fahrt: Ride message with @mention ──
+
+  function handleRideMessageChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value
+    setRideMessage(val)
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = `${Math.max(80, ta.scrollHeight)}px`
+    const cursor = e.target.selectionStart ?? val.length
+    const textBefore = val.slice(0, cursor)
+    const match = textBefore.match(/@([a-zA-Z0-9_äöüÄÖÜß-]*)$/)
+    if (match) {
+      setMentionQuery(match[1])
+      setMentionIndex(0)
+    } else {
+      setMentionQuery(null)
+    }
+  }
+
+  function insertRideMention(username: string) {
+    const textarea = rideTextareaRef.current
+    if (!textarea) return
+    const cursor = textarea.selectionStart ?? rideMessage.length
+    const textBefore = rideMessage.slice(0, cursor)
+    const atPos = textBefore.lastIndexOf('@')
+    if (atPos === -1) return
+    const newMsg = rideMessage.slice(0, atPos) + `@${username} ` + rideMessage.slice(cursor)
+    setRideMessage(newMsg)
+    setMentionQuery(null)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const newCursor = atPos + username.length + 2
+      textarea.setSelectionRange(newCursor, newCursor)
+    })
+  }
+
+  function handleRideMentionKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (mentionQuery === null || mentionSuggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setMentionIndex(i => (i + 1) % mentionSuggestions.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setMentionIndex(i => (i - 1 + mentionSuggestions.length) % mentionSuggestions.length)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      insertRideMention(mentionSuggestions[mentionIndex].username)
+    } else if (e.key === 'Escape') {
+      setMentionQuery(null)
+    }
+  }
+
   // ── Fahrt: Mapbox Geocoding for stops ──
 
   const fetchStopSuggestions = useCallback(async (value: string) => {
@@ -224,7 +281,7 @@ export default function PostComposerSheet() {
     if (!token || value.length < 2) { setStopSuggestions([]); return }
     setStopLoading(true)
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&types=address,place,locality&language=de&limit=5`
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${token}&types=address,place,locality&language=de&limit=5&country=de,at,ch`
       const res = await fetch(url)
       const json = await res.json()
       setStopSuggestions((json.features ?? []) as GeocodingResult[])
@@ -334,18 +391,24 @@ export default function PostComposerSheet() {
         ? new Date(`${rideDate}T${rideTime}`).toISOString()
         : new Date(`${rideDate}T00:00:00`).toISOString()
 
-      const { error: insertError } = await (supabase.from('community_posts') as any).insert({
+      const { data: insertedPost, error: insertError } = await (supabase.from('community_posts') as any).insert({
         user_id: user.id,
-        body: null,
+        body: rideMessage.trim() || null,
         media_urls: [],
         topic: 'allgemein',
         post_type: 'ride',
         ride_visibility: rideVisibility,
         ride_stops: rideStops,
         ride_start_at: startAt,
-        ride_max_participants: rideMaxParticipants,
-      })
+        ride_max_participants: rideMaxParticipants + 1, // +1 for the creator
+      }).select('id').maybeSingle()
       if (insertError) throw insertError
+
+      // Auto-join creator as rider
+      if (insertedPost?.id) {
+        await (supabase.from('ride_participants') as any)
+          .insert({ ride_post_id: insertedPost.id, user_id: user.id })
+      }
 
       handleClose()
       window.dispatchEvent(new Event('post-created'))
@@ -360,6 +423,16 @@ export default function PostComposerSheet() {
 
   const canPostBeitrag = !submitting && (body.trim().length > 0 || mediaFiles.length > 0)
   const canPostFahrt = !submitting && rideStops.length >= 1 && rideDate.length > 0
+
+  // Min date/time for ride pickers (prevent past selection)
+  const _now = new Date()
+  const todayIso = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`
+  const rideMinTime = rideDate === todayIso ? (() => {
+    const h = _now.getHours()
+    const nextQ = Math.ceil(_now.getMinutes() / 15) * 15
+    if (nextQ >= 60) return h + 1 >= 24 ? '23:45' : `${String(h + 1).padStart(2, '0')}:00`
+    return `${String(h).padStart(2, '0')}:${String(nextQ).padStart(2, '0')}`
+  })() : undefined
 
   if (!open) return null
 
@@ -615,21 +688,23 @@ export default function PostComposerSheet() {
 
                     {/* Stop chips */}
                     {rideStops.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-2">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
                         {rideStops.map((stop, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-medium"
-                          >
-                            <MapPin size={10} />
-                            {stop.name}
-                            <button
-                              type="button"
-                              onClick={() => removeStop(i)}
-                              className="ml-0.5 hover:text-red-500 transition-colors"
-                            >
-                              <X size={10} />
-                            </button>
+                          <span key={i} className="contents">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-medium">
+                              <MapPin size={10} />
+                              {stop.name}
+                              <button
+                                type="button"
+                                onClick={() => removeStop(i)}
+                                className="ml-0.5 hover:text-red-500 transition-colors"
+                              >
+                                <X size={10} />
+                              </button>
+                            </span>
+                            {i < rideStops.length - 1 && (
+                              <ChevronRight size={12} className="text-[#222222]/20 flex-shrink-0" />
+                            )}
                           </span>
                         ))}
                       </div>
@@ -655,7 +730,11 @@ export default function PostComposerSheet() {
                   {/* Route preview map (single stop = pin only, 2+ = with route) */}
                   {rideStops.length >= 1 && (
                     <div className="rounded-2xl overflow-hidden border border-[#222222]/6">
-                      <LazyRideMap stops={rideStops} />
+                      <LazyRideMap
+                        key={rideStops.map(s => `${s.lon},${s.lat}`).join('|')}
+                        stops={rideStops}
+                        height={220}
+                      />
                     </div>
                   )}
                 </div>
@@ -666,25 +745,38 @@ export default function PostComposerSheet() {
                   <div>
                     <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Startdatum & Uhrzeit</label>
                     <div className="flex gap-3">
+                      {/* Desktop: custom DatePicker */}
+                      <div className="flex-1 hidden md:block">
+                        <DatePicker value={rideDate} onChange={setRideDate} min={todayIso} placeholder="Datum wählen" />
+                      </div>
+                      {/* Mobile: native date */}
                       <input
                         type="date"
                         value={rideDate}
+                        min={todayIso}
                         onChange={e => setRideDate(e.target.value)}
-                        className="flex-1 bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
+                        className="flex-1 md:hidden bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
                       />
+                      {/* Desktop: custom TimePicker */}
+                      <div className="flex-1 hidden md:block">
+                        <TimePicker value={rideTime} onChange={setRideTime} minTime={rideMinTime} placeholder="Uhrzeit" />
+                      </div>
+                      {/* Mobile: native time (15-min steps) */}
                       <input
                         type="time"
                         value={rideTime}
+                        step="900"
+                        min={rideMinTime}
                         onChange={e => setRideTime(e.target.value)}
-                        className="flex-1 bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
+                        className="flex-1 md:hidden bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 text-sm text-[#222222] outline-none focus:border-[#222222]/30 transition-colors"
                       />
                     </div>
                   </div>
 
                   {/* Max participants stepper */}
                   <div>
-                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Max. Teilnehmer</label>
-                    <div className="flex items-center gap-4">
+                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block text-center">Max. Teilnehmer</label>
+                    <div className="flex items-center justify-center gap-4">
                       <button
                         type="button"
                         onClick={() => setRideMaxParticipants(p => Math.max(2, p - 1))}
@@ -704,6 +796,50 @@ export default function PostComposerSheet() {
                       >
                         <Plus size={14} />
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Ride message with @mention */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#222222]/50 uppercase tracking-wide mb-2 block">Nachricht (optional)</label>
+                    <div className="relative">
+                      <textarea
+                        ref={rideTextareaRef}
+                        value={rideMessage}
+                        onChange={handleRideMessageChange}
+                        onKeyDown={handleRideMentionKeyDown}
+                        placeholder="Schreib etwas zur Fahrt… @erwähne Rider"
+                        style={{ resize: 'none', minHeight: '80px' }}
+                        className="w-full text-sm text-[#222222] placeholder:text-[#222222]/30 outline-none bg-white border border-[#222222]/10 rounded-xl px-4 py-2.5 leading-relaxed focus:border-[#222222]/30 transition-colors"
+                      />
+                      {mentionQuery !== null && mentionSuggestions.length > 0 && tab === 'fahrt' && rideStep === 2 && (
+                        <div className="absolute left-0 right-0 bottom-full mb-1 z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
+                          {mentionSuggestions.map((p, i) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onMouseDown={(e) => { e.preventDefault(); insertRideMention(p.username) }}
+                              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                                i === mentionIndex ? 'bg-[#06a5a5]/8' : 'hover:bg-[#F7F7F7]'
+                              }`}
+                            >
+                              <div className="w-7 h-7 rounded-full bg-[#F0F0F0] overflow-hidden flex-shrink-0">
+                                {p.avatar_url ? (
+                                  <Image src={p.avatar_url} alt={p.full_name} width={28} height={28} className="object-cover w-full h-full" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-[#222222]/40">
+                                    {p.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight">{p.full_name}</p>
+                                <p className="text-[11px] text-[#717171] truncate">@{p.username}</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 

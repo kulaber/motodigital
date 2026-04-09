@@ -13,9 +13,10 @@ interface RideStop {
 
 interface Props {
   stops: RideStop[]
+  height?: number
 }
 
-export default function LazyRideMap({ stops }: Props) {
+export default function LazyRideMap({ stops, height = 320 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -38,9 +39,9 @@ export default function LazyRideMap({ stops }: Props) {
   return (
     <div ref={ref}>
       {visible ? (
-        <RideRouteMap stops={stops} />
+        <RideRouteMap stops={stops} height={height} />
       ) : (
-        <div className="w-full h-[320px] bg-[#F0EDE4] rounded-xl animate-pulse" />
+        <div className="w-full bg-[#F0EDE4] rounded-xl animate-pulse" style={{ height }} />
       )}
     </div>
   )

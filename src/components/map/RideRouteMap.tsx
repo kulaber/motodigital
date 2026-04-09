@@ -12,9 +12,10 @@ interface RideStop {
 
 interface Props {
   stops: RideStop[]
+  height?: number
 }
 
-export default function RideRouteMap({ stops }: Props) {
+export default function RideRouteMap({ stops, height = 320 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const [activated, setActivated] = useState(false)
@@ -249,7 +250,7 @@ export default function RideRouteMap({ stops }: Props) {
       `}</style>
       <div className="ridemap-container">
         <div className="relative">
-          <div ref={containerRef} className="w-full" style={{ height: 320 }} />
+          <div ref={containerRef} className="w-full" style={{ height }} />
           {!activated && (
             <div
               onClick={handleActivate}
