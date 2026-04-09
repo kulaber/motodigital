@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, MapPin, ChevronLeft, ChevronRight, Star, X, Map as MapIcon, List as ListIcon, Search, SlidersHorizontal } from 'lucide-react'
@@ -325,6 +326,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [mobileView,         setMobileView]         = useState<'map' | 'list'>('list')
   const [listExiting,        setListExiting]        = useState(false)
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
+  const [isFullscreen,       setIsFullscreen]       = useState(false)
   const [showLogin, setShowLogin]                   = useState(false)
   const supabase = createClient()
 
@@ -643,6 +645,7 @@ export default function BuilderPageClient({ builders }: Props) {
     })
     mapRef.current = map
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+    map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
     map.once('load', () => {
       applyMapStyle(map)
       setMapLanguage(map)
@@ -665,6 +668,13 @@ export default function BuilderPageClient({ builders }: Props) {
       markersRef.current = []
       mapEl.remove()
     }
+  }, [])
+
+  /* ── track fullscreen state ── */
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', handler)
+    return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
   /* ── scroll list to top when visible results change ── */
@@ -727,10 +737,26 @@ export default function BuilderPageClient({ builders }: Props) {
           box-shadow: 0 4px 20px rgba(0,0,0,0.10) !important;
         }
         .mapboxgl-popup-tip { display: none !important; }
-        .mapboxgl-ctrl-group { border: 1px solid #DDDDDD !important; border-radius: 10px !important; overflow: hidden; }
+        .mapboxgl-ctrl-group { border: 1px solid #e5e5e5 !important; border-radius: 8px !important; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
         .mapboxgl-ctrl button { background: #fff !important; }
         .mapboxgl-ctrl-logo { display: none !important; }
         .mapboxgl-ctrl-attrib { display: none !important; }
+        .mapboxgl-ctrl-zoom-in .mapboxgl-ctrl-icon {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") !important;
+          background-size: 16px 16px !important; background-position: center !important; background-repeat: no-repeat !important;
+        }
+        .mapboxgl-ctrl-zoom-out .mapboxgl-ctrl-icon {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E") !important;
+          background-size: 16px 16px !important; background-position: center !important; background-repeat: no-repeat !important;
+        }
+        .mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3'/%3E%3C/svg%3E") !important;
+          background-size: 16px 16px !important; background-position: center !important; background-repeat: no-repeat !important;
+        }
+        .mapboxgl-ctrl-shrink .mapboxgl-ctrl-icon {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 14h6v6m10-10h-6V4m0 6l7-7M3 21l7-7'/%3E%3C/svg%3E") !important;
+          background-size: 16px 16px !important; background-position: center !important; background-repeat: no-repeat !important;
+        }
         @keyframes slideDown {
           from { transform: translateY(0); }
           to { transform: translateY(100%); }
@@ -956,10 +982,14 @@ export default function BuilderPageClient({ builders }: Props) {
 
         {/* RIGHT — map */}
         <div ref={desktopMapSlot} className="w-1/2 relative p-3">
-          {selectedBuilder && (
+          {selectedBuilder && !isFullscreen && (
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}
         </div>
+        {selectedBuilder && isFullscreen && mapContainerRef.current && createPortal(
+          <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />,
+          mapContainerRef.current
+        )}
       </div>
 
       {/* ── Mobile: Map view ── */}
