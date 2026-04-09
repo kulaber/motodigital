@@ -767,8 +767,12 @@ export default function PostComposerSheet() {
             }}
           >
             {stopSuggestions.map((s, i) => {
-              const countryCtx = s.context?.find(c => c.id.startsWith('country.'))
-              const displayName = countryCtx ? `${s.text}, ${countryCtx.text}` : s.place_name
+              const isAddress = s.id.startsWith('address.')
+              const displayName = isAddress
+                ? s.place_name
+                : (s.context?.find(c => c.id.startsWith('country.'))
+                    ? `${s.text}, ${s.context.find(c => c.id.startsWith('country.'))!.text}`
+                    : s.place_name)
               return (
                 <button
                   key={`${s.id}-${i}`}
