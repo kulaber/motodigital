@@ -327,6 +327,7 @@ export default function BuilderPageClient({ builders }: Props) {
   const [listExiting,        setListExiting]        = useState(false)
   const [mobileSheetBuilder, setMobileSheetBuilder] = useState<Builder | null>(null)
   const [isFullscreen,       setIsFullscreen]       = useState(false)
+  const [mapPortalEl,        setMapPortalEl]        = useState<HTMLDivElement | null>(null)
   const [showLogin, setShowLogin]                   = useState(false)
   const supabase = createClient()
 
@@ -672,7 +673,11 @@ export default function BuilderPageClient({ builders }: Props) {
 
   /* ── track fullscreen state ── */
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement)
+    const handler = () => {
+      const fs = !!document.fullscreenElement
+      setIsFullscreen(fs)
+      setMapPortalEl(fs ? mapContainerRef.current : null)
+    }
     document.addEventListener('fullscreenchange', handler)
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
@@ -986,9 +991,9 @@ export default function BuilderPageClient({ builders }: Props) {
             <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />
           )}
         </div>
-        {selectedBuilder && isFullscreen && mapContainerRef.current && createPortal(
+        {selectedBuilder && isFullscreen && mapPortalEl && createPortal(
           <MapBuilderCard b={selectedBuilder} onClose={() => setSelectedBuilder(null)} />,
-          mapContainerRef.current
+          mapPortalEl
         )}
       </div>
 
