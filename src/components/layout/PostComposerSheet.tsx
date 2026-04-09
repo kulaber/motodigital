@@ -451,24 +451,22 @@ export default function PostComposerSheet() {
         style={{ maxHeight: '90dvh' }}
       >
         {/* Drag handle (mobile only) */}
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0 md:hidden">
+        <div className="flex justify-center pt-2 pb-0 flex-shrink-0 md:hidden">
           <div className="w-10 h-1 rounded-full bg-[#222222]/10" />
         </div>
 
         {/* Header */}
-        <div className="flex flex-col px-5 pb-3 border-b border-[#222222]/6 flex-shrink-0">
-          <div className="flex items-center justify-end mb-3 md:pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors"
-            >
-              <X size={16} />
-            </button>
-          </div>
+        <div className="relative flex flex-col px-5 pb-3 border-b border-[#222222]/6 flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center text-[#717171] transition-colors z-10"
+          >
+            <X size={16} />
+          </button>
 
           {/* Tab pills */}
-          <div className="flex justify-center">
+          <div className="flex justify-center pt-3">
             <div className="flex bg-[#F7F7F7] rounded-full p-1">
               {(['beitrag', 'fahrt'] as const).map(t => (
                 <button
