@@ -4,100 +4,108 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import PostComposerSheet from "./PostComposerSheet";
 
-const NAV_ITEMS = [
+const INACTIVE_ICON = "#B0B0B8";
+
+interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  dynamicHref?: boolean;
+  icon: React.ReactNode;
+}
+
+const NAV_ITEMS: NavItem[] = [
   {
-    id: "home",
-    label: "Home",
-    href: "/explore",
+    id: "dashboard",
+    label: "Dashboard",
+    href: "/dashboard",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
       </svg>
     ),
   },
   {
-    id: "suche",
-    label: "Suche",
-    href: "/search",
+    id: "builds",
+    label: "Builds",
+    href: "/dashboard/meine-garage",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
       </svg>
     ),
   },
   {
-    id: "post",
-    label: "Posten",
-    href: "#",
-    icon: null,
-  },
-  {
-    id: "nachrichten",
-    label: "Nachrichten",
+    id: "anfragen",
+    label: "Anfragen",
     href: "/dashboard/messages",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
       </svg>
     ),
   },
   {
     id: "profil",
     label: "Profil",
-    href: "/dashboard",
+    href: "/custom-werkstatt",
     dynamicHref: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="10" r="3" />
+        <path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855" />
+      </svg>
+    ),
+  },
+  {
+    id: "einstellungen",
+    label: "Einstellungen",
+    href: "/dashboard/account",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
       </svg>
     ),
   },
 ];
 
 const ITEM_COUNT = NAV_ITEMS.length;
-const INACTIVE_ICON = "#B0B0B8";
 
-/* Gate — only mounts the inner nav when user is logged in AND is a rider */
-export default function MobileBottomNav() {
+export default function WerkstattMobileNav() {
   const { user, loading, role } = useAuth();
   const path = usePathname();
+
   if (loading || !user) return null;
-  // Workshop users get their own nav (WerkstattMobileNav)
-  if (role === "custom-werkstatt") return null;
-  // Hide during onboarding
+  if (role !== "custom-werkstatt") return null;
   if (path?.startsWith("/willkommen")) return null;
-  return <MobileBottomNavInner />;
+
+  return <WerkstattMobileNavInner />;
 }
 
-function MobileBottomNavInner() {
-  const { role, slug, unreadCount, unreadNotificationCount } = useAuth();
+function WerkstattMobileNavInner() {
+  const { slug, unreadCount } = useAuth();
   const pathname = usePathname();
-  const [optimistic, setOptimistic] = useState({ index: -1, href: null });
+  const [optimistic, setOptimistic] = useState({ index: -1, href: null as string | null });
 
-  // Resolve dynamic profile href for riders
-  const riderProfileHref = role === "rider" && slug ? `/rider/${slug}` : null;
+  const profileHref = slug ? `/custom-werkstatt/${slug}` : "/dashboard/profile";
   const navItems = NAV_ITEMS.map((item) => {
-    if (item.dynamicHref && riderProfileHref) {
-      return { ...item, href: riderProfileHref };
-    }
+    if (item.dynamicHref) return { ...item, href: profileHref };
     return item;
   });
 
   const routeIndex = navItems.findIndex((item) => {
-    if (pathname === item.href || pathname.startsWith(item.href + "/")) return true;
-    // Explore-related pages highlight home
-    if (item.id === "home" && (pathname.startsWith("/custom-bike/") || pathname.startsWith("/bikes") || pathname.startsWith("/custom-werkstatt"))) return true;
-    // Profil: match all /dashboard/* pages except /dashboard/messages
-    if (item.dynamicHref && pathname.startsWith("/dashboard") && !pathname.startsWith("/dashboard/messages")) return true;
+    if (item.id === "dashboard" && pathname === "/dashboard") return true;
+    if (item.id !== "dashboard" && (pathname === item.href || pathname.startsWith(item.href + "/"))) return true;
     return false;
   });
 
-  // Show optimistic index until pathname reaches the target href
   const arrivedAtTarget =
     optimistic.href &&
     (pathname === optimistic.href || pathname.startsWith(optimistic.href + "/"));
@@ -134,14 +142,6 @@ function MobileBottomNavInner() {
 
   return (
     <>
-      {/* Post composer bottom sheet */}
-      <PostComposerSheet />
-
-      {/* Spacer so page content isn't hidden (skip on all dashboard pages — they manage own layout) */}
-      {!pathname.startsWith("/dashboard") && (
-        <div className="block md:hidden" style={{ height: 96 }} />
-      )}
-
       {/* Docked nav wrapper */}
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
@@ -172,8 +172,8 @@ function MobileBottomNavInner() {
             className="relative flex items-center justify-evenly"
             style={{ height: 68, padding: "0 4px" }}
           >
-            {/* Sliding pill — pure CSS positioning, no DOM measurement (skip FAB center at index 2) */}
-            {activeIndex >= 0 && activeIndex !== 2 && (
+            {/* Sliding pill */}
+            {activeIndex >= 0 && (
               <span
                 style={{
                   position: "absolute",
@@ -192,37 +192,7 @@ function MobileBottomNavInner() {
 
             {navItems.map((item, index) => {
               const isActive = activeIndex === index;
-              const showBadge = (item.id === "nachrichten" && unreadCount > 0) || (item.id === "home" && unreadNotificationCount > 0);
-
-              // FAB for the center slot (index 2 = Explore position)
-              if (index === 2) {
-                return (
-                  <div key="fab-center" className="relative flex items-center justify-center" style={{ flex: 1, zIndex: 2 }}>
-                    <button
-                      type="button"
-                      onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
-                      className="flex items-center justify-center active:scale-95 transition-transform"
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "50%",
-                        background: "#2AABAB",
-                        boxShadow: "0 4px 16px rgba(42, 171, 171, 0.3)",
-                        WebkitTapHighlightColor: "transparent",
-                        marginTop: -4,
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                      aria-label="Posten"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
-                    </button>
-                  </div>
-                );
-              }
+              const hasUnread = item.id === "anfragen" && unreadCount > 0;
 
               return (
                 <Link
@@ -250,7 +220,7 @@ function MobileBottomNavInner() {
                     }}
                   >
                     {item.icon}
-                    {showBadge && (
+                    {hasUnread && (
                       <span
                         style={{
                           position: "absolute",
@@ -271,10 +241,7 @@ function MobileBottomNavInner() {
                           border: "2px solid #06a5a5",
                         }}
                       >
-                        {(() => {
-                          const count = item.id === "home" ? unreadNotificationCount : unreadCount;
-                          return count > 9 ? "9+" : count;
-                        })()}
+                        {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
                   </span>

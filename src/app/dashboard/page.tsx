@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
-import SignOutButton from './SignOutButton'
 import type { Database } from '@/types/database'
 
 /** Extracted outside the component so React compiler doesn't flag Date.now() as impure */
@@ -159,7 +158,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
+    <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
 
         {/* Header row */}
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
@@ -498,10 +497,6 @@ export default async function DashboardPage() {
 
         </div>}
 
-        {/* Mobile sign-out — sidebar hidden on mobile */}
-        <div className="lg:hidden mt-8 pb-28">
-          <SignOutButton />
-        </div>
     </div>
   )
 }

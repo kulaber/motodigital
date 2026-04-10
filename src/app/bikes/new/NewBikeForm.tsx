@@ -35,7 +35,12 @@ export default function NewBikeForm() {
   const isOnboarding = searchParams.get('onboarding') === 'true'
   const supabase = createClient()
 
-  const [step, setStep] = useState<Step>(1)
+  const [step, setStepRaw] = useState<Step>(1)
+  const formRef = useRef<HTMLDivElement>(null)
+  function setStep(s: Step) {
+    setStepRaw(s)
+    formRef.current?.scrollIntoView({ block: 'start' })
+  }
   const [loading, setLoading] = useState(false)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
   type MediaFile = { file: File; preview: string; isVideo: boolean; thumbFile?: File }
@@ -269,7 +274,7 @@ export default function NewBikeForm() {
   const steps = ['Basis', 'Details', 'Fotos & Veröffentlichen']
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div ref={formRef} className="max-w-2xl mx-auto pb-28 md:pb-0">
 
       {/* Steps */}
       <div className="flex items-center gap-2 mb-8">

@@ -4,6 +4,7 @@ import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import WerkstattMobileNav from '@/components/layout/WerkstattMobileNav'
 import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import { SearchShortcut } from '@/components/search/SearchShortcut'
@@ -67,6 +68,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <MobileBottomNav />
+          <WerkstattMobileNav />
           <Suspense fallback={null}>
             <ConfirmationToast />
           </Suspense>

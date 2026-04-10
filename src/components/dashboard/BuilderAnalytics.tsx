@@ -21,9 +21,9 @@ const TIME_RANGES: { key: TimeRange; label: string }[] = [
 ]
 
 const FILTERS: { key: FilterKey; label: string; color: string; icon: React.ReactNode }[] = [
-  { key: 'profile', label: 'Profilbesuche', color: '#06a5a5', icon: <Eye size={12} /> },
-  { key: 'contact', label: 'Kontaktanfragen', color: '#e5a039', icon: <MessageCircle size={12} /> },
-  { key: 'bikes', label: 'Bike-Aufrufe', color: '#6366f1', icon: <Bike size={12} /> },
+  { key: 'profile', label: 'Besucher', color: '#06a5a5', icon: <Eye size={12} /> },
+  { key: 'contact', label: 'Anfragen', color: '#35c4c4', icon: <MessageCircle size={12} /> },
+  { key: 'bikes', label: 'Bike-Aufrufe', color: '#7dd8d8', icon: <Bike size={12} /> },
 ]
 
 /** Extracted outside so React compiler doesn't flag Date.now() as impure */
@@ -59,7 +59,7 @@ function groupByDay(items: { created_at: string }[]) {
 
 export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeSlugMap }: Props) {
   const [active, setActive] = useState<FilterKey>('all')
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d')
   const [now] = useState(getCurrentTimestamp)
 
   // Filter data by time range
@@ -111,8 +111,8 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
   // All three datasets for multi-line rendering
   const allSeries = [
     { data: profileData, color: '#06a5a5', key: 'profile' },
-    { data: contactData, color: '#e5a039', key: 'contact' },
-    { data: bikeData, color: '#6366f1', key: 'bikes' },
+    { data: contactData, color: '#35c4c4', key: 'contact' },
+    { data: bikeData, color: '#7dd8d8', key: 'bikes' },
   ]
 
   // Global max across all series (for consistent scale in "Alle" mode)
@@ -281,26 +281,30 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
           </svg>
 
           {active === 'all' ? (
-            /* Multi-line dots */
+            /* Multi-line dots — hidden when value is 0 */
             <>
               {allSeries.map(s => {
                 const curve = buildCurve(s.data)
                 return curve.pts.map((p, i) => (
-                  <div key={`${s.key}-${i}`} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
-                    <div className="w-2.5 h-2.5 rounded-full bg-white border-[1.5px]" style={{ borderColor: s.color }} />
-                  </div>
+                  s.data[i] > 0 && (
+                    <div key={`${s.key}-${i}`} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
+                      <div className="w-2.5 h-2.5 rounded-full bg-white border-[1.5px]" style={{ borderColor: s.color }} />
+                    </div>
+                  )
                 ))
               })}
             </>
           ) : (
-            /* Single-line dots */
+            /* Single-line dots — hidden when value is 0 */
             <>
               {pts.map((p, i) => (
-                <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
-                  <div className="w-3 h-3 rounded-full flex items-center justify-center" style={{ backgroundColor: `${activeColor}18` }}>
-                    <div className="w-[7px] h-[7px] rounded-full bg-white border-2" style={{ borderColor: activeColor }} />
+                activeData[i] > 0 && (
+                  <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
+                    <div className="w-3 h-3 rounded-full flex items-center justify-center" style={{ backgroundColor: `${activeColor}18` }}>
+                      <div className="w-[7px] h-[7px] rounded-full bg-white border-2" style={{ borderColor: activeColor }} />
+                    </div>
                   </div>
-                </div>
+                )
               ))}
             </>
           )}
@@ -357,7 +361,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
                   <span className="text-xs text-[#222222]/60 w-40 truncate">{b.title}</span>
                   <div className="flex-1 h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#6366f1]/40 rounded-full"
+                      className="h-full bg-[#7dd8d8]/50 rounded-full"
                       style={{ width: `${(b.count / topBikes[0].count) * 100}%` }}
                     />
                   </div>
