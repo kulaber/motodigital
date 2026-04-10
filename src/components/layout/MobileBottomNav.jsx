@@ -149,7 +149,7 @@ function MobileBottomNavInner() {
           bottom: 0,
           paddingLeft: 16,
           paddingRight: 16,
-          paddingBottom: 4,
+          paddingBottom: 8,
           pointerEvents: "none",
           transform: navHidden ? "translateY(120%)" : "translateY(0)",
           transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
