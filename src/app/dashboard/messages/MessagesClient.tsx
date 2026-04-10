@@ -266,10 +266,10 @@ function ConversationList({
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                className={`px-3.5 py-2 rounded-full text-xs font-semibold border transition-all ${
                   filter === f
-                    ? 'bg-[#222222] text-white'
-                    : 'bg-[#F7F7F7] text-[#222222]/60 hover:bg-[#EEEEEE]'
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'border-[#222222]/10 text-[#222222]/45 hover:border-[#DDDDDD]/40 hover:text-[#222222]'
                 }`}
               >
                 {f === 'alle' ? 'Alle' : 'Ungelesen'}

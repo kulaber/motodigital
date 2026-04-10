@@ -499,7 +499,7 @@ export default async function DashboardPage() {
         </div>}
 
         {/* Mobile sign-out — sidebar hidden on mobile */}
-        <div className="lg:hidden mt-8">
+        <div className="lg:hidden mt-8 pb-28">
           <SignOutButton />
         </div>
     </div>
