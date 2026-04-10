@@ -79,9 +79,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener('profile-updated', handleProfileUpdated)
 
+    // Keep session alive — refresh token every 4 minutes + on tab focus
+    const REFRESH_INTERVAL = 4 * 60 * 1000
+    const interval = setInterval(() => {
+      supabase.auth.getSession()
+    }, REFRESH_INTERVAL)
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       subscription.unsubscribe()
       window.removeEventListener('profile-updated', handleProfileUpdated)
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
