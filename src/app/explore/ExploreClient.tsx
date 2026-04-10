@@ -721,7 +721,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-  const [loginContext, setLoginContext] = useState<'like' | 'comment'>('like')
+  const [loginContext, setLoginContext] = useState<'like' | 'comment' | 'explore_tab'>('like')
   const [loginInitialMode, setLoginInitialMode] = useState<'login' | 'register'>('login')
   const { toasts, success: showSuccess, error: showError } = useToast()
 
@@ -1137,7 +1137,14 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
             {CATEGORIES.map(cat => (
               <button
                 key={cat.value}
-                onClick={() => setCategory(cat.value)}
+                onClick={() => {
+                  if (cat.value !== 'alle' && !isAuthenticated) {
+                    setLoginContext('explore_tab')
+                    setShowLogin(true)
+                    return
+                  }
+                  setCategory(cat.value)
+                }}
                 className={`flex items-center gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 rounded-full border transition-all whitespace-nowrap ${
                   category === cat.value
                     ? 'bg-[#222222] text-white border-[#222222]'
