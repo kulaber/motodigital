@@ -79,12 +79,18 @@ export async function middleware(request: NextRequest) {
   ) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('onboarding_completed')
+      .select('onboarding_completed, role')
       .eq('id', user.id)
       .maybeSingle()
 
     if (profile?.onboarding_completed === false) {
       return NextResponse.redirect(new URL('/willkommen', request.url))
+    }
+
+    // Redirect logged-in users from homepage to their role-based start page
+    if (path === '/') {
+      const target = profile?.role === 'custom-werkstatt' ? '/dashboard' : '/explore'
+      return NextResponse.redirect(new URL(target, request.url))
     }
   }
 
