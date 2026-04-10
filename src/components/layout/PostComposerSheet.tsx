@@ -51,6 +51,7 @@ export default function PostComposerSheet() {
   const [mentionIndex, setMentionIndex] = useState(0)
   const [mentionProfiles, setMentionProfiles] = useState<MentionProfile[]>([])
   const [mentionProfilesLoaded, setMentionProfilesLoaded] = useState(false)
+  const [mentionTop, setMentionTop] = useState(0)
 
   // ── Fahrt state ──
   const [rideStep, setRideStep] = useState<1 | 2>(1)
@@ -184,6 +185,10 @@ export default function PostComposerSheet() {
     if (match) {
       setMentionQuery(match[1])
       setMentionIndex(0)
+      // Calculate vertical position of the caret line
+      const lines = textBefore.split('\n').length
+      const lineHeight = parseFloat(getComputedStyle(ta).lineHeight) || 22
+      setMentionTop(lines * lineHeight + 4)
     } else {
       setMentionQuery(null)
     }
@@ -506,7 +511,7 @@ export default function PostComposerSheet() {
 
                 {/* @mention dropdown */}
                 {mentionQuery !== null && mentionSuggestions.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto">
+                  <div style={{ top: mentionTop }} className="absolute left-0 right-0 z-30 bg-white rounded-xl border border-[#222222]/10 shadow-lg overflow-hidden max-h-52 overflow-y-auto">
                     {mentionSuggestions.map((p, i) => (
                       <button
                         key={p.id}

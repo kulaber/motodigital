@@ -139,17 +139,17 @@ function MobileBottomNavInner() {
 
       {/* Spacer so page content isn't hidden (skip on all dashboard pages — they manage own layout) */}
       {!pathname.startsWith("/dashboard") && (
-        <div className="block md:hidden" style={{ height: 96 }} />
+        <div className="block md:hidden" style={{ height: 84 }} />
       )}
 
       {/* Docked nav wrapper */}
       <div
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center"
         style={{
-          bottom: "env(safe-area-inset-bottom, 0px)",
+          bottom: 0,
           paddingLeft: 16,
           paddingRight: 16,
-          paddingBottom: 8,
+          paddingBottom: "max(4px, env(safe-area-inset-bottom, 0px))",
           pointerEvents: "none",
           transform: navHidden ? "translateY(120%)" : "translateY(0)",
           transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
