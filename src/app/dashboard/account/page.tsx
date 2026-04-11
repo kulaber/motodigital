@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AccountSettingsForm from './AccountSettingsForm'
+import SubscriptionSection from './SubscriptionSection'
 import NotificationSettings from './NotificationSettings'
 import LogoutButton from './LogoutButton'
 
@@ -18,6 +19,17 @@ export default async function AccountSettingsPage() {
     .select('username, slug, avatar_url, bio, role')
     .eq('id', user.id)
     .maybeSingle() as { data: { username: string | null; slug: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
+
+  // Load workshop subscription data for werkstatt users
+  let workshopSub: { subscription_tier: string; subscription_started_at: string | null; stripe_customer_id: string | null } | null = null
+  if (profile?.role === 'custom-werkstatt') {
+    const { data } = await (supabase.from('workshops') as any)
+      .select('subscription_tier, subscription_started_at, stripe_customer_id')
+      .eq('owner_id', user.id)
+      .is('deleted_at', null)
+      .maybeSingle()
+    workshopSub = data
+  }
 
   const backHref = profile?.role === 'rider' && (profile.slug || profile.username)
     ? `/rider/${profile.slug || profile.username}`
@@ -38,6 +50,17 @@ export default async function AccountSettingsPage() {
             </div>
           </div>
         </div>
+        {/* Abo & Abrechnung — nur für Werkstätten */}
+        {workshopSub && (
+          <div className="mb-5">
+            <SubscriptionSection
+              subscriptionTier={workshopSub.subscription_tier}
+              subscriptionStartedAt={workshopSub.subscription_started_at}
+              hasStripeCustomer={!!workshopSub.stripe_customer_id}
+            />
+          </div>
+        )}
+
         <AccountSettingsForm
           userId={user.id}
           currentEmail={user.email ?? ''}

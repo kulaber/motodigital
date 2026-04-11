@@ -515,7 +515,7 @@ export function WerkstattOnboarding({
         </div>
       )}
 
-      {/* SCHRITT 5+: Fertig → Dashboard */}
+      {/* SCHRITT 5+: Fertig → Dashboard + Founding Partner Upsell */}
       {step >= 5 && (
         <div className="flex flex-col items-center justify-center flex-1 gap-7
                         text-center py-16">
@@ -530,16 +530,50 @@ export function WerkstattOnboarding({
               im DACH-Raum sichtbar. Anfragen kommen direkt ins Dashboard.
             </p>
           </div>
+
+          {/* Founding Partner Upsell */}
+          <div className="w-full max-w-[320px] border border-[#2AABAB]/25 rounded-2xl p-5
+                          bg-[#2AABAB]/5 text-left">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#2AABAB] mb-2">
+              Founding Partner
+            </p>
+            <p className="text-sm text-white/50 leading-relaxed mb-4">
+              Premium-Profil, Top-Platzierung und exklusives Badge — nur 10 Plätze, 39 €/Mo.
+            </p>
+            <button
+              onClick={async () => {
+                setSaving(true)
+                try {
+                  const res = await fetch('/api/checkout', { method: 'POST' })
+                  const data = await res.json()
+                  if (res.ok && data.url) {
+                    await completeOnboarding()
+                    window.location.href = data.url
+                    return
+                  }
+                } catch { /* ignore — user can upgrade later */ }
+                setSaving(false)
+              }}
+              disabled={saving}
+              className="w-full h-10 rounded-xl bg-[#2AABAB] text-white
+                         font-semibold text-sm flex items-center justify-center gap-2
+                         disabled:opacity-50 active:scale-[0.97] transition-all"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Jetzt Founding Partner werden'}
+            </button>
+          </div>
+
           <button
             onClick={finish}
             disabled={saving}
-            className="w-full max-w-[280px] h-12 rounded-xl bg-[#2AABAB] text-white
-                       font-semibold text-sm flex items-center justify-center gap-2
+            className="w-full max-w-[280px] h-12 rounded-xl bg-white/[0.05]
+                       border border-white/[0.07]
+                       text-white/50 text-sm font-medium flex items-center justify-center
                        disabled:opacity-50 active:scale-[0.97] transition-all"
           >
             {saving
               ? <Loader2 className="w-4 h-4 animate-spin" />
-              : 'Zum Dashboard'
+              : 'Erstmal überspringen'
             }
           </button>
         </div>
