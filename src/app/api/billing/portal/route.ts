@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe'
 
-export async function POST() {
+export async function POST(req: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -22,11 +22,11 @@ export async function POST() {
     )
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
+  const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
 
   const session = await getStripe().billingPortal.sessions.create({
     customer: workshop.stripe_customer_id,
-    return_url: `${baseUrl}/dashboard/account`,
+    return_url: `${origin}/dashboard/account`,
   })
 
   return NextResponse.json({ url: session.url })

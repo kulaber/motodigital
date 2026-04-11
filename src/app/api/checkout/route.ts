@@ -4,7 +4,7 @@ import { getStripe } from '@/lib/stripe'
 
 const FOUNDING_PARTNER_LIMIT = 10
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -45,8 +45,8 @@ export async function POST() {
       )
     }
 
-    // Create Stripe Checkout Session
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
+    // Create Stripe Checkout Session — use request origin for correct redirect
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
 
     const session = await getStripe().checkout.sessions.create({
       mode: 'subscription',
@@ -60,8 +60,8 @@ export async function POST() {
         supabase_user_id: user.id,
         workshop_id: workshop.id,
       },
-      success_url: `${baseUrl}/dashboard?welcome=founding`,
-      cancel_url: `${baseUrl}/dashboard/account`,
+      success_url: `${origin}/dashboard?welcome=founding`,
+      cancel_url: `${origin}/dashboard/account`,
     })
 
     return NextResponse.json({ url: session.url })

@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     ? process.env.STRIPE_FEATURED_BIKE_30_PRICE_ID!
     : process.env.STRIPE_FEATURED_BIKE_14_PRICE_ID!
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
+  const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
   const bikeUrl = bike.slug ? `/bikes/${bike.slug}` : `/bikes/${bike.id}`
 
   const session = await getStripe().checkout.sessions.create({
@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
       bike_id: bike_id,
       duration_days: String(duration),
     },
-    success_url: `${baseUrl}${bikeUrl}?featured=true`,
-    cancel_url: `${baseUrl}${bikeUrl}`,
+    success_url: `${origin}${bikeUrl}?featured=true`,
+    cancel_url: `${origin}${bikeUrl}`,
   })
 
   return NextResponse.json({ url: session.url })
