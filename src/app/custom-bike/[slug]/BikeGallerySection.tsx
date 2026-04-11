@@ -1,6 +1,7 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
+import Link from 'next/link'
+import { MessageCircle, Pencil } from 'lucide-react'
 import BuildGallery from '@/components/build/BuildGallery'
 import ContactModal from './ContactModal'
 
@@ -14,11 +15,13 @@ interface Props {
   sellerRole: string | null
   coverImage: string | null
   listingType?: string | null
+  editHref?: string
 }
 
 export default function BikeGallerySection({
   images, title, bikeId,
   sellerId, sellerName, sellerAvatarUrl, sellerRole, coverImage, listingType,
+  editHref,
 }: Props) {
   return (
     <BuildGallery
@@ -26,6 +29,15 @@ export default function BikeGallerySection({
       title={title}
       bikeId={bikeId}
       listingType={listingType}
+      ownerEditSlot={editHref ? (
+        <Link
+          href={editHref}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
+          aria-label="Bike bearbeiten"
+        >
+          <Pencil size={17} />
+        </Link>
+      ) : undefined}
       modalContactSlot={
         <ContactModal
           sellerId={sellerId}

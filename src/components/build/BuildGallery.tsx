@@ -12,10 +12,11 @@ interface Props {
   title: string
   bikeId?: string | null
   modalContactSlot?: ReactNode
+  ownerEditSlot?: ReactNode
   listingType?: string | null
 }
 
-export default function BuildGallery({ images, title, bikeId, modalContactSlot, listingType }: Props) {
+export default function BuildGallery({ images, title, bikeId, modalContactSlot, ownerEditSlot, listingType }: Props) {
   const router = useRouter()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
@@ -326,6 +327,13 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
             </button>
           )}
 
+          {/* Owner edit — top right */}
+          {ownerEditSlot && (
+            <div className="absolute top-3 right-3 z-10">
+              {ownerEditSlot}
+            </div>
+          )}
+
           {/* Counter — bottom right */}
           <span className="absolute bottom-3 right-3 z-10 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
             {mobileIdx + 1} / {images.length}
@@ -386,11 +394,16 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
 
       </div>
 
-        {/* "Zu verkaufen" badge — top right */}
-        {listingType === 'for_sale' && (
-          <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-sm">
-            Zu verkaufen
-          </span>
+        {/* Top right overlays — edit + "Zu verkaufen" */}
+        {(ownerEditSlot || listingType === 'for_sale') && (
+          <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+            {ownerEditSlot}
+            {listingType === 'for_sale' && (
+              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-sm">
+                Zu verkaufen
+              </span>
+            )}
+          </div>
         )}
 
         {/* Save + Share buttons — bottom left */}

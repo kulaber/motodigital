@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ArrowLeft, Pencil } from 'lucide-react'
+import { MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BikeGallerySection from './BikeGallerySection'
@@ -144,6 +144,7 @@ export default async function CustomBikePage({ params }: Props) {
               sellerRole={sellerProfile?.role ?? null}
               coverImage={imageUrls[0] ?? null}
               listingType={bike.listing_type}
+              editHref={canEdit ? `/bikes/${bike.id}/edit` : undefined}
             />
           ) : (
             <div className="rounded-2xl overflow-hidden h-[50vh] sm:h-[60vh] md:h-[70vh] md:min-h-[500px] md:max-h-[800px]">
@@ -164,15 +165,6 @@ export default async function CustomBikePage({ params }: Props) {
                   <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-widest text-[#717171] border border-[#EBEBEB] px-2.5 py-1 rounded-full flex-shrink-0 self-center">
                     {styleLabel}
                   </span>
-                  {canEdit && (
-                    <Link
-                      href={`/bikes/${bike.id}/edit`}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border border-[#EBEBEB] text-[#717171] hover:border-[#222222]/30 hover:text-[#222222] transition-all flex-shrink-0 self-center"
-                    >
-                      <Pencil size={13} />
-                      Bearbeiten
-                    </Link>
-                  )}
                 </div>
               </div>
               <p className="text-[#717171] text-sm">{bike.make} {bike.model} · {bike.year}</p>
