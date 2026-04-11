@@ -83,16 +83,38 @@ export async function POST(req: NextRequest) {
         break
       }
 
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription
+        const customerId = subscription.customer as string
+
+        // Track cancellation: cancel_at is set when user cancels but sub is still active
+        const cancelAt = subscription.cancel_at
+          ? new Date(subscription.cancel_at * 1000).toISOString()
+          : null
+
+        const { error } = await admin
+          .from('workshops')
+          .update({ subscription_cancel_at: cancelAt })
+          .eq('stripe_customer_id', customerId)
+
+        if (error) {
+          console.error('[Stripe Webhook] Subscription update error:', error)
+        }
+
+        break
+      }
+
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
 
-        // Find workshop by stripe_customer_id and downgrade
+        // Subscription fully ended — downgrade to free
         const { error } = await admin
           .from('workshops')
           .update({
             subscription_tier: 'free',
             stripe_subscription_id: null,
+            subscription_cancel_at: null,
           })
           .eq('stripe_customer_id', customerId)
 

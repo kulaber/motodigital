@@ -21,7 +21,7 @@ export default async function AccountSettingsPage() {
     .maybeSingle() as { data: { username: string | null; slug: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
 
   // Load workshop subscription data for werkstatt users
-  let workshopSub: { subscription_tier: string; subscription_started_at: string | null; stripe_customer_id: string | null } | null = null
+  let workshopSub: { subscription_tier: string; subscription_started_at: string | null; subscription_cancel_at: string | null; stripe_customer_id: string | null } | null = null
   if (profile?.role === 'custom-werkstatt') {
     const { data } = await (supabase.from('workshops') as any)
       .select('*')
@@ -31,6 +31,7 @@ export default async function AccountSettingsPage() {
       workshopSub = {
         subscription_tier: data.subscription_tier ?? 'free',
         subscription_started_at: data.subscription_started_at ?? null,
+        subscription_cancel_at: data.subscription_cancel_at ?? null,
         stripe_customer_id: data.stripe_customer_id ?? null,
       }
     }
@@ -61,6 +62,7 @@ export default async function AccountSettingsPage() {
             <SubscriptionSection
               subscriptionTier={workshopSub?.subscription_tier ?? 'free'}
               subscriptionStartedAt={workshopSub?.subscription_started_at ?? null}
+              subscriptionCancelAt={workshopSub?.subscription_cancel_at ?? null}
               hasStripeCustomer={!!workshopSub?.stripe_customer_id}
             />
           </div>

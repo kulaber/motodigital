@@ -7,6 +7,7 @@ import { useToast, ToastContainer } from '@/components/ui/Toast'
 type Props = {
   subscriptionTier: string
   subscriptionStartedAt: string | null
+  subscriptionCancelAt: string | null
   hasStripeCustomer: boolean
 }
 
@@ -17,13 +18,14 @@ const TIER_LABELS: Record<string, string> = {
   premium: 'Premium',
 }
 
-export default function SubscriptionSection({ subscriptionTier, subscriptionStartedAt, hasStripeCustomer }: Props) {
+export default function SubscriptionSection({ subscriptionTier, subscriptionStartedAt, subscriptionCancelAt, hasStripeCustomer }: Props) {
   const [loading, setLoading] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const { toasts, error } = useToast()
 
   const isPaid = subscriptionTier !== 'free'
   const tierLabel = TIER_LABELS[subscriptionTier] ?? subscriptionTier
+  const isCancelling = isPaid && !!subscriptionCancelAt
 
   async function openPortal() {
     setLoading(true)
@@ -78,12 +80,21 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
               {isPaid && <Crown size={14} className="text-[#06a5a5]" />}
               <span className="text-sm font-semibold text-[#222222]">{tierLabel}</span>
               {isPaid && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#06a5a5]/10 text-[#06a5a5]">
-                  Aktiv
+                <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  isCancelling
+                    ? 'bg-amber-500/10 text-amber-600'
+                    : 'bg-[#06a5a5]/10 text-[#06a5a5]'
+                }`}>
+                  {isCancelling ? 'Wird gekündigt' : 'Aktiv'}
                 </span>
               )}
             </div>
-            {isPaid && subscriptionStartedAt && (
+            {isPaid && isCancelling && (
+              <p className="text-xs text-amber-600">
+                Aktiv bis {new Date(subscriptionCancelAt!).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })} — danach endet dein Abo.
+              </p>
+            )}
+            {isPaid && !isCancelling && subscriptionStartedAt && (
               <p className="text-xs text-[#222222]/40">
                 Mitglied seit {new Date(subscriptionStartedAt).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
               </p>
