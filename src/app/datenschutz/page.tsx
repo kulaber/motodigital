@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Datenschutzerklärung — MotoDigital',
   description: 'Datenschutzerklärung von MotoDigital — Informationen zur Verarbeitung personenbezogener Daten.',
+  robots: 'noindex, nofollow',
 }
 
 export default function DatenschutzPage() {
@@ -14,11 +15,11 @@ export default function DatenschutzPage() {
 
       <main className="bg-[#222222] min-h-screen">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 lg:px-8 py-24">
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-12">
+          <h1 className="text-3xl sm:text-4xl font-black text-white mb-10">
             Datenschutz&shy;erklärung
           </h1>
 
-          <div className="prose prose-invert prose-sm max-w-none space-y-8 text-white/60 [&_h2]:text-white [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:mt-0 [&_h3]:text-white/80 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_li]:leading-relaxed">
+          <div className="prose prose-invert prose-xs max-w-none space-y-6 text-xs text-white/60 [&_h2]:text-white [&_h2]:text-sm [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-0 [&_h3]:text-white/80 [&_h3]:text-xs [&_h3]:font-semibold [&_h3]:mb-1 [&_h3]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_li]:leading-relaxed">
 
             <section>
               <h2>1. Datenschutz auf einen Blick</h2>
@@ -107,10 +108,9 @@ export default function DatenschutzPage() {
                 dieser Website ist:
               </p>
               <p>
-                MotoDigital<br />
-                [Vor- und Nachname / Firmenname]<br />
-                [Straße und Hausnummer]<br />
-                [PLZ Ort]<br />
+                Joe Mel Ramos / MotoDigital<br />
+                Hudeweg 1<br />
+                33607 Bielefeld<br />
                 Deutschland
               </p>
               <p>

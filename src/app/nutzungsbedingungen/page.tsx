@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Nutzungsbedingungen — MotoDigital',
   description: 'Allgemeine Geschäftsbedingungen (AGB) & Nutzungsbedingungen von MotoDigital.',
+  robots: 'noindex, nofollow',
 }
 
 export default function NutzungsbedingungenPage() {
@@ -15,20 +16,19 @@ export default function NutzungsbedingungenPage() {
 
       <main className="bg-[#222222] min-h-screen">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 lg:px-8 py-24">
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-black text-white mb-3">
             Allgemeine Geschäfts&shy;bedingungen (AGB) &amp; Nutzungs&shy;bedingungen
           </h1>
-          <p className="text-sm text-white/30 mb-12">Stand: März 2026</p>
+          <p className="text-xs text-white/30 mb-10">Stand: März 2026</p>
 
-          <div className="prose prose-invert prose-sm max-w-none space-y-8 text-white/60 [&_h2]:text-white [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_li]:leading-relaxed">
+          <div className="prose prose-invert prose-xs max-w-none space-y-6 text-xs text-white/60 [&_h2]:text-white [&_h2]:text-sm [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_li]:leading-relaxed">
 
             <section>
               <h2>1. Geltungsbereich</h2>
               <p>
                 Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung
                 der Plattform MotoDigital, erreichbar unter motodigital.io
-                (nachfolgend &bdquo;Plattform&ldquo;), betrieben von [Dein vollständiger
-                Name / Firmenname], [Adresse], [PLZ Stadt] (nachfolgend
+                (nachfolgend &bdquo;Plattform&ldquo;), betrieben von Joe Mel Ramos / MotoDigital, Hudeweg 1, 33607 Bielefeld (nachfolgend
                 &bdquo;Betreiber&ldquo;).
               </p>
               <p>

@@ -4,6 +4,7 @@ import Footer from '@/components/layout/Footer'
 import type { Build } from '@/lib/data/builds'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from './BikesClient'
+import BikeCTA from '../custom-bike/[slug]/BikeCTA'
 import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 1800 // ISR: revalidate every 30 minutes
@@ -92,6 +93,8 @@ export default async function BikesPage() {
       </div>
 
       <BikesClient builds={allBuilds} isLoggedIn={isLoggedIn} />
+
+      <BikeCTA />
 
       <Footer />
     </div>

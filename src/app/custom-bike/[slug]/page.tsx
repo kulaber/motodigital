@@ -14,6 +14,7 @@ import ContactModal from './ContactModal'
 import PriceLoginButton from './PriceLoginButton'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
+import BikeCTA from './BikeCTA'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -307,7 +308,10 @@ export default async function CustomBikePage({ params }: Props) {
           <Suspense fallback={null}>
             <RelatedBikes excludeId={bike.id} isLoggedIn={isLoggedIn} />
           </Suspense>
+
         </div>
+
+        <BikeCTA />
 
         <Footer />
       </div>

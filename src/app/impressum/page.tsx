@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Impressum — MotoDigital',
   description: 'Impressum und Angaben gemäß § 5 TMG für MotoDigital.',
+  robots: 'noindex, nofollow',
 }
 
 export default function ImpressumPage() {
@@ -14,19 +15,18 @@ export default function ImpressumPage() {
 
       <main className="bg-[#222222] min-h-screen">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 lg:px-8 py-24">
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-12">
+          <h1 className="text-3xl sm:text-4xl font-black text-white mb-10">
             Impressum
           </h1>
 
-          <div className="prose prose-invert prose-sm max-w-none space-y-8 text-white/60 [&_h2]:text-white [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline">
+          <div className="prose prose-invert prose-xs max-w-none space-y-6 text-xs text-white/60 [&_h2]:text-white [&_h2]:text-sm [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-0 [&_p]:leading-relaxed [&_a]:text-[#2AABAB] [&_a]:no-underline hover:[&_a]:underline">
 
             <section>
               <h2>Angaben gemäß § 5 TMG</h2>
               <p>
-                MotoDigital<br />
-                [Vor- und Nachname / Firmenname]<br />
-                [Straße und Hausnummer]<br />
-                [PLZ Ort]<br />
+                Joe Mel Ramos / MotoDigital<br />
+                Hudeweg 1<br />
+                33607 Bielefeld<br />
                 Deutschland
               </p>
             </section>
@@ -41,8 +41,8 @@ export default function ImpressumPage() {
             <section>
               <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
               <p>
-                [Vor- und Nachname]<br />
-                [Adresse wie oben]
+                Joe Mel Ramos<br />
+                Hudeweg 1, 33607 Bielefeld
               </p>
             </section>
 
