@@ -24,11 +24,16 @@ export default async function AccountSettingsPage() {
   let workshopSub: { subscription_tier: string; subscription_started_at: string | null; stripe_customer_id: string | null } | null = null
   if (profile?.role === 'custom-werkstatt') {
     const { data } = await (supabase.from('workshops') as any)
-      .select('subscription_tier, subscription_started_at, stripe_customer_id')
+      .select('*')
       .eq('owner_id', user.id)
-      .is('deleted_at', null)
       .maybeSingle()
-    workshopSub = data
+    if (data) {
+      workshopSub = {
+        subscription_tier: data.subscription_tier ?? 'free',
+        subscription_started_at: data.subscription_started_at ?? null,
+        stripe_customer_id: data.stripe_customer_id ?? null,
+      }
+    }
   }
 
   const backHref = profile?.role === 'rider' && (profile.slug || profile.username)
@@ -51,12 +56,12 @@ export default async function AccountSettingsPage() {
           </div>
         </div>
         {/* Abo & Abrechnung — nur für Werkstätten */}
-        {workshopSub && (
+        {profile?.role === 'custom-werkstatt' && (
           <div className="mb-5">
             <SubscriptionSection
-              subscriptionTier={workshopSub.subscription_tier}
-              subscriptionStartedAt={workshopSub.subscription_started_at}
-              hasStripeCustomer={!!workshopSub.stripe_customer_id}
+              subscriptionTier={workshopSub?.subscription_tier ?? 'free'}
+              subscriptionStartedAt={workshopSub?.subscription_started_at ?? null}
+              hasStripeCustomer={!!workshopSub?.stripe_customer_id}
             />
           </div>
         )}
