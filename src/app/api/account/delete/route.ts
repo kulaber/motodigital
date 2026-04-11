@@ -19,9 +19,8 @@ export async function POST() {
   // Load workshop with stripe subscription info
   const { data: workshop } = await admin
     .from('workshops')
-    .select('id, stripe_subscription_id')
+    .select('*')
     .eq('owner_id', user.id)
-    .is('deleted_at', null)
     .maybeSingle()
 
   // Cancel active Stripe subscription if present

@@ -11,9 +11,8 @@ export async function POST() {
   }
 
   const { data: workshop } = await (supabase.from('workshops') as any)
-    .select('stripe_customer_id')
+    .select('*')
     .eq('owner_id', user.id)
-    .is('deleted_at', null)
     .maybeSingle()
 
   if (!workshop?.stripe_customer_id) {

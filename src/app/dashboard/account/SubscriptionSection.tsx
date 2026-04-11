@@ -45,13 +45,23 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
     setCheckoutLoading(true)
     try {
       const res = await fetch('/api/checkout', { method: 'POST' })
-      const data = await res.json()
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        console.error('[Checkout] Non-JSON response:', text.substring(0, 500))
+        error('Server-Fehler. Bitte versuche es erneut.')
+        setCheckoutLoading(false)
+        return
+      }
       if (res.ok && data.url) {
         window.location.href = data.url
         return
       }
       error(data.error || 'Fehler beim Checkout')
-    } catch {
+    } catch (err) {
+      console.error('[Checkout] Fetch error:', err)
       error('Verbindungsfehler. Bitte versuche es erneut.')
     }
     setCheckoutLoading(false)

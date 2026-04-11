@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
     const { data: workshop } = await (supabase.from('workshops') as any)
       .select('owner_id')
       .eq('id', bike.workshop_id)
-      .is('deleted_at', null)
       .maybeSingle()
 
     authorized = workshop?.owner_id === user.id
