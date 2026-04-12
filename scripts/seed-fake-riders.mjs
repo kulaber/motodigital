@@ -47,7 +47,7 @@ const RIDERS = [
     lng: 7.8421,
     riding_styles: ['Café Racer', 'Classic'],
     instagram_url: 'https://www.instagram.com/marco_sr500',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=marco_sr500',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=marco_sr500',
   },
   {
     username: 'jenni.rides',
@@ -58,7 +58,7 @@ const RIDERS = [
     lng: 9.9937,
     riding_styles: ['Scrambler', 'Adventure'],
     instagram_url: 'https://www.instagram.com/jenni.rides',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=jenni_rides',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=jenni_rides',
   },
   {
     username: 'kustom_karl',
@@ -68,7 +68,7 @@ const RIDERS = [
     lat: 51.5136,
     lng: 7.4653,
     riding_styles: ['Chopper', 'Cruiser'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=kustom_karl',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=kustom_karl',
   },
   {
     username: 'toni.tracker',
@@ -79,7 +79,7 @@ const RIDERS = [
     lng: 11.5820,
     riding_styles: ['Tracker', 'Café Racer'],
     instagram_url: 'https://www.instagram.com/toni.tracker',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=toni_tracker',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=toni_tracker',
   },
   {
     username: 'lisa_bobber',
@@ -91,7 +91,7 @@ const RIDERS = [
     riding_styles: ['Bobber', 'Custom'],
     instagram_url: 'https://www.instagram.com/lisa_bobber',
     tiktok_url: 'https://www.tiktok.com/@lisa_bobber',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=lisa_bobber',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=lisa_bobber',
   },
   {
     username: 'max.enduro',
@@ -101,7 +101,7 @@ const RIDERS = [
     lat: 48.7758,
     lng: 9.1829,
     riding_styles: ['Scrambler', 'Adventure'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=max_enduro',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=max_enduro',
   },
   {
     username: 'olli_caferacer',
@@ -112,7 +112,7 @@ const RIDERS = [
     lng: 6.9603,
     riding_styles: ['Café Racer', 'Classic'],
     instagram_url: 'https://www.instagram.com/olli_caferacer',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=olli_caferacer',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=olli_caferacer',
   },
   {
     username: 'sarah.custom',
@@ -123,7 +123,7 @@ const RIDERS = [
     lng: 12.3731,
     riding_styles: ['Café Racer', 'Brat Style'],
     instagram_url: 'https://www.instagram.com/sarah.custom',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=sarah_custom',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah_custom',
   },
   {
     username: 'flo_flattrack',
@@ -133,7 +133,7 @@ const RIDERS = [
     lat: 49.4521,
     lng: 11.0767,
     riding_styles: ['Tracker', 'Flat Track'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=flo_flattrack',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=flo_flattrack',
   },
   {
     username: 'michi.chopper',
@@ -144,7 +144,7 @@ const RIDERS = [
     lng: 9.7320,
     riding_styles: ['Chopper', 'Oldschool'],
     instagram_url: 'https://www.instagram.com/michi.chopper',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=michi_chopper',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=michi_chopper',
   },
   {
     username: 'anna_touring',
@@ -154,7 +154,7 @@ const RIDERS = [
     lat: 51.0504,
     lng: 13.7373,
     riding_styles: ['Touring', 'Adventure'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=anna_touring',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=anna_touring',
   },
   {
     username: 'rene.scrambler',
@@ -165,7 +165,7 @@ const RIDERS = [
     lng: 8.6821,
     riding_styles: ['Scrambler', 'Café Racer'],
     instagram_url: 'https://www.instagram.com/rene.scrambler',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=rene_scrambler',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=rene_scrambler',
   },
   {
     username: 'danny_twostroke',
@@ -175,7 +175,7 @@ const RIDERS = [
     lat: 50.9787,
     lng: 11.0328,
     riding_styles: ['Classic', 'Oldschool'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=danny_twostroke',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=danny_twostroke',
   },
   {
     username: 'nina.bratstyle',
@@ -186,7 +186,7 @@ const RIDERS = [
     lng: 6.7735,
     riding_styles: ['Brat Style', 'Custom'],
     instagram_url: 'https://www.instagram.com/nina.bratstyle',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=nina_bratstyle',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=nina_bratstyle',
   },
   {
     username: 'ben_iron',
@@ -196,7 +196,7 @@ const RIDERS = [
     lat: 53.0793,
     lng: 8.8017,
     riding_styles: ['Bobber', 'Cruiser'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=ben_iron',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=ben_iron',
   },
   {
     username: 'chris.wrench',
@@ -206,7 +206,7 @@ const RIDERS = [
     lat: 49.4875,
     lng: 8.4660,
     riding_styles: ['Café Racer', 'Classic'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=chris_wrench',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=chris_wrench',
   },
   {
     username: 'lena.moto',
@@ -217,7 +217,7 @@ const RIDERS = [
     lng: 10.8978,
     riding_styles: ['Classic', 'Café Racer'],
     instagram_url: 'https://www.instagram.com/lena.moto',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=lena_moto',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=lena_moto',
   },
   {
     username: 'jan_xsr',
@@ -227,7 +227,7 @@ const RIDERS = [
     lat: 54.0924,
     lng: 12.0991,
     riding_styles: ['Café Racer', 'Custom'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=jan_xsr',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=jan_xsr',
   },
   {
     username: 'petra.roadtrip',
@@ -237,7 +237,7 @@ const RIDERS = [
     lat: 51.9607,
     lng: 7.6261,
     riding_styles: ['Touring', 'Classic'],
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=petra_roadtrip',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=petra_roadtrip',
   },
   {
     username: 'alex.guzziracer',
@@ -248,7 +248,7 @@ const RIDERS = [
     lng: 12.1016,
     riding_styles: ['Café Racer', 'Classic'],
     instagram_url: 'https://www.instagram.com/alex.guzziracer',
-    avatar_url: 'https://api.dicebear.com/9.x/avataaars/svg?seed=alex_guzziracer',
+    avatar_url: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex_guzziracer',
   },
 ]
 
