@@ -18,7 +18,7 @@ export default function DashboardShell({ children, role, userName, avatarUrl, sl
           <div className="hidden lg:block">
             <DashboardNav role={role} userName={userName} avatarUrl={avatarUrl} slug={slug} />
           </div>
-          <main className="flex-1 min-w-0 min-h-0 overflow-y-auto">
+          <main className="flex-1 min-w-0 min-h-0 overflow-y-auto overflow-x-hidden">
             {children}
           </main>
         </div>
