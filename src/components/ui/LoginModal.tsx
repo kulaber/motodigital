@@ -242,14 +242,20 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       } else {
         const { data: { user } } = await supabase.auth.getUser()
         let role: string | null = null
+        let slug: string | null = null
         if (user) {
           const { data: profile } = await (supabase.from('profiles') as any)
-            .select('role')
+            .select('role, slug, username')
             .eq('id', user.id)
-            .maybeSingle() as { data: { role: string | null } | null }
+            .maybeSingle() as { data: { role: string | null; slug: string | null; username: string | null } | null }
           role = profile?.role ?? null
+          slug = profile?.slug ?? profile?.username ?? null
         }
-        router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+        if (role === 'rider' && slug) {
+          router.push(`/rider/${slug}`)
+        } else {
+          router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+        }
       }
       router.refresh()
     }

@@ -38,15 +38,21 @@ function LoginFormInner() {
       } else {
         const { data: { user } } = await supabase.auth.getUser()
         let role: string | null = null
+        let slug: string | null = null
         if (user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, slug, username')
             .eq('id', user.id)
             .maybeSingle()
-          role = (profile as { role: string | null } | null)?.role ?? null
+          role = (profile as { role: string | null; slug: string | null; username: string | null } | null)?.role ?? null
+          slug = (profile as { slug: string | null; username: string | null } | null)?.slug ?? (profile as { username: string | null } | null)?.username ?? null
         }
-        router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+        if (role === 'rider' && slug) {
+          router.push(`/rider/${slug}`)
+        } else {
+          router.push(getPostLoginRedirect(role as Parameters<typeof getPostLoginRedirect>[0]))
+        }
       }
       router.refresh()
     }

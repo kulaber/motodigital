@@ -18,11 +18,18 @@ export async function GET(request: NextRequest) {
       let onboardingCompleted = true
       if (user) {
         const { data: profile } = await (supabase.from('profiles') as any)
-          .select('role, onboarding_completed')
+          .select('role, onboarding_completed, slug, username')
           .eq('id', user.id)
-          .maybeSingle() as { data: { role: string | null; onboarding_completed: boolean | null } | null }
+          .maybeSingle() as { data: { role: string | null; onboarding_completed: boolean | null; slug: string | null; username: string | null } | null }
         role = profile?.role ?? null
         onboardingCompleted = profile?.onboarding_completed ?? true
+        // Rider → redirect to their profile page
+        if (role === 'rider' && !redirectTo) {
+          const riderSlug = profile?.slug ?? profile?.username
+          if (riderSlug) {
+            return NextResponse.redirect(`${origin}/rider/${riderSlug}?confirmed=true`)
+          }
+        }
       }
 
       // New user needs onboarding → /willkommen
