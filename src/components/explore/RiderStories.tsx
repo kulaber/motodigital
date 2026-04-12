@@ -6,6 +6,7 @@ interface Rider {
   username: string
   full_name: string | null
   avatar_url: string | null
+  isOnline?: boolean
 }
 
 const GRADIENT_PRESETS = [
@@ -66,21 +67,26 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
               href={`/rider/${rider.username}`}
               className="flex flex-col items-center gap-1.5 flex-shrink-0"
             >
-              <div className="w-[72px] h-[72px] rounded-full overflow-hidden">
-                {rider.avatar_url ? (
-                  <Image
-                    src={rider.avatar_url}
-                    alt={rider.full_name ?? rider.username}
-                    width={72}
-                    height={72}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${getGradient(rider.id)}`}
-                  >
-                    <span className="text-[13px] font-black text-white">{initials}</span>
-                  </div>
+              <div className="relative w-[72px] h-[72px]">
+                <div className="w-full h-full rounded-full overflow-hidden">
+                  {rider.avatar_url ? (
+                    <Image
+                      src={rider.avatar_url}
+                      alt={rider.full_name ?? rider.username}
+                      width={72}
+                      height={72}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${getGradient(rider.id)}`}
+                    >
+                      <span className="text-[13px] font-black text-white">{initials}</span>
+                    </div>
+                  )}
+                </div>
+                {rider.isOnline && (
+                  <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
               </div>
               <span className="text-[10px] font-semibold text-[#111] max-w-[72px] truncate text-center">

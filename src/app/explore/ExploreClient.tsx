@@ -696,6 +696,7 @@ interface StoryRider {
   username: string
   full_name: string | null
   avatar_url: string | null
+  isOnline?: boolean
 }
 
 interface Props {

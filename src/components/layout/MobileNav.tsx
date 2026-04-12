@@ -81,7 +81,7 @@ export default function MobileNav({
       className={`fixed left-0 right-0 bottom-0 z-[80] bg-white flex flex-col transition-transform duration-300 ease-in-out lg:hidden ${
         open ? 'translate-x-0' : 'translate-x-full'
       }`}
-      style={{ top: 64 }}
+      style={{ top: 48 }}
     >
       {/* ── Scrollable content (below site header) ── */}
       <div className="flex-1 overflow-y-auto">

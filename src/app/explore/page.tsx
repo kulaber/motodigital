@@ -26,7 +26,7 @@ export default async function ExplorePage() {
   // Fetch riders for mobile story bar + events (server-side to avoid client fetch)
   const [{ data: storyRiders }, { data: eventsData }] = await Promise.all([
     (supabase.from('profiles') as any)
-      .select('id, username, full_name, avatar_url')
+      .select('id, username, full_name, avatar_url, last_seen_at')
       .eq('role', 'rider')
       .not('username', 'is', null)
       .order('created_at', { ascending: false })
@@ -37,13 +37,22 @@ export default async function ExplorePage() {
       .limit(100),
   ])
 
+  const onlineThreshold = new Date(Date.now() - 3 * 60 * 1000).toISOString()
+  const ridersWithStatus = (storyRiders ?? []).map((r: Record<string, unknown>) => ({
+    id: r.id as string,
+    username: r.username as string,
+    full_name: r.full_name as string | null,
+    avatar_url: r.avatar_url as string | null,
+    isOnline: !!(r.last_seen_at && (r.last_seen_at as string) > onlineThreshold),
+  }))
+
   return (
     <div className="min-h-dvh flex flex-col bg-[#F7F7F7]">
       <Header activePage="explore" />
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
           <Suspense>
-            <ExploreClient userId={user?.id ?? null} isAuthenticated={!!user} isSuperadmin={isSuperadmin} riders={storyRiders ?? []} events={(eventsData ?? []) as Event[]} />
+            <ExploreClient userId={user?.id ?? null} isAuthenticated={!!user} isSuperadmin={isSuperadmin} riders={ridersWithStatus} events={(eventsData ?? []) as Event[]} />
           </Suspense>
         </div>
       </div>
