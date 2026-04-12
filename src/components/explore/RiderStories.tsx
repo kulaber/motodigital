@@ -55,7 +55,7 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
 
   return (
     <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
-      <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#999] px-4 pt-4 mb-2">
+      <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#999] px-6 pt-4 mb-2">
         Entdecke Rider
       </p>
       <div className="flex gap-3.5 px-4 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

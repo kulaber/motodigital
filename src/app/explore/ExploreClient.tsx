@@ -344,7 +344,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   }
 
   return (
-    <div id={`post-${post.id}`} className="bg-white rounded-none border-b-[6px] border-[#F0F0F0] overflow-hidden md:rounded-2xl md:border md:border-[#222222]/6">
+    <div id={`post-${post.id}`} className="bg-white rounded-none border-b-[6px] border-[#F0F0F0] overflow-hidden sm:rounded-2xl sm:border sm:border-[#222222]/6 sm:border-b">
       <div className="flex items-center gap-3 p-4 pb-0">
         {(() => {
           const profileHref = getProfileUrl(post.author_role, post.author_slug)
@@ -1127,14 +1127,24 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
       </div>
 
       {/* ── Feed ────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 pt-6 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent overflow-x-hidden">
-        {/* Mobile heading — outside max-w container so bell aligns with screen edge like Settings on profile */}
-        <div className="lg:hidden relative flex items-center justify-center mb-4 px-4 sm:px-0">
+      <main className="flex-1 min-w-0 pt-0 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent overflow-x-hidden">
+        {/* Mobile heading */}
+        <div className="lg:hidden relative flex items-center justify-center mb-1 pt-6 px-4 sm:px-0">
+          {canPost && (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
+              className="absolute top-3 left-4 sm:left-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#2AABAB] text-white hover:bg-[#058f8f] transition-all"
+              aria-label="Neuer Beitrag"
+            >
+              <Plus size={18} />
+            </button>
+          )}
           <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
           {userId && (
             <Link
               href="/dashboard/notifications"
-              className="absolute -top-3 right-4 sm:right-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
+              className="absolute top-3 right-4 sm:right-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#F7F7F7] border border-[#222222]/10 text-[#222] hover:bg-[#EBEBEB] transition-all"
             >
               <Bell size={17} />
               {unreadNotificationCount > 0 && (
@@ -1147,7 +1157,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
         </div>
 
         {/* Heading + filter pills — sticky on scroll */}
-        <div className="sticky top-[48px] lg:top-[64px] z-30 bg-white lg:bg-[#F7F7F7] pt-2 pb-2 border-b border-[#222222]/8 lg:border-b-0 px-4 sm:px-0 lg:px-0">
+        <div className="bg-white lg:bg-[#F7F7F7] pt-1.5 pb-1.5 lg:pt-8 lg:pb-3 border-b border-[#222222]/8 lg:border-b-0 px-4 sm:px-0 lg:px-0">
           <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Filter pills */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
@@ -1179,13 +1189,13 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
         <RiderList riders={riders} />
 
         {/* Composer + card stream share one parent so sticky works through the full scroll */}
-        <div className="max-w-none sm:max-w-[560px] mx-auto lg:mx-0">
+        <div className="max-w-none sm:max-w-[560px] mx-auto lg:mx-0 pt-4 lg:pt-2">
           {/* Composer sentinel */}
           <div ref={composerSentinelRef} className="h-0" />
 
           {/* Composer trigger — opens PostComposerSheet (same as mobile) */}
           {canPost ? (
-            <div className={`hidden md:block sticky top-[104px] lg:top-[120px] z-20 bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 transition-all duration-300 ease-in-out origin-top ${composerStuck ? 'mx-12 sm:mx-20 shadow-md scale-[0.92]' : 'mx-0 shadow-sm scale-100'}`}>
+            <div className="hidden md:block bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 shadow-sm">
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
