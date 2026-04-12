@@ -28,7 +28,7 @@ export default function NutzungsbedingungenPage() {
               <p>
                 Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung
                 der Plattform MotoDigital, erreichbar unter motodigital.io
-                (nachfolgend &bdquo;Plattform&ldquo;), betrieben von Joe Mel Ramos / MotoDigital, Hudeweg 1, 33607 Bielefeld (nachfolgend
+                (nachfolgend &bdquo;Plattform&ldquo;), betrieben von Joe Mel Ramos / MotoDigital, Stadtheiderstraße 66, 33609 Bielefeld (nachfolgend
                 &bdquo;Betreiber&ldquo;).
               </p>
               <p>

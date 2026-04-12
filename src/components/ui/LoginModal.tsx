@@ -423,8 +423,11 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">
             {WERKSTATT_BENEFITS.map(b => (
-              <li key={b.text} className="flex items-center gap-2">
-                <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
+              <li key={b.text} className={`flex items-center gap-2${b.badge ? ' opacity-35' : ''}`}>
+                {b.badge
+                  ? <X size={10} className="text-white/40 flex-shrink-0" />
+                  : <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
+                }
                 <span className="text-xs text-white/40">{b.text}</span>
                 {b.badge && (
                   <span className="text-[8px] font-bold uppercase tracking-widest bg-white/8 text-white/30 px-1.5 py-0.5 rounded-full border border-white/10">{b.badge}</span>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Wrench } from 'lucide-react'
+import { BadgeCheck, MapPin, Wrench } from 'lucide-react'
 import type { WorkshopResult } from '@/lib/actions/search'
 
 export function WorkshopResultCard({ workshop }: { workshop: WorkshopResult }) {
@@ -24,9 +24,12 @@ export function WorkshopResultCard({ workshop }: { workshop: WorkshopResult }) {
 
       {/* Content */}
       <div className="p-3.5">
-        <h3 className="text-sm font-semibold text-[#222222] leading-snug line-clamp-1">
-          {workshop.name}
-        </h3>
+        <div className="flex items-center gap-1">
+          <h3 className="text-sm font-semibold text-[#222222] leading-snug line-clamp-1">
+            {workshop.name}
+          </h3>
+          {workshop.is_verified && <BadgeCheck size={13} className="text-[#06a5a5] flex-shrink-0" />}
+        </div>
         <div className="flex items-center gap-3 text-xs text-[#222222]/40 mt-1">
           {workshop.city && (
             <span className="flex items-center gap-0.5">

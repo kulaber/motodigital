@@ -19,9 +19,9 @@ export function useToast() {
 export function ToastContainer({ toasts }: { toasts: Toast[] }) {
   if (!toasts.length) return null
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-2 pointer-events-none">
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:bottom-6 sm:right-6 z-[999] flex flex-col items-center sm:items-end gap-2 pointer-events-none">
       {toasts.map(t => (
-        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-sm font-medium pointer-events-auto animate-in slide-in-from-bottom-4 fade-in duration-300 ${
+        <div key={t.id} className={`flex items-center gap-3 px-5 py-3 rounded-full shadow-xl text-sm font-medium pointer-events-auto animate-in slide-in-from-bottom-4 fade-in duration-300 ${
           t.type === 'success' ? 'bg-[#222222] text-white' : 'bg-red-500 text-white'
         }`}>
           {t.type === 'success'

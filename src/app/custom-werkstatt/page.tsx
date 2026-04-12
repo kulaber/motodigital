@@ -50,7 +50,7 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
     specialty:   (row.specialty as string | null) ?? '',
     builds:      0,
     rating:      (row.rating as number | null) ?? 5.0,
-    verified:    false,
+    verified:    (row.is_verified as boolean | null) ?? false,
     featured:    (row.featured as boolean | null) ?? false,
     since:       (row.since_year as number | null)?.toString() ?? '',
     tags:        (row.tags as string[] | null) ?? [],
@@ -87,7 +87,7 @@ async function BuilderContent() {
   const supabase = await createClient()
 
   const { data: dbRows } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, created_at, builder_media(url, type, title, position)')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, created_at, builder_media(url, type, title, position)')
     .eq('role', 'custom-werkstatt')
     .not('slug', 'is', null)
     .order('created_at', { ascending: false })

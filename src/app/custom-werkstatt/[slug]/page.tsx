@@ -78,14 +78,14 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   // Try slug first, then fall back to username
   let { data: row } = await (supabase.from('profiles') as any)
-    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
+    .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
 
   if (!row) {
     const { data: fallback } = await (supabase.from('profiles') as any)
-      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
+      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours')
       .eq('username', slug)
       .eq('role', 'custom-werkstatt')
       .maybeSingle()
@@ -163,7 +163,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     specialty:   (row.specialty as string | null) ?? '',
     builds:      featuredBuilds.length,
     rating:      (row.rating as number | null) ?? 5.0,
-    verified:    false,
+    verified:    (row.is_verified as boolean | null) ?? false,
     featured:    (row.featured as boolean | null) ?? false,
     since:       (row.since_year as number | null)?.toString() ?? '',
     tags:        (row.tags as string[] | null) ?? [],

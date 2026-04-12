@@ -263,14 +263,19 @@ function BuilderList({
                 saved={b.id ? savedIds.has(b.id) : false}
                 onToggle={onToggleSave}
               />
+              {b.verified && (
+                <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm text-[#06a5a5] text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                  <BadgeCheck size={11} /> Verifiziert
+                </span>
+              )}
               {b.builds > 0 && (
                 <span className="absolute bottom-2 left-2 text-[10px] font-semibold text-white bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full">{b.builds} Custom {b.builds === 1 ? 'Bike' : 'Bikes'}</span>
               )}
             </div>
             <div className="pt-2.5 pb-1">
-              <div className="flex items-start justify-between gap-1 mb-0.5">
-                <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1 flex-1">{b.name}</p>
-                {b.verified && <BadgeCheck size={13} className="text-[#717171] flex-shrink-0 mt-0.5" />}
+              <div className="flex items-center gap-1 mb-0.5">
+                <p className="text-sm font-semibold text-[#222222] leading-tight line-clamp-1">{b.name}</p>
+                {b.verified && <BadgeCheck size={13} className="text-[#06a5a5] flex-shrink-0" />}
               </div>
               <p className="text-xs text-[#717171] flex items-center gap-1">
                 <MapPin size={9} className="flex-shrink-0" />

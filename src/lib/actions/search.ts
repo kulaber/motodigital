@@ -29,6 +29,7 @@ export interface WorkshopResult {
   logo_url: string | null
   services: string[]
   bike_count: number
+  is_verified: boolean
 }
 
 export interface RiderResult {
@@ -74,6 +75,7 @@ interface WorkshopRow {
   avatar_url: string | null
   specialty: string | null
   tags: string[] | null
+  is_verified: boolean | null
   bikes: { count: number }[]
   builder_media: { url: string; position: number }[]
 }
@@ -133,6 +135,7 @@ function mapWorkshops(rows: unknown[]): WorkshopResult[] {
       logo_url: coverUrl,
       services,
       bike_count: w.bikes?.[0]?.count ?? 0,
+      is_verified: w.is_verified ?? false,
     }
   })
 }
@@ -189,7 +192,7 @@ export async function searchAll(
   if (tab === 'all' || tab === 'workshops') {
     const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
-        id, full_name, slug, city, avatar_url, specialty, tags,
+        id, full_name, slug, city, avatar_url, specialty, tags, is_verified,
         bikes!bikes_seller_id_fkey(count),
         builder_media(url, position)
       `)
@@ -248,7 +251,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
     // Workshops (from profiles with role custom-werkstatt)
     (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
-        id, full_name, slug, city, avatar_url, specialty, tags,
+        id, full_name, slug, city, avatar_url, specialty, tags, is_verified,
         bikes!bikes_seller_id_fkey(count),
         builder_media(url, position)
       `)

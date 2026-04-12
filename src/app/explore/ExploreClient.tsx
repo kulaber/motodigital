@@ -4,7 +4,7 @@ import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MessageCircle, ChevronLeft, ChevronRight, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2, Lock } from 'lucide-react'
+import { MessageCircle, ChevronLeft, ChevronRight, Plus, ThumbsUp, Trash2, MapPin, Calendar, ExternalLink, Navigation, Bell, MoreHorizontal, Share2, Lock, ArrowUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { MediaItem } from '@/components/bike/MediaSlider'
 import PostImageCarousel from '@/components/explore/PostImageCarousel'
@@ -344,7 +344,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
   }
 
   return (
-    <div id={`post-${post.id}`} className="bg-white rounded-2xl border border-[#222222]/6 overflow-hidden">
+    <div id={`post-${post.id}`} className="bg-white rounded-none border-b-[6px] border-[#F0F0F0] overflow-hidden md:rounded-2xl md:border md:border-[#222222]/6">
       <div className="flex items-center gap-3 p-4 pb-0">
         {(() => {
           const profileHref = getProfileUrl(post.author_role, post.author_slug)
@@ -381,7 +381,19 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         )}
         {(isSuperadmin || post.user_id === userId) && onDelete && (
           <PostContextMenu
-            onShare={() => { navigator.clipboard.writeText(`${window.location.origin}/explore?post=${post.id}`) }}
+            onShare={async () => {
+              const url = `${window.location.origin}/explore?post=${post.id}`
+              try {
+                if (navigator.share) {
+                  await navigator.share({ url })
+                } else {
+                  await navigator.clipboard.writeText(url)
+                  alert('Link kopiert!')
+                }
+              } catch {
+                try { await navigator.clipboard.writeText(url); alert('Link kopiert!') } catch { /* user cancelled */ }
+              }
+            }}
             onDelete={onDelete}
           />
         )}
@@ -545,18 +557,18 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       )}
 
       {/* Action bar */}
-      <div className="px-4 py-3 flex items-center gap-4">
+      <div className="px-4 py-3 flex items-center gap-2">
         <button
           type="button"
           onClick={() => loggedIn ? onLike() : onLoginRequired?.('like')}
-          className="flex items-center gap-1.5 group"
+          className="flex items-center gap-1.5 group px-3 py-2 -ml-3 rounded-xl hover:bg-[#F7F7F7] active:bg-[#F0F0F0] transition-colors"
         >
           <ThumbsUp
-            size={18}
+            size={20}
             className={`transition-colors ${post.liked_by_me ? 'fill-[#06a5a5] text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`}
           />
           {post.likes_count > 0 && (
-            <span className={`text-xs font-semibold ${post.liked_by_me ? 'text-[#06a5a5]' : 'text-[#222222]/40'}`}>
+            <span className={`text-[13px] font-semibold ${post.liked_by_me ? 'text-[#06a5a5]' : 'text-[#222222]/40'}`}>
               {post.likes_count}
             </span>
           )}
@@ -564,11 +576,11 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
         <button
           type="button"
           onClick={() => loggedIn ? setCommentInputOpen(prev => !prev) : onLoginRequired?.('comment')}
-          className="flex items-center gap-1.5 group"
+          className="flex items-center gap-1.5 group px-3 py-2 rounded-xl hover:bg-[#F7F7F7] active:bg-[#F0F0F0] transition-colors"
         >
-          <MessageCircle size={18} className={`transition-colors ${commentInputOpen ? 'text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`} />
+          <MessageCircle size={20} className={`transition-colors ${commentInputOpen ? 'text-[#06a5a5]' : 'text-[#222222]/30 group-hover:text-[#06a5a5]'}`} />
           {comments.length > 0 && (
-            <span className="text-xs font-semibold text-[#222222]/40">{comments.length}</span>
+            <span className="text-sm font-semibold text-[#222222]/40">{comments.length}</span>
           )}
         </button>
         {/* Ride: Teilnehmen / Absagen */}
@@ -675,9 +687,13 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
                 type="button"
                 onClick={handleSubmitComment}
                 disabled={submittingComment || !commentText.trim()}
-                className="text-[#06a5a5] hover:text-[#058f8f] disabled:opacity-30 transition-colors text-xs font-semibold"
+                className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  commentText.trim() && !submittingComment
+                    ? 'bg-[#06a5a5] active:bg-[#058f8f]'
+                    : 'bg-[#F0F0F0] opacity-30'
+                }`}
               >
-                Posten
+                <ArrowUp size={14} className={commentText.trim() && !submittingComment ? 'text-white' : 'text-[#555]'} />
               </button>
             </div>
           ) : (
@@ -1111,16 +1127,16 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
       </div>
 
       {/* ── Feed ────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8 bg-white lg:bg-transparent">
+      <main className="flex-1 min-w-0 pt-6 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent">
         {/* Mobile heading — outside max-w container so bell aligns with screen edge like Settings on profile */}
-        <div className="lg:hidden relative flex items-center justify-center mb-4">
+        <div className="lg:hidden relative flex items-center justify-center mb-4 px-4 sm:px-0">
           <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
           {userId && (
             <Link
               href="/dashboard/notifications"
-              className="absolute -top-3 -right-1 w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black/8 shadow-sm hover:bg-gray-50 transition-colors"
+              className="absolute -top-3 right-4 sm:right-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
             >
-              <Bell className="w-4 h-4 text-[#111111]" />
+              <Bell size={17} />
               {unreadNotificationCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#2AABAB] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                   {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
@@ -1131,7 +1147,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
         </div>
 
         {/* Heading + filter pills — sticky on scroll */}
-        <div className="sticky top-[48px] lg:top-[64px] z-30 bg-white lg:bg-[#F7F7F7] pt-2 pb-2 border-b border-[#222222]/8 lg:border-b-0 -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
+        <div className="sticky top-[48px] lg:top-[64px] z-30 bg-white lg:bg-[#F7F7F7] pt-2 pb-2 border-b border-[#222222]/8 lg:border-b-0 px-4 sm:px-0 lg:px-0">
           <div className="max-w-[560px] mx-auto lg:mx-0">
           {/* Filter pills */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center lg:justify-start">
@@ -1163,7 +1179,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
         <RiderList riders={riders} />
 
         {/* Composer + card stream share one parent so sticky works through the full scroll */}
-        <div className="max-w-[560px] mx-auto lg:mx-0">
+        <div className="max-w-none sm:max-w-[560px] mx-auto lg:mx-0">
           {/* Composer sentinel */}
           <div ref={composerSentinelRef} className="h-0" />
 
@@ -1237,7 +1253,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
           )}
 
           {/* Card stream */}
-          <div className="flex flex-col gap-4 relative">
+          <div className="flex flex-col gap-0 sm:gap-4 relative">
             {loadingPosts ? (
               <div className="flex justify-center py-16">
                 <div className="w-7 h-7 rounded-full border-2 border-[#2AABAB]/20 border-t-[#2AABAB] animate-spin" />

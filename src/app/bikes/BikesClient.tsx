@@ -42,10 +42,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
   const filterRef = useRef<HTMLDivElement>(null)
   const gridAnchorRef = useRef<HTMLDivElement>(null)
   const scrollToFilter = () => {
-    if (!filterRef.current) return
-    const rect = filterRef.current.getBoundingClientRect()
-    const offset = window.scrollY + rect.top - 64
-    window.scrollTo({ top: offset, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // Pre-filter by search query — all dynamic filter lists and results are based on this
