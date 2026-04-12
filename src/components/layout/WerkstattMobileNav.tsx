@@ -42,18 +42,26 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    id: "post",
-    label: "Posten",
-    href: "#",
-    icon: null,
-  },
-  {
     id: "anfragen",
     label: "Nachrichten",
     href: "/dashboard/messages",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "builds",
+    label: "Custom Bikes",
+    href: "/dashboard/meine-garage",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="18.5" cy="17.5" r="3.5" />
+        <circle cx="5.5" cy="17.5" r="3.5" />
+        <path d="M15 6h1a2 2 0 012 2v1" />
+        <path d="M9 17.5h6" />
+        <path d="M5.5 14l3-8h4l3 4h3" />
       </svg>
     ),
   },
@@ -86,7 +94,7 @@ export default function WerkstattMobileNav() {
 }
 
 function WerkstattMobileNavInner() {
-  const { slug, unreadCount, unreadNotificationCount } = useAuth();
+  const { slug, unreadCount } = useAuth();
   const pathname = usePathname();
   const [optimistic, setOptimistic] = useState({ index: -1, href: null as string | null });
 
@@ -139,13 +147,8 @@ function WerkstattMobileNavInner() {
 
   return (
     <>
-      {/* Post composer bottom sheet */}
+      {/* Post composer bottom sheet (workshops can post from Explore page) */}
       <PostComposerSheet />
-
-      {/* Spacer so page content isn't hidden (skip on all dashboard pages — they manage own layout) */}
-      {!pathname.startsWith("/dashboard") && (
-        <div className="block md:hidden" style={{ height: 84 }} />
-      )}
 
       {/* Docked nav wrapper */}
       <div
@@ -177,8 +180,8 @@ function WerkstattMobileNavInner() {
             className="relative flex items-center justify-evenly"
             style={{ height: 68, padding: "0 4px" }}
           >
-            {/* Sliding pill — skip FAB center at index 2 */}
-            {activeIndex >= 0 && activeIndex !== 2 && (
+            {/* Sliding pill */}
+            {activeIndex >= 0 && (
               <span
                 style={{
                   position: "absolute",
@@ -197,37 +200,7 @@ function WerkstattMobileNavInner() {
 
             {navItems.map((item, index) => {
               const isActive = activeIndex === index;
-              const showBadge = (item.id === "anfragen" && unreadCount > 0) || (item.id === "explore" && unreadNotificationCount > 0);
-
-              // FAB for the center slot (index 2 = Post)
-              if (index === 2) {
-                return (
-                  <div key="fab-center" className="relative flex items-center justify-center" style={{ flex: 1, zIndex: 2 }}>
-                    <button
-                      type="button"
-                      onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
-                      className="flex items-center justify-center active:scale-95 transition-transform"
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "50%",
-                        background: "#2AABAB",
-                        boxShadow: "0 4px 16px rgba(42, 171, 171, 0.3)",
-                        WebkitTapHighlightColor: "transparent",
-                        marginTop: -4,
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                      aria-label="Posten"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
-                    </button>
-                  </div>
-                );
-              }
+              const hasUnread = item.id === "anfragen" && unreadCount > 0;
 
               return (
                 <Link
@@ -255,7 +228,7 @@ function WerkstattMobileNavInner() {
                     }}
                   >
                     {item.icon}
-                    {showBadge && (
+                    {hasUnread && (
                       <span
                         style={{
                           position: "absolute",
@@ -276,10 +249,7 @@ function WerkstattMobileNavInner() {
                           border: "2px solid #06a5a5",
                         }}
                       >
-                        {(() => {
-                          const count = item.id === "explore" ? unreadNotificationCount : unreadCount;
-                          return count > 9 ? "9+" : count;
-                        })()}
+                        {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
                   </span>
