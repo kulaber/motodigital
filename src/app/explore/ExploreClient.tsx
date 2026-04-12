@@ -1127,7 +1127,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
       </div>
 
       {/* ── Feed ────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 pt-6 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent">
+      <main className="flex-1 min-w-0 pt-6 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent overflow-x-hidden">
         {/* Mobile heading — outside max-w container so bell aligns with screen edge like Settings on profile */}
         <div className="lg:hidden relative flex items-center justify-center mb-4 px-4 sm:px-0">
           <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
