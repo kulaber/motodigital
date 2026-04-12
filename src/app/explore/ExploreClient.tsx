@@ -981,13 +981,14 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
           }
         })
 
-      // Sort: online first, then alphabetical
+      // Sort: online first, then by last_seen_at (most recent first)
       dbItems.sort((a, b) => {
         if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1
         return a.name.localeCompare(b.name)
       })
 
-      setSidebarRiders(dbItems)
+      // Show only the 5 most recently active riders
+      setSidebarRiders(dbItems.slice(0, 5))
     }
 
     loadSidebarRiders()
@@ -1109,7 +1110,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
           {/* Alle Rider */}
           <div className="bg-white rounded-2xl border border-[#222222]/6 p-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-2">
-              Alle Rider
+              Zuletzt Online
             </p>
             <div className="flex flex-col">
               {sidebarRiders.map(r => (
