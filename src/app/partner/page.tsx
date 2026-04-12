@@ -7,7 +7,7 @@ import FoundingPartnerCTA from './FoundingPartnerCTA'
 
 export const metadata: Metadata = {
   title: 'Partner werden — MotoDigital',
-  description: 'Werkstatt eintragen, Werbefläche buchen oder Kooperation starten — werde Partner von MotoDigital.',
+  description: 'Werkstatt kostenlos eintragen, Werbefläche buchen oder Kooperation starten — werde Partner von MotoDigital.',
 }
 
 const SECONDARY_CARDS = [
@@ -55,7 +55,7 @@ export default async function PartnerPage() {
             Werde einer der ersten 10 Partner
           </h1>
           <p className="text-base text-white/40 max-w-lg leading-relaxed">
-            Sichere dir als Werkstatt einen der limitierten Founding Partner Plätze — mit exklusiven Vorteilen, die es danach nie wieder gibt.
+            Sichere dir als Werkstatt einen der limitierten Founding Partner Plätze — €39/Mo für 12 Monate, danach automatisch PRO (€79/Mo). Jederzeit kündbar.
           </p>
         </div>
       </section>

@@ -10,9 +10,10 @@ interface Props {
   builderId: string | null
   slug: string
   iconOnly?: boolean
+  hideSave?: boolean
 }
 
-export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly }: Props) {
+export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly, hideSave }: Props) {
   const [shareOpen, setShareOpen]     = useState(false)
   const [copied, setCopied]           = useState(false)
   const [saved, setSaved]             = useState(false)
@@ -98,20 +99,22 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
         triggerContext="bike_save"
       />
       {/* Speichern */}
-      <button
-        onClick={handleSave}
-        disabled={loadingSave}
-        className={iconOnly
-          ? `w-10 h-10 flex items-center justify-center rounded-full shadow-md transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] text-white' : 'bg-white/90 text-[#222] hover:bg-white'}`
-          : `flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] border-[#06a5a5] text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`
-        }
-        aria-label={saved ? 'Gespeichert' : 'Speichern'}
-      >
-        {iconOnly
-          ? <Star size={17} className={saved ? 'fill-white' : ''} />
-          : <><Star size={13} className={saved ? 'fill-white' : ''} />{saved ? 'Gespeichert' : 'Speichern'}</>
-        }
-      </button>
+      {!hideSave && (
+        <button
+          onClick={handleSave}
+          disabled={loadingSave}
+          className={iconOnly
+            ? `w-10 h-10 flex items-center justify-center rounded-full shadow-md transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] text-white' : 'bg-white/90 text-[#222] hover:bg-white'}`
+            : `flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all disabled:opacity-60 ${saved ? 'bg-[#06a5a5] border-[#06a5a5] text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`
+          }
+          aria-label={saved ? 'Gespeichert' : 'Speichern'}
+        >
+          {iconOnly
+            ? <Star size={17} className={saved ? 'fill-white' : ''} />
+            : <><Star size={13} className={saved ? 'fill-white' : ''} />{saved ? 'Gespeichert' : 'Speichern'}</>
+          }
+        </button>
+      )}
 
       {/* Teilen */}
       <div className="relative">

@@ -19,7 +19,7 @@ const FAQ_ALLGEMEIN: FaqItem[] = [
   {
     question: 'Was kostet MotoDigital?',
     answer:
-      'Für Rider ist MotoDigital komplett kostenlos. Werkstätten starten als Founding Partner für €39/Monat (nur 10 Plätze) — danach €79/Monat. Inklusive Profilseite, Galerie, Karte und Direktkontakt zu Ridern.',
+      'Für Rider und Werkstätten ist der Einstieg kostenlos (FREE-Plan). Werkstätten können auf Founding Partner (€39/Monat, nur 10 Plätze) oder PRO (€79/Monat) upgraden — mit Logo, Galerie, Prio-Listung und bis zu 10 Custom Bike Uploads.',
   },
   {
     question: 'In welchen Ländern ist MotoDigital verfügbar?',
@@ -42,7 +42,7 @@ const FAQ_WERKSTATT: FaqItem[] = [
   {
     question: 'Wie kann ich meine Werkstatt registrieren?',
     answer:
-      'Klicke auf „Als Werkstatt registrieren", gib deine E-Mail ein und bestätige den Magic Link. Danach kannst du dein Werkstatt-Profil mit Fotos, Galerie und Standort anlegen — in wenigen Minuten bist du live.',
+      'Klicke auf „Kostenlos starten", gib deine E-Mail ein und bestätige den Magic Link. Danach kannst du dein Werkstatt-Profil mit Standort und erstem Bike anlegen — in wenigen Minuten bist du live.',
   },
   {
     question: 'Wie finde ich eine Custom-Werkstatt in meiner Nähe?',

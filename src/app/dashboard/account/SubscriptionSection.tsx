@@ -15,7 +15,6 @@ const TIER_LABELS: Record<string, string> = {
   free: 'Free',
   founding_partner: 'Founding Partner',
   pro: 'Pro',
-  premium: 'Premium',
 }
 
 export default function SubscriptionSection({ subscriptionTier, subscriptionStartedAt, subscriptionCancelAt, hasStripeCustomer }: Props) {
@@ -123,7 +122,7 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
         ) : (
           <div className="border border-[#06a5a5]/15 rounded-xl p-4 bg-[#06a5a5]/[0.03]">
             <p className="text-xs text-[#222222]/50 mb-3 leading-relaxed">
-              Premium-Profil, Top-Platzierung und exklusives Founding Partner Badge — nur 10 Plätze verfügbar.
+              Logo, Galerie, Top-Platzierung und exklusives Founding Partner Badge — nur 10 Plätze verfügbar.
             </p>
             <button
               onClick={handleCheckout}

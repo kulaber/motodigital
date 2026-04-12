@@ -47,12 +47,12 @@ const RIDER_BENEFITS = [
   'Digitaler Bike-Pass (bald verfügbar)',
 ]
 
-const WERKSTATT_BENEFITS = [
-  'Öffentliches Werkstatt-Profil mit Galerie',
-  'Direktanfragen von Ridern – ohne Provision',
-  'Auf der Karte sichtbar',
-  'Custom Bikes präsentieren & verkaufen',
-  'Dashboard mit Analysedaten',
+const WERKSTATT_BENEFITS: { text: string; badge?: string }[] = [
+  { text: 'Öffentliches Werkstatt-Profil mit Galerie' },
+  { text: 'Direktanfragen von Ridern – ohne Provision' },
+  { text: 'Auf der Karte sichtbar' },
+  { text: 'Custom Bikes präsentieren & verkaufen' },
+  { text: 'Dashboard mit Besucherstatistiken', badge: 'PRO' },
 ]
 
 /* ─── Props ──────────────────────────────────────────────── */
@@ -415,20 +415,20 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all text-left group"
       >
         <div className="px-4 py-4">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-2">
             <Wrench size={18} className="text-accent flex-shrink-0" />
             <p className="font-bold text-xl text-white whitespace-nowrap">Custom Werkstatt</p>
-          </div>
-          <div className="flex items-center gap-2 mb-2 ml-[26px]">
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Founding Partner · €39/Mo</span>
-            <span className="text-[9px] text-white/30">Nur 10 Plätze</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
           </div>
           <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">
             {WERKSTATT_BENEFITS.map(b => (
-              <li key={b} className="flex items-center gap-2">
+              <li key={b.text} className="flex items-center gap-2">
                 <Check size={10} className="text-[#06a5a5] flex-shrink-0" />
-                <span className="text-xs text-white/40">{b}</span>
+                <span className="text-xs text-white/40">{b.text}</span>
+                {b.badge && (
+                  <span className="text-[8px] font-bold uppercase tracking-widest bg-white/8 text-white/30 px-1.5 py-0.5 rounded-full border border-white/10">{b.badge}</span>
+                )}
               </li>
             ))}
           </ul>
@@ -517,7 +517,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             Wird erstellt…
           </span>
         ) : (
-          'Account erstellen'
+          'Kostenlos starten'
         )}
       </button>
     </form>

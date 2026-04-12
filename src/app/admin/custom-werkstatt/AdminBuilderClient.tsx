@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X } from 'lucide-react'
+import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X, Crown } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { resendInvitation } from '@/lib/actions/invite'
 
@@ -21,6 +21,7 @@ export type BuilderRow = {
   is_verified: boolean
   bikeCount: number
   is_unclaimed: boolean
+  subscription_tier: string | null
 }
 
 interface Props {
@@ -150,6 +151,7 @@ export default function AdminBuilderClient({ builders }: Props) {
                 <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Name</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Standort</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden sm:table-cell">Bikes</th>
+                <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Plan</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Status</th>
                 <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
@@ -175,6 +177,22 @@ export default function AdminBuilderClient({ builders }: Props) {
                     ) : (
                       <span className="text-xs text-[#222222]/20">—</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3.5 hidden md:table-cell text-center">
+                    {b.subscription_tier === 'founding_partner' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#06a5a5] bg-[#06a5a5]/10 border border-[#06a5a5]/20 px-2 py-0.5 rounded-full">
+                        <Crown size={9} /> Founding Partner
+                      </span>
+                    ) : b.subscription_tier === 'pro' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#222222] bg-[#222222]/8 border border-[#222222]/15 px-2 py-0.5 rounded-full">
+                        PRO
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#222222]/40 bg-[#222222]/4 border border-[#222222]/8 px-2 py-0.5 rounded-full">
+                        FREE
+                      </span>
+                    )}
+                    {/* TODO: Show remaining months if founding_partner expiry date is available */}
                   </td>
                   <td className="px-4 py-3.5 hidden md:table-cell">
                     <span className="text-xs text-[#222222]/50 truncate max-w-[160px] block">{b.email ?? '—'}</span>
@@ -246,7 +264,7 @@ export default function AdminBuilderClient({ builders }: Props) {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#222222]/25">
+                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#222222]/25">
                     Keine Werkstätten gefunden
                   </td>
                 </tr>

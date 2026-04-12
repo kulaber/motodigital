@@ -138,8 +138,8 @@ export default function NutzungsbedingungenPage() {
             <section>
               <h2>6. Werkstatt-Profile &amp; kostenpflichtige Leistungen</h2>
               <p>
-                6.1 Werkstätten können ihre Profile gegen eine monatliche Gebühr anlegen
-                (Founding Partner: €39/Monat, regulär: €79/Monat).
+                6.1 Werkstätten können ein kostenloses Basisprofil (FREE) anlegen.
+                Kostenpflichtige Pläne: Founding Partner (€39/Monat, 12 Monate, danach automatisch PRO) und PRO (€79/Monat).
                 Die jeweils gültigen Preise werden auf der Registrierungsseite ausgewiesen.
               </p>
               <p>

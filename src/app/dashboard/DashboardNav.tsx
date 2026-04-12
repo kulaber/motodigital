@@ -86,7 +86,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
 
   const workshopProfileItems: NavItem[] = role === 'custom-werkstatt'
     ? [
-        { label: 'Werkstatt-Profil bearbeiten', href: '/dashboard/profile', icon: <Wrench size={15} /> },
+        { label: 'Werkstatt-Profil bearbeiten', href: '/dashboard/profile', icon: <User size={15} /> },
         ...(slug ? [{ label: 'Profilansicht', href: `/custom-werkstatt/${slug}`, icon: <Eye size={15} /> }] : []),
       ]
     : []

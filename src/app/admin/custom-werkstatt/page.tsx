@@ -75,6 +75,15 @@ export default async function AdminBuilderPage() {
     }
   })
 
+  // Fetch workshop subscription tiers
+  const { data: workshopTiers } = await (supabase.from('workshops') as any)
+    .select('owner_id, subscription_tier') as { data: { owner_id: string; subscription_tier: string }[] | null }
+
+  const tierByOwnerId = new Map<string, string>()
+  for (const row of workshopTiers ?? []) {
+    tierByOwnerId.set(row.owner_id, row.subscription_tier)
+  }
+
   // Fetch bike counts per seller from Supabase
   const { data: bikeCounts } = await (supabase.from('bikes') as any)
     .select('seller_id') as { data: { seller_id: string }[] | null }
@@ -96,6 +105,7 @@ export default async function AdminBuilderPage() {
     is_verified: db.is_verified,
     bikeCount: bikeCountById.get(db.id) ?? 0,
     is_unclaimed: db.is_unclaimed,
+    subscription_tier: tierByOwnerId.get(db.id) ?? null,
   }))
 
   const activeCount = rows.filter(r => r.status === 'active').length

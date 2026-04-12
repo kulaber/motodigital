@@ -295,9 +295,9 @@ function BuilderList({
             <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
           </div>
           <div className="relative z-10 p-5 pt-14">
-            <h3 className="text-sm font-bold text-white mb-1">Founding Partner — Nur 10 Plätze</h3>
-            <p className="text-xs text-white/50 leading-relaxed mb-4">€39/Monat statt €79 — für die ersten 10 Werkstätten. Werde direkt von Riders gefunden.</p>
-            <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Jetzt Founding Partner sichern</span>
+            <h3 className="text-sm font-bold text-white mb-1">Deine Werkstatt auf MotoDigital</h3>
+            <p className="text-xs text-white/50 leading-relaxed mb-4">Starte kostenlos mit deinem Werkstattprofil. Upgrade jederzeit auf Founding Partner (€39/Mo).</p>
+            <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Kostenlos starten</span>
           </div>
         </Link>
       )}

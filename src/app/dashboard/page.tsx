@@ -164,18 +164,11 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">
-              {profile?.full_name ? `Hallo ${profile.full_name.split(' ')[0]}` : 'Hallo'}
+              {isBuilder
+                ? (profile?.full_name ?? 'Dashboard')
+                : profile?.full_name ? `Hallo ${profile.full_name.split(' ')[0]}` : 'Hallo'}
             </h1>
           </div>
-          {!isRider && !isSuperAdmin && (
-            <Link
-              href="/bikes/new"
-              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all"
-            >
-              <Plus size={14} />
-              Bike hinzufügen
-            </Link>
-          )}
         </div>
 
         {/* Superadmin Platform Stats */}
@@ -345,157 +338,7 @@ export default async function DashboardPage() {
           </div>
         ) : null}
 
-        {!isRider && !isSuperAdmin && <div className="flex flex-col gap-5 mt-0">
-
-            {/* Builder profile card — only for builders, not superadmin (uses /admin/custom-werkstatt) */}
-            {isBuilder && !isSuperAdmin && (() => {
-              const completenessItems = [
-                { label: 'Logo', done: !!profile?.avatar_url },
-                { label: 'Titelbild', done: !!coverImage },
-                { label: 'Name', done: !!profile?.full_name },
-                { label: 'Über die Werkstatt', done: !!profile?.bio_long },
-                { label: 'Leistungen', done: (profile?.tags?.length ?? 0) > 0 },
-                { label: 'Umbaustile', done: !!profile?.specialty },
-                { label: 'Adresse', done: !!profile?.address && !!profile?.lat && !!profile?.lng },
-                { label: 'Social Media', done: !!(profile?.instagram_url || profile?.tiktok_url || profile?.website_url || profile?.youtube_url) },
-                { label: 'Galerie', done: galleryCount > 0 },
-              ]
-              const completenessPercent = Math.round(completenessItems.filter(i => i.done).length / completenessItems.length * 100)
-
-              return (
-                <div className="bg-white border border-[#DDDDDD]/20 rounded-2xl overflow-hidden">
-                  {/* Cover image banner */}
-                  <div className="relative aspect-[3/1] w-full overflow-hidden">
-                    <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt="Titelbild" fill sizes="(max-width: 640px) 100vw, 720px" className="object-cover" />
-                  </div>
-
-                  <div className="px-5 pb-5">
-                    {/* Avatar overlapping cover */}
-                    <div className="relative -mt-8 mb-3 z-10">
-                      <div className="relative w-16 h-16 rounded-2xl border-4 border-white bg-[#06a5a5] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
-                        {profile?.avatar_url ? (
-                          <Image src={profile.avatar_url} alt={profile.full_name ?? 'Logo'} fill sizes="64px" className="object-cover" />
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2834.6 2834.6" width="28" height="28">
-                            <path fill="white" d="M1417,167L298.8,627.4L430.3,1943l657.8,723.6v-592l328.9,197.3l328.9-197.3v592l657.8-723.6l131.6-1315.6L1417,167z M2191.2,1611.1l-773.9,451.4v0v0l0,0v0l-773.9-451.4V834.4L1185.2,615v537.7l232.2,135.4l232.2-135.4V615l541.7,219.4V1611.1z" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Profile info */}
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold text-[#222222] mb-0.5">Mein Custom Werkstatt Profil</p>
-                        {(profile?.bio_long || profile?.bio) ? (
-                          <p className="text-xs text-[#222222]/40 leading-relaxed max-w-xs line-clamp-2">{profile?.bio_long ?? profile?.bio}</p>
-                        ) : (
-                          <p className="text-xs text-[#222222]/30">Noch keine Beschreibung — füge eine hinzu, damit Rider dich finden</p>
-                        )}
-                        {(profile?.city || profile?.specialty) && (
-                          <p className="text-xs text-[#222222]/35 mt-1">
-                            {[profile.city, profile.specialty].filter(Boolean).join(' · ')}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
-                        <Link
-                          href="/dashboard/profile"
-                          className="flex items-center gap-1.5 text-xs bg-[#06a5a5] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all whitespace-nowrap"
-                        >
-                          Profil bearbeiten
-                        </Link>
-                        <Link
-                          href={profile?.slug ? `/custom-werkstatt/${profile.slug}` : '/custom-werkstatt'}
-                          className="flex items-center gap-1.5 text-xs text-[#222222]/40 border border-[#222222]/10 px-4 py-2 rounded-full hover:text-[#222222] hover:border-[#222222]/25 transition-all justify-center"
-                        >
-                          <ExternalLink size={11} /> Vorschau
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Profile completeness — hidden when 100% */}
-                    {completenessPercent < 100 && (
-                    <div className="mt-4 pt-4 border-t border-[#222222]/5">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-[#222222]/30">Profil-Vollständigkeit</span>
-                        <span className="text-xs font-semibold text-[#717171]">{completenessPercent}%</span>
-                      </div>
-                      <div className="h-1.5 bg-[#222222]/5 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#06a5a5] rounded-full transition-all"
-                          style={{ width: `${completenessPercent}%` }}
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {completenessItems.map(item => (
-                          <span key={item.label} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                            item.done
-                              ? 'bg-[#222222]/10 text-[#717171] border border-[#DDDDDD]/20'
-                              : 'bg-[#222222]/5 text-[#222222]/25 border border-[#222222]/8'
-                          }`}>
-                            {item.done ? '✓ ' : ''}{item.label}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* Listings */}
-            {!isSuperAdmin && !isRider && <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[#222222]/5">
-                <h2 className="text-sm font-semibold text-[#222222]">Meine Custom-Bikes</h2>
-                <span className="text-xs text-[#222222]/35">{bikes?.length ?? 0} total</span>
-              </div>
-              <div className="divide-y divide-[#222222]/5">
-                {bikes?.map(bike => (
-                  <div key={bike.id} className="flex items-center gap-4 px-5 py-3.5">
-                    <div className="w-12 h-9 rounded-lg bg-white border border-[#222222]/8 flex-shrink-0 overflow-hidden relative">
-                      {bike.bike_images?.[0]?.url ? (
-                        <Image src={bike.bike_images[0].url} alt={bike.title} fill sizes="48px" className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center opacity-25">
-                          <svg width="24" height="17" viewBox="0 0 48 34" fill="none">
-                            <circle cx="8" cy="26" r="7" stroke="white" strokeWidth="1.5"/>
-                            <circle cx="40" cy="26" r="7" stroke="white" strokeWidth="1.5"/>
-                            <path d="M8 26 L15 8 L24 11 L33 6 L40 26" stroke="white" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#222222] truncate">{bike.title}</p>
-                      <p className="text-xs text-[#222222]/35">{formatPrice(bike.price)} · {bike.view_count ?? 0} Aufrufe</p>
-                    </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
-                      bike.status === 'active' ? 'bg-green-500/10 text-green-400'
-                      : bike.status === 'sold'   ? 'bg-[#222222]/5 text-[#222222]/30'
-                      : 'bg-amber-500/10 text-amber-400'
-                    }`}>
-                      {bike.status === 'active' ? 'Aktiv' : bike.status === 'sold' ? 'Verkauft' : 'Entwurf'}
-                    </span>
-                    <Link href={`/bikes/${bike.id}/edit`} className="text-xs text-[#222222]/30 hover:text-[#222222] transition-colors flex-shrink-0">
-                      Bearbeiten
-                    </Link>
-                  </div>
-                ))}
-                {!bikes?.length && (
-                  <div className="px-5 py-10 text-center">
-                    <p className="text-sm text-[#222222]/30 mb-3">Noch keine Custom-Bikes</p>
-                    <Link href="/bikes/new" className="text-sm text-[#717171] hover:text-[#06a5a5] transition-colors">
-                      Custom-Bike erstellen →
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>}
-
-
-        </div>}
+        {/* empty — profile card and bike list removed for workshop dashboard */}
 
     </div>
   )

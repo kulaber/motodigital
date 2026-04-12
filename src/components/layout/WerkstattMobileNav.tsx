@@ -30,23 +30,37 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    id: "builds",
-    label: "Builds",
-    href: "/dashboard/meine-garage",
+    id: "explore",
+    label: "Explore",
+    href: "/explore",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
       </svg>
     ),
   },
   {
     id: "anfragen",
-    label: "Anfragen",
+    label: "Nachrichten",
     href: "/dashboard/messages",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-        <polyline points="22,6 12,13 2,6" />
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "builds",
+    label: "Custom Bikes",
+    href: "/dashboard/meine-garage",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="18.5" cy="17.5" r="3.5" />
+        <circle cx="5.5" cy="17.5" r="3.5" />
+        <path d="M15 6h1a2 2 0 012 2v1" />
+        <path d="M9 17.5h6" />
+        <path d="M5.5 14l3-8h4l3 4h3" />
       </svg>
     ),
   },
@@ -60,17 +74,6 @@ const NAV_ITEMS: NavItem[] = [
         <circle cx="12" cy="12" r="10" />
         <circle cx="12" cy="10" r="3" />
         <path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855" />
-      </svg>
-    ),
-  },
-  {
-    id: "einstellungen",
-    label: "Einstellungen",
-    href: "/dashboard/account",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
       </svg>
     ),
   },
@@ -102,7 +105,8 @@ function WerkstattMobileNavInner() {
 
   const routeIndex = navItems.findIndex((item) => {
     if (item.id === "dashboard" && pathname === "/dashboard") return true;
-    if (item.id !== "dashboard" && (pathname === item.href || pathname.startsWith(item.href + "/"))) return true;
+    if (item.id === "explore" && (pathname === "/explore" || pathname.startsWith("/custom-bike/") || pathname.startsWith("/bikes"))) return true;
+    if (item.id !== "dashboard" && item.id !== "explore" && (pathname === item.href || pathname.startsWith(item.href + "/"))) return true;
     return false;
   });
 

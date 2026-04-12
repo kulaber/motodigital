@@ -70,7 +70,7 @@ export default function Header({ activePage }: Props) {
 
         {/* Logo — mobile: zentriert wenn eingeloggt, linksbündig wenn nicht */}
         <div className={`${loading || user ? 'absolute left-1/2 -translate-x-1/2' : ''} lg:static lg:translate-x-0 lg:flex-1 min-w-0 flex items-center`}>
-          <Link href={user && (role === 'rider' || role === 'custom-werkstatt') ? '/explore' : '/'} className="inline-flex items-center">
+          <Link href={user && role === 'custom-werkstatt' ? '/dashboard' : user && role === 'rider' ? '/explore' : '/'} className="inline-flex items-center">
             <Image src="/logo-dark.svg" alt="MotoDigital" width={320} height={121} className="h-16 w-auto" priority />
           </Link>
         </div>
@@ -185,7 +185,7 @@ export default function Header({ activePage }: Props) {
                         </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Wrench size={14} /> Custom Bikes
+                          <Bike size={14} /> Custom Bikes
                         </Link>
                       </>
                     )}

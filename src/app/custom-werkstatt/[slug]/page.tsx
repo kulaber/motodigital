@@ -283,9 +283,31 @@ export default async function BuilderProfilePage({ params }: Props) {
       )}
 
       {/* ── MOBILE STICKY TOP BAR ── */}
-      <MobileStickyBar>
-        <OwnerEditButton builderSlug={slug} iconOnly />
-        <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+      <MobileStickyBar hideBack={isOwner}>
+        {isOwner ? (
+          <>
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly hideSave />
+            <Link
+              href="/dashboard/profile"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
+              aria-label="Profil bearbeiten"
+            >
+              <Pencil size={17} />
+            </Link>
+            <Link
+              href="/dashboard/account"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
+              aria-label="Einstellungen"
+            >
+              <Settings size={17} />
+            </Link>
+          </>
+        ) : (
+          <>
+            <OwnerEditButton builderSlug={slug} iconOnly />
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+          </>
+        )}
       </MobileStickyBar>
 
       {/* ── MOBILE HERO ── */}
@@ -334,14 +356,16 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={`${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}`} fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-        <div className="absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <Link href="/custom-werkstatt"
-              className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
-              <ArrowLeft size={13} /> Alle Custom Werkstätten
-            </Link>
+        {!isOwner && (
+          <div className="absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <Link href="/custom-werkstatt"
+                className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
+                <ArrowLeft size={13} /> Alle Custom Werkstätten
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
           <div className="max-w-7xl mx-auto flex items-end gap-4">
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
@@ -390,10 +414,16 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex items-end justify-between mb-5">
               <div>
                 <h2 className="text-base font-bold text-[#222222] tracking-tight">
-                  Custom Bike Projekte von {builder.name}
+                  {isOwner ? 'Meine Custom Bikes' : `Custom Bike Projekte von ${builder.name}`}
                 </h2>
               </div>
-              <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
+              {isOwner ? (
+                <Link href="/dashboard/meine-garage" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] border border-[#06a5a5]/20 bg-[#06a5a5]/5 px-4 py-2 rounded-full hover:bg-[#06a5a5]/10 transition-colors">
+                  <Pencil size={11} /> Bikes bearbeiten
+                </Link>
+              ) : (
+                <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -618,22 +648,8 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* RIGHT sidebar */}
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
-              {/* Contact CTA / Owner Edit CTA */}
-              {isOwner ? (
-                <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                  <p className="text-base font-bold text-[#222222] tracking-tight mb-1">Dein Werkstatt-Profil</p>
-                  <p className="text-xs text-[#717171] leading-relaxed mb-4">
-                    Bearbeite dein Profil, Leistungen und Galerie.
-                  </p>
-                  <Link
-                    href="/dashboard/profile"
-                    className="flex items-center justify-center gap-2 w-full bg-[#06a5a5] text-white font-semibold text-sm py-3 rounded-xl hover:bg-[#058f8f] transition-colors"
-                  >
-                    <Pencil size={14} />
-                    Werkstatt bearbeiten
-                  </Link>
-                </div>
-              ) : (
+              {/* Contact CTA (visitors only — owner edit card removed, edit via sticky bar / banner) */}
+              {isOwner ? null : (
                 <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
                   <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
                   <p className="text-xs text-[#717171] leading-relaxed mb-4">

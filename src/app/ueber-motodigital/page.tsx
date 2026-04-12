@@ -27,7 +27,7 @@ const sections = [
       'Direkter Kontakt mit Kunden',
       'Verifiziertes Profil für mehr Vertrauen',
     ],
-    cta: { label: 'Jetzt Founding Partner sichern', href: '/auth/register?role=custom-werkstatt' },
+    cta: { label: 'Kostenlos starten', href: '/auth/register?role=custom-werkstatt' },
     accent: '#06a5a5',
   },
   {
@@ -258,7 +258,7 @@ export default function WieEsFunktioniertPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/auth/register?role=custom-werkstatt"
               className="bg-[#06a5a5] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-[#058f8f] transition-all inline-flex items-center gap-2">
-              Jetzt Founding Partner sichern <ArrowRight size={14} />
+              Kostenlos starten <ArrowRight size={14} />
             </Link>
             <Link href="/auth/register?role=rider"
               className="border border-white/10 text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:border-white/25 transition-all inline-flex items-center gap-2">

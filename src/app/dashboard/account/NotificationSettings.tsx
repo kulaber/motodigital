@@ -59,6 +59,8 @@ const emailToggles: ToggleRow[] = [
   { label: 'Anfragen', field: 'email_inquiries', workshopOnly: true },
 ]
 
+type NotifTab = 'inapp' | 'email'
+
 export default function NotificationSettings({ userId, role }: { userId: string; role: string | null }) {
   const supabase = createClient()
   const isWerkstatt = role === 'custom-werkstatt'
@@ -66,6 +68,7 @@ export default function NotificationSettings({ userId, role }: { userId: string;
   const [prefs, setPrefs] = useState<Preferences>(defaultPrefs)
   const [loading, setLoading] = useState(true)
   const [savedField, setSavedField] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<NotifTab>('inapp')
 
   useEffect(() => {
     async function load() {
@@ -125,13 +128,9 @@ export default function NotificationSettings({ userId, role }: { userId: string;
     )
   }
 
-  function renderSection(title: string, icon: React.ReactNode, toggles: ToggleRow[], hint?: string) {
+  function renderSection(_title: string, _icon: React.ReactNode, toggles: ToggleRow[], hint?: string) {
     return (
       <div>
-        <div className="flex items-center gap-2 mb-4">
-          {icon}
-          <h3 className="text-sm font-semibold text-[#222222]">{title}</h3>
-        </div>
         <div className="space-y-0">
           {toggles
             .filter(t => !t.workshopOnly || isWerkstatt)
@@ -161,21 +160,44 @@ export default function NotificationSettings({ userId, role }: { userId: string;
   }
 
   return (
-    <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6 space-y-8">
-      <div>
-        <h2 className="text-lg font-bold text-[#222222]">Benachrichtigungen</h2>
-        <p className="text-sm text-[#222222]/40 mt-0.5">Bestimme, wie und worüber du informiert wirst</p>
+    <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+      <div className="mb-5">
+        <h2 className="text-sm font-semibold text-[#222222]">Benachrichtigungen</h2>
+        <p className="text-xs text-[#222222]/40 mt-0.5">Bestimme, wie und worüber du informiert wirst</p>
       </div>
 
-      {renderSection(
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 bg-[#222222]/4 rounded-xl mb-5">
+        <button
+          onClick={() => setActiveTab('inapp')}
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2.5 rounded-lg transition-all ${
+            activeTab === 'inapp'
+              ? 'bg-white text-[#222222] shadow-sm'
+              : 'text-[#222222]/40 hover:text-[#222222]/60'
+          }`}
+        >
+          <Bell size={13} /> Auf der Website
+        </button>
+        <button
+          onClick={() => setActiveTab('email')}
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2.5 rounded-lg transition-all ${
+            activeTab === 'email'
+              ? 'bg-white text-[#222222] shadow-sm'
+              : 'text-[#222222]/40 hover:text-[#222222]/60'
+          }`}
+        >
+          <Mail size={13} /> Per E-Mail
+        </button>
+      </div>
+
+      {/* Tab content */}
+      {activeTab === 'inapp' && renderSection(
         'Auf der Website',
         <Bell size={16} className="text-[#222222]/40" />,
         inappToggles,
       )}
 
-      <div className="border-t border-[#222222]/6" />
-
-      {renderSection(
+      {activeTab === 'email' && renderSection(
         'Per E-Mail',
         <Mail size={16} className="text-[#222222]/40" />,
         emailToggles,

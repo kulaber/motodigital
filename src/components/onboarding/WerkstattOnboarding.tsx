@@ -538,7 +538,7 @@ export function WerkstattOnboarding({
               Founding Partner
             </p>
             <p className="text-sm text-white/50 leading-relaxed mb-4">
-              Premium-Profil, Top-Platzierung und exklusives Badge — nur 10 Plätze, 39 €/Mo.
+              Logo, Galerie, Top-Platzierung und exklusives Founding Partner Badge — nur 10 Plätze, €39/Mo.
             </p>
             <button
               onClick={async () => {

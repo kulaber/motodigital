@@ -59,7 +59,7 @@ function groupByDay(items: { created_at: string }[]) {
 
 export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeSlugMap }: Props) {
   const [active, setActive] = useState<FilterKey>('all')
-  const [timeRange, setTimeRange] = useState<TimeRange>('30d')
+  const [timeRange, setTimeRange] = useState<TimeRange>('all')
   const [now] = useState(getCurrentTimestamp)
 
   // Filter data by time range
@@ -160,7 +160,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {FILTERS.map(f => {
           const total = f.key === 'profile' ? filteredProfile.length
             : f.key === 'contact' ? filteredContact.length

@@ -623,9 +623,9 @@ function MessageThread({
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[#222222]/5 flex-shrink-0">
         <button
           onClick={onBack}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#222222]/5 transition-colors text-[#222222]/50"
+          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full bg-[#222222]/5 text-[#222222] transition-colors active:bg-[#222222]/10"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={18} />
         </button>
         {profileHref ? (
           <Link href={profileHref} className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
@@ -753,7 +753,7 @@ function MessageThread({
       </div>
 
       {/* Input area */}
-      <div className={`flex-shrink-0 border-t border-[#222222]/5 bg-white ${inputFocused ? 'pb-0' : 'pb-[100px]'} sm:pb-0 transition-[padding] duration-200`}>
+      <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white">
 
         {/* Image preview */}
         {previewFile && (
@@ -778,7 +778,7 @@ function MessageThread({
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
 
         {/* Mobile: einzeiliges Layout */}
-        <div className="flex items-center gap-1.5 px-2.5 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] sm:hidden">
+        <div className="flex items-center gap-1.5 px-2.5 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))] sm:hidden">
           <button
             type="button"
             onClick={() => setPlusMenuOpen(true)}
@@ -799,9 +799,13 @@ function MessageThread({
             type="button"
             onClick={handleSend}
             disabled={(!text.trim() && !previewFile) || sending || uploading}
-            className="flex-shrink-0 w-9 h-9 rounded-full bg-[#F0F0F0] disabled:opacity-30 flex items-center justify-center transition-colors active:bg-[#E0E0E0]"
+            className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+              (text.trim() || previewFile) && !sending && !uploading
+                ? 'bg-[#06a5a5] active:bg-[#058f8f]'
+                : 'bg-[#F0F0F0] opacity-30'
+            }`}
           >
-            <ArrowUp size={15} className="text-[#555]" />
+            <ArrowUp size={15} className={(text.trim() || previewFile) && !sending && !uploading ? 'text-white' : 'text-[#555]'} />
           </button>
         </div>
 
@@ -938,6 +942,20 @@ export default function MessagesClient({ conversations: initial, userId }: Props
 
   // selectedIdRef immer aktuell halten
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
+
+  // Hide mobile navbar when a conversation is open
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768
+    if (!isMobile) return
+    if (selectedId) {
+      window.dispatchEvent(new Event('modal-open'))
+    } else {
+      window.dispatchEvent(new Event('modal-close'))
+    }
+    return () => {
+      if (selectedId) window.dispatchEvent(new Event('modal-close'))
+    }
+  }, [selectedId])
 
   // Realtime: neue Nachricht → Konversation nach oben + unread_count updaten
   useEffect(() => {

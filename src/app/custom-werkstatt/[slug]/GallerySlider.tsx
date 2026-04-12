@@ -11,6 +11,7 @@ type GalleryImage = { url: string; title?: string }
 function GalleryModal({ images, startIndex, onClose }: { images: GalleryImage[]; startIndex: number; onClose: () => void }) {
   useHideNavOnModal(true)
   const [idx, setIdx] = useState(startIndex)
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
 
   const prev = useCallback(() => setIdx(i => (i - 1 + images.length) % images.length), [images.length])
   const next = useCallback(() => setIdx(i => (i + 1) % images.length), [images.length])
@@ -26,8 +27,28 @@ function GalleryModal({ images, startIndex, onClose }: { images: GalleryImage[];
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
   }, [onClose, prev, next])
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (!touchStart.current) return
+    const dx = e.changedTouches[0].clientX - touchStart.current.x
+    const dy = e.changedTouches[0].clientY - touchStart.current.y
+    touchStart.current = null
+    // Only swipe if horizontal movement > 50px and more horizontal than vertical
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0) next()
+    else prev()
+  }
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+      onClick={onClose}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Close */}
       <button onClick={onClose} className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors" aria-label="Schließen">
         <X size={18} className="text-white" />
@@ -48,19 +69,19 @@ function GalleryModal({ images, startIndex, onClose }: { images: GalleryImage[];
         />
       </div>
 
-      {/* Nav arrows */}
+      {/* Nav arrows — hidden on mobile, visible on sm+ */}
       {images.length > 1 && (
         <>
           <button
             onClick={e => { e.stopPropagation(); prev() }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 hidden sm:flex items-center justify-center transition-colors"
             aria-label="Vorheriges Bild"
           >
             <ChevronLeft size={20} className="text-white" />
           </button>
           <button
             onClick={e => { e.stopPropagation(); next() }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 hidden sm:flex items-center justify-center transition-colors"
             aria-label="Nächstes Bild"
           >
             <ChevronRight size={20} className="text-white" />
