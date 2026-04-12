@@ -14,12 +14,12 @@ const FAQ_ALLGEMEIN: FaqItem[] = [
   {
     question: 'Was ist MotoDigital?',
     answer:
-      'MotoDigital ist die erste digitale Plattform für Custom Motorcycle Culture in Europa. Wir verbinden Custom-Werkstätten, Bike-Käufer und Rider — direkt, kostenlos und ohne Umwege.',
+      'MotoDigital ist die erste digitale Plattform für Custom Motorcycle Culture in Europa. Wir verbinden Custom-Werkstätten, Bike-Käufer und Rider — direkt und ohne Umwege.',
   },
   {
-    question: 'Ist MotoDigital kostenlos?',
+    question: 'Was kostet MotoDigital?',
     answer:
-      'Ja! Die Registrierung als Rider oder Werkstatt ist komplett kostenlos. Werkstätten können optional kostenpflichtige Premium-Features nutzen — z. B. hervorgehobene Listings oder erweiterte Analytics.',
+      'Für Rider ist MotoDigital komplett kostenlos. Werkstätten starten als Founding Partner für €39/Monat (nur 10 Plätze) — danach €79/Monat. Inklusive Profilseite, Galerie, Karte und Direktkontakt zu Ridern.',
   },
   {
     question: 'In welchen Ländern ist MotoDigital verfügbar?',

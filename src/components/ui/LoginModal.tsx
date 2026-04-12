@@ -415,10 +415,13 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all text-left group"
       >
         <div className="px-4 py-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Wrench size={18} className="text-accent" />
-            <p className="font-bold text-xl text-white">Custom Werkstatt</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
+          <div className="flex items-center gap-2 mb-1">
+            <Wrench size={18} className="text-accent flex-shrink-0" />
+            <p className="font-bold text-xl text-white whitespace-nowrap">Custom Werkstatt</p>
+          </div>
+          <div className="flex items-center gap-2 mb-2 ml-[26px]">
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Founding Partner · €39/Mo</span>
+            <span className="text-[9px] text-white/30">Nur 10 Plätze</span>
           </div>
           <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">
@@ -597,7 +600,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       showModeSwitch = false
     }
   } else {
-    title = 'Kostenlos Registrieren'
+    title = 'Registrieren'
     showModeSwitch = true
 
     if (registerDone) {
@@ -648,16 +651,16 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             <X size={16} />
           </button>
 
-          {/* Content — scrollable if needed */}
-          <div className="px-6 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8 flex flex-col gap-3 overflow-y-auto overscroll-contain">
+          {/* Content */}
+          <div className="px-6 pt-5 pb-5 sm:px-8 sm:pt-6 sm:pb-6 flex flex-col gap-3">
             {/* Logo */}
-            <div className="flex justify-center mb-2">
+            <div className="flex justify-center">
               <Image
                 src="/logo.svg"
                 alt="MotoDigital"
                 width={280}
                 height={106}
-                className="h-16 w-auto"
+                className="h-11 w-auto"
                 priority
               />
             </div>

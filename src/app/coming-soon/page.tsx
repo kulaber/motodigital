@@ -49,7 +49,7 @@ export default function ComingSoonPage() {
           {[
             { value: '+124', label: 'Builder' },
             { value: '5', label: 'Länder' },
-            { value: '100%', label: 'Kostenlos' },
+            { value: '€39', label: 'Founding Partner' },
           ].map(s => (
             <div key={s.label}>
               <p className="text-xl font-bold text-[#222222]">{s.value}</p>

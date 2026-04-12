@@ -138,10 +138,9 @@ export default function NutzungsbedingungenPage() {
             <section>
               <h2>6. Werkstatt-Profile &amp; kostenpflichtige Leistungen</h2>
               <p>
-                6.1 Werkstätten können ihre Profile kostenlos anlegen.
-                Erweiterte Funktionen (z.&nbsp;B. Premium-Listings,
-                hervorgehobene Darstellung, Analytics-Dashboard) sind
-                kostenpflichtig und werden separat vereinbart.
+                6.1 Werkstätten können ihre Profile gegen eine monatliche Gebühr anlegen
+                (Founding Partner: €39/Monat, regulär: €79/Monat).
+                Die jeweils gültigen Preise werden auf der Registrierungsseite ausgewiesen.
               </p>
               <p>
                 6.2 Preise, Laufzeiten und Zahlungsmodalitäten für

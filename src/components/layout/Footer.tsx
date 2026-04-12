@@ -49,7 +49,7 @@ export default function Footer() {
               <Image src="/logo.svg" alt="MotoDigital" width={180} height={68} className="h-14 w-auto opacity-80" />
             </Link>
             <p className="text-sm text-white/35 leading-relaxed max-w-xs mb-6">
-              Die Plattform für Custom Motorcycle Builder in Europa — direkt, kostenlos, ohne Umwege.
+              Die Plattform für Custom Motorcycle Builder in Europa — direkt und ohne Umwege.
             </p>
             {/* Social */}
             <div className="flex items-center gap-3">

@@ -21,13 +21,13 @@ const sections = [
     description:
       'MotoDigital ist die erste digitale Anlaufstelle für Custom-Werkstätten in Europa. Kein Algorithmus, kein Pay-to-Win — nur echte Sichtbarkeit bei Menschen, die Custom Bikes wirklich wollen.',
     usps: [
-      'Kostenlose Profilseite mit Galerie, Fotos & Videos',
+      'Profilseite mit Galerie, Fotos & Videos',
       'Werde auf der interaktiven Karte gefunden',
       'Zeig deine Builds als Referenz',
       'Direkter Kontakt mit Kunden',
       'Verifiziertes Profil für mehr Vertrauen',
     ],
-    cta: { label: 'Als Werkstatt registrieren', href: '/auth/register?role=custom-werkstatt' },
+    cta: { label: 'Jetzt Founding Partner sichern', href: '/auth/register?role=custom-werkstatt' },
     accent: '#06a5a5',
   },
   {
@@ -84,7 +84,7 @@ export default function WieEsFunktioniertPage() {
             Die Plattform für Custom Motorcycle Culture.
           </h1>
           <p className="text-base text-white/40 max-w-lg leading-relaxed">
-            MotoDigital verbindet Custom-Werkstätten, Bike-Käufer und Rider — direkt, kostenlos und ohne Umwege.
+            MotoDigital verbindet Custom-Werkstätten, Bike-Käufer und Rider — direkt und ohne Umwege.
           </p>
         </div>
       </section>
@@ -253,12 +253,12 @@ export default function WieEsFunktioniertPage() {
             Bereit loszulegen?
           </h2>
           <p className="text-sm text-white/35 mb-10 max-w-sm mx-auto leading-relaxed">
-            Kostenlos registrieren — als Werkstatt oder Rider. In wenigen Minuten live.
+            Registriere dich als Werkstatt oder Rider. In wenigen Minuten live.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/auth/register?role=custom-werkstatt"
               className="bg-[#06a5a5] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-[#058f8f] transition-all inline-flex items-center gap-2">
-              Als Custom Werkstatt registrieren <ArrowRight size={14} />
+              Jetzt Founding Partner sichern <ArrowRight size={14} />
             </Link>
             <Link href="/auth/register?role=rider"
               className="border border-white/10 text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:border-white/25 transition-all inline-flex items-center gap-2">

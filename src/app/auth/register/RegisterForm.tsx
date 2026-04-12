@@ -111,10 +111,13 @@ export default function RegisterForm({ initialRole, onRoleChange }: { initialRol
           onClick={() => handleRoleSelect('custom-werkstatt')}
           className="rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#06a5a5]/40 hover:bg-[#06a5a5]/[0.04] transition-all duration-200 text-left px-5 py-4"
         >
-          <div className="flex items-center gap-2 mb-2">
-            <Wrench size={18} className="text-[#06a5a5]" />
-            <p className="font-bold text-base text-white">Custom Werkstatt</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
+          <div className="flex items-center gap-2 mb-1">
+            <Wrench size={18} className="text-[#06a5a5] flex-shrink-0" />
+            <p className="font-bold text-base text-white whitespace-nowrap">Custom Werkstatt</p>
+          </div>
+          <div className="flex items-center gap-2 mb-2 ml-[26px]">
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Founding Partner · €39/Mo</span>
+            <span className="text-[9px] text-white/30">Nur 10 Plätze</span>
           </div>
           <p className="text-xs text-white/45 mb-3">Ich baue Custom Bikes & will Kunden erreichen</p>
           <ul className="flex flex-col gap-1.5">

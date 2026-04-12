@@ -438,7 +438,7 @@ export default async function LandingPage() {
               Werde Teil der Community.
             </h2>
             <p className="text-sm text-white/35 max-w-md mx-auto leading-relaxed">
-              Registriere dich kostenlos — als Rider oder als Custom Werkstatt.
+              Registriere dich als Rider oder als Custom Werkstatt.
             </p>
           </div>
 
@@ -453,18 +453,19 @@ export default async function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-[#111]/10" />
               <div className="relative z-10 flex flex-col h-full p-7">
                 <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#06a5a5]/15 text-[#06a5a5] self-start">
-                  Custom Werkstatt
+                  Founding Partner · €39/Monat
                 </span>
                 <h3 className="text-xl font-bold text-white mb-2 leading-snug mt-12">
                   Zeige deine Werkstatt & Custom Bikes.<br />Erreiche die Community.
                 </h3>
                 <p className="text-sm text-white/35 leading-relaxed">
-                  Kostenlose Profilseite, Galerie, Custom Bikes, Karte & direkter Kontakt zu Ridern.
+                  €39/Monat statt €79 — für die ersten 10 Werkstätten. Profilseite, Galerie, Karte & direkter Kontakt.
                 </p>
+                <p className="text-xs text-[#06a5a5]/70 mt-2">Nur 10 Gründungsplätze — danach €79/Monat</p>
                 <div className="flex flex-col gap-3 items-start mt-auto pt-8">
                   <Link href="/auth/register?role=custom-werkstatt"
                     className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-300 hover:bg-[#058f8f] hover:gap-3">
-                    Als Werkstatt registrieren →
+                    Jetzt Founding Partner sichern →
                   </Link>
                   <Link href="/vorteile?tab=werkstatt"
                     className="text-white/35 hover:text-white/60 text-sm font-medium transition-colors duration-200">

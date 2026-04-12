@@ -11,7 +11,7 @@ export const revalidate = 3600 // ISR: revalidate every hour
 const BASE_URL = 'https://motodigital.vercel.app'
 
 const seoTitle = 'Custom Werkstatt finden — Verzeichnis'
-const seoDescription = 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt — kostenlos auf MotoDigital.'
+const seoDescription = 'Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt auf MotoDigital.'
 
 export const metadata: Metadata = {
   title: seoTitle,

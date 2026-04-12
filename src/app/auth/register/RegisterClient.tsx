@@ -56,7 +56,7 @@ export default function RegisterClient({ initialRole }: { initialRole?: Role }) 
             Account erstellen
           </h1>
           <p className="text-sm text-white/35 mt-2 mb-6 lg:mb-8 text-center">
-            Kostenlos — keine Kreditkarte erforderlich
+            Rider kostenlos · Werkstatt ab €39/Monat
           </p>
 
           {/* Form / Role selection */}

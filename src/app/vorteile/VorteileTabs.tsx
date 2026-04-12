@@ -23,13 +23,13 @@ const TAB_CONTENT: Record<Tab, {
     description:
       'MotoDigital ist die erste digitale Anlaufstelle für Custom-Werkstätten in Europa. Kein Algorithmus, kein Pay-to-Win — nur echte Sichtbarkeit bei Menschen, die Custom Bikes wirklich wollen.',
     usps: [
-      'Kostenlose Profilseite mit Galerie, Fotos & Videos',
+      'Profilseite mit Galerie, Fotos & Videos',
       'Werde auf der interaktiven Karte gefunden',
       'Zeig deine Builds als Referenz',
       'Direkter Kontakt mit Kunden',
       'Verifiziertes Profil für mehr Vertrauen',
     ],
-    cta: { label: 'Als Werkstatt registrieren', href: '/auth/register?role=custom-werkstatt' },
+    cta: { label: 'Jetzt Founding Partner sichern', href: '/auth/register?role=custom-werkstatt' },
   },
   rider: {
     image: '/rider.png',

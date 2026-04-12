@@ -101,7 +101,7 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
             )}
             {!isPaid && (
               <p className="text-xs text-[#222222]/40">
-                Kostenloser Zugang — upgrade jederzeit möglich
+                Basis-Zugang — upgrade jederzeit möglich
               </p>
             )}
           </div>

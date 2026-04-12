@@ -1282,7 +1282,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
                   onClick={() => { setLoginInitialMode('register'); setShowLogin(true) }}
                   className="w-full bg-[#2AABAB] text-white font-semibold py-3 rounded-full text-center text-sm"
                 >
-                  Kostenlos registrieren
+                  Jetzt registrieren
                 </button>
 
                 {/* Sub-text */}
