@@ -1216,7 +1216,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
                 Anmelden
               </button>
             </div>
-          )}
+          ) : null}
 
           {/* Events carousel */}
           {category === 'events' && upcomingEvents.length > 0 && (
