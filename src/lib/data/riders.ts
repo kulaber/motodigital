@@ -40,7 +40,7 @@ export const RIDERS: Rider[] = [
     bike: 'Honda CB750 Cafe Racer',
     style: 'Cafe Racer',
     styles: ['Cafe Racer', 'Street'],
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=face',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
     bio: 'Berliner durch und durch. Ich baue und fahre seit 2015 Cafe Racer, meist auf alten Honda- und Triumph-Bases. Bin bei jedem Wetter auf dem Rad.',
     verified: true,
     since: '2015',

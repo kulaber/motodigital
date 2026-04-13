@@ -58,7 +58,7 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
       <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#999] px-6 pt-4 mb-2">
         Entdecke Rider
       </p>
-      <div className="flex gap-3.5 px-4 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex gap-3.5 px-6 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {riders.map(rider => {
           const initials = getInitials(rider.full_name, rider.username)
           return (
@@ -78,10 +78,8 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div
-                      className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${getGradient(rider.id)}`}
-                    >
-                      <span className="text-[13px] font-black text-white">{initials}</span>
+                    <div className="w-full h-full flex items-center justify-center bg-[#2AABAB]">
+                      <Image src="/pin-logo.svg" alt="" width={32} height={32} className="w-8 h-8 object-contain" />
                     </div>
                   )}
                 </div>

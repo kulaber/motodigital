@@ -20,12 +20,14 @@ export default async function ExplorePage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   let isSuperadmin = false
+  let userRole: string | null = null
   if (user) {
     const { data } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .maybeSingle()
     isSuperadmin = data?.role === 'superadmin'
+    userRole = data?.role ?? null
   }
 
   // Fetch riders for mobile story bar + events (server-side to avoid client fetch)
@@ -48,7 +50,7 @@ export default async function ExplorePage() {
       <div className="flex flex-1 justify-center bg-[#F7F7F7]">
         <div className="flex flex-1 w-full max-w-7xl">
           <Suspense>
-            <ExploreClient userId={user?.id ?? null} isAuthenticated={!!user} isSuperadmin={isSuperadmin} riders={(storyRiders ?? []).map((r: Record<string, unknown>) => ({ id: r.id as string, username: r.username as string, full_name: r.full_name as string | null, avatar_url: r.avatar_url as string | null, isOnline: isOnline(r.last_seen_at as string | null) }))} events={(eventsData ?? []) as Event[]} />
+            <ExploreClient userId={user?.id ?? null} isAuthenticated={!!user} isSuperadmin={isSuperadmin} userRole={userRole} riders={(storyRiders ?? []).map((r: Record<string, unknown>) => ({ id: r.id as string, username: r.username as string, full_name: r.full_name as string | null, avatar_url: r.avatar_url as string | null, isOnline: isOnline(r.last_seen_at as string | null) }))} events={(eventsData ?? []) as Event[]} />
           </Suspense>
         </div>
       </div>

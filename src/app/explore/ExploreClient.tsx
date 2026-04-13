@@ -719,6 +719,7 @@ interface Props {
   userId: string | null
   isAuthenticated?: boolean
   isSuperadmin?: boolean
+  userRole?: string | null
   riders?: StoryRider[]
   events?: Event[]
 }
@@ -726,7 +727,7 @@ interface Props {
 const PAGE_SIZE = 10
 const GUEST_LIMIT = 3
 
-export default function ExploreClient({ userId, isAuthenticated = !!userId, isSuperadmin, riders = [], events: initialEvents = [] }: Props) {
+export default function ExploreClient({ userId, isAuthenticated = !!userId, isSuperadmin, userRole, riders = [], events: initialEvents = [] }: Props) {
   const [category, setCategory] = useState<Category>('alle')
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -1131,7 +1132,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
       <main className="flex-1 min-w-0 pt-0 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent overflow-x-hidden">
         {/* Mobile heading */}
         <div className="lg:hidden relative flex items-center justify-center mb-1 pt-6 px-4 sm:px-0">
-          {canPost && (
+          {canPost && userRole === 'werkstatt' && (
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event('open-post-composer'))}
@@ -1195,7 +1196,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
           <div ref={composerSentinelRef} className="h-0" />
 
           {/* Composer trigger — opens PostComposerSheet (same as mobile) */}
-          {canPost ? (
+          {canPost && userRole === 'werkstatt' ? (
             <div className="hidden md:block bg-white rounded-2xl border border-[#222222]/6 overflow-hidden mb-4 shadow-sm">
               <button
                 type="button"
@@ -1208,7 +1209,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
                 </span>
               </button>
             </div>
-          ) : (
+          ) : !canPost ? (
             <div className="bg-white rounded-2xl border border-[#222222]/6 p-4 text-center mb-4">
               <p className="text-sm text-[#222222]/40 mb-3">Melde dich an, um Beiträge zu teilen</p>
               <button onClick={() => { setLoginContext('comment'); setShowLogin(true) }} className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all">
