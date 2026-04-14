@@ -379,7 +379,11 @@ export default async function RiderProfilePage({ params }: Props) {
                 <div className="bg-[#111111] rounded-2xl p-5 sm:p-6">
                   <div className="flex items-center gap-2 mb-5">
                     <h2 className="text-xl font-bold text-white tracking-tight">{isOwnProfile ? 'Meine Garage' : `Garage von ${rider.name.split(' ')[0]}`}</h2>
-                    <span className="text-xs text-white/30 ml-auto">{rider.bikes.length} {rider.bikes.length === 1 ? 'Bike' : 'Bikes'}</span>
+                    {isOwnProfile && (
+                      <div className="ml-auto">
+                        <GarageBikeMenu bikeId={rider.bikes[0].id} />
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     {rider.bikes.map(bike => (
@@ -409,9 +413,6 @@ export default async function RiderProfilePage({ params }: Props) {
                           </p>
                           <p className="text-xs text-white/40">{bike.base}</p>
                         </Link>
-                        {isOwnProfile && (
-                          <GarageBikeMenu bikeId={bike.id} />
-                        )}
                       </div>
                     ))}
                   </div>

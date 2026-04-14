@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, Users } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Heart, Users, X, Calendar, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 
@@ -18,16 +19,20 @@ interface Participant {
 
 interface Props {
   eventSlug: string
+  eventName: string
   userId: string | null
   sidebar?: boolean
 }
 
-export default function EventInterestButton({ eventSlug, userId, sidebar }: Props) {
+export default function EventInterestButton({ eventSlug, eventName, userId, sidebar }: Props) {
+  const router = useRouter()
   const [interested, setInterested] = useState(false)
   const [count, setCount] = useState(0)
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [showLogin, setShowLogin] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [posting, setPosting] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -89,6 +94,9 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
           initials: (prof.full_name ?? '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
         }])
       }
+
+      // Show share modal after joining
+      setShowShareModal(true)
     } else {
       setParticipants(prev => prev.filter(p => p.id !== userId))
       await (supabase.from('event_interest') as any)
@@ -151,6 +159,68 @@ export default function EventInterestButton({ eventSlug, userId, sidebar }: Prop
         onClose={() => setShowLogin(false)}
         triggerContext="event_interest"
       />
+
+      {/* Share-to-Community Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col items-center gap-5">
+            <button
+              type="button"
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#F7F7F7] flex items-center justify-center text-[#222]/40 hover:text-[#222] hover:bg-[#F0F0F0] transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="w-12 h-12 rounded-full bg-[#06a5a5]/10 flex items-center justify-center">
+              <Calendar size={22} className="text-[#06a5a5]" />
+            </div>
+
+            <div className="text-center">
+              <p className="text-base font-bold text-[#222222] mb-1">Du nimmst teil!</p>
+              <p className="text-sm text-[#222222]/50">
+                Zeige der Community, dass du dabei bist.
+              </p>
+            </div>
+
+            <div className="w-full px-2 py-3 rounded-xl bg-[#F7F7F7] border border-[#222222]/5">
+              <p className="text-xs font-semibold text-[#222222] text-center truncate">{eventName}</p>
+            </div>
+
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                type="button"
+                disabled={posting}
+                onClick={async () => {
+                  if (!userId) return
+                  setPosting(true)
+                  await (supabase.from('community_posts') as any)
+                    .insert({
+                      user_id: userId,
+                      body: `Ich bin dabei! 🏍️`,
+                      event_slug: eventSlug,
+                      topic: 'events',
+                    })
+                  setPosting(false)
+                  setShowShareModal(false)
+                  router.push('/explore')
+                }}
+                className="w-full py-3 rounded-full bg-[#06a5a5] text-white text-sm font-semibold hover:bg-[#058f8f] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {posting ? <Loader2 size={16} className="animate-spin" /> : 'Posten'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowShareModal(false)}
+                className="w-full py-3 rounded-full text-sm font-medium text-[#222222]/40 hover:text-[#222222]/60 transition-colors"
+              >
+                Nicht jetzt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

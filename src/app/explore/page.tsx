@@ -36,7 +36,7 @@ export default async function ExplorePage() {
       .select('id, username, full_name, avatar_url, last_seen_at')
       .eq('role', 'rider')
       .not('username', 'is', null)
-      .order('created_at', { ascending: false })
+      .order('last_seen_at', { ascending: false, nullsFirst: false })
       .limit(12),
     (supabase.from('events') as any)
       .select('id, slug, name, date_start, date_end, location, image')

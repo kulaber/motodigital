@@ -23,11 +23,11 @@ export default function GarageBikeMenu({ bikeId }: Props) {
   }, [open])
 
   return (
-    <div className="absolute top-2 right-2 z-20" ref={ref}>
+    <div className="relative z-20" ref={ref}>
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(v => !v) }}
-        className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+        className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20 hover:text-white transition-colors"
       >
         <MoreHorizontal size={16} />
       </button>

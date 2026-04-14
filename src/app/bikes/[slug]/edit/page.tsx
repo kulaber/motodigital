@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import DashboardShell from '@/components/layout/DashboardShell'
 import EditBikeForm from './EditBikeForm'
+import BackButton from './BackButton'
 
 export const metadata: Metadata = { title: 'Bike bearbeiten — MotoDigital' }
 
@@ -30,8 +31,13 @@ export default async function EditBikePage({ params }: Props) {
     <DashboardShell role={profile?.role ?? null} userName={profile?.full_name ?? null} avatarUrl={profile?.avatar_url ?? null}>
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#222222]">Bike bearbeiten</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">{bike.title}</p>
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <div>
+              <h1 className="text-2xl font-bold text-[#222222]">Bike bearbeiten</h1>
+              <p className="text-sm text-[#222222]/40 mt-1">{bike.title}</p>
+            </div>
+          </div>
         </div>
         <EditBikeForm bike={bike} />
       </div>

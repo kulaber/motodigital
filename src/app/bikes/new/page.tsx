@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import DashboardShell from '@/components/layout/DashboardShell'
 import NewBikeForm from './NewBikeForm'
@@ -19,8 +21,15 @@ export default async function NewBikePage() {
     <DashboardShell role={profile?.role ?? null} userName={profile?.full_name ?? null} avatarUrl={profile?.avatar_url ?? null}>
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-16">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#222222]">Neues Custom-Bike</h1>
-          <p className="text-sm text-[#222222]/40 mt-1">Füge dein Custom Bike hinzu</p>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/meine-garage" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors" aria-label="Zurück">
+              <ArrowLeft size={18} className="text-[#222222]" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-[#222222]">Neues Custom-Bike</h1>
+              <p className="text-sm text-[#222222]/40 mt-1">Füge dein Custom Bike hinzu</p>
+            </div>
+          </div>
         </div>
         <NewBikeForm />
       </div>

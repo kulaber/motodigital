@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, Loader2 } from 'lucide-react'
-import { searchAll, type SearchResults } from '@/lib/actions/search'
+import { Search, X, Loader2, ChevronDown } from 'lucide-react'
+import { searchAll, loadMoreRiders, type SearchResults, type RiderResult } from '@/lib/actions/search'
 import { BikeResultCard } from './BikeResultCard'
 import { WorkshopResultCard } from './WorkshopResultCard'
 import { RiderResultCard } from './RiderResultCard'
@@ -12,7 +12,7 @@ type Tab = 'all' | 'bikes' | 'workshops' | 'riders'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'all', label: 'Alles' },
-  { key: 'bikes', label: 'Bikes' },
+  { key: 'bikes', label: 'Custom Bikes' },
   { key: 'workshops', label: 'Werkstätten' },
   { key: 'riders', label: 'Rider' },
 ]
@@ -32,6 +32,11 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
+  // Rider pagination
+  const [extraRiders, setExtraRiders] = useState<RiderResult[]>([])
+  const [hasMoreRiders, setHasMoreRiders] = useState(true)
+  const [loadingRiders, setLoadingRiders] = useState(false)
+
   const showDefaults = !query || query.length < 2
 
   // Auto-focus search field (desktop only — on mobile the keyboard covers too much)
@@ -48,6 +53,12 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
     router.replace(`/search${qs ? '?' + qs : ''}`, { scroll: false })
   }, [query, activeTab, router])
 
+  // Reset rider pagination on query/tab change
+  useEffect(() => {
+    setExtraRiders([])
+    setHasMoreRiders(true)
+  }, [query, activeTab])
+
   // Debounced search
   useEffect(() => {
     clearTimeout(debounceRef.current)
@@ -63,6 +74,21 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
 
     return () => clearTimeout(debounceRef.current)
   }, [query, activeTab])
+
+  // Load more riders
+  const handleLoadMoreRiders = async () => {
+    setLoadingRiders(true)
+    const currentData = showDefaults ? defaultResults : results
+    const baseCount = currentData?.riders.length ?? 0
+    const nextOffset = baseCount + extraRiders.length
+    const { riders: more, hasMore } = await loadMoreRiders(
+      showDefaults ? null : query,
+      nextOffset,
+    )
+    setExtraRiders((prev) => [...prev, ...more])
+    setHasMoreRiders(hasMore)
+    setLoadingRiders(false)
+  }
 
   return (
     <section className="pt-4 pb-16">
@@ -151,7 +177,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
               <>
                 {(activeTab === 'all' || activeTab === 'bikes') && bikes.length > 0 && (
                   <ResultSection
-                    title={showDefaults ? 'Neue Builds' : 'Custom Bikes'}
+                    title={showDefaults ? 'Neue Custom Bikes' : 'Custom Bikes'}
                     count={bikes.length}
                     grid
                   >
@@ -176,11 +202,31 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
                 {(activeTab === 'all' || activeTab === 'riders') && riders.length > 0 && (
                   <ResultSection
                     title="Rider"
-                    count={riders.length}
+                    count={riders.length + extraRiders.length}
                   >
-                    {riders.map((r) => (
+                    {[...riders, ...extraRiders].map((r) => (
                       <RiderResultCard key={r.id} rider={r} />
                     ))}
+                    {hasMoreRiders && (
+                      <button
+                        onClick={handleLoadMoreRiders}
+                        disabled={loadingRiders}
+                        className="flex items-center justify-center gap-2 w-full py-3
+                                   rounded-xl border border-[#222222]/8
+                                   text-xs font-semibold text-[#222222]/50
+                                   hover:border-[#222222]/20 hover:text-[#222222]/70
+                                   disabled:opacity-50 transition-all"
+                      >
+                        {loadingRiders ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <>
+                            <ChevronDown className="w-3.5 h-3.5" />
+                            Mehr Rider laden
+                          </>
+                        )}
+                      </button>
+                    )}
                   </ResultSection>
                 )}
               </>

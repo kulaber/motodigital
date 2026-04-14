@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Plus, Bike, ArrowLeft, Tag } from 'lucide-react'
 import type { Database } from '@/types/database'
-import BikeCardActions, { PublishToggle } from './DeleteBikeButton'
+import BikeCardActions, { PublishToggle, DeleteBikeIcon } from './DeleteBikeButton'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -57,6 +57,11 @@ export default async function MeinBikePage() {
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
           <div className="flex items-center gap-3">
+            {!isWerkstatt && (
+              <Link href={backHref} className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white transition-colors" aria-label="Zurück">
+                <ArrowLeft size={18} className="text-[#222222]" />
+              </Link>
+            )}
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-[#222222]">{pageTitle}</h1>
               <p className="text-xs sm:text-sm text-[#222222]/40 mt-1">{pageSubtitle}</p>
@@ -96,19 +101,22 @@ export default async function MeinBikePage() {
                 <div key={bike.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-black/8 transition-all duration-300 flex flex-col sm:flex-row sm:items-stretch sm:min-h-[200px]">
                   {/* Cover */}
                   <div className="relative aspect-[16/9] sm:aspect-auto sm:w-52 md:w-64 flex-shrink-0 bg-[#EBEBEB] overflow-hidden">
-                    {coverImg ? (
-                      <Image
-                        src={coverImg}
-                        alt={bike.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 256px"
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Bike size={28} className="text-[#222222]/15" />
-                      </div>
-                    )}
+                    <DeleteBikeIcon bikeId={bike.id} />
+                    <Link href={`/custom-bike/${bike.slug ?? generateBikeSlug(bike.title, bike.id)}`} className="block w-full h-full">
+                      {coverImg ? (
+                        <Image
+                          src={coverImg}
+                          alt={bike.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 256px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Bike size={28} className="text-[#222222]/15" />
+                        </div>
+                      )}
+                    </Link>
                   </div>
 
                   {/* Info + actions */}

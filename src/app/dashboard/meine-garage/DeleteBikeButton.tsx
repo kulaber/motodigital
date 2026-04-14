@@ -46,14 +46,8 @@ export function PublishToggle({ bikeId, initialStatus }: { bikeId: string; initi
   )
 }
 
-// ── Action buttons ────────────────────────────────────────────────────────────
-interface Props {
-  bikeId: string
-  editHref: string
-  viewHref?: string
-}
-
-export default function BikeCardActions({ bikeId, editHref, viewHref }: Props) {
+// ── Delete icon button (for image overlay) ───────────────────────────────────
+export function DeleteBikeIcon({ bikeId }: { bikeId: string }) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -74,30 +68,44 @@ export default function BikeCardActions({ bikeId, editHref, viewHref }: Props) {
         loading={deleting}
         title="Möchtest du dieses Bike wirklich löschen?"
       />
-      <div className="flex items-center gap-2">
-        {viewHref && (
-          <Link
-            href={viewHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222] transition-colors whitespace-nowrap"
-          >
-            <Eye size={13} /> Ansehen
-          </Link>
-        )}
-        <Link
-          href={editHref}
-          className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full bg-[#222222] text-white hover:bg-[#444] transition-colors whitespace-nowrap"
-        >
-          <Pencil size={13} /> Bearbeiten
-        </Link>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/30 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer whitespace-nowrap"
-        >
-          <Trash2 size={13} /> Löschen
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalOpen(true) }}
+        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white/70 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+        aria-label="Löschen"
+      >
+        <Trash2 size={14} />
+      </button>
     </>
+  )
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+interface Props {
+  bikeId: string
+  editHref: string
+  viewHref?: string
+}
+
+export default function BikeCardActions({ bikeId, editHref, viewHref }: Props) {
+  return (
+    <div className="flex items-center justify-end gap-2">
+      {viewHref && (
+        <Link
+          href={viewHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full border border-[#222222]/10 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222] transition-colors whitespace-nowrap"
+        >
+          <Eye size={13} /> Ansehen
+        </Link>
+      )}
+      <Link
+        href={editHref}
+        className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full bg-[#222222] text-white hover:bg-[#444] transition-colors whitespace-nowrap"
+      >
+        <Pencil size={13} /> Bearbeiten
+      </Link>
+    </div>
   )
 }

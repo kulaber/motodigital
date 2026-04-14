@@ -9,33 +9,9 @@ interface Rider {
   isOnline?: boolean
 }
 
-const GRADIENT_PRESETS = [
-  'from-rose-500 to-orange-400',
-  'from-violet-500 to-fuchsia-400',
-  'from-cyan-500 to-blue-400',
-  'from-emerald-500 to-teal-400',
-  'from-amber-500 to-yellow-400',
-  'from-pink-500 to-red-400',
-  'from-indigo-500 to-purple-400',
-  'from-lime-500 to-green-400',
-]
-
-function getGradient(id: string) {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0
-  return GRADIENT_PRESETS[Math.abs(hash) % GRADIENT_PRESETS.length]
-}
-
-function getInitials(name: string | null, username: string): string {
-  if (name && name.trim().length > 0) {
-    return name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
-  }
-  return username.slice(0, 2).toUpperCase()
-}
-
 function RiderSkeletons() {
   return (
-    <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
+    <section className="lg:hidden bg-white border-b-[6px] border-[#F0F0F0] -mx-4 sm:-mx-6 lg:mx-0">
       <div className="h-3 w-24 bg-[#F0EDE4] rounded-full mx-4 mt-4 mb-2" />
       <div className="flex gap-3.5 px-4 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -49,18 +25,17 @@ function RiderSkeletons() {
   )
 }
 
-export default function RiderList({ riders, loading }: { riders: Rider[]; loading?: boolean }) {
+export default function RiderList({ riders, loading, currentUserId }: { riders: Rider[]; loading?: boolean; currentUserId?: string | null }) {
   if (loading) return <RiderSkeletons />
   if (!riders.length) return <RiderSkeletons />
 
   return (
-    <section className="lg:hidden bg-white border-b border-black/[0.07] mb-4 -mx-4 sm:-mx-6 lg:mx-0">
+    <section className="lg:hidden bg-white border-b-[6px] border-[#F0F0F0] -mx-4 sm:-mx-6 lg:mx-0">
       <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#999] px-6 pt-4 mb-2">
         Entdecke Rider
       </p>
       <div className="flex gap-3.5 px-6 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {riders.map(rider => {
-          const initials = getInitials(rider.full_name, rider.username)
           return (
             <Link
               key={rider.id}
@@ -88,11 +63,26 @@ export default function RiderList({ riders, loading }: { riders: Rider[]; loadin
                 )}
               </div>
               <span className="text-[10px] font-semibold text-[#111] max-w-[72px] truncate text-center">
-                {rider.full_name ?? rider.username}
+                {currentUserId && rider.id === currentUserId ? 'Dein Profil' : (rider.full_name ?? rider.username)}
               </span>
             </Link>
           )
         })}
+
+        {/* "Alle Rider entdecken" button */}
+        <Link
+          href="/rider"
+          className="flex flex-col items-center gap-1.5 flex-shrink-0"
+        >
+          <div className="w-[72px] h-[72px] rounded-full border-2 border-dashed border-[#222]/15 flex items-center justify-center hover:border-[#2AABAB]/50 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#222]/30">
+              <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <span className="text-[10px] font-semibold text-[#2AABAB] max-w-[72px] text-center leading-tight">
+            Alle Rider
+          </span>
+        </Link>
       </div>
     </section>
   )

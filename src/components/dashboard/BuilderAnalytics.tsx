@@ -143,7 +143,7 @@ export function BuilderAnalytics({ profileViews, contactClicks, bikeViews, bikeS
   return (
     <div className="space-y-3">
       {/* Time range filter tabs */}
-      <div className="flex gap-1 bg-[#222222]/4 rounded-xl p-1">
+      <div className="sticky top-1 z-20 flex gap-1 bg-[#E8E8E8] rounded-xl p-1">
         {TIME_RANGES.map(t => (
           <button
             key={t.key}

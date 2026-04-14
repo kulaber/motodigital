@@ -153,6 +153,41 @@ function mapRiders(rows: unknown[]): RiderResult[] {
   }))
 }
 
+// ── Paginated rider loading ──
+
+const RIDER_PAGE_SIZE = 20
+
+export async function loadMoreRiders(
+  query: string | null,
+  offset: number,
+): Promise<{ riders: RiderResult[]; hasMore: boolean }> {
+  const supabase = await createClient()
+
+  let qb = (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+    .select(`
+      id, username, full_name, avatar_url, riding_style, city,
+      bikes!bikes_seller_id_fkey(count),
+      followers!followers_following_id_fkey(count)
+    `)
+    .eq('role', 'rider')
+    .not('slug', 'is', null)
+
+  if (query && query.trim().length >= 2) {
+    const pattern = `%${query.trim()}%`
+    qb = qb.or(`username.ilike.${pattern},full_name.ilike.${pattern},city.ilike.${pattern}`)
+  } else {
+    // Default view: only riders with avatars
+    qb = qb.not('avatar_url', 'is', null)
+  }
+
+  const { data } = await qb
+    .order('created_at', { ascending: false })
+    .range(offset, offset + RIDER_PAGE_SIZE - 1)
+
+  const riders = mapRiders(data ?? [])
+  return { riders, hasMore: riders.length >= RIDER_PAGE_SIZE }
+}
+
 // ── Search ──
 
 type Tab = 'all' | 'bikes' | 'workshops' | 'riders'

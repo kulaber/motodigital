@@ -213,7 +213,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Right: Participants (sticky) */}
             <div className="lg:sticky lg:top-24">
-              <EventInterestButton eventSlug={event.slug} userId={user?.id ?? null} sidebar />
+              <EventInterestButton eventSlug={event.slug} eventName={event.name} userId={user?.id ?? null} sidebar />
             </div>
           </div>
 

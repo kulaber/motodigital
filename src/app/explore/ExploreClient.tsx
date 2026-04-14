@@ -1188,7 +1188,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
         </div>
 
         {/* Mobile rider list — full width (between pills and composer) */}
-        <RiderList riders={riders} />
+        <RiderList riders={riders} currentUserId={userId} />
 
         {/* Composer + card stream share one parent so sticky works through the full scroll */}
         <div className="max-w-none sm:max-w-[560px] mx-auto lg:mx-0 pt-4 lg:pt-2">
@@ -1221,7 +1221,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
           {/* Events carousel */}
           {category === 'events' && upcomingEvents.length > 0 && (
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 px-4 sm:px-0">
                 <h2 className="text-sm font-semibold text-[#222222]">Nächste Events</h2>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -1238,7 +1238,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
                   </button>
                 </div>
               </div>
-              <div id="events-carousel" className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 scroll-smooth">
+              <div id="events-carousel" className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-4 sm:px-0 scroll-smooth">
                 {upcomingEvents.map(ev => (
                   <Link
                     key={ev.id}
@@ -1260,6 +1260,17 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
                     </div>
                   </Link>
                 ))}
+
+                {/* Alle Events button */}
+                <Link
+                  href="/events"
+                  className="flex-shrink-0 w-[260px] rounded-2xl border border-dashed border-[#222222]/10 hover:border-[#06a5a5]/30 overflow-hidden bg-white transition-all flex flex-col items-center justify-center gap-2 min-h-[180px]"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#06a5a5]/10 flex items-center justify-center">
+                    <Calendar size={18} className="text-[#06a5a5]" />
+                  </div>
+                  <span className="text-xs font-semibold text-[#06a5a5]">Alle Events ansehen</span>
+                </Link>
               </div>
             </div>
           )}

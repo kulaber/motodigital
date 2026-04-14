@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
@@ -28,7 +30,12 @@ export default async function EventsPage() {
       {/* Hero */}
       <section className="pt-28 pb-14 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-          <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest mb-3">Events 2026</p>
+          <div className="flex items-center gap-3 mb-3">
+            <Link href="/explore" className="md:hidden w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-[#F0F0F0] transition-colors" aria-label="Zurück">
+              <ArrowLeft size={18} className="text-[#222222]" />
+            </Link>
+            <p className="text-xs font-semibold text-[#717171] uppercase tracking-widest">Events 2026</p>
+          </div>
           <h1 className="font-bold text-[#222222] leading-tight mb-4" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-0.03em' }}>
             Custom Motorcycle Events
           </h1>
