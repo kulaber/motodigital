@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   LayoutDashboard, LogOut, ChevronDown, Search,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Wrench,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/hooks/useAuth'

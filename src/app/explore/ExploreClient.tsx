@@ -744,7 +744,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
   const { toasts, success: showSuccess, error: showError } = useToast()
 
   // Composer state
-  const [composerStuck, setComposerStuck] = useState(false)
+  const [_composerStuck, setComposerStuck] = useState(false)
   const composerSentinelRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const canPost = !!userId

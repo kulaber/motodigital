@@ -2,9 +2,8 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
-import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import { Plus, Eye, ExternalLink, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import { Eye, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
 import type { Database } from '@/types/database'
@@ -47,8 +46,8 @@ export default async function DashboardPage() {
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
   const activeCount = bikes?.filter(b => b.status === 'active').length ?? 0
-  const coverImage = builderMedia?.find(m => m.title === 'cover') ?? null
-  const galleryCount = builderMedia?.filter(m => m.title !== 'cover').length ?? 0
+  const _coverImage = builderMedia?.find(m => m.title === 'cover') ?? null
+  const _galleryCount = builderMedia?.filter(m => m.title !== 'cover').length ?? 0
   const isRider = profile?.role === 'rider'
   const isBuilder = profile?.role === 'custom-werkstatt'
   const isSuperAdmin = profile?.role === 'superadmin'

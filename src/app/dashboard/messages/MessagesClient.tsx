@@ -433,7 +433,7 @@ function MessageThread({
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [inputFocused, setInputFocused] = useState(false)
+  const [_inputFocused, setInputFocused] = useState(false)
   // reactions: { [messageId]: { [emoji]: { count, userReacted } } }
   const [reactions, setReactions] = useState<Record<string, Record<string, { count: number; userReacted: boolean }>>>({})
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)

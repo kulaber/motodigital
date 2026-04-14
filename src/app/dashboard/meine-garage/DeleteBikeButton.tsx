@@ -87,7 +87,7 @@ interface Props {
   viewHref?: string
 }
 
-export default function BikeCardActions({ bikeId, editHref, viewHref }: Props) {
+export default function BikeCardActions({ editHref, viewHref }: Props) {
   return (
     <div className="flex items-center justify-end gap-2">
       {viewHref && (

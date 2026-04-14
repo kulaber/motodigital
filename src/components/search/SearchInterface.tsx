@@ -53,12 +53,6 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
     router.replace(`/search${qs ? '?' + qs : ''}`, { scroll: false })
   }, [query, activeTab, router])
 
-  // Reset rider pagination on query/tab change
-  useEffect(() => {
-    setExtraRiders([])
-    setHasMoreRiders(true)
-  }, [query, activeTab])
-
   // Debounced search
   useEffect(() => {
     clearTimeout(debounceRef.current)
@@ -106,6 +100,8 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
               onChange={(e) => {
                 const val = e.target.value
                 setQuery(val)
+                setExtraRiders([])
+                setHasMoreRiders(true)
                 if (!val || val.trim().length < 2) setResults(null)
               }}
               placeholder="Bike, Werkstatt, Rider suchen…"
@@ -134,7 +130,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
             {TABS.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => { setActiveTab(tab.key); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => { setActiveTab(tab.key); setExtraRiders([]); setHasMoreRiders(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-full text-xs font-semibold
                             border transition-all whitespace-nowrap
                             ${activeTab === tab.key

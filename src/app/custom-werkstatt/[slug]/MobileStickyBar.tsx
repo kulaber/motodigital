@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 
@@ -12,20 +12,17 @@ interface Props {
 export default function MobileStickyBar({ children, hideBack }: Props) {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
-  const [hasHistory, setHasHistory] = useState(false)
+  const hasHistoryRef = useRef(false)
 
   useEffect(() => {
+    hasHistoryRef.current = window.history.length > 1
     function onScroll() { setScrolled(window.scrollY > 10) }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
-    setHasHistory(window.history.length > 1)
-  }, [])
-
   function handleBack() {
-    if (hasHistory) {
+    if (hasHistoryRef.current) {
       router.back()
     } else {
       router.push('/custom-werkstatt')
