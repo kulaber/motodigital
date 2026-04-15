@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
-import { BadgeCheck, MapPin, ArrowLeft, Globe, Instagram, Youtube, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors } from 'lucide-react'
+import { BadgeCheck, MapPin, ArrowLeft, Globe, Instagram, Youtube, Mail, Phone, Wrench, Settings, ShieldCheck, Zap, Palette, Pencil, Truck, Bike, RefreshCw, Flag, Mountain, Navigation, Leaf, Check, Flame, Layers, Droplets, Wind, Shield, Gauge, ClipboardCheck, Cog, Activity, Scissors, Plus } from 'lucide-react'
 import BuilderContactButton from '@/components/messaging/BuilderContactButton'
 import Header from '@/components/layout/Header'
 import type { Builder, BuilderMedia } from '@/lib/data/builders'
@@ -416,7 +416,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="h-8" />
 
       {/* ── FEATURED BUILDS — full width, prominent ── */}
-      {builder.featuredBuilds.length > 0 && (
+      {(builder.featuredBuilds.length > 0 || isOwner) && (
         <section className="pb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
             <div className="flex items-end justify-between mb-5">
@@ -425,61 +425,75 @@ export default async function BuilderProfilePage({ params }: Props) {
                   {isOwner ? 'Meine Custom Bikes' : `Custom Bike Projekte von ${builder.name}`}
                 </h2>
               </div>
-              {isOwner ? (
+              {isOwner && builder.featuredBuilds.length > 0 ? (
                 <Link href="/dashboard/meine-garage" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] border border-[#06a5a5]/20 bg-[#06a5a5]/5 px-4 py-2 rounded-full hover:bg-[#06a5a5]/10 transition-colors">
                   <Pencil size={11} /> Bikes bearbeiten
                 </Link>
-              ) : (
+              ) : builder.featuredBuilds.length > 0 ? (
                 <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
-              )}
+              ) : null}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {builder.featuredBuilds.map(build => {
-                const card = (
-                  <div className="group">
-                    {/* Image */}
-                    <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
-                      {build.img ? (
-                        <Image
-                          src={build.img}
-                          alt={`${build.title} — Custom Bike von ${builder.name}`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-2xl font-bold text-[#DDDDDD]">{build.style.replace(/_/g, ' ') || 'Build'}</span>
-                        </div>
-                      )}
-                      {/* Style badge overlay */}
-                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
-                        {build.style.replace(/_/g, ' ')}
-                      </span>
-                      {build.listingType === 'for_sale' && (
-                        <span className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                          Zu verkaufen
+            {builder.featuredBuilds.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {builder.featuredBuilds.map(build => {
+                  const card = (
+                    <div className="group">
+                      {/* Image */}
+                      <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
+                        {build.img ? (
+                          <Image
+                            src={build.img}
+                            alt={`${build.title} — Custom Bike von ${builder.name}`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-2xl font-bold text-[#DDDDDD]">{build.style.replace(/_/g, ' ') || 'Build'}</span>
+                          </div>
+                        )}
+                        {/* Style badge overlay */}
+                        <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
+                          {build.style.replace(/_/g, ' ')}
                         </span>
-                      )}
+                        {build.listingType === 'for_sale' && (
+                          <span className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                            Zu verkaufen
+                          </span>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">
+                        {build.title}
+                      </p>
+                      <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
                     </div>
-                    {/* Info */}
-                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">
-                      {build.title}
-                    </p>
-                    <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
+                  )
+                  return build.slug ? (
+                    <Link key={build.title} href={`/custom-bike/${build.slug}`}>{card}</Link>
+                  ) : (
+                    <div key={build.title}>{card}</div>
+                  )
+                })}
+                {isOwner && !isPremium(builder.subscriptionTier) && (
+                  <AddBikeUpgradeCard />
+                )}
+              </div>
+            ) : isOwner ? (
+              <Link href="/bikes/new" className="block">
+                <div className="aspect-[4/3] max-w-sm rounded-2xl border-2 border-dashed border-[#2AABAB]/30 bg-[#2AABAB]/[0.03] flex flex-col items-center justify-center gap-3 transition-colors hover:border-[#2AABAB]/50 hover:bg-[#2AABAB]/[0.06]">
+                  <div className="w-12 h-12 rounded-full bg-[#2AABAB]/10 flex items-center justify-center">
+                    <Plus size={22} className="text-[#2AABAB]" />
                   </div>
-                )
-                return build.slug ? (
-                  <Link key={build.title} href={`/custom-bike/${build.slug}`}>{card}</Link>
-                ) : (
-                  <div key={build.title}>{card}</div>
-                )
-              })}
-              {isOwner && !isPremium(builder.subscriptionTier) && (
-                <AddBikeUpgradeCard />
-              )}
-            </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-sm font-semibold text-[#222222]">Custom Bike hinzufügen</span>
+                    <span className="text-xs text-[#717171]">Fotos, Modell, Beschreibung</span>
+                  </div>
+                </div>
+              </Link>
+            ) : null}
           </div>
         </section>
       )}
