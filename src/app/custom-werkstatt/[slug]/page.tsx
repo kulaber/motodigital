@@ -13,6 +13,7 @@ import HeroActions from './HeroActions'
 import OwnerEditButton from './OwnerEditButton'
 import GallerySlider from './GallerySlider'
 import MobileStickyBar from './MobileStickyBar'
+import AddBikeUpgradeCard from './AddBikeUpgradeCard'
 import WorkshopCTA from './WorkshopCTA'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import RoutePlanenButton from './RoutePlanenButton'
@@ -405,7 +406,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <OwnerEditButton builderSlug={slug} />
-              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} />
+              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} hideSave={isOwner} />
             </div>
           </div>
         </div>
@@ -474,6 +475,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <div key={build.title}>{card}</div>
                 )
               })}
+              {isOwner && !isPremium(builder.subscriptionTier) && (
+                <AddBikeUpgradeCard />
+              )}
             </div>
           </div>
         </section>
