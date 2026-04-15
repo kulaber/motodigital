@@ -107,7 +107,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
     (supabase.from('workshops') as any)
-      .select('subscription_tier')
+      .select('id, subscription_tier')
       .eq('owner_id', row.id)
       .maybeSingle(),
   ])
@@ -185,6 +185,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     media,
     galleryImages,
     featuredBuilds,
+    workshopId: (workshopRow?.id as string | null) ?? null,
     subscriptionTier: (workshopRow?.subscription_tier as string | null) ?? 'free',
   }
 }
@@ -475,8 +476,8 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <div key={build.title}>{card}</div>
                 )
               })}
-              {isOwner && !isPremium(builder.subscriptionTier) && (
-                <AddBikeUpgradeCard />
+              {isOwner && !isPremium(builder.subscriptionTier) && builder.workshopId && (
+                <AddBikeUpgradeCard workshopId={builder.workshopId} />
               )}
             </div>
           </div>

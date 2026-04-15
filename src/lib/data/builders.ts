@@ -57,5 +57,6 @@ export type Builder = {
     img: string
     listingType?: string | null
   }[]
+  workshopId?: string | null
   subscriptionTier?: string
 }
