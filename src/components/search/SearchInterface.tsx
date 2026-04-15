@@ -174,7 +174,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
                 {(activeTab === 'all' || activeTab === 'bikes') && bikes.length > 0 && (
                   <ResultSection
                     title={showDefaults ? 'Neue Custom Bikes' : 'Custom Bikes'}
-                    count={bikes.length}
+                    count={data.totalBikes ?? bikes.length}
                     grid
                   >
                     {bikes.map((bike) => (
@@ -186,7 +186,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
                 {(activeTab === 'all' || activeTab === 'workshops') && workshops.length > 0 && (
                   <ResultSection
                     title="Werkstätten"
-                    count={workshops.length}
+                    count={data.totalWorkshops ?? workshops.length}
                     grid
                   >
                     {workshops.map((w) => (
@@ -198,7 +198,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
                 {(activeTab === 'all' || activeTab === 'riders') && riders.length > 0 && (
                   <ResultSection
                     title="Rider"
-                    count={riders.length + extraRiders.length}
+                    count={data.totalRiders ?? (riders.length + extraRiders.length)}
                   >
                     {[...riders, ...extraRiders].map((r) => (
                       <RiderResultCard key={r.id} rider={r} />

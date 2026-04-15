@@ -47,6 +47,9 @@ export interface SearchResults {
   bikes: BikeResult[]
   workshops: WorkshopResult[]
   riders: RiderResult[]
+  totalBikes?: number
+  totalWorkshops?: number
+  totalRiders?: number
 }
 
 // ── Internal row types for Supabase query results ──
@@ -207,30 +210,31 @@ export async function searchAll(
 
   // ── BIKES ──
   if (tab === 'all' || tab === 'bikes') {
-    const { data } = await (supabase.from('bikes') as ReturnType<typeof supabase.from>)
+    const { data, count } = await (supabase.from('bikes') as ReturnType<typeof supabase.from>)
       .select(`
         id, title, slug, make, model, year, style, city,
         price, price_on_request,
         bike_images(url, is_cover, position),
         profiles!bikes_seller_id_fkey(username, full_name, slug),
         workshops(name, slug)
-      `)
+      `, { count: 'exact' })
       .eq('status', 'active')
       .or(`title.ilike.${pattern},make.ilike.${pattern},model.ilike.${pattern},city.ilike.${pattern}`)
       .order('created_at', { ascending: false })
       .limit(tab === 'bikes' ? 20 : 5)
 
     results.bikes = mapBikes(data ?? [])
+    results.totalBikes = count ?? results.bikes.length
   }
 
   // ── WORKSHOPS (from profiles with role custom-werkstatt) ──
   if (tab === 'all' || tab === 'workshops') {
-    const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+    const { data, count } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, full_name, slug, city, avatar_url, specialty, tags, is_verified,
         bikes!bikes_seller_id_fkey(count),
         builder_media(url, position)
-      `)
+      `, { count: 'exact' })
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
       .or(`full_name.ilike.${pattern},city.ilike.${pattern},specialty.ilike.${pattern}`)
@@ -238,16 +242,17 @@ export async function searchAll(
       .limit(tab === 'workshops' ? 20 : 5)
 
     results.workshops = mapWorkshops(data ?? [])
+    results.totalWorkshops = count ?? results.workshops.length
   }
 
   // ── RIDER ──
   if (tab === 'all' || tab === 'riders') {
-    const { data } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
+    const { data, count } = await (supabase.from('profiles') as ReturnType<typeof supabase.from>)
       .select(`
         id, username, full_name, avatar_url, riding_style, city,
         bikes!bikes_seller_id_fkey(count),
         followers!followers_following_id_fkey(count)
-      `)
+      `, { count: 'exact' })
       .eq('role', 'rider')
       .not('slug', 'is', null)
       .or(`username.ilike.${pattern},full_name.ilike.${pattern},city.ilike.${pattern}`)
@@ -255,6 +260,7 @@ export async function searchAll(
       .limit(tab === 'riders' ? 20 : 5)
 
     results.riders = mapRiders(data ?? [])
+    results.totalRiders = count ?? results.riders.length
   }
 
   return results
@@ -266,9 +272,9 @@ export async function getSearchDefaults(): Promise<SearchResults> {
   const supabase = await createClient()
 
   const [
-    { data: bikes },
-    { data: workshops },
-    { data: riders },
+    { data: bikes, count: bikesCount },
+    { data: workshops, count: workshopsCount },
+    { data: riders, count: ridersCount },
   ] = await Promise.all([
     // Newest 4 bikes
     (supabase.from('bikes') as ReturnType<typeof supabase.from>)
@@ -278,7 +284,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
         bike_images(url, is_cover, position),
         profiles!bikes_seller_id_fkey(username, full_name, slug),
         workshops(name, slug)
-      `)
+      `, { count: 'exact' })
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(12),
@@ -289,7 +295,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
         id, full_name, slug, city, avatar_url, specialty, tags, is_verified,
         bikes!bikes_seller_id_fkey(count),
         builder_media(url, position)
-      `)
+      `, { count: 'exact' })
       .eq('role', 'custom-werkstatt')
       .not('slug', 'is', null)
       .order('created_at', { ascending: false })
@@ -301,7 +307,7 @@ export async function getSearchDefaults(): Promise<SearchResults> {
         id, username, full_name, avatar_url, riding_style, city,
         bikes!bikes_seller_id_fkey(count),
         followers!followers_following_id_fkey(count)
-      `)
+      `, { count: 'exact' })
       .eq('role', 'rider')
       .not('avatar_url', 'is', null)
       .order('created_at', { ascending: false })
@@ -312,5 +318,8 @@ export async function getSearchDefaults(): Promise<SearchResults> {
     bikes: mapBikes(bikes ?? []),
     workshops: mapWorkshops(workshops ?? []),
     riders: mapRiders(riders ?? []),
+    totalBikes: bikesCount ?? (bikes ?? []).length,
+    totalWorkshops: workshopsCount ?? (workshops ?? []).length,
+    totalRiders: ridersCount ?? (riders ?? []).length,
   }
 }
