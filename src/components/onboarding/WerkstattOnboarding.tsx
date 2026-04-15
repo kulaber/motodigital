@@ -182,50 +182,61 @@ export function WerkstattOnboarding({
   }
 
   async function saveStep1() {
-    if (!werkstatt?.id) return
-    await (supabase.from('workshops') as any).update({
-      address: addressData.address.trim() || null,
-      description: description.trim() || null,
-    }).eq('id', werkstatt.id)
-    // Also save address + coordinates to profiles so the map works
+    const werkstattName = werkstatt?.name ?? _profile.username
+    const slug = werkstattName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '')
+
+    // Save to profiles (this is what the search reads)
     await (supabase.from('profiles') as any).update({
+      full_name: werkstattName,
+      slug,
       address: addressData.address.trim() || null,
       lat: addressData.lat,
       lng: addressData.lng,
+      bio_long: description.trim() || null,
     }).eq('id', _profile.id)
+
+    // Also sync to workshops table if it exists
+    if (werkstatt?.id) {
+      await (supabase.from('workshops') as any).update({
+        address: addressData.address.trim() || null,
+        description: description.trim() || null,
+      }).eq('id', werkstatt.id)
+    }
   }
 
   async function saveStep2() {
-    if (!werkstatt?.id) return
-
-    const updates: Record<string, string> = {}
-
+    // Logo → profiles.avatar_url (same as dashboard ProfileEditForm)
     if (logoFile) {
       const ext = logoFile.name.split('.').pop()
-      const path = `${werkstatt.id}/logo.${ext}`
+      const path = `${_profile.id}/avatar-${Date.now()}.${ext}`
       const { error } = await supabase.storage
         .from('builder-media')
         .upload(path, logoFile, { upsert: true })
       if (!error) {
         const { data } = supabase.storage.from('builder-media').getPublicUrl(path)
-        updates.logo_url = data.publicUrl
+        await (supabase.from('profiles') as any).update({
+          avatar_url: data.publicUrl,
+        }).eq('id', _profile.id)
       }
     }
 
+    // Cover → builder_media table with title='cover' (same as dashboard ProfileEditForm)
     if (coverFile) {
       const ext = coverFile.name.split('.').pop()
-      const path = `${werkstatt.id}/cover.${ext}`
+      const path = `${_profile.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage
         .from('builder-media')
-        .upload(path, coverFile, { upsert: true })
+        .upload(path, coverFile, { upsert: false })
       if (!error) {
         const { data } = supabase.storage.from('builder-media').getPublicUrl(path)
-        updates.cover_image_url = data.publicUrl
+        await (supabase.from('builder_media') as any).insert({
+          builder_id: _profile.id,
+          url: data.publicUrl,
+          type: 'image',
+          title: 'cover',
+          position: 0,
+        })
       }
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await (supabase.from('workshops') as any).update(updates).eq('id', werkstatt.id)
     }
   }
 
@@ -300,7 +311,7 @@ export function WerkstattOnboarding({
             </label>
             <div className="w-full h-12 bg-white/[0.03] border border-white/[0.06]
                             rounded-xl px-4 flex items-center text-sm text-white/50">
-              {werkstatt?.name ?? '—'}
+              {werkstatt?.name ?? _profile.username}
             </div>
           </div>
 
@@ -482,7 +493,7 @@ export function WerkstattOnboarding({
               Profil ist live.
             </h1>
             <p className="text-sm text-white/45 max-w-[280px] mx-auto leading-relaxed">
-              {werkstatt?.name ?? 'Deine Werkstatt'} ist jetzt für Rider
+              {werkstatt?.name ?? _profile.username} ist jetzt für Rider
               im DACH-Raum sichtbar. Anfragen kommen direkt ins Dashboard.
             </p>
           </div>
