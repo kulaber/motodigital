@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Eye, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
+import UpgradeSuccessToast from '@/components/werkstatt/UpgradeSuccessToast'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
 import type { Database } from '@/types/database'
@@ -161,6 +163,9 @@ export default async function DashboardPage() {
 
   return (
     <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
+      <Suspense fallback={null}>
+        <UpgradeSuccessToast />
+      </Suspense>
 
         {/* Header row */}
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">

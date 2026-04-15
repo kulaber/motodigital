@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     const { data: builderMedia } = await admin
       .from('builder_media')
       .select('url, thumbnail_url')
-      .eq('profile_id', uid)
+      .eq('builder_id', uid)
 
     if (builderMedia?.length) {
       const mediaPaths = builderMedia

@@ -13,8 +13,8 @@ export default async function ProfileEditPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Fetch profile + media in parallel (media only needed for builders, but cheap to fetch)
-  const [{ data: profile }, { data: media }] = await Promise.all([
+  // Fetch profile + media + workshop in parallel
+  const [{ data: profile }, { data: media }, { data: workshop }] = await Promise.all([
     (supabase.from('profiles') as any)
       .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')
       .eq('id', user.id)
@@ -23,6 +23,10 @@ export default async function ProfileEditPage() {
       .select('id, url, type, title, position')
       .eq('builder_id', user.id)
       .order('position', { ascending: true }),
+    (supabase.from('workshops') as any)
+      .select('id, subscription_tier')
+      .eq('owner_id', user.id)
+      .maybeSingle(),
   ])
 
   if (profile?.role === 'superadmin') redirect('/dashboard')
@@ -67,7 +71,7 @@ export default async function ProfileEditPage() {
           </div>
         </div>
       </div>
-      <ProfileEditForm profile={profile} media={media ?? []} />
+      <ProfileEditForm profile={profile} media={media ?? []} subscriptionTier={workshop?.subscription_tier ?? 'free'} workshopId={workshop?.id ?? null} />
     </div>
   )
 }

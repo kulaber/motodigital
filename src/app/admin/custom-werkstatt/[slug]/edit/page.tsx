@@ -161,8 +161,8 @@ export default function EditBuilderPage() {
             </label>
           </div>
 
-          {/* Same form as workshop's own profile edit */}
-          <ProfileEditForm profile={dbProfile} media={media} />
+          {/* Same form as workshop's own profile edit — admin always has full access */}
+          <ProfileEditForm profile={dbProfile} media={media} subscriptionTier="founding_partner" workshopId={null} />
 
         </div>
       )}

@@ -57,4 +57,5 @@ export type Builder = {
     img: string
     listingType?: string | null
   }[]
+  subscriptionTier?: string
 }

@@ -4,6 +4,8 @@ import NextImage from 'next/image'
 import { useState, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock, RefreshCw } from 'lucide-react'
+import { isPremium } from '@/lib/werkstatt-tier'
+import LockedFeature from '@/components/werkstatt/locked-feature'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 
@@ -136,9 +138,11 @@ type MediaItem = {
 type Props = {
   profile: Profile
   media: MediaItem[]
+  subscriptionTier: string
+  workshopId: string | null
 }
 
-export default function ProfileEditForm({ profile, media: initialMedia }: Props) {
+export default function ProfileEditForm({ profile, media: initialMedia, subscriptionTier, workshopId }: Props) {
   const supabase = createClient()
 
   // Profile fields
@@ -569,59 +573,93 @@ export default function ProfileEditForm({ profile, media: initialMedia }: Props)
         </Field>
 
         {/* Leistungen checkboxes */}
-        <Field label="Leistungen" className="mb-4">
-          <div className="flex flex-wrap gap-2 mt-1">
-            {LEISTUNGEN.map(item => {
-              const checked = leistungen.includes(item)
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => toggleLeistung(item)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
-                    checked
-                      ? 'bg-[#222222] border-[#222222] text-white'
-                      : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            })}
-          </div>
-          <p className="text-[10px] text-[#222222]/25 mt-2">
-            {leistungen.length > 0
-              ? `${leistungen.length} ausgewählt`
-              : 'Wähle die Leistungen, die du anbietest'}
-          </p>
-        </Field>
+        {isPremium(subscriptionTier) ? (
+          <Field label="Leistungen" className="mb-4">
+            <div className="flex flex-wrap gap-2 mt-1">
+              {LEISTUNGEN.map(item => {
+                const checked = leistungen.includes(item)
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleLeistung(item)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                      checked
+                        ? 'bg-[#222222] border-[#222222] text-white'
+                        : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[10px] text-[#222222]/25 mt-2">
+              {leistungen.length > 0
+                ? `${leistungen.length} ausgewählt`
+                : 'Wähle die Leistungen, die du anbietest'}
+            </p>
+          </Field>
+        ) : (
+          <Field label="Leistungen" className="mb-4">
+            <LockedFeature workshopId={workshopId ?? ''}>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {LEISTUNGEN.map(item => (
+                  <span
+                    key={item}
+                    className="text-xs font-medium px-3 py-1.5 rounded-full border bg-white border-[#222222]/12 text-[#222222]/50"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </LockedFeature>
+          </Field>
+        )}
 
-        <Field label="Umbaustile" className="mb-4">
-          <div className="flex flex-wrap gap-2 mt-1">
-            {UMBAUSTILE.map(item => {
-              const checked = umbaustile.includes(item)
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => toggleUmbaustil(item)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
-                    checked
-                      ? 'bg-[#222222] border-[#222222] text-white'
-                      : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            })}
-          </div>
-          <p className="text-[10px] text-[#222222]/25 mt-2">
-            {umbaustile.length > 0
-              ? `${umbaustile.length} ausgewählt`
-              : 'Wähle die Umbaustile, auf die du spezialisiert bist'}
-          </p>
-        </Field>
+        {isPremium(subscriptionTier) ? (
+          <Field label="Umbaustile" className="mb-4">
+            <div className="flex flex-wrap gap-2 mt-1">
+              {UMBAUSTILE.map(item => {
+                const checked = umbaustile.includes(item)
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleUmbaustil(item)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                      checked
+                        ? 'bg-[#222222] border-[#222222] text-white'
+                        : 'bg-white border-[#222222]/12 text-[#222222]/50 hover:border-[#222222]/25 hover:text-[#222222]'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[10px] text-[#222222]/25 mt-2">
+              {umbaustile.length > 0
+                ? `${umbaustile.length} ausgewählt`
+                : 'Wähle die Umbaustile, auf die du spezialisiert bist'}
+            </p>
+          </Field>
+        ) : (
+          <Field label="Umbaustile" className="mb-4">
+            <LockedFeature workshopId={workshopId ?? ''}>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {UMBAUSTILE.map(item => (
+                  <span
+                    key={item}
+                    className="text-xs font-medium px-3 py-1.5 rounded-full border bg-white border-[#222222]/12 text-[#222222]/50"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </LockedFeature>
+          </Field>
+        )}
 
         <Field label="Vollständige Anschrift" className="mb-4">
           <AddressAutocomplete value={addressData} onChange={setAddressData} />

@@ -18,6 +18,7 @@ import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import RoutePlanenButton from './RoutePlanenButton'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { isPremium } from '@/lib/werkstatt-tier'
 
 export const dynamicParams = true
 
@@ -94,7 +95,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
   if (!row) return null
 
-  const [{ data: mediaRows }, { data: bikeRows }] = await Promise.all([
+  const [{ data: mediaRows }, { data: bikeRows }, { data: workshopRow }] = await Promise.all([
     (supabase.from('builder_media') as any)
       .select('url, type, title, position')
       .eq('builder_id', row.id)
@@ -104,6 +105,10 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
       .eq('seller_id', row.id)
       .in('status', ['active', 'draft'])
       .order('created_at', { ascending: false }),
+    (supabase.from('workshops') as any)
+      .select('subscription_tier')
+      .eq('owner_id', row.id)
+      .maybeSingle(),
   ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
@@ -179,6 +184,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
     media,
     galleryImages,
     featuredBuilds,
+    subscriptionTier: (workshopRow?.subscription_tier as string | null) ?? 'free',
   }
 }
 
@@ -648,8 +654,8 @@ export default async function BuilderProfilePage({ params }: Props) {
             {/* RIGHT sidebar */}
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
-              {/* Contact CTA (visitors only — owner edit card removed, edit via sticky bar / banner) */}
-              {isOwner ? null : (
+              {/* Contact CTA (visitors only, premium workshops only) */}
+              {!isOwner && isPremium(builder.subscriptionTier) && (
                 <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
                   <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
                   <p className="text-xs text-[#717171] leading-relaxed mb-4">

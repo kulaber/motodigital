@@ -4,8 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Plus, Bike, ArrowLeft, Tag } from 'lucide-react'
+import { isPremium } from '@/lib/werkstatt-tier'
 import type { Database } from '@/types/database'
 import BikeCardActions, { PublishToggle, DeleteBikeIcon } from './DeleteBikeButton'
+import BikeLimitBanner from './BikeLimitBanner'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -24,10 +26,17 @@ export default async function MeinBikePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await (supabase.from('profiles') as any)
-    .select('role, slug, username').eq('id', user.id).maybeSingle()
+  const [{ data: profile }, { data: workshop }] = await Promise.all([
+    (supabase.from('profiles') as any)
+      .select('role, slug, username').eq('id', user.id).maybeSingle(),
+    (supabase.from('workshops') as any)
+      .select('id, subscription_tier').eq('owner_id', user.id).maybeSingle(),
+  ])
   const role = profile?.role as string | null
   if (role !== 'custom-werkstatt' && role !== 'rider') redirect('/dashboard')
+
+  const subscriptionTier = (workshop?.subscription_tier as string) ?? 'free'
+  const workshopId = (workshop?.id as string) ?? null
 
   const isWerkstatt = role === 'custom-werkstatt'
   const profileSlug = (profile?.slug ?? profile?.username) as string | null
@@ -44,6 +53,8 @@ export default async function MeinBikePage() {
     .order('created_at', { ascending: false }) as unknown as { data: MyBike[] | null }
 
   const myBikes = bikes ?? []
+  const bikeCount = myBikes.length
+  const bikeLimitReached = isWerkstatt && !isPremium(subscriptionTier) && bikeCount >= 1
 
   const pageTitle    = isWerkstatt ? 'Custom Bikes' : 'Meine Garage'
   const pageSubtitle = isWerkstatt ? 'Deine Projekte — werden auf MotoDigital gelistet' : 'Dein persönliches Custom Bike'
@@ -67,14 +78,26 @@ export default async function MeinBikePage() {
               <p className="text-xs sm:text-sm text-[#222222]/40 mt-1">{pageSubtitle}</p>
             </div>
           </div>
-          <Link
-            href={addHref}
-            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all self-start sm:self-auto"
-          >
-            <Plus size={14} />
-            Bike hinzufügen
-          </Link>
+          {bikeLimitReached ? (
+            <span className="inline-flex items-center gap-2 bg-[#222222]/10 text-[#222222]/40 text-sm font-semibold px-5 py-2.5 rounded-full cursor-not-allowed self-start sm:self-auto">
+              <Plus size={14} />
+              Bike hinzufügen
+            </span>
+          ) : (
+            <Link
+              href={addHref}
+              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-all self-start sm:self-auto"
+            >
+              <Plus size={14} />
+              Bike hinzufügen
+            </Link>
+          )}
         </div>
+
+        {/* Premium upgrade banner for bike limit */}
+        {bikeLimitReached && workshopId && (
+          <BikeLimitBanner workshopId={workshopId} />
+        )}
 
         {/* Empty state */}
         {myBikes.length === 0 ? (
