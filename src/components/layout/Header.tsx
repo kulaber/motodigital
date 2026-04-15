@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   LayoutDashboard, LogOut, ChevronDown, Search,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Pencil,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/hooks/useAuth'
@@ -148,24 +148,26 @@ export default function Header({ activePage }: Props) {
                 {dashDropdown && (
                   <div className="absolute top-full right-0 mt-1 w-72 bg-white border border-[#222222]/10 rounded-xl shadow-xl overflow-hidden z-50 animate-scale-in">
                     <NotificationDropdownSection userId={user.id} onClose={() => setDashDropdown(false)} />
-                    <Link href="/dashboard" onClick={() => setDashDropdown(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                      <LayoutDashboard size={14} /> Dashboard
-                    </Link>
-                    <Link href="/dashboard/messages" onClick={() => setDashDropdown(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                      <MessageCircle size={14} /> Nachrichten
-                      {unreadCount > 0 && (
-                        <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </Link>
                     {role === 'rider' && (
                       <>
+                        {slug && (
+                          <a href={`/rider/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
+                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
+                            <User size={14} /> Mein Profil
+                          </a>
+                        )}
                         <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <User size={14} /> Profil
+                          <Pencil size={14} /> Profil bearbeiten
+                        </Link>
+                        <Link href="/dashboard/messages" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <MessageCircle size={14} /> Nachrichten
+                          {unreadCount > 0 && (
+                            <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                              {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                          )}
                         </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
@@ -177,11 +179,28 @@ export default function Header({ activePage }: Props) {
                         </Link>
                       </>
                     )}
+                    {role !== 'rider' && (
+                      <>
+                        <Link href="/dashboard" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
+                          <LayoutDashboard size={14} /> Dashboard
+                        </Link>
+                        <Link href="/dashboard/messages" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <MessageCircle size={14} /> Nachrichten
+                          {unreadCount > 0 && (
+                            <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                              {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                          )}
+                        </Link>
+                      </>
+                    )}
                     {role === 'custom-werkstatt' && (
                       <>
                         <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <User size={14} /> Profil bearbeiten
+                          <Pencil size={14} /> Profil bearbeiten
                         </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
@@ -193,12 +212,6 @@ export default function Header({ activePage }: Props) {
                       <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
                         className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
                         <ExternalLink size={14} /> Werkstatt-Ansicht
-                      </a>
-                    )}
-                    {role === 'rider' && slug && (
-                      <a href={`/rider/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
-                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                        <ExternalLink size={14} /> Rider-Profil
                       </a>
                     )}
                     {role === 'superadmin' && (

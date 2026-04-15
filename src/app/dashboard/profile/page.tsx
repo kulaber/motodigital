@@ -44,7 +44,7 @@ export default async function ProfileEditPage() {
               <ArrowLeft size={18} className="text-[#222222]" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-[#222222]">Rider Profil</h1>
+              <h1 className="text-2xl font-bold text-[#222222]">Profil bearbeiten</h1>
               <p className="text-sm text-[#222222]/40 mt-1">Dein öffentliches Profil auf MotoDigital</p>
             </div>
           </div>

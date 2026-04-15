@@ -234,14 +234,21 @@ export default async function RiderProfilePage({ params }: Props) {
 
       {/* ── COVER BANNER ── */}
       <div className="relative w-full h-44 sm:h-56 lg:h-64 bg-[#1a8a8a] overflow-hidden">
-        <Image
-          src={rider.coverImageUrl ?? '/og-image.jpg'}
-          alt="Titelbild"
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-        />
+        {rider.coverImageUrl ? (
+          <Image
+            src={rider.coverImageUrl}
+            alt="Titelbild"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pin-logo.svg" alt="" className="w-16 h-16 sm:w-20 sm:h-20 opacity-20" />
+          </div>
+        )}
         {!isOwnProfile && (
           <Link
             href="/explore"
@@ -280,11 +287,28 @@ export default async function RiderProfilePage({ params }: Props) {
               )}
             </div>
 
-            {/* Actions — top right, desktop only (non-owner) */}
-            {!isOwnProfile && (
+            {/* Actions — top right, desktop only */}
+            {!isOwnProfile ? (
               <div className="hidden lg:flex items-center gap-2.5 pb-1">
                 <FollowButton riderId={rider.id} />
                 <RiderContactButton riderId={rider.id} riderName={rider.name} riderAvatarUrl={rider.avatarUrl} />
+              </div>
+            ) : (
+              <div className="hidden lg:flex items-center gap-2.5 pb-1">
+                <Link
+                  href="/dashboard/profile"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                >
+                  <Pencil size={13} />
+                  Profil bearbeiten
+                </Link>
+                <Link
+                  href="/dashboard/meine-garage"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#222222] bg-white border border-[#DDDDDD] hover:border-[#222222] px-4 py-2 rounded-full transition-colors"
+                >
+                  <Wrench size={13} />
+                  Garage bearbeiten
+                </Link>
               </div>
             )}
           </div>
@@ -369,8 +393,8 @@ export default async function RiderProfilePage({ params }: Props) {
                 </div>
               )}
               {rider.bikes.length === 0 && !isOwnProfile && (
-                <div className="bg-[#111111] rounded-2xl p-8 text-center">
-                  <p className="text-sm text-white/30">Noch keine Bikes</p>
+                <div className="bg-[#F0F0F0] rounded-2xl p-8 text-center">
+                  <p className="text-sm text-[#222222]/30">{rider.name.split(' ')[0]} hat noch keine Bikes hinterlegt</p>
                 </div>
               )}
 

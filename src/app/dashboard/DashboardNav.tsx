@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Bike, MessageCircle, Bookmark, Bell,
+  LayoutDashboard, Bike, MessageCircle, Star, Bell,
   User, Settings, Wrench, Users, BookOpen, Calendar, LogOut, Eye,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -61,15 +61,20 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
     isActive(href) ? 'text-[#06a5a5]' : 'text-[#222222]/30'
 
   const mainItems: NavItem[] = [
-    { label: 'Übersicht', href: '/dashboard', icon: <LayoutDashboard size={15} /> },
+    ...(role !== 'rider' ? [{ label: 'Übersicht', href: '/dashboard', icon: <LayoutDashboard size={15} /> }] : []),
+    ...(role === 'rider'
+      ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={15} /> }]
+      : []),
+    ...(role !== 'superadmin'
+      ? [{ label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> }]
+      : []),
     ...(role === 'rider' || role === 'custom-werkstatt'
       ? [{ label: role === 'rider' ? 'Meine Garage' : 'Meine Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
       : []),
     ...(role !== 'superadmin'
       ? [
-          { label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> },
-          { label: 'Benachrichtigungen', href: '/dashboard/notifications', icon: <Bell size={15} /> },
-          { label: 'Merkliste', href: '/dashboard/merkliste', icon: <Bookmark size={15} /> },
+          ...(role !== 'rider' ? [{ label: 'Benachrichtigungen', href: '/dashboard/notifications', icon: <Bell size={15} /> }] : []),
+          { label: 'Merkliste', href: '/dashboard/merkliste', icon: <Star size={15} /> },
         ]
       : []),
   ]
@@ -92,10 +97,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
     : []
 
   const accountItems: NavItem[] = [
-    ...(role !== 'superadmin' && role !== 'custom-werkstatt'
-      ? [{ label: 'Profil', href: '/dashboard/profile', icon: <User size={15} /> }]
-      : []),
-    { label: 'Einstellungen', href: '/dashboard/account', icon: <Settings size={15} /> },
+    { label: 'Konto-Einstellungen', href: '/dashboard/account', icon: <Settings size={15} /> },
   ]
 
   const roleLabel =

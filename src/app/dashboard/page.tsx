@@ -30,6 +30,9 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .maybeSingle() as { data: { full_name: string | null; role: string; city: string | null; specialty: string | null; bio: string | null; bio_long: string | null; is_verified: boolean; avatar_url: string | null; slug: string | null; tags: string[] | null; address: string | null; lat: number | null; lng: number | null; instagram_url: string | null; tiktok_url: string | null; website_url: string | null; youtube_url: string | null } | null }
 
+  // Riders don't need the dashboard overview — redirect to garage
+  if (profile?.role === 'rider') redirect('/dashboard/meine-garage')
+
   const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
     supabase
       .from('bikes')
