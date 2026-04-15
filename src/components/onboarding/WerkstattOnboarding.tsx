@@ -88,11 +88,6 @@ function AddressAutocomplete({
   )
 }
 
-const UMBAUSTILE = [
-  'Cafe Racer', 'Bobber', 'Scrambler', 'Tracker',
-  'Chopper', 'Street', 'Enduro',
-]
-
 interface Werkstatt {
   id: string
   name: string
@@ -100,6 +95,7 @@ interface Werkstatt {
   description: string | null
   address: string | null
   logo_url: string | null
+  cover_image_url: string | null
   services: string[]
 }
 
@@ -129,29 +125,34 @@ export function WerkstattOnboarding({
   const router = useRouter()
   const supabase = createClient()
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
 
   const [step, setStep]                     = useState(initialStep === 0 ? 0 : initialStep)
   const [saving, setSaving]                 = useState(false)
   const [addressData, setAddressData]       = useState({ address: werkstatt?.address ?? _profile.address ?? '', lat: _profile.lat ?? null, lng: _profile.lng ?? null })
   const [description, setDescription]       = useState(werkstatt?.description ?? _profile.bio_long ?? _profile.bio ?? '')
-  const [selectedServices, setSelectedServices] = useState<string[]>(werkstatt?.services ?? [])
   const [logoFile, setLogoFile]             = useState<File | null>(null)
   const [logoPreview, setLogoPreview]       = useState(werkstatt?.logo_url ?? '')
+  const [coverFile, setCoverFile]           = useState<File | null>(null)
+  const [coverPreview, setCoverPreview]     = useState(werkstatt?.cover_image_url ?? '')
 
-  const TOTAL = 4
+  const TOTAL = 2
 
-  function toggleService(s: string) {
-    setSelectedServices(prev =>
-      prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
-    )
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     setLogoFile(file)
     const reader = new FileReader()
     reader.onload = ev => setLogoPreview(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverFile(file)
+    const reader = new FileReader()
+    reader.onload = ev => setCoverPreview(ev.target?.result as string)
     reader.readAsDataURL(file)
   }
 
@@ -196,13 +197,8 @@ export function WerkstattOnboarding({
 
   async function saveStep2() {
     if (!werkstatt?.id) return
-    await (supabase.from('workshops') as any).update({
-      services: selectedServices,
-    }).eq('id', werkstatt.id)
-  }
 
-  async function saveStep3() {
-    if (!werkstatt?.id) return
+    const updates: Record<string, string> = {}
 
     if (logoFile) {
       const ext = logoFile.name.split('.').pop()
@@ -212,8 +208,24 @@ export function WerkstattOnboarding({
         .upload(path, logoFile, { upsert: true })
       if (!error) {
         const { data } = supabase.storage.from('builder-media').getPublicUrl(path)
-        await (supabase.from('workshops') as any).update({ logo_url: data.publicUrl }).eq('id', werkstatt.id)
+        updates.logo_url = data.publicUrl
       }
+    }
+
+    if (coverFile) {
+      const ext = coverFile.name.split('.').pop()
+      const path = `${werkstatt.id}/cover.${ext}`
+      const { error } = await supabase.storage
+        .from('builder-media')
+        .upload(path, coverFile, { upsert: true })
+      if (!error) {
+        const { data } = supabase.storage.from('builder-media').getPublicUrl(path)
+        updates.cover_image_url = data.publicUrl
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await (supabase.from('workshops') as any).update(updates).eq('id', werkstatt.id)
     }
   }
 
@@ -274,8 +286,8 @@ export function WerkstattOnboarding({
       {step === 1 && (
         <div className="flex flex-col gap-6 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              WERKSTATT-DETAILS
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Werkstatt-Details
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Vollständige Profile werden 3x öfter gefunden.
@@ -337,112 +349,112 @@ export function WerkstattOnboarding({
         </div>
       )}
 
-      {/* SCHRITT 2: Spezialisierungen */}
+      {/* SCHRITT 2: Logo & Titelbild */}
       {step === 2 && (
         <div className="flex flex-col gap-6 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              WELCHE UMBAUTEN BIETET IHR AN?
-            </h2>
-            <p className="text-sm text-white/40 mt-1">
-              Mehrfachauswahl möglich. Rider filtern danach.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2.5">
-            {UMBAUSTILE.map(spez => {
-              const sel = selectedServices.includes(spez)
-              return (
-                <button
-                  key={spez}
-                  onClick={() => toggleService(spez)}
-                  className={`px-4 py-2.5 rounded-full text-sm font-medium
-                              border transition-all active:scale-[0.97]
-                              ${sel
-                                ? 'bg-[#2AABAB]/12 border-[#2AABAB]/40 text-[#2AABAB]'
-                                : 'bg-white/[0.04] border-white/[0.08] text-white/45'
-                              }`}
-                >
-                  {spez}
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="mt-auto flex flex-col gap-3">
-            <button
-              onClick={() => next(saveStep2)}
-              disabled={saving || selectedServices.length === 0}
-              className="w-full h-12 rounded-xl bg-[#2AABAB] text-white
-                         font-semibold text-sm flex items-center justify-center gap-2
-                         disabled:opacity-40 active:scale-[0.97] transition-all"
-            >
-              {saving
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <><span>Weiter</span><ChevronRight className="w-4 h-4" /></>
-              }
-            </button>
-            <button onClick={skip} className="w-full h-10 text-white/25 text-sm">
-              Überspringen
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* SCHRITT 3: Logo */}
-      {step === 3 && (
-        <div className="flex flex-col gap-6 flex-1 pb-10">
-          <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              EUER LOGO.
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Logo und Titelbild hochladen
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Werkstätten mit Logo werden 4x häufiger angeklickt.
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-3">
+          {/* Logo Upload */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest text-white/40">
+              Logo
+            </label>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => logoInputRef.current?.click()}
+                className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0
+                           border-2 border-dashed border-[#2AABAB]/30
+                           bg-[#2AABAB]/5 flex items-center justify-center
+                           hover:bg-[#2AABAB]/8 transition-colors"
+              >
+                {logoPreview
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={logoPreview} alt="" className="w-full h-full object-cover" />
+                  : <ImagePlus className="w-6 h-6 text-[#2AABAB]" />
+                }
+              </button>
+              <div className="flex flex-col gap-1">
+                {logoPreview ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-[#2AABAB] flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Ausgewählt
+                    </span>
+                    <button
+                      onClick={() => logoInputRef.current?.click()}
+                      className="text-xs text-white/40 hover:text-white/60 transition-colors"
+                    >
+                      Ändern
+                    </button>
+                    <button
+                      onClick={() => { setLogoFile(null); setLogoPreview('') }}
+                      className="text-xs text-red-400/60 hover:text-red-400 transition-colors flex items-center gap-0.5"
+                    >
+                      <Trash2 className="w-3 h-3" /> Löschen
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-white/30">Logo hochladen</span>
+                )}
+              </div>
+            </div>
+            <input ref={logoInputRef} type="file" accept="image/*" className="hidden"
+                   onChange={handleLogoChange} />
+          </div>
+
+          {/* Titelbild Upload */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest text-white/40">
+              Titelbild
+            </label>
             <button
-              onClick={() => logoInputRef.current?.click()}
-              className="w-24 h-24 rounded-xl overflow-hidden
+              onClick={() => coverInputRef.current?.click()}
+              className="w-full aspect-[16/7] rounded-xl overflow-hidden
                          border-2 border-dashed border-[#2AABAB]/30
                          bg-[#2AABAB]/5 flex items-center justify-center
                          hover:bg-[#2AABAB]/8 transition-colors"
             >
-              {logoPreview
+              {coverPreview
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={logoPreview} alt="" className="w-full h-full object-cover" />
-                : <ImagePlus className="w-7 h-7 text-[#2AABAB]" />
+                ? <img src={coverPreview} alt="" className="w-full h-full object-cover" />
+                : <div className="flex flex-col items-center gap-2">
+                    <ImagePlus className="w-6 h-6 text-[#2AABAB]" />
+                    <span className="text-xs text-white/30">Titelbild hochladen</span>
+                  </div>
               }
             </button>
-            {logoPreview ? (
+            {coverPreview && (
               <div className="flex items-center gap-3">
                 <span className="text-xs text-[#2AABAB] flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Logo ausgewählt
+                  <Check className="w-3 h-3" /> Titelbild ausgewählt
                 </span>
                 <button
-                  onClick={() => logoInputRef.current?.click()}
+                  onClick={() => coverInputRef.current?.click()}
                   className="text-xs text-white/40 hover:text-white/60 transition-colors"
                 >
                   Ändern
                 </button>
                 <button
-                  onClick={() => { setLogoFile(null); setLogoPreview('') }}
+                  onClick={() => { setCoverFile(null); setCoverPreview('') }}
                   className="text-xs text-red-400/60 hover:text-red-400 transition-colors flex items-center gap-0.5"
                 >
                   <Trash2 className="w-3 h-3" /> Löschen
                 </button>
               </div>
-            ) : (
-              <span className="text-xs text-white/30">Logo hochladen</span>
             )}
-            <input ref={logoInputRef} type="file" accept="image/*" className="hidden"
-                   onChange={handleFileChange} />
+            <input ref={coverInputRef} type="file" accept="image/*" className="hidden"
+                   onChange={handleCoverChange} />
           </div>
 
           <div className="mt-auto flex flex-col gap-3">
             <button
-              onClick={() => next(saveStep3)}
+              onClick={() => next(saveStep2)}
               disabled={saving}
               className="w-full h-12 rounded-xl bg-[#2AABAB] text-white
                          font-semibold text-sm flex items-center justify-center gap-2
@@ -460,69 +472,14 @@ export function WerkstattOnboarding({
         </div>
       )}
 
-      {/* SCHRITT 4: Ersten Build hochladen */}
-      {step === 4 && (
-        <div className="flex flex-col gap-7 flex-1 pb-10">
-          <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              ERSTES CUSTOM BIKE HINZUFÜGEN.
-            </h2>
-            <p className="text-sm text-white/40 mt-1">
-              Werkstätten mit Builds werden sofort in der Suche angezeigt.
-            </p>
-          </div>
-
-          <button
-            onClick={() => {
-              saveOnboardingStep(5)
-              router.push('/bikes/new?onboarding=true')
-            }}
-            className="w-full h-48 rounded-2xl border-2 border-dashed
-                       border-[#2AABAB]/20 bg-[#2AABAB]/4
-                       flex flex-col items-center justify-center gap-4
-                       active:bg-[#2AABAB]/8 transition-colors"
-          >
-            <div className="w-16 h-16 rounded-full bg-[#2AABAB]
-                            flex items-center justify-center text-3xl">
-              🏍
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-semibold text-[#2AABAB]">
-                Custom Bike hinzufügen
-              </span>
-              <span className="text-xs text-white/30">
-                Fotos, Modell, Beschreibung
-              </span>
-            </div>
-          </button>
-
-          <div className="mt-auto flex flex-col gap-3">
-            <button
-              onClick={finish}
-              disabled={saving}
-              className="w-full h-12 rounded-xl bg-white/[0.05]
-                         border border-white/[0.07]
-                         text-white/50 text-sm font-medium flex items-center justify-center
-                         disabled:opacity-50 active:scale-[0.97] transition-all"
-            >
-              {saving
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : 'Überspringen'
-              }
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* SCHRITT 5+: Fertig → Dashboard + Founding Partner Upsell */}
-      {step >= 5 && (
+      {/* SCHRITT 3+: Fertig → Dashboard + Founding Partner Upsell */}
+      {step >= 3 && (
         <div className="flex flex-col items-center justify-center flex-1 gap-7
                         text-center py-16">
           <div className="text-7xl leading-none">✅</div>
           <div className="flex flex-col gap-3">
-            <h1 className="font-['Bebas_Neue'] text-[clamp(44px,12vw,64px)]
-                           tracking-wide text-[#F0EDE4] leading-none">
-              PROFIL IST LIVE.
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Profil ist live.
             </h1>
             <p className="text-sm text-white/45 max-w-[280px] mx-auto leading-relaxed">
               {werkstatt?.name ?? 'Deine Werkstatt'} ist jetzt für Rider
@@ -563,17 +520,16 @@ export function WerkstattOnboarding({
           </div>
 
           <button
-            onClick={finish}
-            disabled={saving}
+            onClick={async () => {
+              await completeOnboarding()
+              router.push('/bikes/new')
+            }}
             className="w-full max-w-[280px] h-12 rounded-xl bg-white/[0.05]
                        border border-white/[0.07]
                        text-white/50 text-sm font-medium flex items-center justify-center
-                       disabled:opacity-50 active:scale-[0.97] transition-all"
+                       active:scale-[0.97] transition-all"
           >
-            {saving
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : 'Erstmal überspringen'
-            }
+            Custom Bike hinzufügen
           </button>
         </div>
       )}

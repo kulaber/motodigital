@@ -178,9 +178,8 @@ export function RiderOnboarding({
           )}
           <div className="text-7xl leading-none">🏍</div>
           <div className="flex flex-col gap-3">
-            <h1 className="font-['Bebas_Neue'] text-[clamp(52px,14vw,72px)]
-                           tracking-wide text-[#F0EDE4] leading-none">
-              DU BIST DABEI.
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Du bist dabei.
             </h1>
             <p className="text-sm text-white/45 max-w-[260px] mx-auto leading-relaxed">
               Willkommen in der deutschen Custom Bike Community.
@@ -212,8 +211,8 @@ export function RiderOnboarding({
       {step === 1 && (
         <div className="flex flex-col gap-7 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              DEIN PROFIL
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Dein Profil
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Wie soll die Community dich kennen?
@@ -280,8 +279,8 @@ export function RiderOnboarding({
       {step === 2 && (
         <div className="flex flex-col gap-7 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              WAS FÄHRST DU?
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Was fährst du?
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Beeinflusst deinen persönlichen Feed. Mehrfachauswahl möglich.
@@ -333,8 +332,8 @@ export function RiderOnboarding({
       {step === 3 && (
         <div className="flex flex-col gap-7 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              ZEIG DEIN BIKE.
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Zeig dein Bike
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Rider mit Bike bekommen 5x mehr Aufmerksamkeit.
@@ -383,8 +382,8 @@ export function RiderOnboarding({
       {step === 4 && (
         <div className="flex flex-col gap-7 flex-1 pb-10">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-[#F0EDE4]">
-              ENTDECKE RIDER.
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-[#F0EDE4]">
+              Entdecke Rider
             </h2>
             <p className="text-sm text-white/40 mt-1">
               Starte mit einem vollen Feed statt einer leeren Seite.

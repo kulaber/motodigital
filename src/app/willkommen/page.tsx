@@ -34,7 +34,7 @@ export default async function WillkommenPage({
   if (profile?.role === 'custom-werkstatt') {
     const { data: werkstatt } = await supabase
       .from('workshops')
-      .select('id, name, slug, description, address, logo_url, services')
+      .select('id, name, slug, description, address, logo_url, cover_image_url, services')
       .eq('owner_id', user.id)
       .maybeSingle()
 
