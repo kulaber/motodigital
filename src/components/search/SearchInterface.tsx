@@ -173,7 +173,7 @@ export function SearchInterface({ initialQuery, initialTab, defaultResults }: Pr
               <>
                 {(activeTab === 'all' || activeTab === 'bikes') && bikes.length > 0 && (
                   <ResultSection
-                    title={showDefaults ? 'Neue Custom Bikes' : 'Custom Bikes'}
+                    title="Custom Bikes"
                     count={data.totalBikes ?? bikes.length}
                     grid
                   >
