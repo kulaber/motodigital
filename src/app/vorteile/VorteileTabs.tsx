@@ -192,12 +192,13 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
 
               <ul className="flex flex-col gap-3 mb-10 flex-1">
                 {[
-                  { ok: true,  text: 'Öffentliches Werkstattprofil' },
-                  { ok: true,  text: '1 Custom Bike Upload' },
-                  { ok: false, text: 'Kein Logo & Titelbild' },
-                  { ok: false, text: 'Keine Galerie' },
-                  { ok: false, text: 'Keine Prio-Listung in der Suche' },
-                  { ok: false, text: 'Kein Dashboard mit Statistiken' },
+                  { ok: true,  text: 'In der Map sichtbar' },
+                  { ok: true,  text: '1 Custom Bike (Verkauf oder Showcase)' },
+                  { ok: true,  text: 'Logo & Titelbild hinzufügen' },
+                  { ok: true,  text: 'Beschreibungstext hinzufügen' },
+                  { ok: false, text: 'Keine Leistungen & Umbaustile' },
+                  { ok: false, text: 'Kein Kontaktieren-Button' },
+                  { ok: false, text: 'Kein Analytics Dashboard' },
                 ].map((item) => (
                   <li key={item.text} className="flex items-start gap-3">
                     {item.ok ? (
@@ -242,12 +243,13 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
 
                 <ul className="flex flex-col gap-3 mb-10 flex-1">
                   {[
-                    'Logo & Titelbild',
-                    'Galerie (bis zu 20 Fotos)',
-                    'Bis zu 10 Custom Bike Uploads',
-                    'Prio-Listung in der Suche',
+                    'Unbegrenzte Custom Bikes (Verkauf & Showcase)',
+                    'Leistungen & Umbaustile auf deinem Profil',
+                    'Kontaktieren-Button für Direktanfragen',
+                    'Analytics Dashboard mit Besucherdaten',
+                    'Logo, Titelbild & Beschreibungstext',
+                    'In der Map sichtbar',
                     'Founding Partner Badge',
-                    'Dashboard mit Besucherstatistiken',
                     'Alle zukünftigen PRO-Features inklusive',
                   ].map((text) => (
                     <li key={text} className="flex items-start gap-3">

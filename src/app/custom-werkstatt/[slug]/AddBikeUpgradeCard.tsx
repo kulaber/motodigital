@@ -3,23 +3,24 @@
 import { useState } from 'react'
 import { Plus, Loader2, Crown } from 'lucide-react'
 
-export default function AddBikeUpgradeCard({ workshopId }: { workshopId: string }) {
+export default function AddBikeUpgradeCard() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleUpgrade() {
     setLoading(true)
+    setError(null)
     try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workshopId }),
-      })
+      const res = await fetch('/api/checkout', { method: 'POST' })
       const data = await res.json()
       if (res.ok && data.url) {
         window.location.href = data.url
         return
       }
-    } catch {}
+      setError(data.error || 'Fehler beim Laden')
+    } catch {
+      setError('Netzwerkfehler')
+    }
     setLoading(false)
   }
 
@@ -42,6 +43,9 @@ export default function AddBikeUpgradeCard({ workshopId }: { workshopId: string 
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2AABAB] uppercase tracking-wider">
                 <Crown size={10} /> Premium Upgrade
               </span>
+              {error && (
+                <span className="text-[11px] text-red-500 mt-1">{error}</span>
+              )}
             </div>
           </>
         )}

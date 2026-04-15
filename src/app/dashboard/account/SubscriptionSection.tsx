@@ -120,10 +120,14 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
             {loading ? 'Wird geladen...' : 'Abo verwalten'}
           </button>
         ) : (
-          <div className="border border-[#06a5a5]/15 rounded-xl p-4 bg-[#06a5a5]/[0.03]">
-            <p className="text-xs text-[#222222]/50 mb-3 leading-relaxed">
-              Logo, Galerie, Top-Platzierung und exklusives Founding Partner Badge — nur 10 Plätze verfügbar.
-            </p>
+          <div className="border border-[#06a5a5]/15 rounded-xl p-5 bg-[#06a5a5]/[0.03]">
+            <ul className="text-xs text-[#222222]/50 mb-4 space-y-1.5 leading-relaxed">
+              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Unbegrenzte Custom Bikes (Verkauf & Showcase)</li>
+              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Leistungen & Umbaustile auf deinem Profil</li>
+              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Kontaktieren-Button für Direktanfragen</li>
+              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Analytics Dashboard mit Besucherdaten</li>
+            </ul>
+            <p className="text-[11px] font-semibold text-[#06a5a5] mb-4">Nur 10 von 10 Founding Partner Plätzen verfügbar</p>
             <button
               onClick={handleCheckout}
               disabled={checkoutLoading}
@@ -135,7 +139,7 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
                   Weiterleitung...
                 </>
               ) : (
-                'Founding Partner werden — 39 €/Mo'
+                <>Jetzt upgraden — <span className="line-through opacity-60">79 €</span> 39 €/Monat</>
               )}
             </button>
           </div>

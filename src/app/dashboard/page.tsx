@@ -8,6 +8,8 @@ import { Eye, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, S
 import UpgradeSuccessToast from '@/components/werkstatt/UpgradeSuccessToast'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
+import LockedFeature from '@/components/werkstatt/locked-feature'
+import { isPremium } from '@/lib/werkstatt-tier'
 import type { Database } from '@/types/database'
 
 /** Extracted outside the component so React compiler doesn't flag Date.now() as impure */
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
   // Riders don't need the dashboard overview — redirect to garage
   if (profile?.role === 'rider') redirect('/dashboard/meine-garage')
 
-  const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }] = await Promise.all([
+  const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }, { data: workshopRow }] = await Promise.all([
     supabase
       .from('bikes')
       .select('id, title, slug, status, price, view_count, created_at, bike_images(url, is_cover, position)')
@@ -47,6 +49,10 @@ export default async function DashboardPage() {
       .select('id, url, type, title, position')
       .eq('builder_id', user.id)
       .order('position', { ascending: true }) as Promise<{ data: { id: string; url: string; type: string; title: string | null; position: number }[] | null, error: unknown }>,
+    (supabase.from('workshops') as any)
+      .select('id, subscription_tier')
+      .eq('owner_id', user.id)
+      .maybeSingle() as Promise<{ data: { id: string; subscription_tier: string } | null, error: unknown }>,
   ])
 
   const totalViews = bikes?.reduce((acc, b) => acc + (b.view_count ?? 0), 0) ?? 0
@@ -56,6 +62,8 @@ export default async function DashboardPage() {
   const isRider = profile?.role === 'rider'
   const isBuilder = profile?.role === 'custom-werkstatt'
   const isSuperAdmin = profile?.role === 'superadmin'
+  const builderIsPremium = isBuilder && isPremium(workshopRow?.subscription_tier)
+  const workshopId = workshopRow?.id ?? ''
 
   // Superadmin platform stats
   type AdminStats = {
@@ -322,13 +330,22 @@ export default async function DashboardPage() {
 
         ) : !isSuperAdmin ? (
           <div className="mb-8">
-            {builderStats ? (
+            {builderIsPremium && builderStats ? (
               <BuilderAnalytics
                 profileViews={builderStats.profileViews}
                 contactClicks={builderStats.contactClicks}
                 bikeViews={builderStats.bikeViews}
                 bikeSlugMap={builderStats.bikeSlugMap}
               />
+            ) : isBuilder && !builderIsPremium ? (
+              <LockedFeature workshopId={workshopId}>
+                <BuilderAnalytics
+                  profileViews={Array.from({ length: 23 }, (_, i) => ({ created_at: new Date(Date.now() - i * 86400000).toISOString() }))}
+                  contactClicks={[]}
+                  bikeViews={Array.from({ length: 4 }, (_, i) => ({ path: '/custom-bike/demo', created_at: new Date(Date.now() - i * 86400000).toISOString() }))}
+                  bikeSlugMap={{ demo: 'Demo Bike' }}
+                />
+              </LockedFeature>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {[

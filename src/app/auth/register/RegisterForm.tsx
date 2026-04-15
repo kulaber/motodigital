@@ -12,11 +12,11 @@ import { useToast, ToastContainer } from '@/components/ui/Toast'
 type Role = 'rider' | 'custom-werkstatt'
 
 const WERKSTATT_BENEFITS: { text: string; badge?: string }[] = [
-  { text: 'Öffentliches Werkstatt-Profil mit Galerie' },
-  { text: 'Direktanfragen von Ridern – ohne Provision' },
-  { text: 'Auf der Karte sichtbar' },
-  { text: 'Custom Bikes präsentieren & verkaufen' },
-  { text: 'Dashboard mit Besucherstatistiken', badge: 'PRO' },
+  { text: 'In der Map sichtbar' },
+  { text: '1 Custom Bike präsentieren oder verkaufen' },
+  { text: 'Logo, Titelbild & Beschreibungstext' },
+  { text: 'Unbegrenzte Bikes, Leistungen & Umbaustile', badge: 'PRO' },
+  { text: 'Kontaktieren-Button & Analytics Dashboard', badge: 'PRO' },
 ]
 
 const RIDER_BENEFITS = [

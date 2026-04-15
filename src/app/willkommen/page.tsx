@@ -14,11 +14,12 @@ export default async function WillkommenPage({
   if (!user) redirect('/auth/login')
 
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('id, username, avatar_url, role, onboarding_completed, onboarding_step, riding_styles')
+    .select('id, username, avatar_url, role, onboarding_completed, onboarding_step, riding_styles, address, lat, lng, bio, bio_long')
     .eq('id', user.id)
     .maybeSingle() as { data: {
       id: string; username: string; avatar_url: string | null; role: string;
       onboarding_completed: boolean; onboarding_step: number; riding_styles: string[] | null;
+      address: string | null; lat: number | null; lng: number | null; bio: string | null; bio_long: string | null;
     } | null }
 
   // Bereits onboarded → weg hier

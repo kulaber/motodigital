@@ -14,11 +14,7 @@ export default function LockedFeature({ children, workshopId }: Props) {
   async function handleUpgrade() {
     setLoading(true)
     try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workshopId }),
-      })
+      const res = await fetch('/api/checkout', { method: 'POST' })
       const data = await res.json()
       if (res.ok && data.url) {
         window.location.href = data.url

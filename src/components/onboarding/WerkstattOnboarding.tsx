@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronRight, ImagePlus, Loader2, MapPin, Check, Trash2 } from 'lucide-react'
+import { ChevronRight, ImagePlus, Loader2, MapPin, Check, Trash2, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { saveOnboardingStep, completeOnboarding } from '@/lib/onboarding'
 import { OnboardingProgressBar } from './OnboardingProgressBar'
@@ -108,6 +108,11 @@ interface Profile {
   username: string
   role: string
   onboarding_step: number
+  address?: string | null
+  lat?: number | null
+  lng?: number | null
+  bio?: string | null
+  bio_long?: string | null
 }
 
 export function WerkstattOnboarding({
@@ -127,8 +132,8 @@ export function WerkstattOnboarding({
 
   const [step, setStep]                     = useState(initialStep === 0 ? 0 : initialStep)
   const [saving, setSaving]                 = useState(false)
-  const [addressData, setAddressData]       = useState({ address: werkstatt?.address ?? '', lat: null as number | null, lng: null as number | null })
-  const [description, setDescription]       = useState(werkstatt?.description ?? '')
+  const [addressData, setAddressData]       = useState({ address: werkstatt?.address ?? _profile.address ?? '', lat: _profile.lat ?? null, lng: _profile.lng ?? null })
+  const [description, setDescription]       = useState(werkstatt?.description ?? _profile.bio_long ?? _profile.bio ?? '')
   const [selectedServices, setSelectedServices] = useState<string[]>(werkstatt?.services ?? [])
   const [logoFile, setLogoFile]             = useState<File | null>(null)
   const [logoPreview, setLogoPreview]       = useState(werkstatt?.logo_url ?? '')
@@ -235,28 +240,22 @@ export function WerkstattOnboarding({
               E-Mail bestätigt
             </div>
           )}
-          <div className="text-7xl leading-none">🏭</div>
+          <div className="w-16 h-16 rounded-2xl bg-[#2AABAB]/10 border border-[#2AABAB]/20 flex items-center justify-center">
+            <Wrench size={28} className="text-[#2AABAB]" />
+          </div>
           <div className="flex flex-col gap-3">
-            <h1 className="font-['Bebas_Neue'] text-[clamp(40px,12vw,60px)]
-                           tracking-wide text-[#F0EDE4] leading-none">
-              WILLKOMMEN,<br />
-              <span className="text-[#2AABAB]">
-                {werkstatt?.name ?? 'WERKSTATT'}.
-              </span>
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#F0EDE4] leading-tight">
+              Willkommen bei<br />
+              <span className="text-[#2AABAB]">MotoDigital</span>
             </h1>
             <p className="text-sm text-white/45 max-w-[280px] mx-auto leading-relaxed">
-              Dein Werkstatt-Profil ist fast bereit.
-              4 kurze Schritte — dann wirst du von Ridern im DACH-Raum gefunden.
+              Dein Werkstatt-Profil ist fast bereit — dann wirst du von Ridern im DACH-Raum gefunden.
             </p>
           </div>
           <div className="flex gap-3 w-full max-w-[280px] justify-center">
             <span className="px-3 py-1 rounded-full text-[10px] bg-white/[0.04]
                              border border-white/[0.08] text-white/30">
               ~3 Minuten
-            </span>
-            <span className="px-3 py-1 rounded-full text-[10px] bg-white/[0.04]
-                             border border-white/[0.08] text-white/30">
-              4 Schritte
             </span>
           </div>
           <button
@@ -307,7 +306,7 @@ export function WerkstattOnboarding({
 
           <div className="flex flex-col gap-2">
             <label className="text-[10px] uppercase tracking-widest text-white/40">
-              Über Deine Werkstatt
+              Beschreibung
             </label>
             <textarea
               value={description}

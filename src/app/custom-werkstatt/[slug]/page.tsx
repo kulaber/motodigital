@@ -476,8 +476,8 @@ export default async function BuilderProfilePage({ params }: Props) {
                   <div key={build.title}>{card}</div>
                 )
               })}
-              {isOwner && !isPremium(builder.subscriptionTier) && builder.workshopId && (
-                <AddBikeUpgradeCard workshopId={builder.workshopId} />
+              {isOwner && !isPremium(builder.subscriptionTier) && (
+                <AddBikeUpgradeCard />
               )}
             </div>
           </div>
