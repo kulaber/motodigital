@@ -44,19 +44,7 @@ export default function ComingSoonPage() {
           Verifizierte Builder, direkt kontaktierbar — ohne Umwege, ohne Provision. Wir starten bald.
         </p>
 
-        {/* Stats */}
-        <div className="flex items-center justify-center gap-8 mt-4 pt-8 border-t border-[#222222]/6">
-          {[
-            { value: '+124', label: 'Builder' },
-            { value: '5', label: 'Länder' },
-            { value: '€39/Mo', label: 'Founding Partner' },
-          ].map(s => (
-            <div key={s.label}>
-              <p className="text-xl font-bold text-[#222222]">{s.value}</p>
-              <p className="text-[10px] text-[#222222]/30 uppercase tracking-widest mt-0.5">{s.label}</p>
-            </div>
-          ))}
-        </div>
+
 
       </div>
     </div>
