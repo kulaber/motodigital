@@ -9,7 +9,7 @@ const NAV = [
     heading: 'Plattform',
     links: [
       { label: 'Über MotoDigital',           href: '/ueber-motodigital' },
-      { label: 'Vorteile',                  href: '/vorteile' },
+      { label: 'Mitgliedschaft',             href: '/vorteile' },
       { label: 'Registrieren',              href: '/auth/register' },
       { label: 'Anmelden',                  href: '/auth/login' },
       { label: 'Magazin',                   href: '/magazine' },

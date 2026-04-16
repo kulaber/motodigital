@@ -4,8 +4,8 @@ import Footer from '@/components/layout/Footer'
 import VorteileTabs from './VorteileTabs'
 
 export const metadata: Metadata = {
-  title: 'Vorteile — MotoDigital',
-  description: 'Die Vorteile von MotoDigital für Custom-Werkstätten und Rider.',
+  title: 'Mitgliedschaft & Preise — MotoDigital',
+  description: 'Mitgliedschaft und Preise für Custom-Werkstätten und Rider auf MotoDigital.',
 }
 
 export default async function VorteilePage({
@@ -23,17 +23,14 @@ export default async function VorteilePage({
       {/* Hero */}
       <section className="bg-white pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#06a5a5] mb-4">
-            Vorteile
-          </p>
           <h1
             className="font-bold text-[#222222] leading-tight mb-4"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            Was MotoDigital dir bietet.
+            Mitgliedschaft & Preise
           </h1>
           <p className="text-sm text-[#717171] max-w-md mx-auto leading-relaxed">
-            Ob Custom Werkstatt oder Rider — entdecke, was MotoDigital für dich bereithält.
+            Ob Custom Werkstatt oder Rider — finde den passenden Plan für dich.
           </p>
         </div>
       </section>
