@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
     const ua = req.headers.get('user-agent') ?? 'unknown'
     const fingerprint = createHash('sha256').update(`${ip}:${ua}`).digest('hex').slice(0, 16)
 
-    // Fire & forget insert via service role
-    void supabaseAdmin.from('analytics_events').insert({
+    // Insert via service role
+    const { error } = await supabaseAdmin.from('analytics_events').insert({
       event_type,
       target_type: target_type ?? null,
       target_id: target_id ?? null,
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
       region: null, // best-effort, hardcoded null for now
       referrer: referrer ?? null,
     })
+    if (error) console.error('[track] insert failed:', error.message)
 
     return NextResponse.json({ ok: true })
   } catch {
