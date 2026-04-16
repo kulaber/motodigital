@@ -279,7 +279,7 @@ export default async function LandingPage() {
                         Zu verkaufen
                       </span>
                     )}
-                    {build.role && (
+                    {build.role && build.role !== 'superadmin' && (
                       <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                         {build.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
                       </span>

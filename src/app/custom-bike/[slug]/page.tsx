@@ -287,13 +287,15 @@ export default async function CustomBikePage({ params }: Props) {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <p className="text-sm font-bold text-[#222222] leading-tight truncate">{sellerName || '—'}</p>
-                        <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                          sellerProfile?.role === 'custom-werkstatt'
-                            ? 'bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20'
-                            : 'bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8'
-                        }`}>
-                          {sellerProfile?.role === 'custom-werkstatt' ? 'Werkstatt' : 'Rider'}
-                        </span>
+                        {sellerProfile?.role !== 'superadmin' && (
+                          <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                            sellerProfile?.role === 'custom-werkstatt'
+                              ? 'bg-[#06a5a5]/10 text-[#06a5a5] border border-[#06a5a5]/20'
+                              : 'bg-[#222222]/6 text-[#222222]/50 border border-[#222222]/8'
+                          }`}>
+                            {sellerProfile?.role === 'custom-werkstatt' ? 'Werkstatt' : 'Rider'}
+                          </span>
+                        )}
                       </div>
                       {sellerProfile?.city && (
                         <p className="text-xs text-[#222222]/35 flex items-center gap-1">
@@ -428,7 +430,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
                   Neu
                 </span>
               ) : null}
-              {b.role && (
+              {b.role && b.role !== 'superadmin' && (
                 <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {b.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
                 </span>

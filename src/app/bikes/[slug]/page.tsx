@@ -406,7 +406,7 @@ async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
                   Zu verkaufen
                 </span>
               )}
-              {b.role && (
+              {b.role && b.role !== 'superadmin' && (
                 <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {b.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'}
                 </span>
