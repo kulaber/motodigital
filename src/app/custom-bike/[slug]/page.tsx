@@ -127,7 +127,8 @@ export default async function CustomBikePage({ params }: Props) {
 
     const sellerName: string = sellerProfile?.full_name ?? ''
     const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
-    const sellerProfileHref = sellerProfile?.slug
+    const isSuperadminSeller = sellerProfile?.role === 'superadmin'
+    const sellerProfileHref = !isSuperadminSeller && sellerProfile?.slug
       ? sellerProfile.role === 'rider'
         ? `/rider/${sellerProfile.slug}`
         : `/custom-werkstatt/${sellerProfile.slug}`
@@ -307,25 +308,27 @@ export default async function CustomBikePage({ params }: Props) {
                 </div>
 
                 {/* CTA */}
-                <div className="px-5 py-4 flex flex-col gap-2">
-                  <div>
-                    <ContactModal
-                      sellerId={bike.seller_id}
-                      sellerName={sellerName}
-                      sellerAvatarUrl={sellerProfile?.avatar_url ?? undefined}
-                      sellerRole={sellerProfile?.role ?? null}
-                      bikeId={bike.id}
-                      bikeTitle={bike.title}
-                      coverImage={imageUrls[0] ?? null}
-                      workshopId={resolvedWorkshopId}
-                    />
+                {!isSuperadminSeller && (
+                  <div className="px-5 py-4 flex flex-col gap-2">
+                    <div>
+                      <ContactModal
+                        sellerId={bike.seller_id}
+                        sellerName={sellerName}
+                        sellerAvatarUrl={sellerProfile?.avatar_url ?? undefined}
+                        sellerRole={sellerProfile?.role ?? null}
+                        bikeId={bike.id}
+                        bikeTitle={bike.title}
+                        coverImage={imageUrls[0] ?? null}
+                        workshopId={resolvedWorkshopId}
+                      />
+                    </div>
+                    {sellerProfileHref && (
+                      <Link href={sellerProfileHref} className="w-full text-center text-xs font-medium text-[#222222]/35 hover:text-[#222222] transition-colors py-1.5">
+                        Profil ansehen →
+                      </Link>
+                    )}
                   </div>
-                  {sellerProfileHref && (
-                    <Link href={sellerProfileHref} className="w-full text-center text-xs font-medium text-[#222222]/35 hover:text-[#222222] transition-colors py-1.5">
-                      Profil ansehen →
-                    </Link>
-                  )}
-                </div>
+                )}
               </div>
 
             </div>
