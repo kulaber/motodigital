@@ -31,7 +31,7 @@ export default function BikeCTA() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
         </div>
         <div className="relative z-10 p-8 py-12 text-center flex flex-col items-center justify-center min-h-[180px]">
-          <h3 className="text-sm font-bold text-white mb-1">Verkaufe Dein Custom Bike</h3>
+          <h3 className="text-sm font-bold text-white mb-1">Präsentiere oder verkaufe dein Custom Bike</h3>
           <p className="text-xs text-white/50 leading-relaxed mb-4">Registriere dich kostenlos und erreiche tausende Custom-Bike-Enthusiasten.</p>
           <span className="inline-flex bg-[#06a5a5] hover:bg-[#058f8f] text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors">Jetzt kostenlos registrieren</span>
         </div>
