@@ -155,7 +155,7 @@ type Props = {
 }
 
 export function FullDashboard({ events, bikes, tips }: Props) {
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d')
   const [now] = useState(getCurrentTimestamp)
 
   const filtered = useMemo(() => filterByRange(events, timeRange, now), [events, timeRange, now])
@@ -183,7 +183,7 @@ export function FullDashboard({ events, bikes, tips }: Props) {
   const kpis = [
     { label: 'Profilbesucher', value: profileViews, trend: trendPercent(profileViews, prevProfileViews), icon: <Eye size={14} /> },
     { label: 'Kontakt-Klicks', value: contactClicks, trend: trendPercent(contactClicks, prevContactClicks), icon: <MessageCircle size={14} /> },
-    { label: 'Bike-Aufrufe', value: bikeViews, trend: trendPercent(bikeViews, prevBikeViews), icon: <Bike size={14} /> },
+    { label: 'Bike-Aufrufe', value: bikeViews, trend: trendPercent(bikeViews, prevBikeViews), icon: <Bike size={14} />, hint: bikes.length === 0 ? 'Füge ein Custom Bike hinzu' : null },
     { label: 'Merkliste-Saves', value: saveClicks, trend: trendPercent(saveClicks, prevSaveClicks), icon: <Star size={14} /> },
   ]
 
@@ -342,13 +342,19 @@ export function FullDashboard({ events, bikes, tips }: Props) {
               {k.icon}
               <span className="text-[10px] font-medium uppercase tracking-wider">{k.label}</span>
             </div>
-            <p className="text-2xl font-bold text-[#222]">{k.value.toLocaleString('de-DE')}</p>
-            <p className={`text-[11px] font-medium mt-0.5 flex items-center gap-1 ${
-              k.trend.direction === 'up' ? 'text-green-600' : k.trend.direction === 'down' ? 'text-red-500' : 'text-[#222]/25'
-            }`}>
-              {k.trend.direction === 'up' ? <TrendingUp size={11} /> : k.trend.direction === 'down' ? <TrendingDown size={11} /> : <Minus size={11} />}
-              {k.trend.value} vs. Vorperiode
-            </p>
+            {k.hint ? (
+              <p className="text-xs text-[#222]/30 leading-relaxed mt-1">{k.hint}</p>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-[#222]">{k.value.toLocaleString('de-DE')}</p>
+                <p className={`text-[11px] font-medium mt-0.5 flex items-center gap-1 ${
+                  k.trend.direction === 'up' ? 'text-green-600' : k.trend.direction === 'down' ? 'text-red-500' : 'text-[#222]/25'
+                }`}>
+                  {k.trend.direction === 'up' ? <TrendingUp size={11} /> : k.trend.direction === 'down' ? <TrendingDown size={11} /> : <Minus size={11} />}
+                  {k.trend.value} vs. Vorperiode
+                </p>
+              </>
+            )}
           </div>
         ))}
       </div>

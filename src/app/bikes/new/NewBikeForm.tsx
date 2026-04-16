@@ -39,7 +39,7 @@ export default function NewBikeForm() {
   const formRef = useRef<HTMLDivElement>(null)
   function setStep(s: Step) {
     setStepRaw(s)
-    formRef.current?.scrollIntoView({ block: 'start' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const [loading, setLoading] = useState(false)
   const { toasts, success: toastSuccess, error: toastError } = useToast()
@@ -400,7 +400,7 @@ export default function NewBikeForm() {
             </div>
           )}
 
-          {/* Baujahr */}
+          {/* Baujahr + Kilometerstand */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Baujahr *</label>
@@ -424,7 +424,11 @@ export default function NewBikeForm() {
                   placeholder="1974" className={inputClass} />
               )}
             </div>
-            <div>{/* spacer */}</div>
+            <div>
+              <label className={labelClass}>Kilometerstand</label>
+              <input value={mileage} onChange={e => setMileage(e.target.value)}
+                type="number" min="0" placeholder="12000" className={inputClass} />
+            </div>
           </div>
 
           {/* Typ / Style */}
@@ -461,12 +465,6 @@ export default function NewBikeForm() {
       {/* ── STEP 2: Details ── */}
       {step === 2 && (
         <div className="flex flex-col gap-5 animate-fade-in">
-          <div>
-            <label className={labelClass}>Kilometerstand</label>
-            <input value={mileage} onChange={e => setMileage(e.target.value)}
-              type="number" min="0" placeholder="12000" className={inputClass} />
-          </div>
-
           <div>
             <label className={labelClass}>Beschreibung</label>
             <textarea value={description} onChange={e => setDescription(e.target.value)}

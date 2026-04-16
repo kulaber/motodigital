@@ -53,7 +53,11 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
   const supabase = createClient()
   const { toasts, success: toastSuccess, error: toastError } = useToast()
 
-  const [step, setStep] = useState<Step>(1)
+  const [step, setStepRaw] = useState<Step>(1)
+  function setStep(s: Step) {
+    setStepRaw(s)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const [loading, setLoading] = useState(false)
 
   // ── Step 1: Basis ──────────────────────────────────
@@ -349,22 +353,29 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
             )}
           </div>
 
-          {/* Baujahr */}
-          <div>
-            <label className={labelClass}>Baujahr *</label>
-            {yearOptions.length > 0 ? (
-              <div className="relative">
-                <select value={year} onChange={e => setYear(e.target.value)} className={selectClass}>
-                  <option value="">Jahr wählen…</option>
-                  {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
-                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
-              </div>
-            ) : (
-              <input value={year} onChange={e => setYear(e.target.value)}
-                type="number" min="1920" max={new Date().getFullYear()}
-                placeholder="1981" className={inputClass} />
-            )}
+          {/* Baujahr + Kilometerstand */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Baujahr *</label>
+              {yearOptions.length > 0 ? (
+                <div className="relative">
+                  <select value={year} onChange={e => setYear(e.target.value)} className={selectClass}>
+                    <option value="">Jahr wählen…</option>
+                    {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#222222]/30 pointer-events-none" />
+                </div>
+              ) : (
+                <input value={year} onChange={e => setYear(e.target.value)}
+                  type="number" min="1920" max={new Date().getFullYear()}
+                  placeholder="1981" className={inputClass} />
+              )}
+            </div>
+            <div>
+              <label className={labelClass}>Kilometerstand</label>
+              <input value={mileage} onChange={e => setMileage(e.target.value)}
+                type="number" min="0" placeholder="12000" className={inputClass} />
+            </div>
           </div>
 
           <div className="flex justify-end pt-2">
@@ -432,13 +443,6 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
               </button>
             </div>
             <p className="text-xs text-[#222222]/25 mt-1.5">Enter drücken oder + klicken zum Hinzufügen</p>
-          </div>
-
-          {/* Kilometerstand */}
-          <div>
-            <label className={labelClass}>Kilometerstand</label>
-            <input value={mileage} onChange={e => setMileage(e.target.value)}
-              type="number" min="0" placeholder="12000" className={inputClass} />
           </div>
 
           {/* Beschreibung */}
