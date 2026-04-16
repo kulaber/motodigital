@@ -15,6 +15,7 @@ import PriceLoginButton from './PriceLoginButton'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import BikeCTA from './BikeCTA'
+import BikeTracker from './BikeTracker'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -88,8 +89,8 @@ export default async function CustomBikePage({ params }: Props) {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     const isLoggedIn = !!currentUser
 
-    // Fetch seller profile + workshop (if linked) + current user role (if logged in)
-    const [{ data: sellerProfile }, { data: workshop }, { data: currentUserProfile }] = await Promise.all([
+    // Fetch seller profile + workshop (if linked) + current user role (if logged in) + seller's workshop
+    const [{ data: sellerProfile }, { data: workshop }, { data: currentUserProfile }, { data: sellerWorkshop }] = await Promise.all([
       (supabase.from('profiles') as any)
         .select('full_name, city, slug, role, avatar_url')
         .eq('id', bike.seller_id)
@@ -106,7 +107,16 @@ export default async function CustomBikePage({ params }: Props) {
             .eq('id', currentUser.id)
             .maybeSingle() as Promise<{ data: { role: string } | null }>
         : Promise.resolve({ data: null }),
+      // Resolve workshop for analytics tracking
+      !bike.workshop_id
+        ? (supabase.from('workshops') as any)
+            .select('id')
+            .eq('owner_id', bike.seller_id)
+            .maybeSingle() as Promise<{ data: { id: string } | null }>
+        : Promise.resolve({ data: null }),
     ])
+
+    const resolvedWorkshopId: string | null = bike.workshop_id ?? sellerWorkshop?.id ?? null
 
     const isOwner = currentUser?.id === bike.seller_id
     const isSuperadmin = currentUserProfile?.role === 'superadmin'
@@ -127,6 +137,7 @@ export default async function CustomBikePage({ params }: Props) {
     return (
       <div className="min-h-screen bg-white text-[#222222]">
         <ScrollToTop />
+        <BikeTracker bikeId={bike.id} workshopId={resolvedWorkshopId} />
         <Header activePage="bikes" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:pt-4 pb-24">
           <Link href="/bikes" className="hidden md:inline-flex items-center gap-1.5 text-xs text-[#222222]/35 hover:text-[#222222] transition-colors mb-4">
@@ -145,6 +156,7 @@ export default async function CustomBikePage({ params }: Props) {
               coverImage={imageUrls[0] ?? null}
               listingType={bike.listing_type}
               editHref={canEdit ? `/bikes/${bike.id}/edit` : undefined}
+              workshopId={resolvedWorkshopId}
             />
           ) : (
             <div className="rounded-2xl overflow-hidden h-[50vh] sm:h-[60vh] md:h-[70vh] md:min-h-[500px] md:max-h-[800px]">
@@ -303,6 +315,7 @@ export default async function CustomBikePage({ params }: Props) {
                       bikeId={bike.id}
                       bikeTitle={bike.title}
                       coverImage={imageUrls[0] ?? null}
+                      workshopId={resolvedWorkshopId}
                     />
                   </div>
                   {sellerProfileHref && (

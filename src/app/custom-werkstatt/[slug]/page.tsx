@@ -17,6 +17,7 @@ import AddBikeUpgradeCard from './AddBikeUpgradeCard'
 import WorkshopCTA from './WorkshopCTA'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import RoutePlanenButton from './RoutePlanenButton'
+import WorkshopTracker from './WorkshopTracker'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { isPremium } from '@/lib/werkstatt-tier'
@@ -277,6 +278,9 @@ export default async function BuilderProfilePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify([localBusinessJsonLd, breadcrumbJsonLd]) }}
       />
       <Header activePage="custom-werkstatt" />
+      {builder.workshopId && builder.id && (
+        <WorkshopTracker workshopId={builder.workshopId} builderId={builder.id} />
+      )}
 
       {/* ── OWNER BANNER ── */}
       {isOwner && (
@@ -294,7 +298,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       <MobileStickyBar hideBack={isOwner}>
         {isOwner ? (
           <>
-            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly hideSave />
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly hideSave workshopId={builder.workshopId} />
             <Link
               href="/dashboard/profile"
               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
@@ -313,7 +317,7 @@ export default async function BuilderProfilePage({ params }: Props) {
         ) : (
           <>
             <OwnerEditButton builderSlug={slug} iconOnly />
-            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly />
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly workshopId={builder.workshopId} />
           </>
         )}
       </MobileStickyBar>
@@ -407,7 +411,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <OwnerEditButton builderSlug={slug} />
-              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} hideSave={isOwner} />
+              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} hideSave={isOwner} workshopId={builder.workshopId} />
             </div>
           </div>
         </div>
@@ -664,7 +668,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                         {builder.address ?? builder.city}
                       </p>
                     </div>
-                    <RoutePlanenButton adresse={builder.address ?? builder.city ?? ''} />
+                    <RoutePlanenButton adresse={builder.address ?? builder.city ?? ''} workshopId={builder.workshopId} builderId={builder.id} />
                   </div>
                 </div>
               )}
@@ -685,6 +689,7 @@ export default async function BuilderProfilePage({ params }: Props) {
                     builderFirstName={builder.name.split(' ')[0]}
                     builderName={builder.name}
                     builderAvatarUrl={builder.avatarUrl}
+                    workshopId={builder.workshopId}
                   />
                 </div>
               )}

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { track } from '@/lib/track'
 
 interface Props {
   name: string
@@ -11,9 +12,10 @@ interface Props {
   slug: string
   iconOnly?: boolean
   hideSave?: boolean
+  workshopId?: string | null
 }
 
-export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly, hideSave }: Props) {
+export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly, hideSave, workshopId }: Props) {
   const [shareOpen, setShareOpen]     = useState(false)
   const [copied, setCopied]           = useState(false)
   const [saved, setSaved]             = useState(false)
@@ -78,6 +80,9 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
       await (supabase.from('saved_builders') as any)
         .insert({ user_id: userId, builder_id: builderId })
       setSaved(true)
+      if (workshopId) {
+        track({ event_type: 'save_click', target_type: 'workshop', target_id: builderId ?? undefined, workshop_id: workshopId })
+      }
     }
     setLoadingSave(false)
   }
@@ -85,6 +90,9 @@ export default function HeroActions({ name, builderId: initialBuilderId, slug, i
   function copyLink() {
     navigator.clipboard.writeText(window.location.href)
     setCopied(true)
+    if (workshopId) {
+      track({ event_type: 'share_click', target_type: 'workshop', target_id: builderId ?? undefined, workshop_id: workshopId })
+    }
     setTimeout(() => { setCopied(false); setShareOpen(false) }, 1800)
   }
 

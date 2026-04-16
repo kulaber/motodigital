@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { track } from '@/lib/track'
 
 interface Props {
   sellerId: string
@@ -19,6 +20,7 @@ interface Props {
   coverImage: string | null
   fullWidth?: boolean
   renderTrigger?: (onClick: () => void) => React.ReactNode
+  workshopId?: string | null
 }
 
 function Modal({
@@ -162,7 +164,7 @@ function Modal({
   )
 }
 
-export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, bikeTitle, coverImage, fullWidth, renderTrigger }: Props) {
+export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, sellerRole, bikeId, bikeTitle, coverImage, fullWidth, renderTrigger, workshopId }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -175,6 +177,9 @@ export default function ContactModal({ sellerId, sellerName, sellerAvatarUrl, se
     if (!user) {
       setShowLogin(true)
       return
+    }
+    if (workshopId) {
+      track({ event_type: 'contact_click', target_type: 'bike', target_id: bikeId, workshop_id: workshopId })
     }
     setOpen(true)
   }

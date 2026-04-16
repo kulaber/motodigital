@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MessageCircle, Pencil } from 'lucide-react'
 import BuildGallery from '@/components/build/BuildGallery'
 import ContactModal from './ContactModal'
+import { track } from '@/lib/track'
 
 interface Props {
   images: string[]
@@ -16,12 +17,13 @@ interface Props {
   coverImage: string | null
   listingType?: string | null
   editHref?: string
+  workshopId?: string | null
 }
 
 export default function BikeGallerySection({
   images, title, bikeId,
   sellerId, sellerName, sellerAvatarUrl, sellerRole, coverImage, listingType,
-  editHref,
+  editHref, workshopId,
 }: Props) {
   return (
     <BuildGallery
@@ -29,6 +31,11 @@ export default function BikeGallerySection({
       title={title}
       bikeId={bikeId}
       listingType={listingType}
+      onGalleryClick={() => {
+        if (workshopId) {
+          track({ event_type: 'gallery_click', target_type: 'bike', target_id: bikeId, workshop_id: workshopId })
+        }
+      }}
       ownerEditSlot={editHref ? (
         <Link
           href={editHref}
@@ -47,6 +54,7 @@ export default function BikeGallerySection({
           bikeId={bikeId}
           bikeTitle={title}
           coverImage={coverImage}
+          workshopId={workshopId}
           renderTrigger={(onClick) => (
             <button
               onClick={onClick}

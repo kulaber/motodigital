@@ -14,9 +14,10 @@ interface Props {
   modalContactSlot?: ReactNode
   ownerEditSlot?: ReactNode
   listingType?: string | null
+  onGalleryClick?: () => void
 }
 
-export default function BuildGallery({ images, title, bikeId, modalContactSlot, ownerEditSlot, listingType }: Props) {
+export default function BuildGallery({ images, title, bikeId, modalContactSlot, ownerEditSlot, listingType, onGalleryClick }: Props) {
   const router = useRouter()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
@@ -110,6 +111,7 @@ export default function BuildGallery({ images, title, bikeId, modalContactSlot, 
   function openLightbox(i: number) {
     setModalTab('fotos')
     setLightbox(i)
+    onGalleryClick?.()
     window.dispatchEvent(new Event('gallery-modal-open'))
     requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
   }

@@ -8,6 +8,7 @@ import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 import Image from 'next/image'
 import { MessageCircle, X, CheckCircle } from 'lucide-react'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { track } from '@/lib/track'
 
 interface Props {
   builderId: string
@@ -16,6 +17,7 @@ interface Props {
   builderAvatarUrl?: string
   bikeId?: string
   fullWidth?: boolean
+  workshopId?: string | null
 }
 
 function Modal({
@@ -150,7 +152,7 @@ function Modal({
   )
 }
 
-export default function BuilderContactButton({ builderId, builderFirstName, builderName, builderAvatarUrl, fullWidth }: Props) {
+export default function BuilderContactButton({ builderId, builderFirstName, builderName, builderAvatarUrl, fullWidth, workshopId }: Props) {
   const [open, setOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const { user, loading: authLoading } = useAuth()
@@ -163,12 +165,16 @@ export default function BuilderContactButton({ builderId, builderFirstName, buil
       setShowLogin(true)
       return
     }
-    // Track contact button click
+    // Track contact button click (legacy page_views)
     fetch('/api/pageview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: `/__event/contact-click/${builderId}`, referrer: window.location.pathname }),
     }).catch(() => {})
+    // Track via analytics_events
+    if (workshopId) {
+      track({ event_type: 'contact_click', target_type: 'workshop', target_id: builderId, workshop_id: workshopId })
+    }
     setOpen(true)
   }
 

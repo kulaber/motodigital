@@ -1,13 +1,19 @@
 'use client'
 
 import { Navigation } from 'lucide-react'
+import { track } from '@/lib/track'
 
 interface Props {
   adresse: string
+  workshopId?: string | null
+  builderId?: string | null
 }
 
-export default function RoutePlanenButton({ adresse }: Props) {
+export default function RoutePlanenButton({ adresse, workshopId, builderId }: Props) {
   function handleClick() {
+    if (workshopId) {
+      track({ event_type: 'route_click', target_type: 'workshop', target_id: builderId ?? undefined, workshop_id: workshopId })
+    }
     const encoded = encodeURIComponent(adresse)
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
     const url = isIOS

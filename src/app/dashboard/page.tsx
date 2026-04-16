@@ -7,8 +7,7 @@ import Link from 'next/link'
 import { Eye, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, Star, Bike, User } from 'lucide-react'
 import UpgradeSuccessToast from '@/components/werkstatt/UpgradeSuccessToast'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
-import { BuilderAnalytics } from '@/components/dashboard/BuilderAnalytics'
-import LockedFeature from '@/components/werkstatt/locked-feature'
+import { LockedDashboard, FullDashboard } from '@/components/dashboard/WorkshopAnalytics'
 import { isPremium } from '@/lib/werkstatt-tier'
 import type { Database } from '@/types/database'
 
@@ -40,7 +39,7 @@ export default async function DashboardPage() {
   const [{ data: bikes }, { count: savedBikesCount }, { count: savedBuildersCount }, { data: builderMedia }, { data: workshopRow }] = await Promise.all([
     supabase
       .from('bikes')
-      .select('id, title, slug, status, price, view_count, created_at, bike_images(url, is_cover, position)')
+      .select('id, title, slug, status, price, view_count, created_at, style, listing_type, bike_images(url, is_cover, position)')
       .eq('seller_id', user.id)
       .order('created_at', { ascending: false }) as unknown as Promise<{ data: DashboardBike[] | null, error: unknown }>,
     supabase.from('saved_bikes').select('bike_id', { count: 'exact', head: true }).eq('user_id', user.id) as unknown as Promise<{ count: number | null }>,
@@ -114,60 +113,46 @@ export default async function DashboardPage() {
     }
   }
 
-  // Builder analytics — profile views, contact clicks, bike views
-  type BuilderStats = {
-    profileViews: { created_at: string }[]
-    contactClicks: { created_at: string }[]
-    bikeViews: { path: string; created_at: string }[]
-    bikeSlugMap: Record<string, string>
+  // Analytics events for premium builders
+  type AnalyticsEvent = {
+    event_type: string
+    target_type: string | null
+    target_id: string | null
+    referrer: string | null
+    created_at: string
   }
-  let builderStats: BuilderStats | null = null
+  let analyticsEvents: AnalyticsEvent[] = []
+  let profileTips = { hasCover: false, hasLocation: false, allBikesHaveStyle: true, lastActivityDaysAgo: null as number | null }
 
-  if (isBuilder && profile?.slug) {
+  if (isBuilder && builderIsPremium && workshopId) {
     try {
-      const { createClient: createAdminClient } = await import('@supabase/supabase-js')
-      const adminClient = createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      )
-      const thirtyDaysAgo = new Date(getCurrentTimestamp() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      const { data: eventsData } = await (supabase.from('analytics_events') as any)
+        .select('event_type, target_type, target_id, referrer, created_at')
+        .eq('workshop_id', workshopId)
+        .order('created_at', { ascending: true })
 
-      // Build bike slug → title map and path patterns
-      const bikeSlugMap: Record<string, string> = {}
-      const bikePaths: string[] = []
-      for (const b of bikes ?? []) {
-        const key = (b as DashboardBike & { slug?: string | null }).slug ?? b.id
-        bikeSlugMap[key] = b.title
-        bikePaths.push(`/custom-bike/${key}`)
-      }
+      analyticsEvents = (eventsData ?? []) as AnalyticsEvent[]
 
-      const [pvProfile, pvContact, pvBikes] = await Promise.all([
-        (adminClient.from('page_views') as any)
-          .select('created_at')
-          .eq('path', `/custom-werkstatt/${profile.slug}`)
-          .gte('created_at', thirtyDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
-        (adminClient.from('page_views') as any)
-          .select('created_at')
-          .eq('path', `/__event/contact-click/${user.id}`)
-          .gte('created_at', thirtyDaysAgo) as Promise<{ data: { created_at: string }[] | null }>,
-        bikePaths.length > 0
-          ? (adminClient.from('page_views') as any)
-              .select('path, created_at')
-              .in('path', bikePaths)
-              .gte('created_at', thirtyDaysAgo) as Promise<{ data: { path: string; created_at: string }[] | null }>
-          : Promise.resolve({ data: [] as { path: string; created_at: string }[] }),
-      ])
-
-      builderStats = {
-        profileViews: pvProfile.data ?? [],
-        contactClicks: pvContact.data ?? [],
-        bikeViews: pvBikes.data ?? [],
-        bikeSlugMap,
+      // Profile tips
+      const coverMedia = builderMedia?.find(m => m.title === 'cover') ?? null
+      profileTips = {
+        hasCover: !!coverMedia,
+        hasLocation: !!(profile?.lat && profile?.lng),
+        allBikesHaveStyle: (bikes ?? []).every(b => (b as any).style),
+        lastActivityDaysAgo: null, // Would need explore post check — null for now
       }
     } catch (e) {
-      console.error('Failed to load builder analytics:', e)
+      console.error('Failed to load analytics events:', e)
     }
   }
+
+  // Bike info for analytics table
+  const bikeInfoForAnalytics = (bikes ?? []).map(b => ({
+    id: b.id,
+    title: b.title,
+    style: (b as any).style as string | null ?? null,
+    listing_type: (b as any).listing_type as string | null ?? null,
+  }))
 
   return (
     <div className={`max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32 ${isRider ? 'md:h-auto md:overflow-auto h-[calc(100dvh-140px)] overflow-hidden' : ''}`}>
@@ -330,22 +315,14 @@ export default async function DashboardPage() {
 
         ) : !isSuperAdmin ? (
           <div className="mb-8">
-            {builderIsPremium && builderStats ? (
-              <BuilderAnalytics
-                profileViews={builderStats.profileViews}
-                contactClicks={builderStats.contactClicks}
-                bikeViews={builderStats.bikeViews}
-                bikeSlugMap={builderStats.bikeSlugMap}
+            {builderIsPremium ? (
+              <FullDashboard
+                events={analyticsEvents}
+                bikes={bikeInfoForAnalytics}
+                tips={profileTips}
               />
             ) : isBuilder && !builderIsPremium ? (
-              <LockedFeature workshopId={workshopId}>
-                <BuilderAnalytics
-                  profileViews={Array.from({ length: 23 }, (_, i) => ({ created_at: new Date(Date.now() - i * 86400000).toISOString() }))}
-                  contactClicks={[]}
-                  bikeViews={Array.from({ length: 4 }, (_, i) => ({ path: '/custom-bike/demo', created_at: new Date(Date.now() - i * 86400000).toISOString() }))}
-                  bikeSlugMap={{ demo: 'Demo Bike' }}
-                />
-              </LockedFeature>
+              <LockedDashboard />
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {[
