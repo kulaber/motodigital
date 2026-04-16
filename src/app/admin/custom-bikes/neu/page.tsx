@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import AdminCreateBikeForm, { type WorkshopOption } from './AdminCreateBikeForm'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = { title: 'Admin — Neues Bike anlegen' }
 
 export default async function AdminNewBikePage() {
@@ -52,7 +54,7 @@ export default async function AdminNewBikePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
-      <AdminCreateBikeForm workshops={options} />
+      <AdminCreateBikeForm workshops={options} superadminId={user.id} />
     </div>
   )
 }

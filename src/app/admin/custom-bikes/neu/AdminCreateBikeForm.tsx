@@ -36,9 +36,10 @@ type Step = 1 | 2 | 3 | 4
 
 interface Props {
   workshops: WorkshopOption[]
+  superadminId: string
 }
 
-export default function AdminCreateBikeForm({ workshops }: Props) {
+export default function AdminCreateBikeForm({ workshops, superadminId }: Props) {
   const router = useRouter()
 
   const [step, setStep] = useState<Step>(1)
@@ -51,6 +52,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
 
   // ── Workshop selection ───────────────────────────
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopOption | null>(null)
+  const [noWorkshop, setNoWorkshop] = useState(false)
   const [workshopSearch, setWorkshopSearch] = useState('')
 
   const filteredWorkshops = useMemo(() => {
@@ -164,7 +166,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
   }
 
   async function handleSubmit() {
-    if (!selectedWorkshop) { toastError('Keine Werkstatt ausgewählt.'); return }
+    if (!noWorkshop && !selectedWorkshop) { toastError('Keine Werkstatt ausgewählt.'); return }
     setLoading(true)
 
     try {
@@ -173,8 +175,8 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          seller_id:    selectedWorkshop.profileId,
-          workshop_id:  selectedWorkshop.workshopId,
+          seller_id:    noWorkshop ? superadminId : selectedWorkshop!.profileId,
+          workshop_id:  noWorkshop ? null : selectedWorkshop!.workshopId,
           title:        title.trim(),
           make:         submitMake,
           model:        submitModel,
@@ -205,7 +207,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
         const { file, isVideo, thumbFile } = mediaFiles[i]
         const formData = new FormData()
         formData.append('bike_id', bikeId)
-        formData.append('seller_id', selectedWorkshop.profileId)
+        formData.append('seller_id', noWorkshop ? superadminId : selectedWorkshop!.profileId)
         formData.append('position', String(i))
         formData.append('file', file)
         if (isVideo && thumbFile) {
@@ -233,7 +235,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
     }
   }
 
-  const step1Valid = !!selectedWorkshop
+  const step1Valid = noWorkshop || !!selectedWorkshop
   const step2Valid = title && submitMake && submitModel && year && style
 
   const steps = ['Werkstatt', 'Basis', 'Details', 'Fotos & Veröffentlichen']
@@ -275,8 +277,31 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
       {step === 1 && (
         <div className="flex flex-col gap-5 animate-fade-in">
           <div>
-            <label className={labelClass}>Werkstatt auswählen *</label>
-            <p className="text-xs text-[#222222]/30 mb-3">Das Bike wird dieser Werkstatt zugeordnet.</p>
+            <label className={labelClass}>Werkstatt auswählen</label>
+            <p className="text-xs text-[#222222]/30 mb-3">Ordne das Bike einer Werkstatt zu — oder erstelle es ohne Zuordnung.</p>
+
+            {/* No workshop option */}
+            <button
+              type="button"
+              onClick={() => { setNoWorkshop(true); setSelectedWorkshop(null) }}
+              className={`w-full text-left px-5 py-3.5 mb-3 flex items-center justify-between rounded-2xl border transition-all ${
+                noWorkshop
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'border-[#222222]/8 hover:border-[#222222]/15'
+              }`}
+            >
+              <div>
+                <p className={`text-sm font-medium ${noWorkshop ? 'text-amber-700' : 'text-[#222222]/60'}`}>
+                  Ohne Werkstatt erstellen
+                </p>
+                <p className="text-xs text-[#222222]/30 mt-0.5">Kann später zugeordnet werden</p>
+              </div>
+              {noWorkshop && (
+                <span className="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                  Gewählt
+                </span>
+              )}
+            </button>
 
             {/* Search */}
             <div className="relative mb-3">
@@ -298,7 +323,7 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
                   <button
                     key={w.profileId}
                     type="button"
-                    onClick={() => setSelectedWorkshop(w)}
+                    onClick={() => { setSelectedWorkshop(w); setNoWorkshop(false) }}
                     className={`w-full text-left px-5 py-3.5 flex items-center justify-between border-b border-[#222222]/5 last:border-0 transition-all ${
                       selectedWorkshop?.profileId === w.profileId
                         ? 'bg-[#06a5a5]/8'
@@ -339,15 +364,20 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
         <div className="flex flex-col gap-5 animate-fade-in">
 
           {/* Selected workshop badge */}
-          <div className="bg-[#06a5a5]/8 border border-[#06a5a5]/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
-            <p className="text-xs text-[#06a5a5] font-semibold">
-              Werkstatt: {selectedWorkshop?.name}
-              {selectedWorkshop?.city && <span className="font-normal text-[#06a5a5]/60"> · {selectedWorkshop.city}</span>}
-            </p>
-            <button onClick={() => setStep(1)} className="text-[10px] text-[#06a5a5]/60 hover:text-[#06a5a5] transition-colors">
-              Ändern
-            </button>
-          </div>
+          {noWorkshop ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center justify-between">
+              <p className="text-xs text-amber-700 font-semibold">Ohne Werkstatt — wird später zugeordnet</p>
+              <button onClick={() => setStep(1)} className="text-[10px] text-amber-500 hover:text-amber-700 transition-colors">Ändern</button>
+            </div>
+          ) : (
+            <div className="bg-[#06a5a5]/8 border border-[#06a5a5]/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
+              <p className="text-xs text-[#06a5a5] font-semibold">
+                Werkstatt: {selectedWorkshop?.name}
+                {selectedWorkshop?.city && <span className="font-normal text-[#06a5a5]/60"> · {selectedWorkshop.city}</span>}
+              </p>
+              <button onClick={() => setStep(1)} className="text-[10px] text-[#06a5a5]/60 hover:text-[#06a5a5] transition-colors">Ändern</button>
+            </div>
+          )}
 
           <div>
             <label className={labelClass}>Build-Titel *</label>
@@ -653,7 +683,9 @@ export default function AdminCreateBikeForm({ workshops }: Props) {
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Werkstatt</span>
-                <span className="text-[#06a5a5] font-medium">{selectedWorkshop?.name}</span>
+                <span className={`font-medium ${noWorkshop ? 'text-amber-600' : 'text-[#06a5a5]'}`}>
+                  {noWorkshop ? 'Ohne Werkstatt' : selectedWorkshop?.name}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#222222]/40">Titel</span>
