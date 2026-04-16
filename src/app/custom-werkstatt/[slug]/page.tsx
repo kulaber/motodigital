@@ -661,10 +661,10 @@ export default async function BuilderProfilePage({ params }: Props) {
                     name={builder.name}
                     address={builder.address}
                   />
-                  <div className="px-5 py-3 border-t border-[#EBEBEB]">
-                    <div className="flex items-start gap-2">
+                  <div className="px-5 py-3 border-t border-[#EBEBEB] flex items-center justify-between gap-3">
+                    <div className="flex items-start gap-2 min-w-0">
                       <MapPin size={12} className="text-[#717171] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#717171] leading-snug">
+                      <p className="text-xs text-[#717171] leading-snug truncate">
                         {builder.address ?? builder.city}
                       </p>
                     </div>

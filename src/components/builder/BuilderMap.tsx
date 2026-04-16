@@ -43,24 +43,21 @@ export default function BuilderMap({ lat, lng, name, address }: Props) {
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
 
-    // Custom marker element
+    // Custom marker element — MotoDigital logo pin (matches MiniMap style)
     const el = document.createElement('div')
     el.style.cssText = `
-      width: 36px; height: 36px;
-      background: var(--color-accent);
+      width: 40px; height: 40px;
+      background: #2AABAB;
       border: 3px solid #fff;
       border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(8,101,101,0.15), 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 0 0 3px rgba(42,171,171,0.15), 0 3px 8px rgba(0,0,0,0.2);
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     `
-    const inner = document.createElement('div')
-    inner.style.cssText = `
-      width: 8px; height: 8px;
-      background: #ffffff;
-      border-radius: 50%;
-    `
-    el.appendChild(inner)
+    const logo = document.createElement('img')
+    logo.src = '/pin-logo.svg'
+    logo.style.cssText = 'width: 18px; height: 18px; opacity: 0.9;'
+    el.appendChild(logo)
 
     new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat([lng, lat])

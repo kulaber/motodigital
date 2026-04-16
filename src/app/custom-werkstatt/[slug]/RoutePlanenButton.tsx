@@ -25,7 +25,7 @@ export default function RoutePlanenButton({ adresse, workshopId, builderId }: Pr
   return (
     <button
       onClick={handleClick}
-      className="md:hidden flex items-center gap-2 text-xs font-medium text-[#717171] hover:text-[#222222] border border-[#EBEBEB] hover:border-[#DDDDDD] px-3.5 py-2 rounded-full transition-colors mt-2"
+      className="flex items-center gap-2 text-xs font-semibold text-[#06a5a5] hover:text-[#058f8f] border border-[#06a5a5]/20 hover:border-[#06a5a5]/40 bg-[#06a5a5]/5 hover:bg-[#06a5a5]/10 px-3.5 py-2 rounded-full transition-colors flex-shrink-0 whitespace-nowrap"
     >
       <Navigation size={12} />
       Route planen
