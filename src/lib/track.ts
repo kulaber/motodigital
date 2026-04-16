@@ -11,20 +11,45 @@ type TrackEvent = {
   referrer?: string
 }
 
-/** Map document.referrer to known internal sources */
+/** Known external traffic sources — hostname substring → key */
+const EXTERNAL_SOURCES: [string, string][] = [
+  ['google.',    'google'],
+  ['instagram.', 'instagram'],
+  ['facebook.',  'facebook'],
+  ['fb.com',     'facebook'],
+  ['tiktok.',    'tiktok'],
+  ['youtube.',   'youtube'],
+  ['youtu.be',   'youtube'],
+  ['twitter.',   'twitter'],
+  ['x.com',      'twitter'],
+  ['pinterest.', 'pinterest'],
+  ['linkedin.',  'linkedin'],
+  ['t.co',       'twitter'],
+]
+
+/** Map document.referrer to internal or external source */
 function resolveReferrer(): string {
   if (typeof window === 'undefined') return 'direct'
   const ref = document.referrer
   if (!ref) return 'direct'
   try {
     const url = new URL(ref)
-    // Only map internal referrers
-    if (url.origin !== window.location.origin) return 'direct'
-    const path = url.pathname
-    if (path.startsWith('/custom-werkstatt')) return 'werkstattsuche'
-    if (path.startsWith('/explore')) return 'explore'
-    if (path.startsWith('/bikes') || path.startsWith('/custom-bike')) return 'bikes'
-    return 'direct'
+
+    // Internal referrer → map by path
+    if (url.origin === window.location.origin) {
+      const path = url.pathname
+      if (path.startsWith('/custom-werkstatt')) return 'werkstattsuche'
+      if (path.startsWith('/explore')) return 'explore'
+      if (path.startsWith('/bikes') || path.startsWith('/custom-bike')) return 'bikes'
+      return 'direct'
+    }
+
+    // External referrer → match known sources
+    const host = url.hostname.toLowerCase()
+    for (const [pattern, key] of EXTERNAL_SOURCES) {
+      if (host.includes(pattern)) return key
+    }
+    return 'external'
   } catch {
     return 'direct'
   }

@@ -248,6 +248,15 @@ export function FullDashboard({ events, bikes, tips }: Props) {
       werkstattsuche: 'Werkstattsuche',
       explore: 'Explore-Feed',
       bikes: 'Custom Bikes',
+      google: 'Google',
+      instagram: 'Instagram',
+      facebook: 'Facebook',
+      tiktok: 'TikTok',
+      youtube: 'YouTube',
+      twitter: 'X / Twitter',
+      pinterest: 'Pinterest',
+      linkedin: 'LinkedIn',
+      external: 'Andere Website',
       direct: 'Direkter Link',
     }
     return Array.from(map.entries())
