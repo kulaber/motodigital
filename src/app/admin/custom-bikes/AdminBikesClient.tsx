@@ -49,12 +49,12 @@ export default function AdminBikesClient({ bikes, workshops }: Props) {
   const [deleteBike, setDeleteBike] = useState<AdminBike | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  const unassignedCount = bikes.filter(b => b.sellerRole === 'superadmin' || !b.workshop_id && b.sellerRole !== 'rider').length
+  const unassignedCount = bikes.filter(b => b.sellerRole === 'superadmin').length
 
   const filtered = roleFilter === 'alle'
     ? bikes
     : roleFilter === 'unassigned'
-    ? bikes.filter(b => b.sellerRole === 'superadmin' || (!b.workshop_id && b.sellerRole !== 'rider'))
+    ? bikes.filter(b => b.sellerRole === 'superadmin')
     : bikes.filter(b => b.sellerRole === roleFilter)
 
   const filters: { value: RoleFilter; label: string; count?: number }[] = [
@@ -169,7 +169,7 @@ export default function AdminBikesClient({ bikes, workshops }: Props) {
             <tbody className="divide-y divide-[#222222]/5">
               {filtered.map(b => {
                 const status = STATUS_LABELS[b.status] ?? STATUS_LABELS.draft
-                const isUnassigned = b.sellerRole === 'superadmin' || (!b.workshop_id && b.sellerRole !== 'rider')
+                const isUnassigned = b.sellerRole === 'superadmin'
                 const roleLabel = isUnassigned ? 'Nicht zugeordnet' : b.sellerRole === 'custom-werkstatt' ? 'Werkstatt' : 'Rider'
                 const roleCls = isUnassigned
                   ? 'bg-amber-50 text-amber-600 border-amber-200'
