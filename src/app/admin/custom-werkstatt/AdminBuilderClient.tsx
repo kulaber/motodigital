@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X, Crown } from 'lucide-react'
+import { BadgeCheck, Mail, ExternalLink, Pencil, Bike, Trash2, Plus, UserPlus, X, Crown, XCircle, CheckCircle2 } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { resendInvitation } from '@/lib/actions/invite'
 
@@ -22,6 +22,7 @@ export type BuilderRow = {
   bikeCount: number
   is_unclaimed: boolean
   subscription_tier: string | null
+  subscription_cancel_at: string | null
 }
 
 interface Props {
@@ -154,6 +155,7 @@ export default function AdminBuilderClient({ builders }: Props) {
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Plan</th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">E-Mail</th>
                 <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Status</th>
+                <th className="text-center px-4 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest hidden md:table-cell">Abo</th>
                 <th className="text-right px-5 py-3.5 text-[10px] font-semibold text-[#222222]/30 uppercase tracking-widest">Aktionen</th>
               </tr>
             </thead>
@@ -210,6 +212,27 @@ export default function AdminBuilderClient({ builders }: Props) {
                       <span className="text-xs text-[#222222]/20">—</span>
                     )}
                   </td>
+                  <td className="px-4 py-3.5 hidden md:table-cell text-center">
+                    {(() => {
+                      const isPaid = b.subscription_tier === 'founding_partner' || b.subscription_tier === 'pro'
+                      if (!isPaid) return <span className="text-xs text-[#222222]/20">—</span>
+                      if (b.subscription_cancel_at) {
+                        const cancelDate = new Date(b.subscription_cancel_at)
+                        const formatted = cancelDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                        return (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-500 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                            <XCircle size={9} /> Gekündigt
+                            <span className="text-red-400 font-normal ml-0.5">bis {formatted}</span>
+                          </span>
+                        )
+                      }
+                      return (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                          <CheckCircle2 size={9} /> Aktiv
+                        </span>
+                      )
+                    })()}
+                  </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-2 flex-wrap">
                       {b.status === 'unclaimed' && (
@@ -264,7 +287,7 @@ export default function AdminBuilderClient({ builders }: Props) {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#222222]/25">
+                  <td colSpan={9} className="px-5 py-12 text-center text-sm text-[#222222]/25">
                     Keine Werkstätten gefunden
                   </td>
                 </tr>
