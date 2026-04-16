@@ -65,9 +65,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
     ...(role === 'rider'
       ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={15} /> }]
       : []),
-    ...(role !== 'superadmin'
-      ? [{ label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> }]
-      : []),
+    { label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> },
     ...(role === 'rider' || role === 'custom-werkstatt'
       ? [{ label: role === 'rider' ? 'Meine Garage' : 'Meine Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
       : []),

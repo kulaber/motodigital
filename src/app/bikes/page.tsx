@@ -58,6 +58,7 @@ export default async function BikesPage() {
       tagline:       '',
       style:         STYLE_LABELS[r.style] ?? r.style,
       base:          `${r.make} ${r.model}`,
+      make:          r.make,
       year:          r.year,
       price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',
       city:          sellerCity || r.city || '',

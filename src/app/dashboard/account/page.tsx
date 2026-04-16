@@ -16,9 +16,9 @@ export default async function AccountSettingsPage() {
   if (!user) redirect('/auth/login')
 
   const { data: profile } = await (supabase.from('profiles') as any)
-    .select('username, slug, avatar_url, bio, role')
+    .select('username, slug, avatar_url, bio, role, full_name')
     .eq('id', user.id)
-    .maybeSingle() as { data: { username: string | null; slug: string | null; avatar_url: string | null; bio: string | null; role: string | null } | null }
+    .maybeSingle() as { data: { username: string | null; slug: string | null; avatar_url: string | null; bio: string | null; role: string | null; full_name: string | null } | null }
 
   // Load workshop subscription data for werkstatt users
   let workshopSub: { subscription_tier: string; subscription_started_at: string | null; subscription_cancel_at: string | null; stripe_customer_id: string | null } | null = null
@@ -74,6 +74,7 @@ export default async function AccountSettingsPage() {
           currentUsername={profile?.username ?? ''}
           currentAvatarUrl={profile?.avatar_url ?? null}
           currentBio={profile?.bio ?? null}
+          currentFullName={profile?.full_name ?? null}
           role={profile?.role ?? null}
         />
 

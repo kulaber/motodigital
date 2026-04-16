@@ -106,6 +106,7 @@ export default async function BikeSlugPage({ params }: Props) {
         tagline:       '',
         style:         STYLE_LABELS[r.style] ?? r.style,
         base:          `${r.make} ${r.model}`,
+        make:          r.make,
         year:          r.year,
         price:         r.price ? `€ ${Number(r.price).toLocaleString('de-DE')}` : '',
         city:          r.city ?? '',

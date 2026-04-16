@@ -13,6 +13,7 @@ type Props = {
   currentUsername: string
   currentAvatarUrl: string | null
   currentBio: string | null
+  currentFullName: string | null
   role: string | null
 }
 
@@ -45,9 +46,10 @@ function SaveRow({ saving, saved, error, label = 'Speichern' }: { saving: boolea
   )
 }
 
-export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentAvatarUrl, currentBio, role }: Props) {
+export default function AccountSettingsForm({ userId, currentEmail, currentUsername, currentAvatarUrl, currentBio, currentFullName, role }: Props) {
   const isWerkstatt = role === 'custom-werkstatt'
   const isRider = role === 'rider'
+  const isSuperadmin = role === 'superadmin'
   const supabase = createClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -114,6 +116,23 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
     if (error) setBioError(error.message)
     else setBioSaved(true)
     setBioSaving(false)
+  }
+
+  // ── Full Name (Superadmin) ──
+  const [fullName, setFullName] = useState(currentFullName ?? '')
+  const [nameSaving, setNameSaving] = useState(false)
+  const [nameSaved, setNameSaved] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+
+  async function handleFullName(e: React.FormEvent) {
+    e.preventDefault()
+    setNameSaving(true); setNameError(null); setNameSaved(false)
+    const { error } = await (supabase.from('profiles') as any)
+      .update({ full_name: fullName.trim() || null })
+      .eq('id', userId)
+    if (error) setNameError(error.message)
+    else setNameSaved(true)
+    setNameSaving(false)
   }
 
   // ── Username ──
@@ -268,6 +287,24 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
               <p className="text-[10px] text-[#222222]/25 mt-1 text-right">{bio.length}/160</p>
             </Field>
             <SaveRow saving={bioSaving} saved={bioSaved} error={bioError} />
+          </div>
+        </form>
+      )}
+
+      {/* ── Name (Superadmin) ── */}
+      {isSuperadmin && (
+        <form onSubmit={handleFullName} className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
+          <h2 className="text-sm font-semibold text-[#222222] mb-5">Name</h2>
+          <div className="flex flex-col gap-4">
+            <Field label="Vollständiger Name">
+              <input
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                placeholder="Vor- und Nachname"
+                className={input}
+              />
+            </Field>
+            <SaveRow saving={nameSaving} saved={nameSaved} error={nameError} />
           </div>
         </form>
       )}

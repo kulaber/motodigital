@@ -4,6 +4,7 @@ export type Build = {
   tagline: string
   style: string
   base: string
+  make?: string
   year: number
   price: string
   city: string

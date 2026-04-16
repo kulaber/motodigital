@@ -14,7 +14,7 @@ function isNew(publishedAt?: string): boolean {
 import type { Build } from '@/lib/data/builds'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
-function getMake(base: string) { return base.split(' ')[0] }
+function getMake(b: Build) { return b.make || b.base.split(' ')[0] }
 function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
 
 interface Props {
@@ -76,14 +76,14 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
       (activeCountry === 'Alle' || b.country === activeCountry) &&
       (activeStyle === 'Alle' || b.style === activeStyle)
     )
-    const unique = Array.from(new Set(pool.map(b => getMake(b.base)))).sort()
+    const unique = Array.from(new Set(pool.map(b => getMake(b)))).sort()
     return ['Alle', ...unique]
   }, [searchFiltered, activeCountry, activeStyle])
 
   const models = useMemo(() => {
     if (activeMake === 'Alle') return []
     const pool = searchFiltered.filter(b =>
-      getMake(b.base) === activeMake &&
+      getMake(b) === activeMake &&
       (activeCountry === 'Alle' || b.country === activeCountry) &&
       (activeStyle === 'Alle' || b.style === activeStyle)
     )
@@ -95,7 +95,7 @@ export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn 
     const result = searchFiltered.filter(b => {
       const styleMatch   = activeStyle === 'Alle' || b.style === activeStyle
       const countryMatch = activeCountry === 'Alle' || b.country === activeCountry
-      const makeMatch    = activeMake === 'Alle' || getMake(b.base) === activeMake
+      const makeMatch    = activeMake === 'Alle' || getMake(b) === activeMake
       const modelMatch   = activeModel === 'Alle' || getModel(b.base) === activeModel
       const listingMatch = activeListing === 'Alle' || b.listingType === activeListing
       return styleMatch && countryMatch && makeMatch && modelMatch && listingMatch

@@ -222,7 +222,11 @@ export default function Header({ activePage }: Props) {
                         </p>
                         <Link href="/admin/custom-werkstatt" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                          <Users size={14} /> Custom Werkstätte
+                          <Users size={14} /> Werkstätten
+                        </Link>
+                        <Link href="/admin/custom-bikes" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
+                          <Bike size={14} /> Custom Bikes
                         </Link>
                         <Link href="/admin/riders" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
