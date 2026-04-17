@@ -59,6 +59,7 @@ export const MAKES: Make[] = [
   { id: 'bmw',            name: 'BMW Motorrad',    country: 'DE' },
   { id: 'triumph',        name: 'Triumph',         country: 'GB' },
   { id: 'harley',         name: 'Harley-Davidson', country: 'US' },
+  { id: 'buell',          name: 'Buell',           country: 'US' },
   { id: 'ducati',         name: 'Ducati',          country: 'IT' },
   { id: 'ktm',            name: 'KTM',             country: 'AT' },
   { id: 'royal-enfield',  name: 'Royal Enfield',   country: 'IN' },
@@ -396,6 +397,17 @@ export const MODELS: MotorcycleModel[] = [
       { displacement: 1783, name: 'M109R', engine: 'Zweizylinder V', power: '123 PS', torque: '160 Nm' },
     ],
   },
+  {
+    id: 'suzuki-savage',
+    makeId: 'suzuki',
+    name: 'Savage / Boulevard S40',
+    yearFrom: 1986, yearTo: 2019,
+    categories: ['Cruiser', 'Bobber', 'Cafe Racer', 'Tracker'],
+    variants: [
+      { displacement: 652, name: 'LS650 Savage', engine: 'Einzylinder', power: '31 PS', torque: '50 Nm' },
+      { displacement: 652, name: 'Boulevard S40 (2005+)', engine: 'Einzylinder', power: '31 PS', torque: '50 Nm' },
+    ],
+  },
 
   // ── BMW ──────────────────────────────────
   {
@@ -631,6 +643,7 @@ export const MODELS: MotorcycleModel[] = [
     yearFrom: 1993,
     categories: ['Naked', 'Cafe Racer'],
     variants: [
+      { displacement: 583, name: 'Monster 600', engine: 'Zweizylinder V', power: '53 PS', torque: '52 Nm' },
       { displacement: 620, name: 'Monster 620', engine: 'Zweizylinder V', power: '62 PS', torque: '56 Nm' },
       { displacement: 796, name: 'Monster 796', engine: 'Zweizylinder V', power: '87 PS', torque: '78 Nm' },
       { displacement: 900, name: 'Monster 900', engine: 'Zweizylinder V', power: '73 PS', torque: '78 Nm' },
@@ -724,6 +737,25 @@ export const MODELS: MotorcycleModel[] = [
     variants: [{ displacement: 853, engine: 'Zweizylinder V', power: '55 PS', torque: '68 Nm' }],
   },
   {
+    id: 'moto-guzzi-v50',
+    makeId: 'moto-guzzi',
+    name: 'V50',
+    yearFrom: 1977, yearTo: 1985,
+    categories: ['Cafe Racer', 'Retro', 'Naked'],
+    variants: [
+      { displacement: 490, name: 'V50 I/II', engine: 'Zweizylinder V', power: '45 PS', torque: '40 Nm' },
+      { displacement: 490, name: 'V50 III / Monza', engine: 'Zweizylinder V', power: '48 PS', torque: '42 Nm' },
+    ],
+  },
+  {
+    id: 'moto-guzzi-v11',
+    makeId: 'moto-guzzi',
+    name: 'V11',
+    yearFrom: 1999, yearTo: 2005,
+    categories: ['Cafe Racer', 'Naked', 'Sport'],
+    variants: [{ displacement: 1064, engine: 'Zweizylinder V', power: '91 PS', torque: '94 Nm' }],
+  },
+  {
     id: 'moto-guzzi-le-mans',
     makeId: 'moto-guzzi',
     name: 'Le Mans',
@@ -813,6 +845,27 @@ export const MODELS: MotorcycleModel[] = [
     yearFrom: 1950, yearTo: 1963,
     categories: ['Cafe Racer', 'Bobber'],
     variants: [{ displacement: 646, engine: 'Zweizylinder parallel', power: '34 PS', torque: '48 Nm' }],
+  },
+
+  // ── BUELL ────────────────────────────────
+  {
+    id: 'buell-s1',
+    makeId: 'buell',
+    name: 'S1 Lightning',
+    yearFrom: 1996, yearTo: 1998,
+    categories: ['Naked', 'Cafe Racer', 'Sport'],
+    variants: [{ displacement: 1203, engine: 'Zweizylinder V', power: '91 PS', torque: '109 Nm' }],
+  },
+  {
+    id: 'buell-xb',
+    makeId: 'buell',
+    name: 'XB9 / XB12',
+    yearFrom: 2002, yearTo: 2010,
+    categories: ['Naked', 'Sport', 'Cafe Racer'],
+    variants: [
+      { displacement: 984, name: 'XB9 (Lightning / Firebolt)', engine: 'Zweizylinder V', power: '92 PS', torque: '92 Nm' },
+      { displacement: 1203, name: 'XB12 (Lightning / Firebolt)', engine: 'Zweizylinder V', power: '103 PS', torque: '115 Nm' },
+    ],
   },
 ]
 
