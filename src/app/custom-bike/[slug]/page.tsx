@@ -16,6 +16,7 @@ import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import BikeCTA from './BikeCTA'
 import BikeTracker from './BikeTracker'
+import ExpandableContent from './ExpandableContent'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -205,23 +206,27 @@ export default async function CustomBikePage({ params }: Props) {
               {bike.description && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Über dieses Bike</h2>
-                  <p className="text-sm text-[#717171] leading-relaxed whitespace-pre-line">{bike.description}</p>
+                  <ExpandableContent collapsedMaxHeight={200}>
+                    <p className="text-sm text-[#717171] leading-relaxed whitespace-pre-line">{bike.description}</p>
+                  </ExpandableContent>
                 </div>
               )}
 
               {bike.modifications?.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6">
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Umbauten & Modifikationen</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {bike.modifications.map((mod: string, i: number) => (
-                      <div key={i} className="flex items-start gap-2.5 bg-[#F7F7F7] rounded-xl px-4 py-3">
-                        <span className="text-[#06a5a5] mt-0.5 flex-shrink-0">
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </span>
-                        <span className="text-xs text-[#444] leading-snug">{mod}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <ExpandableContent collapsedMaxHeight={240}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {bike.modifications.map((mod: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2.5 bg-[#F7F7F7] rounded-xl px-4 py-3">
+                          <span className="text-[#06a5a5] mt-0.5 flex-shrink-0">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </span>
+                          <span className="text-xs text-[#444] leading-snug">{mod}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </ExpandableContent>
                 </div>
               )}
 
