@@ -415,14 +415,26 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
               href={`/events/${ev.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#222222]/6 hover:border-[#06a5a5]/30 hover:bg-[#06a5a5]/3 transition-all group"
+              className="flex items-center gap-3 p-2.5 rounded-xl border border-[#222222]/6 hover:border-[#06a5a5]/30 hover:bg-[#06a5a5]/3 transition-all group"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
-                <Calendar size={14} className="text-[#06a5a5]" />
-              </div>
+              {ev.image ? (
+                <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-[#222222]/5">
+                  <Image
+                    src={ev.image}
+                    alt={ev.name}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-lg bg-[#06a5a5]/10 flex items-center justify-center flex-shrink-0">
+                  <Calendar size={20} className="text-[#06a5a5]" />
+                </div>
+              )}
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-[#222222] truncate leading-tight group-hover:text-[#06a5a5] transition-colors">{ev.name}</p>
-                <p className="text-[10px] text-[#717171] truncate">{formatEventDate(ev)} · {ev.location}</p>
+                <p className="text-sm font-semibold text-[#222222] truncate leading-tight group-hover:text-[#06a5a5] transition-colors">{ev.name}</p>
+                <p className="text-[11px] text-[#717171] truncate mt-1">{formatEventDate(ev)} · {ev.location}</p>
               </div>
               <ExternalLink size={12} className="text-[#222222]/20 group-hover:text-[#06a5a5] transition-colors flex-shrink-0" />
             </a>
