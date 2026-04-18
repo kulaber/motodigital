@@ -109,7 +109,7 @@ export default function DatenschutzPage() {
               </p>
               <p>
                 Joe Mel Ramos / MotoDigital<br />
-                Stadtheiderstraße 66<br />
+                Stadtheider Straße 66<br />
                 33609 Bielefeld<br />
                 Deutschland
               </p>

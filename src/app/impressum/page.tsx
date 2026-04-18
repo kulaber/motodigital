@@ -25,7 +25,7 @@ export default function ImpressumPage() {
               <h2>Angaben gemäß § 5 TMG</h2>
               <p>
                 Joe Mel Ramos / MotoDigital<br />
-                Stadtheiderstraße 66<br />
+                Stadtheider Straße 66<br />
                 33609 Bielefeld<br />
                 Deutschland
               </p>
@@ -42,7 +42,7 @@ export default function ImpressumPage() {
               <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
               <p>
                 Joe Mel Ramos<br />
-                Stadtheiderstraße 66, 33609 Bielefeld
+                Stadtheider Straße 66, 33609 Bielefeld
               </p>
             </section>
 
