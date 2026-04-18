@@ -220,17 +220,6 @@ export default async function EventDetailPage({ params }: Props) {
                 <p className="text-base text-[#222222]/70 leading-relaxed max-w-[68ch]">
                   {event.description}
                 </p>
-
-                {event.url && (
-                  <a
-                    href={event.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 mt-6 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-3 rounded-full hover:bg-[#058f8f] transition-colors"
-                  >
-                    Offizielle Website →
-                  </a>
-                )}
               </div>
 
               {/* Gallery */}
