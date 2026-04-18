@@ -67,6 +67,11 @@ const nextConfig: NextConfig = {
         hostname: 'www.wwag.com',
         pathname: '/step3/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.custombike-show.de',
+        pathname: '/wp-content/**',
+      },
     ],
   },
 }
