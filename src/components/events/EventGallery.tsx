@@ -138,7 +138,7 @@ export default function EventGallery({ images, title }: Props) {
         >
           {/* Header */}
           <div className="flex-shrink-0 bg-white border-b border-[#EBEBEB]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+            <div className="px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
               <button
                 onClick={closeLightbox}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F0F0] text-[#222222] hover:bg-[#E5E5E5] transition-all"
@@ -153,7 +153,7 @@ export default function EventGallery({ images, title }: Props) {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-1 max-w-7xl mx-auto p-1">
+            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-1 p-1">
               {images.map((img, i) => (
                 <div
                   key={img}

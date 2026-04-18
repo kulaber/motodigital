@@ -37,6 +37,7 @@ interface BuilderRow {
   specialty: string | null
   slug: string
   avatar_url: string | null
+  workshops: { cover_image_url: string | null }[] | null
 }
 
 // ---------------------------------------------------------------------------
@@ -122,20 +123,20 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
           .order('created_at', { ascending: false })
           .limit(20),
         (supabase.from('profiles') as ReturnType<typeof supabase.from>)
-          .select('id, full_name, city, specialty, slug, avatar_url')
+          .select('id, full_name, city, specialty, slug, avatar_url, workshops(cover_image_url)')
           .eq('role', 'custom-werkstatt')
           .not('slug', 'is', null)
           .order('created_at', { ascending: false })
           .limit(20),
         (supabase.from('events') as any)
-          .select('id, slug, name, date_start, date_end, location')
+          .select('id, slug, name, date_start, date_end, location, image')
           .order('date_start', { ascending: true })
           .limit(20),
       ])
 
       const bikeRows = (bikeRes.data ?? []) as unknown as BikeRow[]
       const builderRows = (builderRes.data ?? []) as unknown as BuilderRow[]
-      const eventRows = (eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string }[]
+      const eventRows = (eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string; image: string | null }[]
 
       const pick = <T,>(arr: T[]): T[] => {
         if (arr.length === 0) return []
@@ -162,13 +163,14 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
         id: w.id, type: 'workshop' as const, title: w.full_name ?? 'Unbekannt',
         subtitle: [w.specialty, w.city].filter(Boolean).join(' · '),
         href: `/custom-werkstatt/${w.slug}`,
-        imageUrl: w.avatar_url || undefined,
+        imageUrl: w.workshops?.[0]?.cover_image_url || w.avatar_url || undefined,
       }))
 
       const sugEvents: SearchResultItem[] = pickedEvent.map((e) => ({
         id: e.id, type: 'event' as const, title: e.name,
         subtitle: `${formatEventDate(e)} · ${e.location}`,
         href: `/events/${e.slug}`,
+        imageUrl: e.image || undefined,
       }))
 
       setSuggestions({ bikes: sugBikes, workshops: sugWorkshops, events: sugEvents })
@@ -208,7 +210,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
 
           // Builders / workshops (profiles with role custom-werkstatt)
           (supabase.from('profiles') as ReturnType<typeof supabase.from>)
-            .select('id, full_name, city, specialty, slug, avatar_url')
+            .select('id, full_name, city, specialty, slug, avatar_url, workshops(cover_image_url)')
             .eq('role', 'custom-werkstatt')
             .not('slug', 'is', null)
             .or(`full_name.ilike.${pattern},city.ilike.${pattern},specialty.ilike.${pattern}`)
@@ -217,7 +219,7 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
 
           // Events
           (supabase.from('events') as any)
-            .select('id, slug, name, date_start, date_end, location')
+            .select('id, slug, name, date_start, date_end, location, image')
             .or(`name.ilike.${pattern},location.ilike.${pattern}`)
             .order('date_start', { ascending: true })
             .limit(3),
@@ -245,17 +247,18 @@ export default function GlobalSearch({ dropUp = false }: { dropUp?: boolean }) {
           title: w.full_name ?? 'Unbekannt',
           subtitle: [w.specialty, w.city].filter(Boolean).join(' · '),
           href: `/custom-werkstatt/${w.slug}`,
-          imageUrl: w.avatar_url || undefined,
+          imageUrl: w.workshops?.[0]?.cover_image_url || w.avatar_url || undefined,
         }))
 
         // Map events from Supabase
-        const eventItems: SearchResultItem[] = ((eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string }[])
+        const eventItems: SearchResultItem[] = ((eventRes.data ?? []) as unknown as { id: string; slug: string; name: string; date_start: string | null; date_end: string | null; location: string; image: string | null }[])
           .map((e) => ({
             id: e.id,
             type: 'event' as const,
             title: e.name,
             subtitle: `${formatEventDate(e)} · ${e.location}`,
             href: `/events/${e.slug}`,
+            imageUrl: e.image || undefined,
           }))
 
         setBikes(bikeItems)
