@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Shield, Plus, Pencil, ExternalLink, MapPin, Calendar } from 'lucide-react'
 import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
+import DeleteEventButton from './DeleteEventButton'
 
 export const metadata: Metadata = { title: 'Admin — Events' }
 
@@ -46,11 +47,10 @@ export default async function AdminEventsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {[
             { label: 'Events gesamt',    value: events.length },
             { label: 'Standorte',        value: uniqueLocations },
-            { label: 'Mit URL',          value: events.filter(e => e.url).length },
           ].map(s => (
             <div key={s.label} className="bg-white border border-[#222222]/6 rounded-2xl p-4">
               <p className="text-2xl font-bold text-[#222222]">{s.value}</p>
@@ -107,6 +107,7 @@ export default async function AdminEventsPage() {
                           className="inline-flex items-center gap-1 text-xs text-white bg-[#06a5a5] hover:bg-[#058f8f] px-3 py-1.5 rounded-full transition-all font-semibold whitespace-nowrap">
                           <Pencil size={10} /> Bearbeiten
                         </Link>
+                        <DeleteEventButton id={event.id} name={event.name} />
                       </div>
                     </td>
                   </tr>
