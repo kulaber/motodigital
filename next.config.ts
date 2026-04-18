@@ -62,6 +62,11 @@ const nextConfig: NextConfig = {
         hostname: 'koelnmesse.omn-cloud.com',
         pathname: '/servlet/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.wwag.com',
+        pathname: '/step3/**',
+      },
     ],
   },
 }
