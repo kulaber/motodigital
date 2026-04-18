@@ -21,7 +21,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
   const { data } = await (supabase.from('events') as any)
-    .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
+    .select('id, slug, name, date_start, date_end, location, description, tags, url, image, gallery_images, videos')
     .eq('id', id)
     .maybeSingle()
 

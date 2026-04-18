@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -160,8 +161,8 @@ export default function EventInterestButton({ eventSlug, eventName, userId, side
         triggerContext="event_interest"
       />
 
-      {/* Share-to-Community Modal */}
-      {showShareModal && (
+      {/* Share-to-Community Modal — portal so it escapes any sticky/transformed parent */}
+      {showShareModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col items-center gap-5">
@@ -219,7 +220,8 @@ export default function EventInterestButton({ eventSlug, eventName, userId, side
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

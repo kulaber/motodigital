@@ -8,12 +8,18 @@ import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import DatePicker from '@/components/ui/DatePicker'
 
+function getTodayLocal(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 export default function EventsClient({ events }: { events: Event[] }) {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [filterLocation, setFilterLocation] = useState('')
 
-  // Unique locations for dropdown
+  const today = useMemo(() => getTodayLocal(), [])
+
   const locations = useMemo(() => {
     const set = new Set(events.map(e => e.location).filter(Boolean))
     return Array.from(set).sort()
@@ -21,26 +27,37 @@ export default function EventsClient({ events }: { events: Event[] }) {
 
   const filtered = useMemo(() => {
     return events.filter(e => {
-      // Date filter
       if (filterFrom || filterTo) {
         const start = e.date_start ?? ''
         const end = e.date_end ?? e.date_start ?? ''
         if (filterFrom && end < filterFrom) return false
         if (filterTo && start > filterTo) return false
       }
-      // Location filter
       if (filterLocation && e.location !== filterLocation) return false
       return true
     })
   }, [events, filterFrom, filterTo, filterLocation])
+
+  const { upcoming, past } = useMemo(() => {
+    const upcoming: Event[] = []
+    const past: Event[] = []
+    filtered.forEach(e => {
+      const end = e.date_end ?? e.date_start ?? ''
+      if (end && end < today) past.push(e)
+      else upcoming.push(e)
+    })
+    upcoming.sort((a, b) => (a.date_start ?? '').localeCompare(b.date_start ?? ''))
+    past.sort((a, b) => (b.date_start ?? '').localeCompare(a.date_start ?? ''))
+    return { upcoming, past }
+  }, [filtered, today])
 
   const hasFilter = filterFrom || filterTo || filterLocation
 
   return (
     <>
       {/* Filter bar */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8 mb-8">
-        <div className="flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 mb-8">
+        <div className="flex items-center gap-2 flex-wrap">
           <DatePicker
             value={filterFrom}
             onChange={(d) => {
@@ -58,7 +75,6 @@ export default function EventsClient({ events }: { events: Event[] }) {
             compact
           />
 
-          {/* Standort — bikes-style overlay select */}
           <div className={`relative flex-shrink-0 h-8 rounded-full border cursor-pointer ${
             filterLocation ? 'bg-[#222222]/8 border-[#222222]/25' : 'bg-white border-[#d4d4d4] hover:border-[#999]'
           }`}>
@@ -78,7 +94,6 @@ export default function EventsClient({ events }: { events: Event[] }) {
             </select>
           </div>
 
-          {/* Reset */}
           {hasFilter && (
             <button
               onClick={() => { setFilterFrom(''); setFilterTo(''); setFilterLocation('') }}
@@ -97,66 +112,123 @@ export default function EventsClient({ events }: { events: Event[] }) {
         </div>
       </div>
 
-      {/* Events list */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
-        {filtered.length === 0 ? (
+      {/* Masonry grids */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+        {upcoming.length === 0 && past.length === 0 ? (
           <div className="text-center py-16 border border-dashed border-[#222222]/10 rounded-2xl">
             <p className="text-sm text-[#222222]/30">Keine Events in diesem Zeitraum.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            {filtered.map(event => (
-              <Link
-                key={event.id}
-                href={`/events/${event.slug}`}
-                className="group bg-white border border-[#222222]/6 hover:border-[#DDDDDD]/20 rounded-2xl overflow-hidden transition-all duration-200 block"
-              >
-                <div className="flex flex-col sm:flex-row">
-                  {event.image && (
-                    <div className="relative w-full sm:w-48 md:w-56 h-40 sm:h-auto flex-shrink-0">
-                      <Image
-                        src={event.image}
-                        alt={event.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, 224px"
-                      />
-                    </div>
-                  )}
+          <>
+            {upcoming.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {upcoming.map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
 
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 flex-1 p-6">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
-                        {event.tags.map(tag => (
-                          <span key={tag} className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#222222]/5 text-[#222222]/40 border border-[#222222]/8">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <h2 className="text-lg font-bold text-[#222222] mb-2">{event.name}</h2>
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <span className="inline-flex items-center gap-1.5 bg-[#06a5a5]/8 border border-[#06a5a5]/15 text-[#06a5a5] font-semibold text-xs px-3 py-1 rounded-full">
-                          <Calendar size={12} /> {formatEventDate(event)}
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs text-[#222222]/40">
-                          <MapPin size={12} /> {event.location}
-                        </span>
-                      </div>
-                      <p className="text-sm text-[#222222]/45 leading-relaxed max-w-2xl line-clamp-2">{event.description}</p>
-                    </div>
-
-                    <div className="flex-shrink-0">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#717171] border border-[#DDDDDD]/25 group-hover:border-[#DDDDDD]/60 group-hover:bg-[#222222]/5 px-4 py-2.5 rounded-full transition-all whitespace-nowrap">
-                        Mehr Info →
-                      </span>
-                    </div>
-                  </div>
+            {past.length > 0 && (
+              <div className={upcoming.length > 0 ? 'mt-20' : ''}>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#222222]" style={{ letterSpacing: '-0.02em' }}>
+                    Vergangene Events
+                  </h2>
+                  <span className="text-sm text-[#717171]">{past.length}</span>
                 </div>
-              </Link>
-            ))}
-          </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {past.map(event => (
+                    <EventCard key={event.id} event={event} isPast />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
+  )
+}
+
+function EventCard({
+  event,
+  isPast = false,
+}: {
+  event: Event
+  isPast?: boolean
+}) {
+  return (
+    <Link
+      href={`/events/${event.slug}`}
+      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-[#222222]/6 hover:border-[#222222]/15 hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)] transition-all duration-300"
+    >
+      {event.image && (
+        <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#F0F0F0]">
+          <Image
+            src={event.image}
+            alt={event.name}
+            fill
+            className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${
+              isPast ? 'grayscale opacity-70' : ''
+            }`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+
+          {/* Top + bottom gradients for legibility of overlays */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
+
+          {/* Top-left: tags or "Vergangen" */}
+          {isPast ? (
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-black/75 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full">
+              Vergangen
+            </div>
+          ) : (
+            event.tags.length > 0 && (
+              <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
+                {event.tags.slice(0, 2).map(tag => (
+                  <span
+                    key={tag}
+                    className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-[#222222]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* Bottom-left: date pill (always on image for consistent card body) */}
+          <div className="absolute bottom-3 left-3">
+            <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm">
+              <Calendar size={11} className={isPast ? 'text-[#222222]/50' : 'text-[#06a5a5]'} />
+              {formatEventDate(event)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col flex-1 p-5">
+        <h3
+          className={`text-base sm:text-lg font-bold mb-1.5 leading-snug ${
+            isPast ? 'text-[#222222]/55' : 'text-[#222222]'
+          }`}
+          style={{ letterSpacing: '-0.01em' }}
+        >
+          {event.name}
+        </h3>
+        <div className={`flex items-center gap-1 text-xs mb-3 ${isPast ? 'text-[#222222]/35' : 'text-[#222222]/50'}`}>
+          <MapPin size={11} className="flex-shrink-0" />
+          <span className="truncate">{event.location}</span>
+        </div>
+        <p
+          className={`text-sm leading-relaxed line-clamp-2 ${
+            isPast ? 'text-[#222222]/35' : 'text-[#222222]/55'
+          }`}
+        >
+          {event.description}
+        </p>
+      </div>
+    </Link>
   )
 }

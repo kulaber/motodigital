@@ -10,6 +10,8 @@ import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import EventInterestButton from './EventInterestButton'
 import EventLocationMap from './EventLocationMap'
+import EventGallery from '@/components/events/EventGallery'
+import EventVideos from '@/components/events/EventVideos'
 
 export const revalidate = 3600 // ISR: event details change infrequently
 
@@ -48,14 +50,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+function getTodayLocal(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params
   const supabase = await createClient()
 
-  const { data } = await (supabase.from('events') as any)
-    .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
+  // Try with new columns first; fall back if migration 064 hasn't run yet
+  let { data, error } = await (supabase.from('events') as any)
+    .select('id, slug, name, date_start, date_end, location, description, tags, url, image, gallery_images, videos')
     .eq('slug', slug)
     .maybeSingle()
+
+  if (error) {
+    const fallback = await (supabase.from('events') as any)
+      .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
+      .eq('slug', slug)
+      .maybeSingle()
+    data = fallback.data
+  }
 
   const event = data as Event | null
   if (!event) notFound()
@@ -64,22 +80,30 @@ export default async function EventDetailPage({ params }: Props) {
   const dateStr = formatEventDate(event)
   const coords = event.location ? await geocode(event.location) : null
 
+  const today = getTodayLocal()
+  const endDate = event.date_end ?? event.date_start ?? ''
+  const isPast = !!endDate && endDate < today
+
+  const galleryImages = event.gallery_images ?? []
+  const videos = event.videos ?? []
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="events" />
 
-      {/* Hero Image */}
+      {/* Hero Image — taller, more prominent */}
       {event.image ? (
-        <div className="relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
+        <div className="relative w-full h-[68vh] min-h-[440px] max-h-[680px] overflow-hidden">
           <Image
             src={event.image}
             alt={event.name}
             fill
             priority
-            className="object-cover"
+            className={`object-cover ${isPast ? 'grayscale opacity-80' : ''}`}
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+          {/* Stronger bottom gradient for legibility on tall hero */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/15" />
 
           {/* Mobile: Back button */}
           <div className="sm:hidden absolute top-0 left-0 right-0 z-10 pt-4 px-4">
@@ -91,34 +115,39 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
 
           {/* Desktop: Back link */}
-          <div className="hidden sm:block absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
-            <div className="max-w-3xl mx-auto">
+          <div className="hidden sm:block absolute top-0 left-0 right-0 pt-5 px-4 sm:px-5 lg:px-8 z-10">
+            <div className="max-w-6xl mx-auto">
               <Link href="/events"
-                className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
+                className="inline-flex items-center gap-1.5 text-xs text-white/70 hover:text-white transition-colors">
                 <ArrowLeft size={13} /> Alle Events
               </Link>
             </div>
           </div>
 
           {/* Bottom: Event title overlay */}
-          <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-8 sm:pb-12">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {isPast && (
+                  <span className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/15 text-white/90 border border-white/20">
+                    Vergangen
+                  </span>
+                )}
                 {event.tags.map(tag => (
                   <span key={tag} className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/15 text-white/80 border border-white/20">
                     {tag}
                   </span>
                 ))}
               </div>
-              <h1 className="font-bold text-white leading-tight" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', letterSpacing: '-0.03em' }}>
+              <h1 className="font-bold text-white leading-[1.05] mb-5" style={{ fontSize: 'clamp(2.25rem, 6vw, 4.5rem)', letterSpacing: '-0.035em' }}>
                 {event.name}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 mt-4">
-                <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white font-semibold text-sm px-4 py-2 rounded-full">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white font-semibold text-sm px-4 py-2 rounded-full">
                   <Calendar size={14} /> {dateStr}
                 </span>
-                <span className="flex items-center gap-2 text-sm text-white/75">
-                  <MapPin size={15} /> {event.location}
+                <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white font-semibold text-sm px-4 py-2 rounded-full">
+                  <MapPin size={14} /> {event.location}
                 </span>
               </div>
             </div>
@@ -128,7 +157,14 @@ export default async function EventDetailPage({ params }: Props) {
         <div className="pt-28" />
       )}
 
-      <section className="pt-10 pb-20">
+      {/* Mobile-only: Participants + Teilnehmen-Button directly under hero */}
+      <section className="lg:hidden px-4 sm:px-5 pt-6">
+        <div className="max-w-6xl mx-auto">
+          <EventInterestButton eventSlug={event.slug} eventName={event.name} userId={user?.id ?? null} sidebar />
+        </div>
+      </section>
+
+      <section className="pt-12 sm:pt-10 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-5 lg:px-8">
 
           {/* Back (only when no hero image) */}
@@ -145,6 +181,11 @@ export default async function EventDetailPage({ params }: Props) {
           {!event.image && (
             <>
               <div className="flex flex-wrap items-center gap-2 mb-4">
+                {isPast && (
+                  <span className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#222222]/5 text-[#222222]/55 border border-[#222222]/10">
+                    Vergangen
+                  </span>
+                )}
                 {event.tags.map(tag => (
                   <span key={tag} className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#222222]/5 text-[#222222]/40 border border-[#222222]/8">
                     {tag}
@@ -166,53 +207,74 @@ export default async function EventDetailPage({ params }: Props) {
           )}
 
           {/* Two-column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 lg:gap-12 items-start">
 
-            {/* Left: Description + Link + Map */}
-            <div>
-              <div className="prose prose-sm max-w-none">
-                <p className="text-base text-[#222222]/70 leading-relaxed">
+            {/* Left: Description, Gallery, Videos, Map */}
+            <div className="min-w-0 space-y-14">
+
+              {/* Intro */}
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-[#222222] mb-4" style={{ letterSpacing: '-0.02em' }}>
+                  Über das Event
+                </h2>
+                <p className="text-base text-[#222222]/70 leading-relaxed max-w-[68ch]">
                   {event.description}
                 </p>
+
+                {event.url && (
+                  <a
+                    href={event.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 mt-6 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-3 rounded-full hover:bg-[#058f8f] transition-colors"
+                  >
+                    Offizielle Website →
+                  </a>
+                )}
               </div>
 
-              {event.url && (
-                <a
-                  href={event.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-8 bg-[#06a5a5] text-white text-sm font-semibold px-6 py-3 rounded-full hover:bg-[#058f8f] transition-colors"
-                >
-                  Offizielle Website →
-                </a>
+              {/* Gallery */}
+              {galleryImages.length > 0 && (
+                <div>
+                  <EventGallery images={galleryImages} title={event.name} />
+                </div>
+              )}
+
+              {/* Videos */}
+              {videos.length > 0 && (
+                <div>
+                  <EventVideos videos={videos} title={event.name} />
+                </div>
               )}
 
               {/* Location map */}
               {coords && (
-                <div className="mt-6 bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
-                  <div className="px-5 pt-4 pb-3 flex items-start justify-between">
+                <div>
+                  <div className="flex items-end justify-between gap-4 mb-5">
                     <div>
-                      <h3 className="text-xs font-bold uppercase tracking-widest text-[#222222]/30 flex items-center gap-1.5">
-                        <MapPin size={11} className="text-[#06a5a5]" /> Standort
-                      </h3>
-                      <p className="text-sm text-[#222222]/60 mt-1">{event.location}</p>
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#222222]" style={{ letterSpacing: '-0.02em' }}>
+                        Location
+                      </h2>
+                      <p className="text-sm text-[#717171] mt-1">{event.location}</p>
                     </div>
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] hover:text-[#058f8f] border border-[#06a5a5]/20 hover:border-[#06a5a5]/40 px-3 py-1.5 rounded-full transition-all flex-shrink-0"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] hover:text-[#058f8f] border border-[#06a5a5]/20 hover:border-[#06a5a5]/40 px-3.5 py-2 rounded-full transition-all flex-shrink-0"
                     >
                       <Navigation size={11} /> Route planen
                     </a>
                   </div>
-                  <EventLocationMap lat={coords.lat} lng={coords.lng} locationName={event.location} />
+                  <div className="bg-white border border-[#222222]/6 rounded-2xl overflow-hidden">
+                    <EventLocationMap lat={coords.lat} lng={coords.lng} locationName={event.location} />
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Right: Participants (sticky) */}
-            <div className="lg:sticky lg:top-24">
+            {/* Right: Participants (sticky) — desktop only, mobile version is above the content */}
+            <div className="hidden lg:block lg:sticky lg:top-24">
               <EventInterestButton eventSlug={event.slug} eventName={event.name} userId={user?.id ?? null} sidebar />
             </div>
           </div>

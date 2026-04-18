@@ -41,6 +41,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api.dicebear.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'wheels-and-waves.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'badandbold.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bikebound.com',
+      },
     ],
   },
 }

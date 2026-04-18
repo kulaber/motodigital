@@ -3,9 +3,9 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Upload, X, Loader2, Trash2, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Upload, X, Loader2, Trash2, ExternalLink, Plus, ArrowUp, ArrowDown, Play } from 'lucide-react'
 import type { Event } from '@/lib/data/events'
-import { formatEventDate } from '@/lib/data/events'
+import { formatEventDate, youtubeId } from '@/lib/data/events'
 import { saveEvent, uploadEventImage } from './actions'
 import { compressImage } from '@/lib/utils/compressImage'
 import DatePicker from '@/components/ui/DatePicker'
@@ -25,10 +25,16 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
   const [tags, setTags]               = useState(initialEvent?.tags.join(', ') ?? '')
   const [url, setUrl]                 = useState(initialEvent?.url ?? '')
   const [image, setImage]             = useState(initialEvent?.image ?? '')
+  const [galleryImages, setGalleryImages] = useState<string[]>(initialEvent?.gallery_images ?? [])
+  const [videos, setVideos]           = useState<string[]>(initialEvent?.videos ?? [])
+  const [newVideoUrl, setNewVideoUrl] = useState('')
+  const [videoError, setVideoError]   = useState<string | null>(null)
   const [saving, setSaving]           = useState(false)
   const [uploading, setUploading]     = useState(false)
+  const [galleryUploading, setGalleryUploading] = useState(false)
   const [error, setError]             = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = async (file: File) => {
     setUploading(true)
@@ -50,6 +56,66 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
     }
   }
 
+  const handleGalleryUpload = async (files: FileList) => {
+    setGalleryUploading(true)
+    setError(null)
+    const uploaded: string[] = []
+    try {
+      for (const file of Array.from(files)) {
+        const compressed = await compressImage(file, 1600, 0.85)
+        const fd = new FormData()
+        fd.append('file', compressed)
+        const result = await uploadEventImage(fd)
+        if (result.error) {
+          setError(result.error)
+          break
+        }
+        if (result.url) uploaded.push(result.url)
+      }
+      if (uploaded.length > 0) {
+        setGalleryImages(prev => [...prev, ...uploaded])
+      }
+    } catch {
+      setError('Galerie-Upload fehlgeschlagen')
+    } finally {
+      setGalleryUploading(false)
+    }
+  }
+
+  const removeGalleryImage = (idx: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const moveGalleryImage = (idx: number, dir: -1 | 1) => {
+    setGalleryImages(prev => {
+      const next = [...prev]
+      const target = idx + dir
+      if (target < 0 || target >= next.length) return prev
+      ;[next[idx], next[target]] = [next[target], next[idx]]
+      return next
+    })
+  }
+
+  const addVideo = () => {
+    const trimmed = newVideoUrl.trim()
+    if (!trimmed) return
+    if (!youtubeId(trimmed)) {
+      setVideoError('Ungültige YouTube-URL')
+      return
+    }
+    if (videos.includes(trimmed)) {
+      setVideoError('Video bereits hinzugefügt')
+      return
+    }
+    setVideos(prev => [...prev, trimmed])
+    setNewVideoUrl('')
+    setVideoError(null)
+  }
+
+  const removeVideo = (idx: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== idx))
+  }
+
   const handleSave = async () => {
     if (!name.trim()) {
       setError('Name ist erforderlich')
@@ -69,6 +135,8 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
       fd.append('tags', tags)
       fd.append('url', url)
       fd.append('image', image)
+      fd.append('gallery_images', galleryImages.join('\n'))
+      fd.append('videos', videos.join('\n'))
       const result = await saveEvent(fd)
       if (result?.error) {
         setError(result.error)
@@ -209,6 +277,162 @@ export default function EventEditor({ initialEvent }: { initialEvent?: Event }) 
                   e.target.value = ''
                 }}
               />
+            </div>
+
+            {/* Gallery */}
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30">
+                  Galerie {galleryImages.length > 0 && (
+                    <span className="text-[#222222]/50 normal-case tracking-normal font-medium">({galleryImages.length})</span>
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={galleryUploading}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] hover:text-[#058f8f] border border-[#06a5a5]/20 hover:border-[#06a5a5]/40 px-3 py-1.5 rounded-full transition-all disabled:opacity-60"
+                >
+                  {galleryUploading ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                  {galleryUploading ? 'Wird hochgeladen…' : 'Fotos hinzufügen'}
+                </button>
+              </div>
+
+              {galleryImages.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={galleryUploading}
+                  className="w-full flex flex-col items-center justify-center gap-3 py-10 border-2 border-dashed border-[#222222]/10 hover:border-[#06a5a5]/40 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Upload size={22} className="text-[#222222]/20" />
+                  <span className="text-sm text-[#222222]/30">Mehrere Fotos auf einmal auswählen</span>
+                </button>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {galleryImages.map((img, i) => (
+                    <div key={img + i} className="relative group aspect-[4/3] rounded-lg overflow-hidden bg-[#F0F0F0]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={`Galerie ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-200" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => moveGalleryImage(i, -1)}
+                          disabled={i === 0}
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-[#222] hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                          aria-label="Nach vorne"
+                        >
+                          <ArrowUp size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveGalleryImage(i, 1)}
+                          disabled={i === galleryImages.length - 1}
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-[#222] hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                          aria-label="Nach hinten"
+                        >
+                          <ArrowDown size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(i)}
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+                          aria-label="Entfernen"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                      <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold bg-black/60 text-white px-1.5 py-0.5 rounded-full tabular-nums">
+                        {i + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={e => {
+                  const files = e.target.files
+                  if (files && files.length > 0) handleGalleryUpload(files)
+                  e.target.value = ''
+                }}
+              />
+            </div>
+
+            {/* Videos */}
+            <div className="bg-white border border-[#222222]/6 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#222222]/30">
+                  Videos {videos.length > 0 && (
+                    <span className="text-[#222222]/50 normal-case tracking-normal font-medium">({videos.length})</span>
+                  )}
+                </p>
+              </div>
+
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="url"
+                  value={newVideoUrl}
+                  onChange={e => { setNewVideoUrl(e.target.value); setVideoError(null) }}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVideo() } }}
+                  className={inputCls + ' flex-1'}
+                  placeholder="https://www.youtube.com/watch?v=…"
+                />
+                <button
+                  type="button"
+                  onClick={addVideo}
+                  disabled={!newVideoUrl.trim()}
+                  className="inline-flex items-center gap-1.5 bg-[#06a5a5] text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#058f8f] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Plus size={14} /> Hinzufügen
+                </button>
+              </div>
+              {videoError && <p className="text-xs text-red-500 mb-3">{videoError}</p>}
+              <p className="text-[10px] text-[#222222]/30 mb-4">YouTube-URL einfügen und Enter drücken. Unterstützt watch?v=, youtu.be, /shorts/, /embed/.</p>
+
+              {videos.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {videos.map((url, i) => {
+                    const id = youtubeId(url)
+                    return (
+                      <div key={url + i} className="flex items-center gap-3 p-2 rounded-xl border border-[#222222]/8 bg-[#FAFAFA]">
+                        <div className="relative w-20 h-12 flex-shrink-0 rounded-md overflow-hidden bg-black">
+                          {id && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`https://i.ytimg.com/vi/${id}/mqdefault.jpg`}
+                              alt=""
+                              className="absolute inset-0 w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play size={14} className="text-white drop-shadow-md" fill="white" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-mono text-[#222222]/70 truncate">{url}</p>
+                          <p className="text-[10px] text-[#222222]/30">Video {i + 1}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeVideo(i)}
+                          className="w-8 h-8 flex items-center justify-center rounded-full text-[#222222]/40 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                          aria-label="Video entfernen"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
 

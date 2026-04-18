@@ -35,6 +35,16 @@ export async function saveEvent(formData: FormData) {
   const url = (formData.get('url') as string)?.trim() || null
   const image = (formData.get('image') as string)?.trim() || null
 
+  const galleryRaw = (formData.get('gallery_images') as string)?.trim() ?? ''
+  const galleryImages = galleryRaw
+    ? galleryRaw.split('\n').map(s => s.trim()).filter(Boolean)
+    : []
+
+  const videosRaw = (formData.get('videos') as string)?.trim() ?? ''
+  const videos = videosRaw
+    ? videosRaw.split('\n').map(s => s.trim()).filter(Boolean)
+    : []
+
   const payload = {
     slug,
     name,
@@ -45,6 +55,8 @@ export async function saveEvent(formData: FormData) {
     tags,
     url,
     image,
+    gallery_images: galleryImages,
+    videos,
   }
 
   if (id) {

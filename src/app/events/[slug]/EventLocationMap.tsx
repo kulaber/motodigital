@@ -2,8 +2,8 @@
 
 import dynamic from 'next/dynamic'
 
-const MiniMap = dynamic(() => import('@/components/map/MiniMap'), { ssr: false })
+const EventMap = dynamic(() => import('@/components/events/EventMap'), { ssr: false })
 
 export default function EventLocationMap({ lat, lng, locationName }: { lat: number; lng: number; locationName: string }) {
-  return <MiniMap lat={lat} lng={lng} locationName={locationName} />
+  return <EventMap lat={lat} lng={lng} locationName={locationName} />
 }
