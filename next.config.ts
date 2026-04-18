@@ -57,6 +57,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.bikebound.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'koelnmesse.omn-cloud.com',
+        pathname: '/servlet/**',
+      },
     ],
   },
 }
