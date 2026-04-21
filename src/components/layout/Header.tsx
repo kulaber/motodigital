@@ -14,7 +14,6 @@ import { createClient } from '@/lib/supabase/client'
 import { Link, useRouter, getPathname } from '@/i18n/navigation'
 import { useLocale } from 'next-intl'
 import MobileNav from './MobileNav'
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher'
 import { NotificationDropdownSection } from '@/components/notifications/NotificationDropdownSection'
 
 const LoginModal = dynamic(() => import('@/components/ui/LoginModal').then(m => m.LoginModal), { ssr: false })
@@ -263,7 +262,6 @@ export default function Header({ activePage }: Props) {
                   </div>
                 )}
               </div>
-              <LanguageSwitcher variant="header" />
             </>
           ) : (
             <>
@@ -273,7 +271,6 @@ export default function Header({ activePage }: Props) {
               <button onClick={() => { setLoginMode('register'); setShowLogin(true) }} className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
                 {t('register')}
               </button>
-              <LanguageSwitcher variant="header" />
             </>
           )}
         </div>

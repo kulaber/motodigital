@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import FooterWrapper from './FooterWrapper'
 import FooterBikeStyles from './FooterBikeStyles'
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher'
 
 export default function Footer() {
   const tNav = useTranslations('Nav')
@@ -56,14 +55,12 @@ export default function Footer() {
             <p className="text-sm text-white/35 leading-relaxed max-w-xs mb-6">
               {tFoot('tagline')}
             </p>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3">
               <a href="https://www.instagram.com/motodigital.io/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                 className="w-11 h-11 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:border-white/20 transition-all">
                 <Instagram size={16} />
               </a>
             </div>
-            {/* Language switcher */}
-            <LanguageSwitcher variant="footer" />
           </div>
 
           {/* Custom Bikes — dynamic styles from DB */}
