@@ -9,6 +9,7 @@ import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import EventsCarousel from '@/components/landing/EventsCarousel'
 import MagazineCarousel from '@/components/landing/MagazineCarousel'
+import HeroVideo from '@/components/landing/HeroVideo'
 import { getArticlesForLocale } from '@/lib/data/magazine'
 import { getLocale } from 'next-intl/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
@@ -210,17 +211,7 @@ export default async function LandingPage() {
       <section className="bg-white pt-4 sm:pt-5 lg:pt-6 pb-4 sm:pb-5 lg:pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-[#222222]/10">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="/custombike_intro_poster.webp"
-              className="w-full aspect-[9/12] sm:aspect-[16/9] lg:aspect-[21/9] object-cover"
-            >
-              <source src="/custombike_intro_optimized.mp4" type="video/mp4" />
-            </video>
+            <HeroVideo />
             <div className="absolute inset-0 bg-[#1a1a1a]/45" />
             <div className="absolute inset-0" style={{
               background: 'linear-gradient(to bottom, rgba(20,20,20,0.3) 0%, rgba(20,20,20,0.1) 40%, rgba(20,20,20,0.6) 75%, rgba(20,20,20,0.85) 100%)'
