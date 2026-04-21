@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher'
 import {
   LogOut, ChevronRight, BookOpen, CalendarDays, Tag, Info, Search,
   Users, Settings, UserPen, MessageCircle, Bike, Grid3X3,
@@ -143,11 +142,6 @@ export default function MobileNav({
           {navItem('/events', <CalendarDays size={20} />, t('events'), isActive('events'))}
           {navItem('/marken', <Tag size={20} />, t('brands'), false)}
           {navItem('/ueber-motodigital', <Info size={20} />, t('aboutMotoDigital'), false)}
-        </div>
-
-        {/* Language switcher */}
-        <div className="px-5 pt-2 pb-5">
-          <LanguageSwitcher variant="mobile" />
         </div>
       </div>
 
