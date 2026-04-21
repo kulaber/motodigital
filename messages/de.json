@@ -67,6 +67,15 @@
     "copyright": "Alle Rechte vorbehalten.",
     "tagline": "Die Plattform für Custom Motorrad Kultur."
   },
+  "CookieBanner": {
+    "title": "Cookies",
+    "message": "Wir nutzen Cookies, um die Plattform zu verbessern und die Nutzung zu analysieren.",
+    "accept": "Akzeptieren",
+    "decline": "Ablehnen",
+    "settings": "Einstellungen verwalten",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum"
+  },
   "Common": {
     "loading": "Lädt …",
     "error": "Ein Fehler ist aufgetreten",

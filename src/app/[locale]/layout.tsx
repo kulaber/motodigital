@@ -8,6 +8,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { AuthProvider } from '@/contexts/AuthContext'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import WerkstattMobileNav from '@/components/layout/WerkstattMobileNav'
+import CookieBanner from '@/components/layout/CookieBanner'
 import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import { SearchShortcut } from '@/components/search/SearchShortcut'
@@ -109,6 +110,7 @@ export default async function LocaleLayout({
               <ConfirmationToast />
             </Suspense>
             <SearchShortcut />
+            <CookieBanner />
             <PageViewTracker />
             <Analytics />
           </AuthProvider>
