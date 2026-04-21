@@ -38,12 +38,19 @@ function withLocale(locale: string, path: string): string {
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const path = request.nextUrl.pathname
+  // Non-canonical hosts (motodigital.vercel.app, preview URLs, localhost) must
+  // be hidden from search engines so they don't duplicate-index motodigital.io.
+  const isCanonicalHost = host.includes('motodigital.io')
+  const applyNoIndex = (res: NextResponse) => {
+    if (!isCanonicalHost) res.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return res
+  }
 
   // Coming-soon rewrite for motodigital.io — runs before i18n handling.
   // The page itself lives under [locale]/coming-soon, so we must target the
   // fully-qualified locale path (next-intl's internal rewriting doesn't fire
   // because we short-circuit before its middleware runs).
-  if (host.includes('motodigital.io') && !path.includes('coming-soon')) {
+  if (isCanonicalHost && !path.includes('coming-soon')) {
     return NextResponse.rewrite(
       new URL(`/${routing.defaultLocale}/coming-soon`, request.url)
     )
@@ -51,7 +58,7 @@ export async function middleware(request: NextRequest) {
 
   // Skip API routes completely — no i18n, no auth redirect logic here
   if (path.startsWith('/api')) {
-    return NextResponse.next()
+    return applyNoIndex(NextResponse.next())
   }
 
   // Run next-intl first — it handles locale detection, redirects (/ → /de),
@@ -68,12 +75,12 @@ export async function middleware(request: NextRequest) {
     intlResponse.headers.get('location')
   ) {
     if (intlResponse.status === 307 && intlResponse.headers.get('location')) {
-      return NextResponse.redirect(intlResponse.headers.get('location')!, {
+      return applyNoIndex(NextResponse.redirect(intlResponse.headers.get('location')!, {
         status: 308,
         headers: intlResponse.headers,
-      })
+      }))
     }
-    return intlResponse
+    return applyNoIndex(intlResponse)
   }
 
   // Build the Supabase client on top of the intl response so intl headers
@@ -109,7 +116,7 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.searchParams.get('error_description') ?? 'Authentifizierungsfehler'
     const loginUrl = new URL(withLocale(locale, '/auth/login'), request.url)
     loginUrl.searchParams.set('error', desc)
-    return NextResponse.redirect(loginUrl)
+    return applyNoIndex(NextResponse.redirect(loginUrl))
   }
 
   // Refresh session — do not insert logic between createServerClient and getUser
@@ -120,7 +127,7 @@ export async function middleware(request: NextRequest) {
     loginUrl.pathname = withLocale(locale, '/auth/login')
     const fullPath = request.nextUrl.search ? `${path}${request.nextUrl.search}` : path
     loginUrl.searchParams.set('redirectTo', fullPath)
-    return NextResponse.redirect(loginUrl)
+    return applyNoIndex(NextResponse.redirect(loginUrl))
   }
 
   if (
@@ -131,7 +138,7 @@ export async function middleware(request: NextRequest) {
     const verifyUrl = request.nextUrl.clone()
     verifyUrl.pathname = withLocale(locale, '/verify-email')
     verifyUrl.searchParams.set('email', user.email ?? '')
-    return NextResponse.redirect(verifyUrl)
+    return applyNoIndex(NextResponse.redirect(verifyUrl))
   }
 
   if (
@@ -149,22 +156,22 @@ export async function middleware(request: NextRequest) {
       .maybeSingle()
 
     if (profile?.onboarding_completed === false) {
-      return NextResponse.redirect(
+      return applyNoIndex(NextResponse.redirect(
         new URL(withLocale(locale, '/willkommen'), request.url)
-      )
+      ))
     }
 
     if (rest === '/') {
       const target = profile?.role === 'custom-werkstatt' ? '/dashboard' : '/explore'
-      return NextResponse.redirect(new URL(withLocale(locale, target), request.url))
+      return applyNoIndex(NextResponse.redirect(new URL(withLocale(locale, target), request.url)))
     }
   }
 
   if (user && AUTH_ROUTES.some(r => rest.startsWith(r))) {
-    return NextResponse.redirect(new URL(withLocale(locale, '/explore'), request.url))
+    return applyNoIndex(NextResponse.redirect(new URL(withLocale(locale, '/explore'), request.url)))
   }
 
-  return supabaseResponse
+  return applyNoIndex(supabaseResponse)
 }
 
 export const config = {
