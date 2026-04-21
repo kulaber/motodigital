@@ -17,31 +17,588 @@ export type Article = {
   excerpt: string
   coverImage: string
   publishedAt: string
+  updatedAt?: string
   readTime: string
   author: string
   tags: string[]
+  relatedSlugs?: string[]
   relatedBuilderSlug?: string
   relatedBuildSlug?: string
+  faq?: { q: string; a: string }[]
   content: ArticleSection[]
 }
 
 export const ARTICLES: Article[] = [
   {
-    slug: 'cafe-racer-kaufen-guide',
-    title: 'Cafe Racer kaufen: Der vollständige Leitfaden für 2025',
-    metaTitle: 'Cafe Racer kaufen 2025 — Tipps, Preise & Worauf achten',
+    slug: 'warum-heisst-es-cafe-racer',
+    title: 'Warum heißt es Cafe Racer? Die Geschichte hinter dem Mythos',
+    metaTitle: 'Warum heißt es Cafe Racer? Herkunft, Geschichte & Mythos',
     metaDescription:
-      'Cafe Racer kaufen: Alles über Rahmenprüfung, TÜV, Preise und die besten Modelle 2025. Unser Guide für Einsteiger und Kenner.',
+      'Cafe Racer: Der Name stammt aus dem London der 1950er Jahre — Ace Cafe, Ton-up Boys und der Rocker-Kult. Die komplette Geschichte des Kultbikes.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Das britische Ace Cafe, die Rocker der 50er und der "Ton-up"-Wettkampf — woher der Name Cafe Racer wirklich kommt.',
+    coverImage:
+      'https://images.unsplash.com/photo-1713638916407-94d936da4eff?w=1200&q=85',
+    publishedAt: '2026-04-10',
+    readTime: '8 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Cafe Racer', 'Geschichte', 'Ace Cafe', 'Rocker', 'UK', 'Kultur'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'jakob-kraft-berlin-interview'],
+    faq: [
+      { q: 'Woher kommt der Name Cafe Racer?', a: 'Der Begriff entstand in den 1950er Jahren in London, rund um das Ace Cafe an der North Circular Road. Junge Rocker — die "Ton-up Boys" — bauten ihre Motorräder für das Rennen zwischen Cafés um. Diese optimierten Maschinen hießen "Cafe Racers".' },
+      { q: 'Was ist ein "Ton-up Boy"?', a: 'Ein "Ton-up Boy" war ein britischer Motorradfahrer, der 100 mph ("Ton") auf öffentlichen Straßen erreichte. Der Begriff stammt aus dem Ace-Cafe-Umfeld der 50er und 60er Jahre.' },
+      { q: 'Welche Marken sind typisch für klassische Cafe Racer?', a: 'Typische Basen der Originalszene waren britische Bikes: Triumph Bonneville, Norton Dominator, BSA Gold Star und AJS. Später kamen japanische Maschinen wie die Honda CB750 hinzu.' },
+      { q: 'Was unterscheidet einen Cafe Racer optisch?', a: 'Stummellenker (Clip-ons), Einzelsitzbank oder Höcker, verlängerter Tank mit Knieführung, rückwärts montierte Fußrasten, offene Auspuffanlage und spartanische Instrumente.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Der Begriff "Cafe Racer" taucht heute auf Instagram, in Magazinen und an jeder dritten Werkstattwand auf. Doch die wenigsten wissen, dass er aus einer sehr konkreten Zeit, einem sehr konkreten Ort und einem sehr konkreten Gefühl stammt — nicht aus einem Designer-Studio, sondern aus den Cafés der britischen Nachkriegszeit.',
+      },
+      { type: 'h2', text: 'Das London der 1950er Jahre' },
+      {
+        type: 'p',
+        text: 'Nach dem Zweiten Weltkrieg war Großbritannien arm, grau und geprägt von Rationierung. Eine neue Generation junger Männer — geboren in der Kriegszeit, herangewachsen im Wiederaufbau — suchte nach einem Freiheitsgefühl, das ihnen keine Institution bot. Das Motorrad war die Antwort: billig, schnell, laut, unbändig. Und es war das Fahrzeug, das Eltern und Behörden gleichermaßen unbequem fanden.',
+      },
+      { type: 'h2', text: 'Das Ace Cafe — Geburtsstätte eines Mythos' },
+      {
+        type: 'p',
+        text: 'An der North Circular Road im Westen Londons stand ein 24-Stunden-Truckstop: das Ace Cafe. Günstiger Kaffee, eine Jukebox mit Rock’n’Roll und ein Parkplatz, auf dem sich die Motorräder junger Rocker drängten — Triumph Tiger, Norton Dominator, BSA Gold Star. Das Ace war kein Club, es war ein Zustand. Und aus diesem Zustand entstand eine Fahrkultur, die bis heute nachhallt.',
+      },
+      { type: 'h2', text: '"Ton-up" — 100 mph in drei Minuten' },
+      {
+        type: 'p',
+        text: 'Die Regeln des Spiels waren einfach: Jemand startet einen Song an der Jukebox. Der Fahrer sprintet zum Motorrad, rast zum nächsten Ort entlang der Strecke, kehrt um und muss das Ace vor dem Ende des Songs erreichen. Bei dreiminütigen Singles bedeutete das: mindestens 100 mph auf einer Landstraße, die nicht dafür gebaut war. Wer es schaffte, war ein "Ton-up Boy". 100 mph = 100 "ton". Die Bikes, die dafür umgebaut wurden, hießen "Cafe Racers". Weil sie für die Strecke zwischen zwei Cafés optimiert waren.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1617375142398-6ed43ccfe353?w=1200&q=85',
+        caption: 'Triumph- und Norton-Umbauten der 60er waren die Urform dessen, was heute ein Cafe Racer ist.',
+      },
+      { type: 'h2', text: 'Was macht einen Cafe Racer zum Cafe Racer?' },
+      {
+        type: 'p',
+        text: 'Die Cafe-Racer-Ästhetik war kein Stil im heutigen Sinne — sie war das Ergebnis konkreter Optimierungen für Geschwindigkeit. Jedes gestalterische Merkmal hat einen funktionalen Ursprung:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Stummellenker (Clip-ons): niedrigere Sitzposition für bessere Aerodynamik',
+          'Einzelsitzbank oder Höcker: weniger Gewicht, kein Platz für Beifahrer',
+          'Verlängerter Tank: mehr Reichweite zwischen Cafés, Knieführung für schnelle Kurven',
+          'Rückwärts montierte Fußrasten: sportliche Sitzposition, hinter dem Getriebe montiert',
+          'Offene Auspuffanlage: Gewichtsreduktion und akustisches Statement',
+          'Spartanische Instrumente: nur Drehzahl- und Geschwindigkeitsmesser — alles andere war Luxus',
+        ],
+      },
+      { type: 'h2', text: 'Von der Subkultur zur Design-Ikone' },
+      {
+        type: 'p',
+        text: 'In den 70ern verloren Cafe Racer an Bedeutung — neue japanische Bikes waren ab Werk schnell genug, der Reiz des Umbaus schwand. Erst in den 2000ern erlebte der Stil eine zweite Jugend: Builder wie Deus Ex Machina, Untitled Motorcycles oder die deutsche Szene um Kingston Custom und Jakob Kraft haben die Ästhetik neu interpretiert. Heute ist der Cafe Racer kein Sportgerät mehr, sondern eine Designentscheidung — der Verweis auf eine Zeit, in der ein Motorrad mehr war als ein Fortbewegungsmittel.',
+      },
+      {
+        type: 'quote',
+        text: 'Der Cafe Racer war nie ein Hochleistungssportgerät. Er war ein Lebensgefühl — und ist es bis heute geblieben.',
+      },
+      { type: 'h2', text: 'Warum der Name bleibt' },
+      {
+        type: 'p',
+        text: 'Man könnte argumentieren, dass der Begriff "Cafe Racer" heute unpräzise geworden ist — kaum jemand rast noch von Café zu Café, und die meisten modernen Umbauten sind eher Stilübungen als Rennmaschinen. Und doch trägt der Name eine Geschichte, die kein anderer Bike-Stil so deutlich verkörpert: den Moment, in dem eine Jugendkultur ein Fahrzeug nicht nur benutzt, sondern umdeutet hat. Genau dafür steht der Cafe Racer — und genau deshalb bleibt der Name.',
+      },
+      {
+        type: 'cta',
+        text: 'Lust auf einen echten Cafe Racer?',
+        href: '/bikes/cafe-racer',
+        label: 'Cafe Racer ansehen',
+      },
+    ],
+  },
+
+  {
+    slug: 'scrambler-kaufen-guide',
+    title: 'Scrambler kaufen 2026: Der vollständige Kaufratgeber',
+    metaTitle: 'Scrambler kaufen 2026 — Modelle, Preise & Worauf achten',
+    metaDescription:
+      'Scrambler kaufen: Alle Werksmodelle im Vergleich, typische Custom-Basen, Preise und die wichtigsten Prüfpunkte vor dem Kauf.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom Werks-Scrambler bis zum Custom-Umbau — unser vollständiger Kaufratgeber mit Modellen, Preisen und Prüfpunkten für 2026.',
+    coverImage:
+      'https://images.unsplash.com/photo-1615272294709-7c2966b77af7?w=1200&q=85',
+    publishedAt: '2026-04-05',
+    readTime: '11 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Scrambler', 'Kaufratgeber', 'Triumph', 'Ducati', 'BMW', 'Custom'],
+    relatedSlugs: ['scrambler-vs-tracker-vergleich', 'was-kostet-ein-custom-bike', 'tuev-eintragung-custom-bike'],
+    faq: [
+      { q: 'Was kostet ein guter Scrambler?', a: 'Neue Werks-Scrambler beginnen bei ca. 5.300 € (Royal Enfield Scram) und reichen bis 20.000 €+ (Triumph Scrambler 1200 XE). Qualitative Custom-Scrambler-Builds starten bei 9.000 € und liegen bei spezialisierten Werkstätten häufig zwischen 14.000 und 22.000 €.' },
+      { q: 'Welcher Scrambler eignet sich für Einsteiger?', a: 'Für Einsteiger empfehlen sich Royal Enfield Scram 411, Fantic Caballero 500 oder Husqvarna Svartpilen 401. Alle drei bieten geringes Gewicht, entspannte Sitzhöhe und faire Preise.' },
+      { q: 'Ist ein Scrambler für den Alltag geeignet?', a: 'Ja — Scrambler sind gemacht für Straße und leichtes Gelände. Die aufrechte Sitzposition und die robusten Federwege machen sie zu sehr alltagstauglichen Motorrädern, auch für lange Pendelstrecken.' },
+      { q: 'Was ist der Unterschied zwischen Scrambler und Tracker?', a: 'Scrambler haben Stollenreifen und sind für Straße + leichtes Gelände gemacht. Tracker haben glatte Straßenreifen, sind sportlicher und urbaner ausgelegt und stammen optisch vom Flat-Track-Racing ab.' },
+      { q: 'Welche Motorrad-Basen eignen sich für einen Custom-Scrambler?', a: 'Klassische Basen sind Honda CB550/650, Yamaha XS650, Kawasaki W650 und BMW R80/R100. Alle bieten robuste Motoren, reichlich Platz für Umbauten und eine TÜV-freundliche Geometrie.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Ein Scrambler ist das vielseitigste Motorrad, das du kaufen kannst — halb Straße, halb Gelände, ganz Attitüde. Doch zwischen Werksmodellen, Retrobikes und echten Custom-Umbauten liegen Welten. Dieser Guide zeigt, worauf du beim Scrambler-Kauf 2026 wirklich achten musst.',
+      },
+      { type: 'h2', text: 'Werks-Scrambler oder Custom-Umbau?' },
+      {
+        type: 'p',
+        text: 'Die erste und wichtigste Frage: Willst du einen modernen Serien-Scrambler mit Garantie und Zuverlässigkeit — oder einen Custom-Umbau mit Charakter und Geschichte? Beide Wege sind legitim, aber sie bedienen unterschiedliche Bedürfnisse. Der Werks-Scrambler ist die komfortable Einstiegsdroge. Der Custom-Scrambler ist die Investition in ein Einzelstück.',
+      },
+      { type: 'h2', text: 'Die besten Werks-Scrambler 2026' },
+      {
+        type: 'list',
+        items: [
+          'Triumph Scrambler 1200 X / XE — das Referenzmodell, kräftiger Twin, echte Offroad-Qualitäten ab 14.500 €',
+          'Ducati Scrambler 800 Icon / Full Throttle — leicht, agil, urban, ab 11.300 €',
+          'BMW R nineT Scrambler — Boxer-Motor, Premium-Verarbeitung, ab 15.900 €',
+          'Royal Enfield Scram 411 / Himalayan — einfach, ehrlich, günstig, ab 5.300 €',
+          'Fantic Caballero 500 Scrambler — die unterschätzte Empfehlung, ab 7.900 €',
+          'Husqvarna Svartpilen 401 / 801 — modern interpretiert, ab 6.600 €',
+        ],
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1568708167433-f71cce499682?w=1200&q=85',
+        caption: 'Scrambler sind für Schotterpisten gebaut — aber die meisten werden auf Asphalt gefahren.',
+      },
+      { type: 'h2', text: 'Custom-Scrambler: Typische Basen und Kosten' },
+      {
+        type: 'p',
+        text: 'Ein guter Custom-Scrambler entsteht aus einer soliden Basis. Die Klassiker sind Honda CB550/650, Yamaha XS650, Kawasaki W650 und die BMW R80/R100. Alle bieten robuste Motoren, reichlich Platz für Umbauten und eine TÜV-freundliche Geometrie. Ein qualitativ hochwertiger Custom-Scrambler startet realistisch bei 9.000 €, spezialisierte Builds aus renommierten Workshops liegen zwischen 14.000 und 22.000 €.',
+      },
+      { type: 'h2', text: 'Technische Prüfpunkte vor dem Kauf' },
+      {
+        type: 'list',
+        items: [
+          'Federwege: mindestens 140 mm vorn, sonst ist "Scrambler" nur ein Aufkleber',
+          'Stollenreifen: sichtbare Profiltiefe, keine Risse an den Flanken, passende Dimensionen im Fahrzeugschein',
+          'Auspuffanlage: hochgelegt, mit Schutzblech, mit gültigem ABE oder Einzeltragung',
+          'Rahmengeometrie: ausreichende Bodenfreiheit, stabiler Unterfahrschutz',
+          'Elektrik: hinreichender Schutz vor Spritzwasser und Schlamm',
+          'Sitzhöhe: Scrambler sind oft hoch (820-870 mm) — unbedingt vor dem Kauf Probe sitzen',
+        ],
+      },
+      { type: 'h2', text: 'Preise: Was realistisch ist' },
+      {
+        type: 'p',
+        text: 'Neue Werks-Scrambler beginnen bei ca. 5.300 € (Royal Enfield) und gehen bis 20.000 €+ (Triumph XE Spezialausstattungen). Gebrauchte Werksmodelle mit wenig Kilometern liegen oft bei 60-75% des Neupreises. Custom-Scrambler-Builds aus deutschen Workshops starten bei 9.000 € und können je nach Aufwand und Teilewahl schnell 20.000 € übersteigen. Finger weg von Angeboten unter 4.500 € — entweder stimmt die Geschichte nicht oder das Bike hat Mängel, die dich später mehr kosten als der Kaufpreis.',
+      },
+      {
+        type: 'quote',
+        text: 'Ein Scrambler muss dreckig werden dürfen. Wenn dir das Bike zu schade für Feldwege ist, hast du den falschen Stil gekauft.',
+      },
+      {
+        type: 'cta',
+        text: 'Alle Scrambler im Marketplace',
+        href: '/bikes?style=scrambler',
+        label: 'Scrambler entdecken',
+      },
+    ],
+  },
+
+  {
+    slug: 'bobber-kaufen-guide',
+    title: 'Bobber kaufen: Der Kaufratgeber für echte Low-Rider',
+    metaTitle: 'Bobber kaufen 2026 — Modelle, Preise & Prüfpunkte',
+    metaDescription:
+      'Bobber kaufen: Von Harley bis BMW — die besten Basis-Bikes, realistische Preise und worauf du beim Kauf achten musst.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom klassischen Harley-Bobber bis zum modernen Hardtail-Custom — was einen guten Bobber ausmacht und was er kosten darf.',
+    coverImage:
+      'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=1200&q=85',
+    publishedAt: '2026-03-28',
+    readTime: '12 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Bobber', 'Kaufratgeber', 'Harley-Davidson', 'BMW', 'Custom'],
+    relatedSlugs: ['max-steiner-bobber-interview', 'was-kostet-ein-custom-bike', 'tuev-eintragung-custom-bike'],
+    faq: [
+      { q: 'Was ist ein Bobber?', a: 'Ein Bobber ist ein radikal reduziertes Custom-Motorrad. Klassisch mit Hardtail-Rahmen, Monosattel und fettem Hinterreifen. Der Begriff kommt aus den USA der 1940er — Veteranen "bobbten" ihre Harleys, indem sie alles Überflüssige entfernten.' },
+      { q: 'Was kostet ein Bobber?', a: 'Werks-Bobber wie Triumph Bonneville Bobber oder Indian Scout Bobber starten bei 10.500 €. Custom-Bobber-Builds beginnen bei ca. 8.000 € für einfache Umbauten und erreichen bei renommierten Buildern 20.000-30.000 €.' },
+      { q: 'Welches Bike eignet sich als Bobber-Basis?', a: 'Die besten Basis-Bikes sind Harley-Davidson Sportster, BMW R-Serie (R80/R100), Triumph Bonneville, Honda Shadow und Yamaha XV-Modelle. Alle bieten genug Drehmoment und die passende Silhouette.' },
+      { q: 'Ist ein Hardtail-Bobber für den Alltag geeignet?', a: 'Hardtail-Bobber übertragen jede Unebenheit direkt auf den Fahrer. Für kurze Strecken und urbane Fahrten sind sie in Ordnung, für längere Touren jedoch unkomfortabel. Softtail-Varianten sind alltagstauglicher.' },
+      { q: 'Was ist der Unterschied zwischen Bobber und Chopper?', a: 'Ein Bobber ist reduziert, kurz und kompakt — Ästhetik durch Weglassen. Ein Chopper ist theatralischer, hat lange Gabeln, gestreckte Silhouette und stilistische Elemente wie "Ape Hangers"-Lenker. Bobber = Zweck, Chopper = Inszenierung.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Ein Bobber ist nicht bloß ein Motorrad mit abgesägtem Hinterteil. Er ist die radikalste Form der Reduktion, die die Custom-Welt kennt: alles, was nicht nötig ist, wird entfernt. Wer einen Bobber kauft, kauft eine Haltung. Dieser Ratgeber zeigt dir, worauf es beim Kauf ankommt.',
+      },
+      { type: 'h2', text: 'Was ist ein Bobber überhaupt?' },
+      {
+        type: 'p',
+        text: 'Der Begriff "Bobber" stammt aus den USA der 1940er. Zurückgekehrte Weltkriegsveteranen "bobbten" ihre Harleys und Indians, indem sie alle überflüssigen Teile entfernten: Schutzbleche gekürzt, Beifahrersitz weg, Tank verkleinert. Das Ergebnis: ein leichteres, schnelleres, puristisches Motorrad. Der klassische Bobber hat einen Hardtail-Rahmen (also keine Hinterradfederung), einen Monosattel und einen auffällig fetten Hinterreifen.',
+      },
+      { type: 'h2', text: 'Werks-Bobber vs. Custom-Bobber' },
+      {
+        type: 'p',
+        text: 'Werks-Bobber wie die Triumph Bonneville Bobber, Indian Scout Bobber oder Harley-Davidson Sportster S verbinden Bobber-Ästhetik mit moderner Technik — ABS, Einspritzung, Komfort. Custom-Bobber sind kompromissloser: oft Hardtail-Rahmen, Kickstarter, spartanische Elektrik. Wer das erste Mal einen Bobber kauft, fährt meistens besser mit einem Werksmodell. Wer die Bobber-Kultur wirklich leben will, landet früher oder später beim Custom-Build.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1545305281-49bc3ecf5412?w=1200&q=85',
+        caption: 'Ein guter Bobber ist reduziert bis zum Wesentlichen — ohne ins Karikaturistische zu kippen.',
+      },
+      { type: 'h2', text: 'Die besten Basis-Bikes für Bobber-Builds' },
+      {
+        type: 'list',
+        items: [
+          'Harley-Davidson Sportster (883 / 1200) — der Klassiker, unzählige Aftermarket-Teile, ab 6.000 € als Basis',
+          'BMW R-Serie (R80 / R100 / R100R) — Boxer-Charakter, Zuverlässigkeit, ab 3.500 € als Basis',
+          'Triumph Bonneville (alle Generationen) — ikonische Silhouette, agiler als Harleys, ab 4.500 €',
+          'Honda Shadow VT600 / VT750 — günstig, robust, wenig Respekt in der Szene (aber das ist dein Problem, nicht ihres)',
+          'Kawasaki VN800 / VN900 — unterschätzt, zuverlässig, ab 3.000 € als Basis',
+          'Yamaha XV750 / XV1100 Virago — klassischer V-Twin, riesige Community',
+        ],
+      },
+      { type: 'h2', text: 'Technische Prüfpunkte beim Kauf' },
+      {
+        type: 'list',
+        items: [
+          'Rahmen: Bei Hardtail-Umbauten unbedingt Schweißnähte und Geometrie prüfen — ungenügend gefertigte Rahmen sind lebensgefährlich',
+          'Sitzhöhe: Bobber sind oft niedrig (680-720 mm) — das kann bei längerer Fahrt unbequem werden',
+          'Reifendimensionen: Breite Hinterreifen (180-240 mm) müssen im Fahrzeugschein eingetragen sein',
+          'Kickstarter-only oder E-Start: Bei Custom-Bobbern oft ohne E-Starter — für den Alltag eine echte Frage',
+          'TÜV-Dokumentation: Jede Modifikation braucht eine Eintragung, sonst erlischt die Betriebserlaubnis',
+          'Öl- und Vibrations-Checks: Hardtail-Rahmen übertragen alles auf den Fahrer und jede Schraube am Bike',
+        ],
+      },
+      { type: 'h2', text: 'Preise: Realistische Budgets' },
+      {
+        type: 'p',
+        text: 'Werks-Bobber beginnen bei 10.500 € (Indian Scout Bobber Sixty) und gehen bis 18.000 € (Triumph Bonneville Bobber Black). Gebrauchte Werksmodelle mit 10-30.000 km sind häufig 30-40% günstiger als Neupreise. Custom-Bobber-Builds starten bei 8.000 € für einfache Umbauten und erreichen bei renommierten Buildern schnell 20.000-30.000 €. Ein Hardtail-Custom mit handgefertigtem Rahmen beginnt nie unter 15.000 € — alles darunter solltest du skeptisch prüfen.',
+      },
+      {
+        type: 'quote',
+        text: 'Ein Bobber ist das ehrlichste Motorrad, das du fahren kannst. Er verbirgt nichts — weder seine Herkunft noch seine Kompromisse.',
+        author: 'Max Steiner, München',
+      },
+      {
+        type: 'cta',
+        text: 'Bobber bei MotoDigital ansehen',
+        href: '/bikes?style=bobber',
+        label: 'Bobber durchstöbern',
+      },
+    ],
+  },
+
+  {
+    slug: 'cafe-racer-selber-bauen-basis-bikes',
+    title: 'Cafe Racer selber bauen: Die 10 besten Basis-Bikes',
+    metaTitle: 'Cafe Racer selber bauen — Die 10 besten Basis-Bikes 2026',
+    metaDescription:
+      'Cafe Racer selber bauen: Diese 10 Basis-Bikes sind für deinen ersten Umbau ideal — inkl. Schwierigkeitsgrad, Preise und Eigenheiten.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Die Basis entscheidet zu 70% über den Erfolg deines Umbaus. Diese 10 Bikes haben sich als Cafe-Racer-Basen bewährt.',
+    coverImage:
+      'https://images.unsplash.com/photo-1664710696445-abb080659c3d?w=1200&q=85',
+    publishedAt: '2026-03-20',
+    readTime: '14 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Cafe Racer', 'DIY', 'Umbau', 'Basis-Bike', 'Honda', 'Yamaha', 'BMW'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'warum-heisst-es-cafe-racer', 'tuev-eintragung-custom-bike'],
+    faq: [
+      { q: 'Was ist die beste Basis für einen Cafe Racer?', a: 'Die Klassiker sind Honda CB750, Yamaha SR500, BMW R80/R100 und Kawasaki Z650. Alle bieten luftgekühlte Motoren, einfache Wartung und gute Teileverfügbarkeit. Die richtige Basis hängt von Budget, Erfahrung und gewünschtem Charakter ab.' },
+      { q: 'Wie lange dauert ein Cafe-Racer-Umbau?', a: 'Ein professioneller Umbau umfasst 200 bis 600 Arbeitsstunden. Selbst mit guter Werkstatt-Infrastruktur solltest du für einen kompletten Selbstbau 12-24 Monate einplanen, inklusive Beschaffung und TÜV-Abnahme.' },
+      { q: 'Was kostet ein Cafe-Racer-Selbstbau?', a: 'Die reinen Materialkosten liegen bei 3.000-8.000 € (Basisbike + Teile + Lack). Dazu kommen Werkzeug, Werkstattmiete und eventuelle Auftragsarbeiten (Schweißen, Pulverbeschichtung). Gesamtbudget realistisch: 5.000-12.000 €.' },
+      { q: 'Kann ich einen Cafe Racer ohne Schweißkenntnisse bauen?', a: 'Teilweise — viele kosmetische Umbauten (Tank, Sitzbank, Lenker, Lack) gehen ohne Schweißen. Aber echte Cafe Racer erfordern oft Rahmenkürzungen oder neue Heckausleger. Alternative: Schweißarbeiten extern vergeben.' },
+      { q: 'Welche Basis ist für Anfänger am einfachsten?', a: 'Die Yamaha SR500/400 und BMW R80/R100 sind für Einsteiger am zugänglichsten: robuste Motoren, einfache Technik, massive Community und viele vorhandene Umbau-Anleitungen.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Der größte Fehler beim ersten Cafe-Racer-Umbau: Das falsche Basis-Bike kaufen. Eine schlechte Grundlage lässt sich mit Budget nicht korrigieren — egal wie gut der Builder ist. Diese 10 Bikes eignen sich als Cafe-Racer-Basis besonders gut: ausgewogen zwischen Preis, Teileversorgung, Motorcharakter und TÜV-Fähigkeit.',
+      },
+      { type: 'h2', text: 'Was eine gute Cafe-Racer-Basis ausmacht' },
+      {
+        type: 'list',
+        items: [
+          'Luftgekühlter Motor: einfacher zu warten, kein Kühlerproblem beim Verkleidungsumbau',
+          'Robuster Stahlrohrrahmen: schweißbar, modifizierbar, historisch stimmig',
+          'Ersatzteilversorgung: Classic-Bikes mit starker Community haben verfügbare Teile',
+          'Rahmen ohne Unterzug: erlaubt saubere Heckumbauten und Batteriepositionierung',
+          'Eingetragene Leistung zwischen 30 und 80 PS: für den Alltag ausreichend, nicht überdimensioniert',
+        ],
+      },
+      { type: 'h2', text: '1. Honda CB750 (1969-1978) — der Klassiker' },
+      {
+        type: 'p',
+        text: 'Die erste moderne Serienmaschine, bekannt aus unzähligen Cafe-Racer-Builds. Luftgekühlter Vierzylinder, tadellose Zuverlässigkeit, riesige Community. Nachteil: Preise sind in den letzten Jahren deutlich gestiegen. Gebraucht ab 3.500 €, restaurierte Exemplare schnell 6.000 €+.',
+      },
+      { type: 'h2', text: '2. Yamaha SR500 / SR400 — Einzylinder-Ikone' },
+      {
+        type: 'p',
+        text: 'Einer der besten Einstiegsbikes für Selbstbauer. Robuster Einzylinder, simpler Rahmen, Kickstarter. Der Umbau zum Cafe Racer ist gestalterisch fast schon vorgezeichnet. Ab 2.500 € als Basis verfügbar.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1568708167243-438efa1d7697?w=1200&q=85',
+        caption: 'Eine gute Basis gibt dir die Silhouette geschenkt — du musst nur noch das Überflüssige weglassen.',
+      },
+      { type: 'h2', text: '3. BMW R-Serie (R80 / R100) — Boxer-Charakter' },
+      {
+        type: 'p',
+        text: 'Die BMW R-Serie ist für Cafe-Racer-Projekte so etwas wie die Königsdisziplin. Der Boxer-Motor definiert die Silhouette, der Rahmen ist herausragend verarbeitet, die Zuverlässigkeit legendär. Preise ab 3.500 € für ältere Exemplare, 5.500 €+ für gepflegte R100.',
+      },
+      { type: 'h2', text: '4. Kawasaki Z650 (1976-1983) — unterschätzte Rarität' },
+      {
+        type: 'p',
+        text: 'Die kleine Schwester der Z900, oft günstiger und leichter. Perfekte Geometrie für Cafe Racer, starker Reihenvierzylinder, weniger Aftermarket-Teile als bei Honda — was den Build einzigartiger macht. Basis ab 2.200 €.',
+      },
+      { type: 'h2', text: '5. Honda CB450 / CB500T — der heimliche Favorit' },
+      {
+        type: 'p',
+        text: 'Weniger bekannt als die CB750, aber technisch hochinteressant: DOHC-Parallel-Twin, feine Vergaser, kompakte Bauart. Ideal für urbane Cafe Racer mit schlanker Linie. Ab 1.800 € gebraucht.',
+      },
+      { type: 'h2', text: '6. Ducati Monster (frühe Modelle, 1993-2001)' },
+      {
+        type: 'p',
+        text: 'Kein klassischer Cafe Racer, aber eine fantastische Basis für moderne Interpretationen. Desmodromischer V-Twin, Gitterrohrrahmen — das Ergebnis sieht nie langweilig aus. Gebrauchte 600/750er ab 2.800 €.',
+      },
+      { type: 'h2', text: '7. Suzuki GS550 / GS750 (1977-1983)' },
+      {
+        type: 'p',
+        text: 'Oft günstiger als vergleichbare Hondas, technisch auf Augenhöhe, teilweise sogar robuster. Besonders die GS550 ist ein echter Geheimtipp unter Budget-Buildern. Ab 1.500 € als Basis.',
+      },
+      { type: 'h2', text: '8. Moto Guzzi V7 (klassische Modelle)' },
+      {
+        type: 'p',
+        text: 'Längs eingebauter V-Twin, italienischer Charme, einzigartiger Klang. Der Umbau erfordert mehr Planung (Kardanantrieb!), aber das Ergebnis ist unverwechselbar. Ältere Exemplare ab 3.200 €.',
+      },
+      { type: 'h2', text: '9. Triumph Bonneville T100 (moderne Generation)' },
+      {
+        type: 'p',
+        text: 'Modernere Technik als die Klassiker — Einspritzung, ABS-Optionen. Das Bike sieht ab Werk schon fast wie ein Cafe Racer aus, ein Umbau muss es nur freilegen. Gebraucht ab 5.800 €.',
+      },
+      { type: 'h2', text: '10. Honda CX500 — das Bike, das niemand sieht' },
+      {
+        type: 'p',
+        text: 'Wasser gekühlter V-Twin, Kardanantrieb, kompakte Bauart. Wird in der Cafe-Racer-Szene konsequent unterschätzt — zu Unrecht. Wer einen wirklich eigenständigen Build möchte, startet hier. Ab 1.800 € verfügbar.',
+      },
+      {
+        type: 'quote',
+        text: 'Die beste Basis ist die, die du wirklich fährst — nicht die, die am besten auf Instagram aussieht.',
+      },
+      {
+        type: 'cta',
+        text: 'Du willst umbauen lassen statt selbst bauen?',
+        href: '/custom-werkstatt',
+        label: 'Werkstätten finden',
+      },
+    ],
+  },
+
+  {
+    slug: 'was-kostet-ein-custom-bike',
+    title: 'Was kostet ein Custom Bike? Preise, Aufwand & versteckte Kosten',
+    metaTitle: 'Was kostet ein Custom Bike? Preise, Aufwand & versteckte Kosten',
+    metaDescription:
+      'Custom Bike Kosten im Überblick: Vom Einsteiger-Umbau für 6.000 € bis zum High-End-Build für 40.000 €+. Plus alle versteckten Kostenfallen.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Von 6.000 € bis 40.000 € — wir zeigen dir, was ein Custom Bike wirklich kostet und wo du Geld verlierst, wenn du nicht aufpasst.',
+    coverImage:
+      'https://images.unsplash.com/photo-1720722594991-35138eebe81a?w=1200&q=85',
+    publishedAt: '2026-03-15',
+    readTime: '10 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Kosten', 'Preise', 'Custom', 'Budget', 'Kaufratgeber'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'bobber-kaufen-guide', 'tuev-eintragung-custom-bike'],
+    faq: [
+      { q: 'Was kostet ein Custom Bike im Durchschnitt?', a: 'Ein qualitativ hochwertiger Custom-Build kostet zwischen 10.000 und 20.000 €. Einsteiger-Umbauten starten bei 6.000 €, High-End-Builds aus renommierten Workshops erreichen 20.000-40.000 €+.' },
+      { q: 'Warum sind Custom Bikes so teuer?', a: 'Ein professioneller Umbau umfasst 200-600 Arbeitsstunden bei 75-95 € Stundensatz. Allein die Arbeitszeit kostet 15.000-55.000 €. Dazu kommen Materialkosten, Gutachten, Garantieleistungen und Kalkulationsrisiko.' },
+      { q: 'Welche versteckten Kosten gibt es?', a: 'TÜV-Einzelabnahme (200-600 €), Teilegutachten (30-250 €), höhere Versicherungsprämien (bis zu 30% Aufschlag), Transportkosten (300-800 €) und Rücklagen für Nachjustierungen (500-2.000 €). Rechne mit 10-15% Zusatzkosten gegenüber dem Werkstattangebot.' },
+      { q: 'Lohnt sich ein Custom Bike finanziell?', a: 'Finanziell rechnet sich ein Custom Bike meist nicht — der Wertverlust beim Wiederverkauf liegt oft bei 20-35%. Der Wert liegt in der Individualität, der Langlebigkeit und der persönlichen Bindung an das Objekt, nicht im Wiederverkaufswert.' },
+      { q: 'Was ist günstiger: Werkstatt oder Selbstbau?', a: 'Ein Selbstbau kann Materialkosten auf 3.000-8.000 € drücken, erfordert aber 400-800 Stunden Eigenarbeit, Werkzeug und Werkstatt-Infrastruktur. Realistisch ist die Ersparnis geringer als gedacht — und das Ergebnis selten auf Werkstatt-Niveau.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Die meistgestellte Frage an jeden Custom-Builder lautet: "Was kostet sowas eigentlich?" Die ehrliche Antwort: Zwischen 6.000 € und 40.000 €+ — je nach Tiefe des Umbaus, Builder, Basis und gewünschten Komponenten. Dieser Ratgeber schlüsselt auf, wofür dein Geld geht und welche versteckten Kosten nie im Angebot stehen.',
+      },
+      { type: 'h2', text: 'Die drei Preiskategorien' },
+      {
+        type: 'list',
+        items: [
+          'Einsteiger (6.000 - 10.000 €): kosmetische Umbauten auf Serienbasis, Lackierung, Sitzbank, Lenker, kleinere Anpassungen',
+          'Mittelklasse (10.000 - 20.000 €): substantielle Modifikationen — neue Tanks, Heckumbau, Elektrik-Neuaufbau, individuelle Lackierung, gute Fahrwerkskomponenten',
+          'High-End (20.000 - 40.000 €+): handgefertigte Rahmen, vollständige Motorrevision, individuelle Anfertigungen, namhafte Builder, Schaustück-Qualität',
+        ],
+      },
+      { type: 'h2', text: 'Was du für dein Geld bekommst' },
+      {
+        type: 'p',
+        text: 'Ein professioneller Werkstattumbau umfasst typischerweise 200 bis 600 Arbeitsstunden. Bei einem Stundensatz von 75-95 € ergeben sich allein Arbeitskosten von 15.000 bis 55.000 €. Dazu kommen Materialkosten (Basisbike, Komponenten, Lackierung) und die Kalkulation für Garantie und Betriebsrisiko. Wer für 6.000 € einen "Custom-Umbau" verkauft, hat entweder die Arbeitszeit nicht kalkuliert oder spart massiv an Qualität.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1522850003946-16cb11d41a86?w=1200&q=85',
+        caption: 'High-End-Customs sind Investitionen — keine Fortbewegungsmittel.',
+      },
+      { type: 'h2', text: 'Versteckte Kosten, die nie im Angebot stehen' },
+      {
+        type: 'list',
+        items: [
+          'TÜV-Einzelabnahme: 200-600 € je nach Umfang der Modifikationen',
+          'Teilegutachten für bestimmte Komponenten: 80-250 € pro Gutachten',
+          'Versicherung: Custom-Bikes in der Versicherung oft teurer — bis zu 30% Aufschlag möglich',
+          'Transport: Ein Custom-Bike vom Builder zu dir — realistisch 300-800 € bei professioneller Spedition',
+          'Nach-Arbeiten: 500-2.000 € Rücklagen für die ersten 2.000 km (Einstellungen, kleine Nachbesserungen)',
+          'Wertverlust beim Wiederverkauf: Custom-Bikes verlieren bei Privatverkauf oft 20-35% gegenüber dem Neupreis',
+        ],
+      },
+      { type: 'h2', text: 'Werkstatt-Umbau vs. Selbstbau' },
+      {
+        type: 'p',
+        text: 'Ein Selbstbau kann die Materialkosten auf 3.000-8.000 € drücken — aber nur, wenn du über Schweißkenntnisse, ein gut ausgestattetes Atelier und 400-800 Stunden Zeit verfügst. Realistischerweise ist ein semiprofessioneller Selbstbau nach ca. 2-3 Jahren abgeschlossen. Wer rechnet, stellt schnell fest: Die vermeintliche Ersparnis ist oft geringer als erwartet — und das Ergebnis selten auf dem Niveau einer Werkstatt.',
+      },
+      { type: 'h2', text: 'Wofür lohnt sich das Geld wirklich?' },
+      {
+        type: 'p',
+        text: 'Die größten Qualitätsunterschiede bei Custom-Bikes liegen in drei Bereichen: Schweißarbeiten (sichtbare Nähte an Rahmen, Tank, Heckauslegern), Elektrik (ein sauberer neuer Kabelbaum ist die unterschätzteste Qualitätsmerkmal überhaupt) und Lackierung (Handlackierungen unterscheiden sich dramatisch von Spritzpistolen-Jobs). Wer hier spart, bereut es spätestens nach 10.000 km. Wer hier investiert, bekommt ein Bike, das 20 Jahre lang Geschichte erzählt.',
+      },
+      {
+        type: 'quote',
+        text: 'Du kaufst nicht das Material — du kaufst die Zeit eines Menschen, der weiß, was er tut.',
+      },
+      {
+        type: 'cta',
+        text: 'Custom-Werkstätten und ihre Preise vergleichen',
+        href: '/custom-werkstatt',
+        label: 'Werkstätten finden',
+      },
+    ],
+  },
+
+  {
+    slug: 'tuev-eintragung-custom-bike',
+    title: 'TÜV-Eintragung für Umbauten: Was in Deutschland wirklich legal ist',
+    metaTitle: 'TÜV-Eintragung Custom Bike — Was in Deutschland legal ist',
+    metaDescription:
+      'TÜV-Abnahme für Custom Bikes: Welche Umbauten eintragungspflichtig sind, was ohne ABE erlaubt ist und was deine Betriebserlaubnis gefährdet.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Stummellenker, Tankumbau, anderes Heck — was darfst du in Deutschland wirklich und was kostet dich die Betriebserlaubnis?',
+    coverImage:
+      'https://images.unsplash.com/photo-1527537232679-89f0d63ea3f7?w=1200&q=85',
+    publishedAt: '2026-03-08',
+    readTime: '9 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['TÜV', 'Eintragung', 'StVZO', 'Betriebserlaubnis', 'Deutschland', 'Recht'],
+    relatedSlugs: ['cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike', 'bobber-kaufen-guide'],
+    faq: [
+      { q: 'Was ist beim Custom-Umbau eintragungspflichtig?', a: 'Eintragungspflichtig sind alle Modifikationen, die die Betriebserlaubnis betreffen: Lenker, Sitzbank (wenn sich die Sitzhöhe ändert), Auspuffanlage, Beleuchtung, Reifen anderer Dimension, Rahmenmodifikationen, Tank und Bremsen.' },
+      { q: 'Wie viel kostet eine TÜV-Einzelabnahme?', a: 'Eine Einzelabnahme nach § 21 StVZO kostet je nach Prüfumfang 150-600 €. Teilegutachten sind oft kostenlos (in Teilen enthalten) oder 30-80 € beim Hersteller. Die Eintragung bei der Zulassungsstelle kostet 15-30 €.' },
+      { q: 'Brauche ich ein Gutachten für jeden Umbau?', a: 'Nicht immer. Bei Teilen mit ABE (Allgemeine Betriebserlaubnis) reicht die Eintragung beim TÜV. Bei Teilegutachten musst du die Prüfdokumente beim TÜV vorlegen. Fehlt beides, ist eine Einzelabnahme nach §21 StVZO erforderlich.' },
+      { q: 'Was passiert, wenn ich einen Umbau nicht eintragen lasse?', a: 'Die Betriebserlaubnis erlischt. Bei einer Polizeikontrolle drohen Bußgeld, Punkte in Flensburg und Stilllegung. Zusätzlich greift die Kfz-Versicherung bei Unfällen nicht — im Schadensfall haftest du persönlich.' },
+      { q: 'Darf ich Stummellenker an meinem Motorrad montieren?', a: 'Nur mit ABE oder nach Einzelabnahme. Die Geometrie der Lenkung (Drehradius, Anschläge) wird geprüft. Nicht eingetragene Stummellenker führen sofort zum Erlöschen der Betriebserlaubnis.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Die schlechteste Nachricht beim Custom-Bike-Kauf: Deine Betriebserlaubnis ist erloschen. Kein TÜV, keine Versicherung, keine legale Straßenfahrt. Um das zu vermeiden, solltest du wissen, was in Deutschland eintragungspflichtig ist — und welche Umbauten du mit welchen Papieren absichern musst.',
+      },
+      { type: 'h2', text: 'Was ist eintragungspflichtig?' },
+      {
+        type: 'p',
+        text: 'Grundsätzlich gilt: Jede Modifikation, die die Betriebserlaubnis nach § 19 StVZO betreffen kann, ist eintragungs- oder abnahmepflichtig. Praktisch bedeutet das: Fast alles außer rein kosmetischen Veränderungen wie Lackierung oder Sitzbankbezug.',
+      },
+      {
+        type: 'list',
+        items: [
+          'Lenker: Andere Form, andere Breite, anderer Biegeradius — immer eintragungspflichtig',
+          'Sitzbank: Sitzhöhe ändert sich → Eintragung erforderlich',
+          'Auspuffanlage: Immer prüfpflichtig, Geräuschemissionen dokumentieren',
+          'Beleuchtung: LED-Umbauten, andere Scheinwerfer, Mini-Blinker — alle brauchen ABE oder Einzelabnahme',
+          'Reifen: Andere Dimensionen oder Profile → Einzelabnahme, manchmal Freigabe des Fahrzeugherstellers nötig',
+          'Rahmen: Kürzung, Hardtail-Umbau, Heckmodifikation — Einzelabnahme zwingend',
+          'Tank: Anderes Volumen oder Form → Einzelabnahme',
+          'Bremsen: Andere Systeme, andere Dimensionen → Einzelabnahme',
+        ],
+      },
+      { type: 'h2', text: '§21 StVZO — die Einzelabnahme' },
+      {
+        type: 'p',
+        text: 'Wenn keine ABE (Allgemeine Betriebserlaubnis) oder kein Teilegutachten für ein Bauteil existiert, greift die Einzelabnahme nach § 21 StVZO. Der Prüfingenieur (TÜV, DEKRA, GTÜ) beurteilt den Einzelfall anhand der geltenden technischen Anforderungen. Das ist der häufigste Weg für Custom-Bike-Modifikationen.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
+        caption: 'Eine saubere Dokumentation aller Teile und Gutachten ist bei der TÜV-Abnahme wichtiger als Eile.',
+      },
+      { type: 'h2', text: 'Welche Gutachten du brauchst' },
+      {
+        type: 'list',
+        items: [
+          'Teilegutachten: Hersteller-seitige Prüfung einzelner Komponenten (z.B. Lenker, Blinker) — kein Behördengang nötig, aber Eintragung durch TÜV',
+          'Allgemeine Betriebserlaubnis (ABE): Hersteller garantiert Straßenzulassung → Eintragung nicht immer nötig',
+          'Einzelabnahme nach § 21: Notwendig bei fehlender ABE/Gutachten — individuelle Prüfung',
+          'Fahrzeugeinzelabnahme: Bei selbstgebauten Rahmen oder kompletten Umbauten — aufwendiger, aber möglich',
+        ],
+      },
+      { type: 'h2', text: 'Typische Fehler, die deine Betriebserlaubnis kosten' },
+      {
+        type: 'list',
+        items: [
+          'Nicht eingetragene Lenker (selbst wenn es "nur" ein Lenkerstummel ist)',
+          'Auspuffanlage ohne gültige ABE und ohne Einzelabnahme',
+          'Fehlerhafte oder nicht zugelassene Beleuchtung (insbesondere Mini-Blinker)',
+          'Reifen, die nicht in der Zulassungsbescheinigung Teil I (früher Fahrzeugschein) stehen',
+          'Verbreiterte Hinterreifen ohne Gutachten oder Einzelabnahme',
+          'Sitzbanktausch, der die Sitzhöhe wesentlich verändert, ohne Abnahme',
+        ],
+      },
+      { type: 'h2', text: 'Der Ablauf einer TÜV-Einzelabnahme' },
+      {
+        type: 'p',
+        text: 'Nach der Modifikation vereinbarst du einen Termin bei einer amtlich anerkannten Prüforganisation. Dein Fahrzeug muss vollständig modifiziert, straßentauglich und sauber sein. Du bringst mit: alle Kaufbelege der Komponenten, vorhandene Teilegutachten, Zulassungsbescheinigung Teil I + II, TÜV-Brief. Der Prüfingenieur kontrolliert Geometrie, Beleuchtung, Bremsen, Geräuschemissionen, Abgaswerte (wenn relevant). Bei Erfolg bekommst du einen Eintragungsvermerk — anschließend musst du diesen bei der Zulassungsstelle in die Fahrzeugpapiere eintragen lassen.',
+      },
+      { type: 'h2', text: 'Was das Ganze kostet' },
+      {
+        type: 'p',
+        text: 'Eine Einzelabnahme kostet je nach Prüfumfang 150-600 €. Teilegutachten selbst kosten oft nichts (liegen den Teilen bei) oder 30-80 € beim Hersteller. Die Eintragung bei der Zulassungsstelle fällt mit etwa 15-30 € an. Insgesamt solltest du für einen gut gemachten Custom-Umbau mit 300-1.000 € Behördenkosten rechnen. Zum Vergleich: Wenn deine Betriebserlaubnis bei einer Polizeikontrolle als erloschen eingestuft wird, verlierst du nicht nur deinen Versicherungsschutz — du bekommst Punkte in Flensburg, eine Geldstrafe und musst das Bike sofort stilllegen.',
+      },
+      {
+        type: 'quote',
+        text: 'Der teuerste Umbau ist immer der, den du nicht eintragen lässt — weil ein Unfall ohne gültige Betriebserlaubnis alles andere teuer macht.',
+      },
+      {
+        type: 'cta',
+        text: 'Werkstätten, die komplette TÜV-Abnahmen übernehmen',
+        href: '/custom-werkstatt',
+        label: 'Werkstatt finden',
+      },
+    ],
+  },
+
+  {
+    slug: 'cafe-racer-kaufen-guide',
+    title: 'Cafe Racer kaufen: Der vollständige Leitfaden für 2026',
+    metaTitle: 'Cafe Racer kaufen 2026 — Tipps, Preise & Worauf achten',
+    metaDescription:
+      'Cafe Racer kaufen: Alles über Rahmenprüfung, TÜV, Preise und die besten Modelle 2026. Unser Guide für Einsteiger und Kenner.',
     category: 'guide',
     categoryLabel: 'Guide',
     excerpt:
       'Von der Rahmenprüfung bis zur Zulassung — unser vollständiger Leitfaden für Custom-Bike-Käufer.',
     coverImage:
-      'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&q=85',
+      'https://images.unsplash.com/photo-1568708167243-438efa1d7697?w=1200&q=85',
     publishedAt: '2025-11-15',
     readTime: '15 min',
     author: 'MotoDigital Redaktion',
     tags: ['Cafe Racer', 'Kaufratgeber', 'Custom Motorcycle', 'TÜV', 'Deutschland'],
+    relatedSlugs: ['warum-heisst-es-cafe-racer', 'cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike'],
     content: [
       {
         type: 'intro',
@@ -107,11 +664,12 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Der Berliner Builder über luftgekühlte Japaner, handgefertigte Einzelstücke und warum er jeden Build als Zusammenarbeit versteht.',
     coverImage:
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85',
+      'https://images.unsplash.com/photo-1522850003946-16cb11d41a86?w=1200&q=85',
     publishedAt: '2025-10-20',
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Interview', 'Cafe Racer', 'Builder', 'Berlin', 'Honda CB750'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'warum-heisst-es-cafe-racer'],
     relatedBuilderSlug: 'jakob-kraft',
     content: [
       {
@@ -169,11 +727,12 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Ein 1976er Shovelhead, 16 Monate Arbeit und eine klare Haltung: Old School ist keine Nostalgie.',
     coverImage:
-      'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&q=85',
+      'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
     publishedAt: '2025-09-08',
     readTime: '10 min',
     author: 'MotoDigital Redaktion',
     tags: ['Build Story', 'Chopper', 'Harley-Davidson', 'Shovelhead', 'Stuttgart'],
+    relatedSlugs: ['bobber-kaufen-guide', 'max-steiner-bobber-interview', 'was-kostet-ein-custom-bike'],
     relatedBuilderSlug: 'kai-fuchs-custom',
     relatedBuildSlug: 'shovel-devil',
     content: [
@@ -199,7 +758,7 @@ export const ARTICLES: Article[] = [
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&q=85',
+        src: 'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
         caption: 'Der fertige Shovel Devil — 16 Monate Arbeit, eine klare Vision.',
       },
       {
@@ -237,11 +796,12 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Beide Stile sind vielseitig — aber der Unterschied liegt im Detail. Wir erklären, was dich erwartet.',
     coverImage:
-      'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85',
+      'https://images.unsplash.com/photo-1582092722992-b2f960bafbfb?w=1200&q=85',
     publishedAt: '2025-08-22',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
     tags: ['Scrambler', 'Tracker', 'Kaufratgeber', 'Custom Motorcycle', 'Vergleich'],
+    relatedSlugs: ['scrambler-kaufen-guide', 'cafe-racer-kaufen-guide', 'was-kostet-ein-custom-bike'],
     content: [
       {
         type: 'intro',
@@ -305,11 +865,12 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Der Münchner Builder über Bobber-Philosophie, handlackierte Tanks und warum er nie Kompromisse eingeht.',
     coverImage:
-      'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=1200&q=85',
+      'https://images.unsplash.com/photo-1609202748711-feef2cdc7da3?w=1200&q=85',
     publishedAt: '2025-07-14',
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Interview', 'Bobber', 'Builder', 'München', 'BMW R-Serie'],
+    relatedSlugs: ['bobber-kaufen-guide', 'shovelhead-revival-kai-fuchs', 'was-kostet-ein-custom-bike'],
     relatedBuilderSlug: 'max-steiner',
     content: [
       {
@@ -367,11 +928,12 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Das Hamburger Duo über Hafenluft, schlanke Builds und die Kunst des Weglassens.',
     coverImage:
-      'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&q=85',
+      'https://images.unsplash.com/photo-1629628083289-009e6f87f5cf?w=1200&q=85',
     publishedAt: '2025-06-03',
     readTime: '9 min',
     author: 'MotoDigital Redaktion',
     tags: ['Build Story', 'Street', 'Suzuki', 'Hamburg', 'Custom'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike'],
     relatedBuilderSlug: 'studio-nord',
     relatedBuildSlug: 'berlin-ghost',
     content: [
@@ -397,7 +959,7 @@ export const ARTICLES: Article[] = [
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&q=85',
+        src: 'https://images.unsplash.com/photo-1629628083289-009e6f87f5cf?w=1200&q=85',
         caption: 'Berlin Ghost bei der ersten Ausfahrt in Hamburg — Morgenlicht, nasses Pflaster.',
       },
       {

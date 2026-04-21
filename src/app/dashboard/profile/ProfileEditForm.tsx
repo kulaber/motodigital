@@ -560,7 +560,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
 
         <Field label="Profil-URL (slug)" className="mb-4">
           <div className={`${input} text-[#222222]/40 cursor-default`}>
-            motodigital.vercel.app/custom-werkstatt/<span className="text-[#717171]">{computedSlug || '…'}</span>
+            motodigital.io/custom-werkstatt/<span className="text-[#717171]">{computedSlug || '…'}</span>
           </div>
           <p className="text-[10px] text-[#222222]/25 mt-1">Wird automatisch aus deinem Namen generiert</p>
         </Field>

@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import {
-  Eye, MessageCircle, Bike, Star, Lock,
+  Eye, MessageCircle, Bike, Star, Lock, Loader2,
   TrendingUp, TrendingDown, Minus, Image as ImageIcon,
   AlertCircle, MapPin, Sparkles,
 } from 'lucide-react'
@@ -44,6 +43,21 @@ const TIME_RANGES: { key: TimeRange; label: string }[] = [
 // ── Locked State ──
 
 export function LockedDashboard() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleUpgrade() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch {}
+    setLoading(false)
+  }
+
   return (
     <div className="relative">
       {/* Blurred mock content */}
@@ -92,12 +106,20 @@ export function LockedDashboard() {
           <p className="text-xs text-[#717171] leading-relaxed">
             Sieh wie viele Besucher dein Profil hatte, welche Bikes am meisten aufgerufen wurden und woher deine Besucher kommen.
           </p>
-          <Link
-            href="/partner"
-            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-colors mt-1"
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-xs font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-colors mt-1 disabled:opacity-50"
           >
-            Jetzt upgraden
-          </Link>
+            {loading ? (
+              <>
+                <Loader2 size={12} className="animate-spin" />
+                Weiterleitung...
+              </>
+            ) : (
+              'Jetzt upgraden'
+            )}
+          </button>
         </div>
       </div>
     </div>

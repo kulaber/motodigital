@@ -3,25 +3,24 @@
 import { useRef, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { Builder } from '@/lib/data/builders'
+import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react'
+import type { Article } from '@/lib/data/magazine'
 
 const CARD_STEP = 336 // w-80 (320) + gap-4 (16)
 const AUTO_ADVANCE_MS = 5000
 
 interface Props {
-  builders: Builder[]
+  articles: Article[]
 }
 
-export default function BuilderCarousel({ builders }: Props) {
+export default function MagazineCarousel({ articles }: Props) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [paused, setPaused] = useState(false)
   const [dragging, setDragging] = useState(false)
   const posRef = useRef(0)
   const animatingRef = useRef(false)
 
-  // Duplicate items for seamless wrap-around
-  const items = [...builders, ...builders]
+  const items = [...articles, ...articles]
 
   function navigate(dir: 'prev' | 'next') {
     const track = trackRef.current
@@ -47,7 +46,6 @@ export default function BuilderCarousel({ builders }: Props) {
     return () => window.clearInterval(id)
   }, [paused, dragging])
 
-  // Touch drag support for mobile
   const touchStartX = useRef(0)
   const touchStartPos = useRef(0)
 
@@ -83,7 +81,7 @@ export default function BuilderCarousel({ builders }: Props) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="py-3 overflow-hidden sm:fade-mask">
+      <div className="py-3 overflow-hidden sm:magazine-fade-mask">
       <div
         ref={trackRef}
         className="flex gap-4 w-max cursor-default"
@@ -91,49 +89,51 @@ export default function BuilderCarousel({ builders }: Props) {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {items.map((b, i) => {
-          const coverImg = b.media.find(m => m.type === 'image')?.url
-          return (
-            <Link
-              key={`${b.slug}-${i}`}
-              href={`/custom-werkstatt/${b.slug}`}
-              className="group flex-shrink-0 w-80 bg-white border border-[#222222]/6 rounded-xl sm:rounded-2xl overflow-hidden hover:border-[#222222]/20 transition-all duration-200 block"
-            >
-              {/* Cover image */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
-                {coverImg ? (
-                  <Image
-                    src={coverImg}
-                    alt={b.name}
-                    fill
-                    sizes="320px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-2xl font-bold text-[#DDDDDD]">{b.initials}</span>
-                  </div>
-                )}
-                {b.featured && (
-                  <span className="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] px-2 py-0.5 rounded-full">
-                    Top Builder
-                  </span>
-                )}
-                {b.builds > 0 && (
-                  <span className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                    {b.builds} Custom {b.builds === 1 ? 'Bike' : 'Bikes'}
-                  </span>
-                )}
+        {items.map((article, i) => (
+          <Link
+            key={`${article.slug}-${i}`}
+            href={`/magazine/${article.slug}`}
+            className="group flex-shrink-0 w-72 sm:w-80 bg-white border border-[#222222]/6 rounded-xl sm:rounded-2xl overflow-hidden hover:border-[#222222]/20 transition-all duration-200 block"
+          >
+            {/* Image */}
+            <div className="relative aspect-[3/2] overflow-hidden bg-[#F7F7F7]">
+              {article.coverImage ? (
+                <Image
+                  src={article.coverImage}
+                  alt={article.title}
+                  fill
+                  sizes="320px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen size={32} className="text-[#DDDDDD]" />
+                </div>
+              )}
+              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
+              <div className="absolute top-2 left-2">
+                <span className="bg-white/80 backdrop-blur-sm border border-[#222222]/15 text-[#222222] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                  {article.categoryLabel}
+                </span>
               </div>
+              <div className="absolute bottom-2 left-2">
+                <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-[10px] sm:text-xs px-2.5 py-1 rounded-full shadow-sm">
+                  {article.readTime}
+                </span>
+              </div>
+            </div>
 
-              {/* Card body */}
-              <div className="p-3 sm:p-4">
-                <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-0.5">{b.name}</h3>
-                <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.city}{b.country ? `, ${b.country}` : ''}</p>
-              </div>
-            </Link>
-          )
-        })}
+            {/* Content */}
+            <div className="p-3 sm:p-4">
+              <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-2 mb-1">
+                {article.title}
+              </h3>
+              <p className="text-[10px] sm:text-xs text-[#222222]/35 truncate">
+                {article.author}
+              </p>
+            </div>
+          </Link>
+        ))}
       </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function BuilderCarousel({ builders }: Props) {
 
       <style>{`
         @media (min-width: 640px) {
-          .fade-mask {
+          .magazine-fade-mask {
             mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
             -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
           }

@@ -30,15 +30,20 @@ export async function generateMetadata({
   return {
     title: article.metaTitle,
     description: article.metaDescription,
-    keywords: article.tags.join(', '),
-    alternates: { canonical: `https://motodigital.vercel.app/magazine/${article.slug}` },
+    alternates: { canonical: `https://motodigital.io/magazine/${article.slug}` },
+    robots: { index: true, follow: true },
     openGraph: {
       title: article.metaTitle,
       description: article.metaDescription,
-      images: [{ url: article.coverImage, width: 1200, height: 630 }],
+      url: `https://motodigital.io/magazine/${article.slug}`,
+      siteName: 'MotoDigital',
+      locale: 'de_DE',
+      images: [{ url: article.coverImage, width: 1200, height: 630, alt: article.title }],
       type: 'article',
       publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt ?? article.publishedAt,
       tags: article.tags,
+      authors: [article.author],
     },
     twitter: {
       card: 'summary_large_image',
@@ -47,6 +52,35 @@ export async function generateMetadata({
       images: [article.coverImage],
     },
   }
+}
+
+function countWords(content: ArticleSection[]): number {
+  let text = ''
+  for (const s of content) {
+    if (s.type === 'intro' || s.type === 'h2' || s.type === 'p') text += ' ' + s.text
+    else if (s.type === 'quote') text += ' ' + s.text
+    else if (s.type === 'list') text += ' ' + s.items.join(' ')
+  }
+  return text.trim().split(/\s+/).filter(Boolean).length
+}
+
+function extractFaq(content: ArticleSection[]): { q: string; a: string }[] {
+  const faq: { q: string; a: string }[] = []
+  for (let i = 0; i < content.length; i++) {
+    const s = content[i]
+    if (s.type === 'h2' && s.text.trim().endsWith('?')) {
+      // Gather following p/list sections until next h2
+      const answerParts: string[] = []
+      for (let j = i + 1; j < content.length; j++) {
+        const next = content[j]
+        if (next.type === 'h2') break
+        if (next.type === 'p') answerParts.push(next.text)
+        else if (next.type === 'list') answerParts.push(next.items.join('. '))
+      }
+      if (answerParts.length > 0) faq.push({ q: s.text, a: answerParts.join(' ') })
+    }
+  }
+  return faq
 }
 
 function formatDateDE(iso: string): string {
@@ -191,31 +225,81 @@ export default async function ArticlePage({
     .filter(a => a.slug !== article.slug)
     .slice(0, 3)
 
-  const jsonLd = {
+  const canonicalUrl = `https://motodigital.io/magazine/${article.slug}`
+  const wordCount = countWords(article.content)
+  const faq = article.faq && article.faq.length > 0 ? article.faq.map(f => ({ q: f.q, a: f.a })) : extractFaq(article.content)
+
+  const blogPostingLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
     headline: article.title,
     description: article.metaDescription,
-    image: article.coverImage,
+    image: [article.coverImage],
     datePublished: article.publishedAt,
+    dateModified: article.updatedAt ?? article.publishedAt,
     author: { '@type': 'Person', name: article.author },
-    publisher: { '@type': 'Organization', name: 'MotoDigital', url: 'https://motodigital.vercel.app' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'MotoDigital',
+      url: 'https://motodigital.io',
+      logo: { '@type': 'ImageObject', url: 'https://motodigital.io/icon-512.png' },
+    },
+    articleSection: article.categoryLabel,
     keywords: article.tags.join(', '),
+    wordCount,
+    inLanguage: 'de-DE',
   }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://motodigital.io' },
+      { '@type': 'ListItem', position: 2, name: 'Magazin', item: 'https://motodigital.io/magazine' },
+      { '@type': 'ListItem', position: 3, name: article.categoryLabel, item: `https://motodigital.io/magazine/${article.category}` },
+      { '@type': 'ListItem', position: 4, name: article.title, item: canonicalUrl },
+    ],
+  }
+
+  const faqLd = faq.length >= 2 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  } : null
+
+  // Resolve related articles for cross-linking
+  const relatedArticles = (article.relatedSlugs ?? [])
+    .map(s => getArticleBySlug(s))
+    .filter((a): a is NonNullable<typeof a> => !!a)
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
       <Header activePage="magazine" />
 
       {/* ── Hero — dark overlay ── */}
       <div className="relative h-[62vh] min-h-[420px] w-full overflow-hidden">
         <Image
           src={article.coverImage}
-          alt={article.title}
+          alt={`${article.title} — ${article.tags.slice(0, 3).join(', ')}`}
           fill
           sizes="100vw"
           priority
@@ -246,7 +330,7 @@ export default async function ArticlePage({
             <div className="flex items-center justify-center gap-3 text-[11px] text-white/45">
               <span className="font-medium text-white/65">{article.author}</span>
               <span className="h-2.5 w-px bg-white/20" />
-              <span>{formatDateDE(article.publishedAt)}</span>
+              <time dateTime={article.publishedAt}>{formatDateDE(article.publishedAt)}</time>
             </div>
           </div>
         </div>
@@ -276,6 +360,28 @@ export default async function ArticlePage({
               <RenderSection key={i} section={section} />
             ))}
 
+            {/* FAQ — visible answers + FAQPage schema */}
+            {article.faq && article.faq.length > 0 && (
+              <section className="mt-12 pt-8 border-t border-[#222222]/6" aria-label="Häufige Fragen">
+                <h2 className="text-xl font-bold text-[#222222] mb-6" style={{ letterSpacing: '-0.025em' }}>
+                  Häufige Fragen
+                </h2>
+                <div className="space-y-5">
+                  {article.faq.map((f, i) => (
+                    <details key={i} className="group border-b border-[#222222]/6 pb-4">
+                      <summary className="flex items-start justify-between gap-3 cursor-pointer list-none text-[15px] font-semibold text-[#222222] hover:text-[#06a5a5] transition-colors">
+                        <span className="flex-1">{f.q}</span>
+                        <span className="text-[#222222]/30 text-lg leading-none flex-shrink-0 group-open:rotate-45 transition-transform duration-200">+</span>
+                      </summary>
+                      <p className="mt-3 text-[14px] text-[#222222]/65 leading-[1.8]">
+                        {f.a}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Tags footer */}
             <div className="mt-12 pt-6 border-t border-[#222222]/6 flex flex-wrap gap-2">
               {article.tags.map(tag => (
@@ -284,6 +390,33 @@ export default async function ArticlePage({
                 </span>
               ))}
             </div>
+
+            {/* Related articles — in-content internal linking for topic authority */}
+            {relatedArticles.length > 0 && (
+              <section className="mt-12 pt-8 border-t border-[#222222]/6" aria-label="Weiterführende Artikel">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-[#222222]/40 mb-5">
+                  Weiterlesen
+                </h2>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {relatedArticles.map(r => (
+                    <li key={r.slug}>
+                      <Link
+                        href={`/magazine/${r.slug}`}
+                        className="group block bg-[#F7F7F7] hover:bg-white border border-[#222222]/6 hover:border-[#222222]/18 rounded-xl p-4 transition-colors"
+                      >
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#06a5a5] mb-1.5">
+                          {r.categoryLabel}
+                        </p>
+                        <p className="text-sm font-semibold text-[#222222] leading-snug group-hover:text-[#06a5a5] transition-colors line-clamp-2">
+                          {r.title}
+                        </p>
+                        <p className="mt-1.5 text-xs text-[#222222]/45 line-clamp-2">{r.excerpt}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </main>
 
           {/* ── Sidebar ── */}
@@ -367,27 +500,6 @@ export default async function ArticlePage({
                   </div>
                 </div>
               )}
-
-              {/* Newsletter */}
-              <div className="bg-[#222222] rounded-2xl p-5">
-                <h3
-                  className="text-sm font-bold text-white mb-1"
-                  style={{ letterSpacing: '-0.02em' }}
-                >
-                  Kein Artikel verpassen
-                </h3>
-                <p className="text-xs text-white/40 mb-4 leading-relaxed">
-                  Build Stories, Interviews und Guides — direkt in dein Postfach.
-                </p>
-                <input
-                  type="email"
-                  placeholder="deine@email.de"
-                  className="w-full px-3.5 py-2.5 bg-white/8 border border-white/10 rounded-xl text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/25 mb-3"
-                />
-                <button className="w-full py-2.5 bg-[#06a5a5] hover:bg-[#058f8f] text-white text-sm font-bold rounded-xl transition-colors">
-                  Abonnieren
-                </button>
-              </div>
 
               {/* Back link */}
               <Link

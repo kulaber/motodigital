@@ -10,7 +10,7 @@ const meta = CATEGORY_META['build-story']
 export const metadata: Metadata = {
   title: meta.title,
   description: meta.description,
-  alternates: { canonical: 'https://motodigital.vercel.app/magazine/build-story' },
+  alternates: { canonical: 'https://motodigital.io/magazine/build-story' },
   openGraph: { title: meta.title, description: meta.description, type: 'website' },
 }
 

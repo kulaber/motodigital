@@ -3,8 +3,11 @@
 import { useRef, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarDays, MapPin } from 'lucide-react'
+import { CalendarDays, MapPin, ChevronLeft, ChevronRight } from 'lucide-react'
 import { formatEventDate } from '@/lib/data/events'
+
+const CARD_STEP = 336 // w-80 (320) + gap-4 (16)
+const AUTO_ADVANCE_MS = 5000
 
 interface EventTeaser {
   id: string
@@ -25,35 +28,42 @@ export default function EventsCarousel({ events }: Props) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [paused, setPaused] = useState(false)
   const [dragging, setDragging] = useState(false)
-  const rafRef = useRef<number>(0)
   const posRef = useRef(0)
+  const animatingRef = useRef(false)
 
   const items = [...events, ...events]
 
-  useEffect(() => {
+  function navigate(dir: 'prev' | 'next') {
     const track = trackRef.current
-    if (!track) return
+    if (!track || animatingRef.current) return
+    animatingRef.current = true
+    const half = track.scrollWidth / 2
+    let target = posRef.current + (dir === 'next' ? CARD_STEP : -CARD_STEP)
+    track.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+    track.style.transform = `translateX(-${target}px)`
+    window.setTimeout(() => {
+      track.style.transition = ''
+      if (target < 0) target += half
+      if (target >= half) target -= half
+      posRef.current = target
+      track.style.transform = `translateX(-${target}px)`
+      animatingRef.current = false
+    }, 550)
+  }
 
-    const speed = 0.5
-
-    function step() {
-      if (!paused && !dragging && track) {
-        posRef.current += speed
-        const half = track.scrollWidth / 2
-        if (posRef.current >= half) posRef.current -= half
-        track.style.transform = `translateX(-${posRef.current}px)`
-      }
-      rafRef.current = requestAnimationFrame(step)
-    }
-
-    rafRef.current = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(rafRef.current)
+  useEffect(() => {
+    if (paused || dragging) return
+    const id = window.setInterval(() => navigate('next'), AUTO_ADVANCE_MS)
+    return () => window.clearInterval(id)
   }, [paused, dragging])
 
   const touchStartX = useRef(0)
   const touchStartPos = useRef(0)
 
   function onTouchStart(e: React.TouchEvent) {
+    const track = trackRef.current
+    if (!track) return
+    track.style.transition = ''
     setDragging(true)
     touchStartX.current = e.touches[0].clientX
     touchStartPos.current = posRef.current
@@ -78,10 +88,11 @@ export default function EventsCarousel({ events }: Props) {
 
   return (
     <div
-      className="relative py-3 overflow-hidden sm:events-fade-mask"
+      className="relative"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      <div className="py-3 overflow-hidden sm:events-fade-mask">
       <div
         ref={trackRef}
         className="flex gap-4 w-max cursor-default"
@@ -110,6 +121,8 @@ export default function EventsCarousel({ events }: Props) {
                   <CalendarDays size={32} className="text-[#DDDDDD]" />
                 </div>
               )}
+              {/* Bottom gradient for date-pill legibility */}
+              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
               {event.tags.length > 0 && (
                 <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                   {event.tags.slice(0, 2).map((tag) => (
@@ -122,6 +135,14 @@ export default function EventsCarousel({ events }: Props) {
                   ))}
                 </div>
               )}
+              {event.date_start && (
+                <div className="absolute bottom-2 left-2">
+                  <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-[10px] sm:text-xs px-2.5 py-1 rounded-full shadow-sm">
+                    <CalendarDays size={11} className="text-[#06a5a5]" />
+                    {formatEventDate(event)}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Content */}
@@ -129,24 +150,34 @@ export default function EventsCarousel({ events }: Props) {
               <h3 className="text-xs sm:text-sm font-semibold text-[#222222] leading-snug line-clamp-1 mb-1">
                 {event.name}
               </h3>
-              <div className="flex items-center gap-3 text-[10px] sm:text-xs text-[#222222]/35">
-                {event.date_start && (
-                  <span className="flex items-center gap-1">
-                    <CalendarDays size={10} className="text-[#06a5a5]" />
-                    {formatEventDate(event)}
-                  </span>
-                )}
-                {event.location && (
-                  <span className="flex items-center gap-1 truncate">
-                    <MapPin size={10} className="flex-shrink-0" />
-                    <span className="truncate">{event.location}</span>
-                  </span>
-                )}
-              </div>
+              {event.location && (
+                <div className="flex items-center gap-1 text-[10px] sm:text-xs text-[#222222]/35">
+                  <MapPin size={10} className="flex-shrink-0" />
+                  <span className="truncate">{event.location}</span>
+                </div>
+              )}
             </div>
           </Link>
         ))}
       </div>
+      </div>
+
+      <button
+        type="button"
+        aria-label="Zurück"
+        onClick={() => navigate('prev')}
+        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-[#222222]/10 text-[#222222] hover:bg-[#F7F7F7] transition-colors duration-200"
+      >
+        <ChevronLeft size={18} />
+      </button>
+      <button
+        type="button"
+        aria-label="Weiter"
+        onClick={() => navigate('next')}
+        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-[#222222]/10 text-[#222222] hover:bg-[#F7F7F7] transition-colors duration-200"
+      >
+        <ChevronRight size={18} />
+      </button>
 
       <style>{`
         @media (min-width: 640px) {

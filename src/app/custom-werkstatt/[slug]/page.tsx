@@ -193,7 +193,7 @@ async function getBuilderBySlugFromDB(slug: string): Promise<Builder | null> {
 
 type Props = { params: Promise<{ slug: string }> }
 
-const BASE_URL = 'https://motodigital.vercel.app'
+const BASE_URL = 'https://motodigital.io'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params

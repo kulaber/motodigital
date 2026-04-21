@@ -8,6 +8,8 @@ import StickySearch from './StickySearch'
 import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import EventsCarousel from '@/components/landing/EventsCarousel'
+import MagazineCarousel from '@/components/landing/MagazineCarousel'
+import { ARTICLES } from '@/lib/data/magazine'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
@@ -421,6 +423,28 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── MAGAZIN ── */}
+      {ARTICLES.length > 0 && (
+        <section className="py-20 lg:py-28 bg-white overflow-hidden" id="magazin">
+          <div className="max-w-6xl mx-auto px-5 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+            <div>
+              <h2 className="font-bold text-[#222222] leading-tight" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.6rem)' }}>
+                Stories aus der Szene.
+              </h2>
+            </div>
+            <Link href="/magazine" className="hidden sm:inline-flex flex-shrink-0 border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Artikel →
+            </Link>
+          </div>
+          <MagazineCarousel articles={ARTICLES} />
+          <div className="sm:hidden mt-8 text-center px-5">
+            <Link href="/magazine" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
+              Alle Artikel →
+            </Link>
+          </div>
+        </section>
+      )}
 
       </div>{/* end sticky search wrapper */}
 

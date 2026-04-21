@@ -27,7 +27,7 @@ export function verifyInviteToken(profileId: string, token: string, expires: num
 
 export async function sendInvitationEmail(email: string, profileId: string, werkstattName: string) {
   const { token, expires } = createInviteToken(profileId)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
   const inviteUrl = `${baseUrl}/auth/accept-invite?pid=${encodeURIComponent(profileId)}&t=${token}&exp=${expires}`
 
   await resend.emails.send({

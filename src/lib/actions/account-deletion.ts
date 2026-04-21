@@ -26,7 +26,7 @@ export async function requestAccountDeletion(password: string) {
     .update(payload)
     .digest('hex')
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://motodigital.io'
   const confirmUrl = `${baseUrl}/api/account/confirm-deletion?uid=${encodeURIComponent(user.id)}&t=${token}&exp=${expires}`
 
   const { error: emailError } = await resend.emails.send({

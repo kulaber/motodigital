@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description:
     'Stories aus der Custom-Motorcycle-Welt: Builder-Interviews, Build Stories und Guides für die Community. Alles rund um Custom Bikes in Deutschland.',
   alternates: {
-    canonical: 'https://motodigital.vercel.app/magazine',
+    canonical: 'https://motodigital.io/magazine',
   },
   openGraph: {
     title: 'MotoDigital Magazin — Build Stories, Interviews & Guides',
@@ -26,11 +26,11 @@ const jsonLd = {
   '@type': 'WebPage',
   name: 'MotoDigital Magazin',
   description: 'Build Stories, Interviews und Guides aus der Custom-Motorcycle-Welt.',
-  url: 'https://motodigital.vercel.app/magazine',
+  url: 'https://motodigital.io/magazine',
   publisher: {
     '@type': 'Organization',
     name: 'MotoDigital',
-    url: 'https://motodigital.vercel.app',
+    url: 'https://motodigital.io',
   },
 }
 
