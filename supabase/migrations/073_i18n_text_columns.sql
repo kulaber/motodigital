@@ -12,7 +12,10 @@
 -- ============================================================
 
 -- ── profiles (Custom Werkstatt) ────────────────────────────────
+-- Note: bio_long was added manually in the Prod DB without a migration
+-- file (schema drift). Add it here idempotently so fresh DBs stay in sync.
 ALTER TABLE profiles
+  ADD COLUMN IF NOT EXISTS bio_long       text,
   ADD COLUMN IF NOT EXISTS bio_i18n       JSONB,
   ADD COLUMN IF NOT EXISTS bio_long_i18n  JSONB,
   ADD COLUMN IF NOT EXISTS specialty_i18n JSONB;
