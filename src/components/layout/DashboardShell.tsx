@@ -1,5 +1,5 @@
 import Header from './Header'
-import DashboardNav from '@/app/dashboard/DashboardNav'
+import DashboardNav from '@/app/[locale]/dashboard/DashboardNav'
 
 interface Props {
   children: React.ReactNode

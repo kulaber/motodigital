@@ -11,6 +11,10 @@ export type Event = {
   image?: string | null
   gallery_images?: string[] | null
   videos?: string[] | null
+  // Locale-agnostic JSONB variants populated by migration 073
+  name_i18n?: Record<string, string> | null
+  description_i18n?: Record<string, string> | null
+  location_i18n?: Record<string, string> | null
 }
 
 /** Extract YouTube video ID from any standard URL format */

@@ -1,11 +1,10 @@
-// Light Mode only — no dark: classes
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-// Image still used for user avatar
+import { useTranslations } from 'next-intl'
+import { Link, usePathname } from '@/i18n/navigation'
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher'
 import {
   LogOut, ChevronRight, BookOpen, CalendarDays, Tag, Info, Search,
   Users, Settings, UserPen, MessageCircle, Bike, Grid3X3,
@@ -31,19 +30,17 @@ const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Superadmin',
 }
 
-
 export default function MobileNav({
   open, onClose, user, fullName, avatarUrl, role,
   unreadCount, onLogout, activePage,
 }: Props) {
+  const t = useTranslations('Nav')
   const pathname = usePathname()
 
-  // Close on route change
   useEffect(() => {
     onClose()
   }, [pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lock body scroll
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
@@ -55,7 +52,8 @@ export default function MobileNav({
 
   const isActive = (page: string) => activePage === page
 
-  const navItem = (href: string, icon: React.ReactNode, label: string, active: boolean, badge?: number) => (
+  type NavHref = Parameters<typeof Link>[0]['href']
+  const navItem = (href: NavHref, icon: React.ReactNode, label: string, active: boolean, badge?: number) => (
     <Link
       href={href}
       onClick={onClose}
@@ -83,10 +81,8 @@ export default function MobileNav({
       }`}
       style={{ top: 48 }}
     >
-      {/* ── Scrollable content (below site header) ── */}
       <div className="flex-1 overflow-y-auto">
 
-        {/* ── 1. User Block (logged in only) ── */}
         {user && (
           <div className="px-5 py-5 border-b border-[#E5E5E5]">
             <div className="flex items-center gap-3">
@@ -113,47 +109,48 @@ export default function MobileNav({
           </div>
         )}
 
-        {/* ── 2. User Actions (logged in only, hidden for riders) ── */}
         {user && role !== 'rider' && (
           <div className="px-3 pt-5 pb-2">
             <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
-              Mein Bereich
+              {t('myArea')}
             </p>
-            {navItem('/dashboard', <Grid3X3 size={20} />, 'Dashboard', pathname === '/dashboard')}
-            {navItem('/dashboard/messages', <MessageCircle size={20} />, 'Nachrichten', pathname === '/dashboard/messages', unreadCount)}
-            {navItem('/dashboard/profile', <UserPen size={20} />, 'Profil bearbeiten', pathname === '/dashboard/profile')}
-            {navItem('/dashboard/account', <Settings size={20} />, 'Konto-Einstellungen', pathname === '/dashboard/account')}
+            {navItem('/dashboard', <Grid3X3 size={20} />, t('dashboard'), pathname === '/dashboard')}
+            {navItem('/dashboard/messages', <MessageCircle size={20} />, t('messages'), pathname === '/dashboard/messages', unreadCount)}
+            {navItem('/dashboard/profile', <UserPen size={20} />, t('editProfile'), pathname === '/dashboard/profile')}
+            {navItem('/dashboard/account', <Settings size={20} />, t('accountSettings'), pathname === '/dashboard/account')}
 
             <div className="h-px bg-[#E5E5E5] mx-4 my-3" />
           </div>
         )}
 
-        {/* ── 3. Navigation (hidden for logged-in riders — they use bottom nav) ── */}
         {!(user && role === 'rider') && (
           <div className="px-3 pt-4 pb-2">
             <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
-              Entdecken
+              {t('discover')}
             </p>
-            {navItem('/explore', <Users size={20} />, 'Explore', isActive('explore'))}
-            {navItem('/bikes', <Bike size={20} />, 'Custom Bikes', isActive('bikes'))}
-            {navItem('/search', <Search size={20} />, 'Suche', pathname === '/search')}
-            {navItem('/rider', <Users size={20} />, 'Rider', isActive('rider'))}
+            {navItem('/explore', <Users size={20} />, t('explore'), isActive('explore'))}
+            {navItem('/bikes', <Bike size={20} />, t('bikes'), isActive('bikes'))}
+            {navItem('/search', <Search size={20} />, t('search'), pathname === '/search')}
+            {navItem('/rider', <Users size={20} />, t('rider'), isActive('rider'))}
           </div>
         )}
 
-        {/* ── 4. More links ── */}
         <div className="px-3 pb-2">
           <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
-            Mehr
+            {t('more')}
           </p>
-          {navItem('/magazine', <BookOpen size={20} />, 'Magazin', isActive('magazine'))}
-          {navItem('/events', <CalendarDays size={20} />, 'Events', isActive('events'))}
-          {navItem('/marken', <Tag size={20} />, 'Marken', false)}
-          {navItem('/ueber-motodigital', <Info size={20} />, 'Über MotoDigital', false)}
+          {navItem('/magazine', <BookOpen size={20} />, t('magazine'), isActive('magazine'))}
+          {navItem('/events', <CalendarDays size={20} />, t('events'), isActive('events'))}
+          {navItem('/marken', <Tag size={20} />, t('brands'), false)}
+          {navItem('/ueber-motodigital', <Info size={20} />, t('aboutMotoDigital'), false)}
+        </div>
+
+        {/* Language switcher */}
+        <div className="px-5 pt-2 pb-5">
+          <LanguageSwitcher variant="mobile" />
         </div>
       </div>
 
-      {/* ── 5. Logout (sticky bottom) ── */}
       {user && (
         <div className="flex-shrink-0 border-t border-[#E5E5E5] px-5 py-4">
           <button
@@ -161,7 +158,7 @@ export default function MobileNav({
             className="flex items-center gap-3 w-full min-h-[48px] px-4 py-3 rounded-xl text-[15px] font-medium text-[#EF4444] active:bg-red-50 transition-colors"
           >
             <LogOut size={20} />
-            Abmelden
+            {t('logout')}
           </button>
         </div>
       )}

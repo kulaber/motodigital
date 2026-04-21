@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } fr
 import { X, ImageIcon, Video, Loader2, Plus, Minus, MapPin, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { compressImage } from '@/lib/utils/compressImage'
 import Image from 'next/image'
 import LazyRideMap from '@/components/map/LazyRideMap'

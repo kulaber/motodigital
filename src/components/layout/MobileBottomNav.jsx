@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname } from '@/i18n/navigation';
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import PostComposerSheet from "./PostComposerSheet";
 

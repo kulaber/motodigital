@@ -2,17 +2,19 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import {
   LayoutDashboard, LogOut, ChevronDown, Search,
   Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Pencil,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { Link, useRouter, getPathname } from '@/i18n/navigation'
+import { useLocale } from 'next-intl'
 import MobileNav from './MobileNav'
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher'
 import { NotificationDropdownSection } from '@/components/notifications/NotificationDropdownSection'
 
 const LoginModal = dynamic(() => import('@/components/ui/LoginModal').then(m => m.LoginModal), { ssr: false })
@@ -28,6 +30,8 @@ const ROLE_BADGE: Record<string, { label: string; color: string }> = {
 }
 
 export default function Header({ activePage }: Props) {
+  const t = useTranslations('Nav')
+  const locale = useLocale()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dashDropdown, setDashDropdown] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
@@ -83,7 +87,7 @@ export default function Header({ activePage }: Props) {
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Explore
+            {t('explore')}
           </Link>
           <Link href="/bikes"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
@@ -91,7 +95,7 @@ export default function Header({ activePage }: Props) {
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Custom Bikes
+            {t('bikes')}
           </Link>
           <Link href="/custom-werkstatt"
             className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
@@ -99,7 +103,7 @@ export default function Header({ activePage }: Props) {
                 ? 'text-[#222222] font-semibold bg-[#222222]/8'
                 : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
             }`}>
-            Werkstattsuche
+            {t('workshops')}
           </Link>
           <Link href="/search"
             className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5 transition-all ml-1">
@@ -151,18 +155,20 @@ export default function Header({ activePage }: Props) {
                     {role === 'rider' && (
                       <>
                         {slug && (
-                          <a href={`/rider/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
+                          <a
+                            href={getPathname({ href: { pathname: '/rider/[slug]', params: { slug } }, locale })}
+                            target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
                             className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                            <User size={14} /> Mein Profil
+                            <User size={14} /> {t('profile')}
                           </a>
                         )}
                         <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Pencil size={14} /> Profil bearbeiten
+                          <Pencil size={14} /> {t('editProfile')}
                         </Link>
                         <Link href="/dashboard/messages" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <MessageCircle size={14} /> Nachrichten
+                          <MessageCircle size={14} /> {t('messages')}
                           {unreadCount > 0 && (
                             <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
                               {unreadCount > 9 ? '9+' : unreadCount}
@@ -171,11 +177,11 @@ export default function Header({ activePage }: Props) {
                         </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Bike size={14} /> Meine Garage
+                          <Bike size={14} /> {t('myGarage')}
                         </Link>
                         <Link href="/dashboard/merkliste" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Star size={14} /> Merkliste
+                          <Star size={14} /> {t('watchlist')}
                         </Link>
                       </>
                     )}
@@ -183,11 +189,11 @@ export default function Header({ activePage }: Props) {
                       <>
                         <Link href="/dashboard" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                          <LayoutDashboard size={14} /> Dashboard
+                          <LayoutDashboard size={14} /> {t('dashboard')}
                         </Link>
                         <Link href="/dashboard/messages" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <MessageCircle size={14} /> Nachrichten
+                          <MessageCircle size={14} /> {t('messages')}
                           {unreadCount > 0 && (
                             <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-[#06a5a5] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
                               {unreadCount > 9 ? '9+' : unreadCount}
@@ -200,18 +206,20 @@ export default function Header({ activePage }: Props) {
                       <>
                         <Link href="/dashboard/profile" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Pencil size={14} /> Profil bearbeiten
+                          <Pencil size={14} /> {t('editProfile')}
                         </Link>
                         <Link href="/dashboard/meine-garage" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                          <Bike size={14} /> Custom Bikes
+                          <Bike size={14} /> {t('customBikes')}
                         </Link>
                       </>
                     )}
                     {role === 'custom-werkstatt' && slug && (
-                      <a href={`/custom-werkstatt/${slug}`} target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
+                      <a
+                        href={getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug } }, locale })}
+                        target="_blank" rel="noopener noreferrer" onClick={() => setDashDropdown(false)}
                         className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors border-t border-[#222222]/5">
-                        <ExternalLink size={14} /> Werkstatt-Ansicht
+                        <ExternalLink size={14} /> {t('workshopView')}
                       </a>
                     )}
                     {role === 'superadmin' && (
@@ -245,25 +253,27 @@ export default function Header({ activePage }: Props) {
                     <div className="h-px bg-[#222222]/6 mx-3 my-1" />
                     <Link href="/dashboard/account" onClick={() => setDashDropdown(false)}
                       className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
-                      <Settings size={14} /> Konto-Einstellungen
+                      <Settings size={14} /> {t('accountSettings')}
                     </Link>
                     <div className="h-px bg-[#222222]/6 mx-3 my-1" />
                     <button onClick={handleLogout}
                       className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-400/80 hover:text-red-500 hover:bg-red-50 transition-colors">
-                      <LogOut size={14} /> Abmelden
+                      <LogOut size={14} /> {t('logout')}
                     </button>
                   </div>
                 )}
               </div>
+              <LanguageSwitcher variant="header" />
             </>
           ) : (
             <>
               <button onClick={() => { setLoginMode('login'); setShowLogin(true) }} className="text-sm text-[#222222]/60 hover:text-[#222222] transition-colors px-4 py-2">
-                Login
+                {t('login')}
               </button>
               <button onClick={() => { setLoginMode('register'); setShowLogin(true) }} className="bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#058f8f] transition-all">
-                Registrieren
+                {t('register')}
               </button>
+              <LanguageSwitcher variant="header" />
             </>
           )}
         </div>
@@ -274,16 +284,16 @@ export default function Header({ activePage }: Props) {
             <>
               <button onClick={() => { setMobileOpen(false); setLoginMode('login'); setShowLogin(true) }}
                 className="text-[13px] font-medium text-[#222222]/60 hover:text-[#222222] transition-colors px-3 py-2">
-                Login
+                {t('login')}
               </button>
               <button onClick={() => { setMobileOpen(false); setLoginMode('register'); setShowLogin(true) }}
                 className="bg-[#06a5a5] text-white text-[13px] font-semibold px-4 py-2 rounded-full hover:bg-[#058f8f] transition-all">
-                Registrieren
+                {t('register')}
               </button>
               <button
                 className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F0F0] transition-colors active:bg-[#E5E5E5]"
                 onClick={() => setMobileOpen(o => !o)}
-                aria-label="Menü"
+                aria-label={t('menu')}
               >
                 <div className="relative w-[18px] h-[7px]">
                   <span

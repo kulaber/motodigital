@@ -1,7 +1,7 @@
 'use client'
 
 import { Search, X, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatEventDate } from '@/lib/data/events'

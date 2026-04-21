@@ -1,13 +1,49 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ARTICLES } from '@/lib/data/magazine'
+import { routing } from '@/i18n/routing'
+import { getPathname } from '@/i18n/navigation'
 
 const BASE = 'https://motodigital.io'
+
+type StaticHref =
+  | '/'
+  | '/custom-werkstatt'
+  | '/bikes'
+  | '/explore'
+  | '/magazine'
+  | '/magazine/build-story'
+  | '/magazine/interview'
+  | '/magazine/guide'
+  | '/events'
+  | '/ueber-motodigital'
+
+type Freq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+
+function localizedEntry(
+  canonical: StaticHref,
+  lastModified: Date,
+  changeFrequency: Freq,
+  priority: number,
+): MetadataRoute.Sitemap[number] {
+  const urlsByLocale = Object.fromEntries(
+    routing.locales.map((l) => [
+      l,
+      `${BASE}${getPathname({ href: canonical, locale: l })}`,
+    ])
+  )
+  return {
+    url: urlsByLocale[routing.defaultLocale],
+    lastModified,
+    changeFrequency,
+    priority,
+    alternates: { languages: urlsByLocale },
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
 
-  // Fetch dynamic slugs from Supabase
   const [{ data: builders }, { data: bikes }] = await Promise.all([
     (supabase.from('profiles') as any)
       .select('slug, updated_at')
@@ -19,51 +55,72 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq('status', 'active') as unknown as Promise<{ data: { id: string; updated_at: string }[] | null }>,
   ])
 
-  // Static pages
+  const now = new Date()
+
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,                              lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
-    { url: `${BASE}/custom-werkstatt`,        lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
-    { url: `${BASE}/bikes`,                   lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
-    { url: `${BASE}/explore`,                  lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/magazine`,                lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
-    { url: `${BASE}/magazine/build-story`,    lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/magazine/interview`,      lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/magazine/guide`,          lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/events`,                  lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/ueber-motodigital`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    // Bike style pages
-    { url: `${BASE}/bikes/cafe-racer`,        lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/bikes/bobber`,            lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/bikes/scrambler`,         lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/bikes/tracker`,           lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/bikes/chopper`,           lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/bikes/street`,            lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/bikes/enduro`,            lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
+    localizedEntry('/',                          now, 'daily',   1.0),
+    localizedEntry('/custom-werkstatt',          now, 'daily',   0.9),
+    localizedEntry('/bikes',                     now, 'daily',   0.9),
+    localizedEntry('/explore',                   now, 'weekly',  0.7),
+    localizedEntry('/magazine',                  now, 'weekly',  0.8),
+    localizedEntry('/magazine/build-story',      now, 'weekly',  0.6),
+    localizedEntry('/magazine/interview',        now, 'weekly',  0.6),
+    localizedEntry('/magazine/guide',            now, 'weekly',  0.6),
+    localizedEntry('/events',                    now, 'weekly',  0.7),
+    localizedEntry('/ueber-motodigital',         now, 'monthly', 0.6),
   ]
 
-  // Magazine articles
-  const articlePages: MetadataRoute.Sitemap = ARTICLES.map(a => ({
-    url: `${BASE}/magazine/${a.slug}`,
+  const bikeStyleSlugs = ['cafe-racer', 'bobber', 'scrambler', 'tracker', 'chopper', 'street', 'enduro']
+  const bikeStylePages: MetadataRoute.Sitemap = bikeStyleSlugs.map((slug) => ({
+    url: `${BASE}/${routing.defaultLocale}/bikes/${slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+    alternates: {
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, `${BASE}/${l}/bikes/${slug}`])
+      ),
+    },
+  }))
+
+  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => ({
+    url: `${BASE}/${routing.defaultLocale}/magazine/${a.slug}`,
     lastModified: new Date(a.publishedAt),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
+    alternates: {
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, `${BASE}/${l}/magazine/${a.slug}`])
+      ),
+    },
   }))
 
-  // Custom Werkstatt profiles
-  const builderPages: MetadataRoute.Sitemap = (builders ?? []).map(b => ({
-    url: `${BASE}/custom-werkstatt/${b.slug}`,
-    lastModified: b.updated_at ? new Date(b.updated_at) : new Date(),
+  const builderPages: MetadataRoute.Sitemap = (builders ?? []).map((b) => ({
+    url: `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug: b.slug } }, locale: routing.defaultLocale })}`,
+    lastModified: b.updated_at ? new Date(b.updated_at) : now,
     changeFrequency: 'weekly' as const,
     priority: 0.8,
+    alternates: {
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [
+          l,
+          `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug: b.slug } }, locale: l })}`,
+        ])
+      ),
+    },
   }))
 
-  // Active bike listings
-  const bikePages: MetadataRoute.Sitemap = (bikes ?? []).map(b => ({
-    url: `${BASE}/bikes/${b.id}`,
+  const bikePages: MetadataRoute.Sitemap = (bikes ?? []).map((b) => ({
+    url: `${BASE}/${routing.defaultLocale}/bikes/${b.id}`,
     lastModified: new Date(b.updated_at),
     changeFrequency: 'weekly' as const,
     priority: 0.6,
+    alternates: {
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, `${BASE}/${l}/bikes/${b.id}`])
+      ),
+    },
   }))
 
-  return [...staticPages, ...articlePages, ...builderPages, ...bikePages]
+  return [...staticPages, ...bikeStylePages, ...articlePages, ...builderPages, ...bikePages]
 }

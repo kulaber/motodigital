@@ -3,7 +3,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { MapPin, BadgeCheck, X } from 'lucide-react'
 import type { Builder } from '@/lib/data/builders'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'

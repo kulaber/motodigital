@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { BadgeCheck, MapPin, Wrench } from 'lucide-react'
 import type { WorkshopResult } from '@/lib/actions/search'

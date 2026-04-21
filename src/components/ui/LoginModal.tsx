@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import Image from 'next/image'
 import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -23,39 +24,9 @@ type TriggerContext =
   | 'price_view'
   | 'explore_tab'
 
-const CONTEXT_MESSAGES: Record<TriggerContext, string> = {
-  bike_save: 'Melde dich an, um dieses Bike zu speichern',
-  comment: 'Melde dich an, um zu kommentieren',
-  like: 'Melde dich an, um dieses Bike zu liken',
-  contact_builder: 'Melde dich an, um den Builder zu kontaktieren',
-  message: 'Melde dich an, um eine Nachricht zu senden',
-  event_interest: 'Melde dich an, um am Event teilzunehmen',
-  follow_rider: 'Melde dich an, um diesem Rider zu folgen',
-  price_view: 'Melde dich an, um den Preis zu sehen',
-  explore_tab: 'Melde dich an, um alle Inhalte zu entdecken',
-}
-
-/* ─── Register benefits ──────────────────────────────────── */
+/* ─── Props ──────────────────────────────────────────────── */
 
 type Role = 'rider' | 'custom-werkstatt'
-
-const RIDER_BENEFITS = [
-  'Präsentiere/Verkaufe dein Custom Bike',
-  'Nutze die Explore-Seite & Teile, was dich bewegt',
-  'Vernetze dich mit Fahrern in der Nähe',
-  'Bilde Fahrgemeinschaften in der Nähe',
-  'Digitaler Bike-Pass (bald verfügbar)',
-]
-
-const WERKSTATT_BENEFITS: { text: string; badge?: string }[] = [
-  { text: 'In der Map sichtbar' },
-  { text: '1 Custom Bike präsentieren oder verkaufen' },
-  { text: 'Logo, Titelbild & Beschreibungstext' },
-  { text: 'Unbegrenzte Bikes, Leistungen & Umbaustile', badge: 'PRO' },
-  { text: 'Kontaktieren-Button & Analytics Dashboard', badge: 'PRO' },
-]
-
-/* ─── Props ──────────────────────────────────────────────── */
 
 interface LoginModalProps {
   isOpen: boolean
@@ -69,6 +40,7 @@ interface LoginModalProps {
 /* ─── Component ──────────────────────────────────────────── */
 
 export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'login', redirectTo }: LoginModalProps) {
+  const t = useTranslations('Auth')
   useHideNavOnModal(isOpen)
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>(initialMode)
@@ -88,6 +60,34 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const supabase = createClient()
+
+  const CONTEXT_MESSAGES: Record<TriggerContext, string> = {
+    bike_save: t('modalCtxBikeSave'),
+    comment: t('modalCtxComment'),
+    like: t('modalCtxLike'),
+    contact_builder: t('modalCtxContactBuilder'),
+    message: t('modalCtxMessage'),
+    event_interest: t('modalCtxEventInterest'),
+    follow_rider: t('modalCtxFollowRider'),
+    price_view: t('modalCtxPriceView'),
+    explore_tab: t('modalCtxExploreTab'),
+  }
+
+  const RIDER_BENEFITS = [
+    t('riderBenefit1'),
+    t('riderBenefit2'),
+    t('riderBenefit3'),
+    t('riderBenefit4'),
+    t('riderBenefit5'),
+  ]
+
+  const WERKSTATT_BENEFITS: { text: string; badge?: string }[] = [
+    { text: t('workshopBenefit1') },
+    { text: t('workshopBenefit2') },
+    { text: t('workshopBenefit3') },
+    { text: t('workshopBenefit4'), badge: t('proBadge') },
+    { text: t('workshopBenefit5'), badge: t('proBadge') },
+  ]
 
   // Sync initialMode + reset when modal opens/closes
   const prevOpenRef = useRef(false)
@@ -174,7 +174,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim()) {
-      setError('Bitte gib deine E-Mail-Adresse ein')
+      setError(t('enterEmailError'))
       return
     }
     setLoading('magic')
@@ -216,11 +216,11 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim()) {
-      setError('Bitte gib deine E-Mail-Adresse ein')
+      setError(t('enterEmailError'))
       return
     }
     if (!password) {
-      setError('Bitte gib dein Passwort ein')
+      setError(t('enterPasswordError'))
       return
     }
     setLoading('password')
@@ -265,7 +265,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
     e.preventDefault()
     if (!role || !name.trim() || !email.trim() || !password) return
     if (password.length < 8) {
-      setError('Passwort muss mindestens 8 Zeichen haben')
+      setError(t('passwordMin8Error'))
       return
     }
     setLoading('register')
@@ -319,10 +319,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       </div>
 
       <h3 className="text-lg font-bold text-white mb-1.5">
-        Prüfe dein Postfach
+        {t('magicCheckInbox')}
       </h3>
       <p className="text-sm text-white/50 mb-1">
-        Wir haben einen Login-Link gesendet an:
+        {t('magicSentTo')}
       </p>
       <p className="text-sm font-semibold text-white mb-6">
         {email}
@@ -343,12 +343,12 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         {loading === 'magic' ? (
           <span className="flex items-center gap-2">
             <Loader2 size={14} className="animate-spin" />
-            Wird gesendet…
+            {t('sendingMagic')}
           </span>
         ) : cooldown > 0 ? (
-          `Erneut senden in ${cooldown}s`
+          t('resendIn', { cooldown })
         ) : (
-          'Link erneut senden'
+          t('resendLink')
         )}
       </button>
 
@@ -358,7 +358,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white/70 mt-4 transition-colors"
       >
         <ArrowLeft size={14} />
-        Andere Methode wählen
+        {t('chooseDifferentMethod')}
       </button>
     </div>
   )
@@ -372,16 +372,16 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       </div>
 
       <h3 className="text-lg font-bold text-white mb-1.5">
-        Bestätige deine E-Mail
+        {t('confirmYourEmail')}
       </h3>
       <p className="text-sm text-white/50 mb-1">
-        Wir haben dir einen Bestätigungslink gesendet an:
+        {t('confirmSentTo')}
       </p>
       <p className="text-sm font-semibold text-white mb-6">
         {email}
       </p>
       <p className="text-xs text-white/30">
-        Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren.
+        {t('confirmClickLink')}
       </p>
     </div>
   )
@@ -399,10 +399,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <Bike size={18} className="text-accent" />
-            <p className="font-bold text-xl text-white">Rider</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
+            <p className="font-bold text-xl text-white">{t('riderBadge')}</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">{t('free')}</span>
           </div>
-          <p className="text-xs text-white/40 mb-2.5">Ich bin Custom-Bike interessiert / fahre ein Custom Bike</p>
+          <p className="text-xs text-white/40 mb-2.5">{t('riderRoleDesc')}</p>
           <ul className="flex flex-col gap-1.5">
             {RIDER_BENEFITS.map(b => (
               <li key={b} className="flex items-center gap-2">
@@ -423,10 +423,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             <Wrench size={18} className="text-accent flex-shrink-0" />
-            <p className="font-bold text-xl text-white whitespace-nowrap">Custom Werkstatt</p>
-            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">Kostenlos</span>
+            <p className="font-bold text-xl text-white whitespace-nowrap">{t('workshopBadge')}</p>
+            <span className="text-[9px] font-bold uppercase tracking-widest bg-[#06a5a5]/15 text-[#06a5a5] px-2 py-0.5 rounded-full">{t('free')}</span>
           </div>
-          <p className="text-xs text-white/40 mb-2.5">Ich baue Custom Bikes & will Kunden erreichen</p>
+          <p className="text-xs text-white/40 mb-2.5">{t('workshopRoleDesc')}</p>
           <ul className="flex flex-col gap-1.5">
             {WERKSTATT_BENEFITS.map(b => (
               <li key={b.text} className={`flex items-center gap-2${b.badge ? ' opacity-35' : ''}`}>
@@ -457,7 +457,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         <button type="button" onClick={() => { setRegStep(1); setError(null) }}
           className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors">
           <ArrowLeft size={13} />
-          Zurück
+          {t('back')}
         </button>
         <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold border ${
           isBuilder
@@ -465,7 +465,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             : 'bg-accent/10 text-accent border-accent/20'
         }`}>
           {isBuilder ? <Wrench size={11} /> : <Bike size={11} />}
-          {isBuilder ? 'Custom Werkstatt' : 'Rider'}
+          {isBuilder ? t('workshopBadge') : t('riderBadge')}
         </div>
       </div>
 
@@ -474,7 +474,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         required
         value={name}
         onChange={e => { setName(e.target.value); setError(null) }}
-        placeholder={isBuilder ? 'Name / Werkstatt' : 'Dein Name'}
+        placeholder={isBuilder ? t('namePlaceholderModal') : t('yourName')}
         className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent/50 transition-colors min-h-[48px]"
       />
 
@@ -483,7 +483,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         required
         value={email}
         onChange={e => { setEmail(e.target.value); setError(null) }}
-        placeholder="deine@email.de"
+        placeholder={t('emailPlaceholder')}
         autoComplete="email"
         className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent/50 transition-colors min-h-[48px]"
       />
@@ -495,7 +495,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           minLength={8}
           value={password}
           onChange={e => { setPassword(e.target.value); setError(null) }}
-          placeholder="Passwort (min. 8 Zeichen)"
+          placeholder={t('passwordModalPlaceholder')}
           autoComplete="new-password"
           className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 pr-11 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent/50 transition-colors min-h-[48px]"
         />
@@ -503,7 +503,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           type="button"
           onClick={() => setShowPw(v => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-          aria-label={showPw ? 'Passwort verbergen' : 'Passwort anzeigen'}
+          aria-label={showPw ? t('passwordHide') : t('passwordShow')}
         >
           {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
@@ -523,10 +523,10 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
         {loading === 'register' ? (
           <span className="flex items-center justify-center gap-2">
             <Loader2 size={16} className="animate-spin" />
-            Wird erstellt…
+            {t('registerCreating')}
           </span>
         ) : (
-          'Kostenlos starten'
+          t('startFree')
         )}
       </button>
     </form>
@@ -549,7 +549,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           type="email"
           value={email}
           onChange={e => { setEmail(e.target.value); setError(null) }}
-          placeholder="deine@email.de"
+          placeholder={t('emailPlaceholder')}
           className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent/50 transition-colors min-h-[48px]"
         />
 
@@ -558,7 +558,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
             type="password"
             value={password}
             onChange={e => { setPassword(e.target.value); setError(null) }}
-            placeholder="Passwort"
+            placeholder={t('password')}
             className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent/50 transition-colors min-h-[48px]"
           />
         )}
@@ -577,12 +577,12 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           {(loading === 'magic' || loading === 'password') ? (
             <span className="flex items-center justify-center gap-2">
               <Loader2 size={16} className="animate-spin" />
-              {loading === 'password' ? 'Wird angemeldet…' : 'Wird gesendet…'}
+              {loading === 'password' ? t('loggingIn') : t('sendingMagic')}
             </span>
           ) : showPasswordField ? (
-            'Anmelden'
+            t('login')
           ) : (
-            'Magic Link senden'
+            t('sendLink')
           )}
         </button>
 
@@ -591,7 +591,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
           onClick={() => { setShowPasswordField(!showPasswordField); setError(null) }}
           className="text-xs text-white/35 hover:text-white/60 transition-colors text-center"
         >
-          {showPasswordField ? 'Lieber Magic Link per E-Mail' : 'Mit Passwort anmelden'}
+          {showPasswordField ? t('preferMagicLink') : t('loginWithPassword')}
         </button>
       </form>
     </>
@@ -599,7 +599,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
   /* ─── Determine content ──────────────────────────────── */
 
-  let title = 'Login'
+  let title = t('modalTitleLogin')
   let content = loginView
   let showModeSwitch = true
 
@@ -609,7 +609,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       showModeSwitch = false
     }
   } else {
-    title = 'Registrieren'
+    title = t('modalTitleRegister')
     showModeSwitch = true
 
     if (registerDone) {
@@ -691,16 +691,16 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
               <p className="text-sm text-white/35 text-center mt-2">
                 {mode === 'login' ? (
                   <>
-                    Noch kein Konto?{' '}
+                    {t('noAccountModal')}{' '}
                     <button type="button" onClick={switchToRegister} className="text-accent hover:text-accent-dark font-semibold transition-colors">
-                      Registrieren
+                      {t('register')}
                     </button>
                   </>
                 ) : (
                   <>
-                    Bereits ein Konto?{' '}
+                    {t('hasAccountModal')}{' '}
                     <button type="button" onClick={switchToLogin} className="text-accent hover:text-accent-dark font-semibold transition-colors">
-                      Anmelden
+                      {t('login')}
                     </button>
                   </>
                 )}
@@ -709,13 +709,13 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
             {/* Legal */}
             <p className="text-[11px] text-white/25 text-center mt-3 leading-relaxed">
-              Mit der {mode === 'login' ? 'Anmeldung' : 'Registrierung'} akzeptierst du unsere{' '}
+              {mode === 'login' ? t('legalLogin') : t('legalRegister')}{' '}
               <a href="/nutzungsbedingungen" className="underline hover:text-white/40 transition-colors">
-                AGB
+                {t('legalTerms')}
               </a>{' '}
-              und{' '}
+              {t('and')}{' '}
               <a href="/datenschutz" className="underline hover:text-white/40 transition-colors">
-                Datenschutzrichtlinie
+                {t('legalPrivacy')}
               </a>
             </p>
           </div>

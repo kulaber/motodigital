@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { MapPin, BadgeCheck } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import MediaSlider from './MediaSlider'

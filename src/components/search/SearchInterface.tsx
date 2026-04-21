@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useTransition, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { Search, X, Loader2, ChevronDown } from 'lucide-react'
 import { searchAll, loadMoreRiders, type SearchResults, type RiderResult } from '@/lib/actions/search'
 import { BikeResultCard } from './BikeResultCard'

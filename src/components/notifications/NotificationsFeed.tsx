@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow, isToday, isThisWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { Bell, Heart, MessageCircle, UserPlus, Tag, Store, ChevronRight } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 
 type NotificationRow = {
