@@ -4,9 +4,11 @@ export const routing = defineRouting({
   locales: ['de', 'en'],
   defaultLocale: 'de',
 
-  // Always show locale prefix — /de/... and /en/...
-  // Matches how Airbnb, Booking, Stripe structure their URLs.
-  localePrefix: 'always',
+  // Default locale (DE) served at root ("/"); only EN gets "/en/..." prefix.
+  // Preserves every existing indexed URL and matches what most German
+  // sites do (Zalando, Otto, etc.) — the best-practice "always prefix"
+  // pattern would force a one-time SEO churn for no practical benefit.
+  localePrefix: 'as-needed',
 
   // Detect locale from Accept-Language header on first visit
   localeDetection: true,

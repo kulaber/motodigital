@@ -49,11 +49,11 @@ export async function generateMetadata({
     description: t('defaultDescription'),
     metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: `/${locale}`,
+      canonical: locale === 'de' ? '/' : `/${locale}`,
       languages: {
-        de: `/de`,
-        en: `/en`,
-        'x-default': `/de`,
+        de: '/',
+        en: '/en',
+        'x-default': '/',
       },
     },
     icons: {

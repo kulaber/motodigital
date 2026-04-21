@@ -70,57 +70,63 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/ueber-motodigital',         now, 'monthly', 0.6),
   ]
 
+  // `getPathname` honours routing.localePrefix ('as-needed') — default
+  // locale returns no prefix, others return `/<locale>/...`.
   const bikeStyleSlugs = ['cafe-racer', 'bobber', 'scrambler', 'tracker', 'chopper', 'street', 'enduro']
-  const bikeStylePages: MetadataRoute.Sitemap = bikeStyleSlugs.map((slug) => ({
-    url: `${BASE}/${routing.defaultLocale}/bikes/${slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-    alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, `${BASE}/${l}/bikes/${slug}`])
-      ),
-    },
-  }))
+  const bikeStylePages: MetadataRoute.Sitemap = bikeStyleSlugs.map((slug) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}/${l === routing.defaultLocale ? '' : `${l}/`}bikes/${slug}`.replace(/\/$/, '') || '/'])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+      alternates: { languages: urls },
+    }
+  })
 
-  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => ({
-    url: `${BASE}/${routing.defaultLocale}/magazine/${a.slug}`,
-    lastModified: new Date(a.publishedAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-    alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, `${BASE}/${l}/magazine/${a.slug}`])
-      ),
-    },
-  }))
+  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/magazine/${a.slug}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: new Date(a.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+      alternates: { languages: urls },
+    }
+  })
 
-  const builderPages: MetadataRoute.Sitemap = (builders ?? []).map((b) => ({
-    url: `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug: b.slug } }, locale: routing.defaultLocale })}`,
-    lastModified: b.updated_at ? new Date(b.updated_at) : now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-    alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [
-          l,
-          `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug: b.slug } }, locale: l })}`,
-        ])
-      ),
-    },
-  }))
+  const builderPages: MetadataRoute.Sitemap = (builders ?? []).map((b) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [
+        l,
+        `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug: b.slug } }, locale: l })}`,
+      ])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: b.updated_at ? new Date(b.updated_at) : now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+      alternates: { languages: urls },
+    }
+  })
 
-  const bikePages: MetadataRoute.Sitemap = (bikes ?? []).map((b) => ({
-    url: `${BASE}/${routing.defaultLocale}/bikes/${b.id}`,
-    lastModified: new Date(b.updated_at),
-    changeFrequency: 'weekly' as const,
-    priority: 0.6,
-    alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, `${BASE}/${l}/bikes/${b.id}`])
-      ),
-    },
-  }))
+  const bikePages: MetadataRoute.Sitemap = (bikes ?? []).map((b) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/bikes/${b.id}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: new Date(b.updated_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+      alternates: { languages: urls },
+    }
+  })
 
   return [...staticPages, ...bikeStylePages, ...articlePages, ...builderPages, ...bikePages]
 }

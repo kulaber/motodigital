@@ -39,9 +39,14 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const path = request.nextUrl.pathname
 
-  // Coming-soon rewrite for motodigital.io — runs before i18n handling
+  // Coming-soon rewrite for motodigital.io — runs before i18n handling.
+  // The page itself lives under [locale]/coming-soon, so we must target the
+  // fully-qualified locale path (next-intl's internal rewriting doesn't fire
+  // because we short-circuit before its middleware runs).
   if (host.includes('motodigital.io') && !path.includes('coming-soon')) {
-    return NextResponse.rewrite(new URL('/coming-soon', request.url))
+    return NextResponse.rewrite(
+      new URL(`/${routing.defaultLocale}/coming-soon`, request.url)
+    )
   }
 
   // Skip API routes completely — no i18n, no auth redirect logic here

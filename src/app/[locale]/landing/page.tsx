@@ -26,23 +26,23 @@ interface FeaturedBuild {
   slug: string; href?: string; title: string; style: string; base: string; year?: number | null; builder: string; city: string; img: string | null; role?: string; listingType?: string | null; priceAmount?: number | null; priceOnRequest?: boolean | null; publishedAt?: string
 }
 
-// TODO(i18n): translate USPS items (module-level; kept in German for now)
-const USPS = [
-  { icon: <MapIcon size={20} className="text-[#06a5a5]" />,          title: 'Builder & Rider',   desc: 'Die erste Plattform, die Builder und Rider direkt verbindet — ohne Umwege.' },
-  { icon: <Send size={20} className="text-[#06a5a5]" />,         title: 'Custom Anfragen',   desc: 'Stelle direkt eine Anfrage bei deiner Wunschwerkstatt — mit Preisübersicht und allen Details.' },
-  { icon: <MessageCircle size={20} className="text-[#06a5a5]" />,title: 'Direkter Kontakt',  desc: 'Schreib Builder direkt an — kein Social Media Chaos, nur echte Anfragen.' },
-  { icon: <ShieldCheck size={20} className="text-[#06a5a5]" />,  title: 'Marketplace',       desc: 'Custom Builds kaufen & verkaufen — direkt vom Builder.' },
-]
+// Icon-only metadata; titles/descriptions come from the `Landing` namespace
+// and are assembled inside the default export so they can call `t()`.
+const USP_ICONS = [
+  <MapIcon key="map" size={20} className="text-[#06a5a5]" />,
+  <Send key="send" size={20} className="text-[#06a5a5]" />,
+  <MessageCircle key="msg" size={20} className="text-[#06a5a5]" />,
+  <ShieldCheck key="shield" size={20} className="text-[#06a5a5]" />,
+] as const
 
-// TODO(i18n): translate RIDER_FEATURES items (module-level; kept in German for now)
-const RIDER_FEATURES = [
-  { icon: <Users size={20} />,           title: 'Vernetzen',              desc: 'Finde Rider in deiner Nähe und vernetze dich mit Gleichgesinnten.' },
-  { icon: <Route size={20} />,           title: 'Fahrten planen',         desc: 'Plane Fahrten, veröffentliche Routen und finde Mitfahrer.' },
-  { icon: <Compass size={20} />,         title: 'Explore',               desc: 'Entdecke Builds, Stories und Inspirationen aus der Community.' },
-  { icon: <Bike size={20} />,            title: 'Bike Showcase',          desc: 'Präsentiere dein eigenes Bike mit Fotos und Details.' },
-  { icon: <Sparkles size={20} />,        title: 'Inspirationen',          desc: 'Hol dir Ideen für deinen nächsten Umbau oder dein erstes Projekt.' },
-  { icon: <HeartHandshake size={20} />,  title: 'Gleichgesinnte treffen', desc: 'Triff andere Rider bei Events, Ausfahrten und Treffen.' },
-]
+const RIDER_FEATURE_ICONS = [
+  <Users key="u" size={20} />,
+  <Route key="r" size={20} />,
+  <Compass key="c" size={20} />,
+  <Bike key="b" size={20} />,
+  <Sparkles key="s" size={20} />,
+  <HeartHandshake key="h" size={20} />,
+] as const
 
 function dbRowToBuilder(row: Record<string, unknown>): Builder {
   const name    = (row.full_name as string | null) ?? 'Unbekannt'
@@ -132,6 +132,22 @@ const getLandingData = unstable_cache(
 
 export default async function LandingPage() {
   const t = await getTranslations('Landing2')
+  const tL = await getTranslations('Landing')
+
+  const USPS = [
+    { icon: USP_ICONS[0], title: tL('usps.builderRider.title'),    desc: tL('usps.builderRider.desc') },
+    { icon: USP_ICONS[1], title: tL('usps.customRequests.title'),  desc: tL('usps.customRequests.desc') },
+    { icon: USP_ICONS[2], title: tL('usps.directContact.title'),   desc: tL('usps.directContact.desc') },
+    { icon: USP_ICONS[3], title: tL('usps.marketplace.title'),     desc: tL('usps.marketplace.desc') },
+  ]
+  const RIDER_FEATURES = [
+    { icon: RIDER_FEATURE_ICONS[0], title: tL('riderFeatures.connect.title'),     desc: tL('riderFeatures.connect.desc') },
+    { icon: RIDER_FEATURE_ICONS[1], title: tL('riderFeatures.planRides.title'),   desc: tL('riderFeatures.planRides.desc') },
+    { icon: RIDER_FEATURE_ICONS[2], title: tL('riderFeatures.explore.title'),     desc: tL('riderFeatures.explore.desc') },
+    { icon: RIDER_FEATURE_ICONS[3], title: tL('riderFeatures.showcase.title'),    desc: tL('riderFeatures.showcase.desc') },
+    { icon: RIDER_FEATURE_ICONS[4], title: tL('riderFeatures.inspiration.title'), desc: tL('riderFeatures.inspiration.desc') },
+    { icon: RIDER_FEATURE_ICONS[5], title: tL('riderFeatures.meet.title'),        desc: tL('riderFeatures.meet.desc') },
+  ]
   const { bikeRows, dbRows, sellerProfiles, bikeCounts, eventRows } = await getLandingData()
 
   const sellerName: Record<string, string> = Object.fromEntries(
