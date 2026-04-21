@@ -1,31 +1,39 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 const STORAGE_KEY = 'md-cookie-consent'
 
+const listeners = new Set<() => void>()
+const subscribe = (cb: () => void) => {
+  listeners.add(cb)
+  return () => {
+    listeners.delete(cb)
+  }
+}
+const getSnapshot = () => {
+  try {
+    return localStorage.getItem(STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+const getServerSnapshot = () => 'ssr'
+
 export default function CookieBanner() {
   const t = useTranslations('CookieBanner')
-  const [visible, setVisible] = useState(false)
+  const value = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true)
-    } catch {
-      setVisible(true)
-    }
-  }, [])
+  if (value !== null) return null
 
-  const decide = (value: 'accepted' | 'declined') => {
+  const decide = (v: 'accepted' | 'declined') => {
     try {
-      localStorage.setItem(STORAGE_KEY, value)
+      localStorage.setItem(STORAGE_KEY, v)
     } catch {}
-    setVisible(false)
+    listeners.forEach((l) => l())
   }
-
-  if (!visible) return null
 
   return (
     <div
