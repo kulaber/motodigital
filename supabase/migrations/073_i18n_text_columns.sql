@@ -61,12 +61,12 @@ UPDATE bikes
 SET description_i18n = jsonb_build_object('de', description)
 WHERE description IS NOT NULL AND description_i18n IS NULL;
 
--- ── base_bikes (brand descriptions) ────────────────────────────
--- base_bikes.description holds brand/model text shown to users.
-ALTER TABLE base_bikes
+-- ── base_bike_brands (brand descriptions) ──────────────────────
+-- base_bike_brands.description holds brand copy shown to users.
+ALTER TABLE base_bike_brands
   ADD COLUMN IF NOT EXISTS description_i18n JSONB;
 
-UPDATE base_bikes
+UPDATE base_bike_brands
 SET description_i18n = jsonb_build_object('de', description)
 WHERE description IS NOT NULL AND description_i18n IS NULL;
 
