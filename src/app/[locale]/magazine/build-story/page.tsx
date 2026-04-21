@@ -1,24 +1,27 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { getArticlesByCategory, CATEGORY_META } from '@/lib/data/magazine'
+import { getArticlesByCategoryForLocale, getCategoryMetaForLocale } from '@/lib/data/magazine'
 
-const meta = CATEGORY_META['build-story']
-
-export const metadata: Metadata = {
-  title: meta.title,
-  description: meta.description,
-  alternates: { canonical: 'https://motodigital.io/magazine/build-story' },
-  openGraph: { title: meta.title, description: meta.description, type: 'website' },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const meta = getCategoryMetaForLocale(locale)['build-story']
+  return {
+    title: meta.title,
+    description: meta.description,
+    alternates: { canonical: 'https://motodigital.io/magazine/build-story' },
+    openGraph: { title: meta.title, description: meta.description, type: 'website' },
+  }
 }
 
 
 export default async function BuildStoryPage() {
   const t = await getTranslations('MagazinePage')
-  const articles = getArticlesByCategory('build-story')
+  const locale = await getLocale()
+  const articles = getArticlesByCategoryForLocale('build-story', locale)
 
   const CATEGORY_TABS = [
     { label: t('tabAll'),          href: '/magazine' as const },

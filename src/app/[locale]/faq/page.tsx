@@ -13,67 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const FAQ_ALLGEMEIN: FaqItem[] = [
-  {
-    question: 'Was ist MotoDigital?',
-    answer:
-      'MotoDigital ist die erste digitale Plattform für Custom Motorcycle Culture in Europa. Wir verbinden Custom-Werkstätten, Bike-Käufer und Rider — direkt und ohne Umwege.',
-  },
-  {
-    question: 'Was kostet MotoDigital?',
-    answer:
-      'Für Rider und Werkstätten ist der Einstieg kostenlos (FREE-Plan). Werkstätten können auf Founding Partner (€39/Monat, nur 10 Plätze) oder PRO (€79/Monat) upgraden — mit Logo, Galerie, Prio-Listung und bis zu 10 Custom Bike Uploads.',
-  },
-  {
-    question: 'In welchen Ländern ist MotoDigital verfügbar?',
-    answer:
-      'Aktuell fokussieren wir uns auf den DACH-Raum (Deutschland, Österreich, Schweiz). Die Expansion in weitere europäische Märkte ist geplant.',
-  },
-  {
-    question: 'Welche Motorrad-Stile gibt es auf MotoDigital?',
-    answer:
-      'Auf MotoDigital findest du alle gängigen Custom-Stile: Cafe Racer, Bobber, Scrambler, Tracker, Chopper, Street und Enduro. Du kannst nach Stil filtern, um genau das zu finden, was du suchst.',
-  },
-  {
-    question: 'Wie kann ich MotoDigital kontaktieren?',
-    answer:
-      'Du kannst uns jederzeit über das Kontaktformular auf unserer Support-Seite erreichen oder eine E-Mail an info@motodigital.de senden. Wir antworten in der Regel innerhalb von 48 Stunden.',
-  },
-]
-
-const FAQ_WERKSTATT: FaqItem[] = [
-  {
-    question: 'Wie kann ich meine Werkstatt registrieren?',
-    answer:
-      'Klicke auf „Kostenlos starten", gib deine E-Mail ein und bestätige den Magic Link. Danach kannst du dein Werkstatt-Profil mit Standort und erstem Bike anlegen — in wenigen Minuten bist du live.',
-  },
-  {
-    question: 'Wie finde ich eine Custom-Werkstatt in meiner Nähe?',
-    answer:
-      'Auf der Seite „Custom Werkstatt" findest du eine interaktive Karte mit allen registrierten Werkstätten. Du kannst nach Standort, Stil und Spezialisierung filtern.',
-  },
-  {
-    question: 'Wie funktioniert die Kontaktaufnahme mit Werkstätten?',
-    answer:
-      'Auf jeder Werkstatt-Profilseite findest du einen Kontakt-Button. Darüber kannst du direkt eine Nachricht an die Werkstatt senden — ohne Umwege oder Gebühren.',
-  },
-]
-
-const FAQ_RIDER: FaqItem[] = [
-  {
-    question: 'Kann ich als Rider ein Profil erstellen?',
-    answer:
-      'Ja! Als Rider kannst du dein eigenes Profil mit deinem Custom Bike erstellen, andere Rider entdecken und Teil der Community werden.',
-  },
-  {
-    question: 'Wie kann ich ein Custom Bike verkaufen?',
-    answer:
-      'Der Custom Bike Marktplatz wird demnächst verfügbar sein. Du kannst dann dein Bike mit Fotos, Beschreibung und Preis einstellen. Käufer kontaktieren dich direkt über die Plattform.',
-  },
-]
-
-const ALL_FAQ = [...FAQ_ALLGEMEIN, ...FAQ_WERKSTATT, ...FAQ_RIDER]
-
 function FaqJsonLd({ items }: { items: FaqItem[] }) {
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -98,6 +37,28 @@ function FaqJsonLd({ items }: { items: FaqItem[] }) {
 
 export default async function FaqPage() {
   const t = await getTranslations('FAQ')
+  const tFaq = await getTranslations('FAQContent')
+
+  const FAQ_ALLGEMEIN: FaqItem[] = [
+    { question: tFaq('general.0.q'), answer: tFaq('general.0.a') },
+    { question: tFaq('general.1.q'), answer: tFaq('general.1.a') },
+    { question: tFaq('general.2.q'), answer: tFaq('general.2.a') },
+    { question: tFaq('general.3.q'), answer: tFaq('general.3.a') },
+    { question: tFaq('general.4.q'), answer: tFaq('general.4.a') },
+  ]
+
+  const FAQ_WERKSTATT: FaqItem[] = [
+    { question: tFaq('workshop.0.q'), answer: tFaq('workshop.0.a') },
+    { question: tFaq('workshop.1.q'), answer: tFaq('workshop.1.a') },
+    { question: tFaq('workshop.2.q'), answer: tFaq('workshop.2.a') },
+  ]
+
+  const FAQ_RIDER: FaqItem[] = [
+    { question: tFaq('rider.0.q'), answer: tFaq('rider.0.a') },
+    { question: tFaq('rider.1.q'), answer: tFaq('rider.1.a') },
+  ]
+
+  const ALL_FAQ = [...FAQ_ALLGEMEIN, ...FAQ_WERKSTATT, ...FAQ_RIDER]
 
   return (
     <>
@@ -127,21 +88,21 @@ export default async function FaqPage() {
 
           {/* Allgemein */}
           <div className="mb-12">
-            <h2 className="text-lg font-bold text-white mb-6">Allgemein</h2>
+            <h2 className="text-lg font-bold text-white mb-6">{tFaq('generalHeading')}</h2>
             <FaqAccordion items={FAQ_ALLGEMEIN} />
           </div>
 
           {/* Custom Werkstatt */}
           <div className="mb-12">
             <h2 className="text-lg font-bold text-white mb-6">
-              Custom Werkstatt
+              {tFaq('workshopHeading')}
             </h2>
             <FaqAccordion items={FAQ_WERKSTATT} />
           </div>
 
           {/* Rider */}
           <div className="mb-12">
-            <h2 className="text-lg font-bold text-white mb-6">Rider</h2>
+            <h2 className="text-lg font-bold text-white mb-6">{tFaq('riderHeading')}</h2>
             <FaqAccordion items={FAQ_RIDER} />
           </div>
 

@@ -1,24 +1,28 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { getArticlesByCategory, CATEGORY_META } from '@/lib/data/magazine'
+import { getArticlesByCategoryForLocale, getCategoryMetaForLocale } from '@/lib/data/magazine'
 
-const meta = CATEGORY_META['interview']
-
-export const metadata: Metadata = {
-  title: meta.title,
-  description: meta.description,
-  alternates: { canonical: 'https://motodigital.io/magazine/interview' },
-  openGraph: { title: meta.title, description: meta.description, type: 'website' },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const meta = getCategoryMetaForLocale(locale)['interview']
+  return {
+    title: meta.title,
+    description: meta.description,
+    alternates: { canonical: 'https://motodigital.io/magazine/interview' },
+    openGraph: { title: meta.title, description: meta.description, type: 'website' },
+  }
 }
 
 
 export default async function InterviewPage() {
   const t = await getTranslations('MagazinePage')
-  const articles = getArticlesByCategory('interview')
+  const locale = await getLocale()
+  const articles = getArticlesByCategoryForLocale('interview', locale)
+  const meta = getCategoryMetaForLocale(locale)['interview']
 
   const CATEGORY_TABS = [
     { label: t('tabAll'),          href: '/magazine' as const },

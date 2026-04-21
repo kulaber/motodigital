@@ -25,7 +25,31 @@
     "myArea": "My account",
     "discover": "Discover",
     "more": "More",
-    "aboutMotoDigital": "About MotoDigital"
+    "aboutMotoDigital": "About MotoDigital",
+    "overview": "Overview",
+    "myBikes": "My bikes",
+    "editWorkshopProfile": "Edit workshop profile",
+    "profileView": "View profile",
+    "superadminWorkshops": "Workshops",
+    "superadminBikes": "Custom bikes",
+    "superadminRider": "Riders",
+    "superadminMagazine": "Magazine",
+    "superadminEvents": "Events",
+    "signOut": "Sign out",
+    "home": "Home",
+    "post": "Post",
+    "workshop": "Workshop"
+  },
+  "BikeStyles": {
+    "naked": "Naked",
+    "cafe_racer": "Cafe Racer",
+    "bobber": "Bobber",
+    "scrambler": "Scrambler",
+    "tracker": "Tracker",
+    "chopper": "Chopper",
+    "street": "Street",
+    "enduro": "Enduro",
+    "other": "Base bike"
   },
   "Footer": {
     "about": "About MotoDigital",
@@ -240,6 +264,57 @@
     "contactCta": "Didn't find an answer? Reach out via support.",
     "contactButton": "Go to support"
   },
+  "FAQContent": {
+    "generalHeading": "General",
+    "workshopHeading": "Custom Workshops",
+    "riderHeading": "Riders",
+    "general": {
+      "0": {
+        "q": "What is MotoDigital?",
+        "a": "MotoDigital is Europe's first digital platform dedicated to custom motorcycle culture. We connect custom workshops, bike buyers and riders — directly, with no middlemen."
+      },
+      "1": {
+        "q": "How much does MotoDigital cost?",
+        "a": "Getting started is free for both riders and workshops (FREE plan). Workshops can upgrade to Founding Partner (€39/month, only 10 seats) or PRO (€79/month) — with logo, gallery, priority listing and up to 10 custom bike uploads."
+      },
+      "2": {
+        "q": "Which countries does MotoDigital cover?",
+        "a": "For now we're focused on the DACH region (Germany, Austria, Switzerland). Expansion into other European markets is on the roadmap."
+      },
+      "3": {
+        "q": "Which motorcycle styles are featured on MotoDigital?",
+        "a": "You'll find all the major custom styles on MotoDigital: Cafe Racer, Bobber, Scrambler, Tracker, Chopper, Street and Enduro. Filter by style to find exactly what you're looking for."
+      },
+      "4": {
+        "q": "How can I get in touch with MotoDigital?",
+        "a": "You can reach us anytime through the contact form on our support page or by emailing info@motodigital.de. We typically respond within 48 hours."
+      }
+    },
+    "workshop": {
+      "0": {
+        "q": "How do I register my workshop?",
+        "a": "Click \"Start for free\", enter your email and confirm the magic link. From there you can set up your workshop profile with location and a first bike — you'll be live in just a few minutes."
+      },
+      "1": {
+        "q": "How do I find a custom workshop near me?",
+        "a": "On the \"Custom Workshops\" page you'll find an interactive map with every registered workshop. You can filter by location, style and specialty."
+      },
+      "2": {
+        "q": "How does getting in touch with a workshop work?",
+        "a": "Every workshop profile has a contact button. Use it to message the workshop directly — no middlemen, no fees."
+      }
+    },
+    "rider": {
+      "0": {
+        "q": "Can I create a profile as a rider?",
+        "a": "Absolutely. As a rider you can create your own profile featuring your custom bike, discover other riders and become part of the community."
+      },
+      "1": {
+        "q": "How can I sell a custom bike?",
+        "a": "The custom bike marketplace is launching soon. You'll be able to list your bike with photos, a description and a price — buyers reach out to you directly through the platform."
+      }
+    }
+  },
   "Support": {
     "metaTitle": "Support — MotoDigital",
     "metaDescription": "Help, contact and technical support for MotoDigital.",
@@ -270,7 +345,95 @@
     "visionText": "A Europe-wide platform connecting the entire custom motorcycle scene: builders, riders, parts makers, events and magazines.",
     "team": "The team",
     "roadmap": "Roadmap",
-    "contact": "Contact"
+    "contact": "Contact",
+    "heroSubtitle": "MotoDigital connects custom workshops, bike buyers and riders — directly, with no middlemen.",
+    "ctaSubtitle": "Sign up as a workshop or rider. You'll be live in minutes.",
+    "sections": {
+      "workshops": {
+        "tag": "For custom workshops",
+        "heading": "Your workshop.\nVisible to the\nright customers.",
+        "description": "MotoDigital is the first digital home for custom workshops in Europe. No algorithm, no pay-to-win — just real visibility with people who genuinely want custom bikes.",
+        "cta": "Start for free",
+        "usps": {
+          "0": "Profile page with gallery, photos & videos",
+          "1": "Get found on the interactive map",
+          "2": "Show your builds as references",
+          "3": "Direct contact with customers",
+          "4": "Verified profile for more trust"
+        }
+      },
+      "buyers": {
+        "tag": "For custom bike buyers",
+        "heading": "Find your next\ncustom bike —\nno middlemen.",
+        "description": "Browse hundreds of handcrafted custom bikes directly from workshops and private sellers. Filter by style, brand or region.",
+        "cta": "Discover bikes",
+        "usps": {
+          "0": "Cafe Racer, Bobber, Scrambler, Tracker & more",
+          "1": "High-quality photos of every bike",
+          "2": "Direct contact with the seller",
+          "3": "Watchlist for your favourites",
+          "4": "Regional search & style filters"
+        }
+      },
+      "riders": {
+        "tag": "For riders",
+        "heading": "Become part of the\ncustom bike\ncommunity.",
+        "description": "As a rider on MotoDigital you can showcase or sell your own bike, discover workshops and find riders nearby who share your mindset. Experience custom motorcycle culture for real.",
+        "cta": "Sign up as a rider",
+        "usps": {
+          "0": "Your own rider profile with your bike",
+          "1": "Find rides nearby on the map",
+          "2": "Sell custom bikes",
+          "3": "Custom workshops near you",
+          "4": "Inspiration through builds & magazine",
+          "5": "Discover community events",
+          "6": "Direct line to workshops & riders"
+        }
+      }
+    },
+    "roadmapStatus": {
+      "live": "Live",
+      "soon": "Coming soon",
+      "planned": "Planned"
+    },
+    "roadmapItems": {
+      "0": {
+        "title": "Custom Workshop Directory",
+        "description": "Interactive map with every custom workshop in Europe — including profile, gallery & direct contact."
+      },
+      "1": {
+        "title": "Rider Community",
+        "description": "Dedicated rider profiles with bike showcases and networking across the community."
+      },
+      "2": {
+        "title": "Custom Bike Marketplace",
+        "description": "Buy and sell handcrafted custom bikes directly between workshops and riders."
+      },
+      "3": {
+        "title": "Workshop Reviews",
+        "description": "Verified customer reviews for custom workshops — transparent and authentic."
+      },
+      "4": {
+        "title": "Shop Integration",
+        "description": "Workshops can sell merchandise, parts and services directly from their profile page."
+      },
+      "5": {
+        "title": "Parts Database",
+        "description": "Smart database for matching custom parts — filtered by motorcycle, year and style."
+      },
+      "6": {
+        "title": "Digital Custom Bike Pass",
+        "description": "A MotoDigital pass for verifying and documenting custom bikes — for more security and transparency around your custom bike identity."
+      },
+      "7": {
+        "title": "App — iOS & Android",
+        "description": "The MotoDigital app for on the go — discover bikes, find workshops, experience the community."
+      },
+      "8": {
+        "title": "European Expansion",
+        "description": "Localised versions for DE, AT, CH, NL, FR, IT and more European markets."
+      }
+    }
   },
   "Benefits": {
     "metaTitle": "Membership & Pricing — MotoDigital",
@@ -282,7 +445,54 @@
     "riderHeading": "MotoDigital is free for riders.",
     "registerWorkshop": "Sign up as a workshop for free",
     "registerRider": "Sign up as a rider for free",
-    "foundingPartner": "Become a Founding Partner"
+    "foundingPartner": "Become a Founding Partner",
+    "heroSubtitle": "Whether you're a custom workshop or a rider — find the right plan for you.",
+    "choosePlan": "Choose your plan.",
+    "perMonth": "/month",
+    "redirecting": "Redirecting...",
+    "disclaimer": "After 12 months the plan switches automatically to PRO (€79/month). Cancel anytime.",
+    "freePlan": {
+      "kicker": "Basic",
+      "title": "FREE",
+      "price": "€0",
+      "desc": "For getting started — free forever",
+      "bullets": {
+        "0": "Visible on the map",
+        "1": "1 custom bike (for sale or showcase)",
+        "2": "Add logo & cover image",
+        "3": "Add a description",
+        "4": "No services or build styles",
+        "5": "No contact button",
+        "6": "No analytics dashboard"
+      }
+    },
+    "foundingPartnerPlan": {
+      "title": "FOUNDING PARTNER",
+      "price": "€39",
+      "desc": "For the first 10 workshops · €39/mo for 12 months, then €79/mo",
+      "scarcity": "Only 10 of 10 seats left",
+      "bullets": {
+        "0": "Unlimited custom bikes (for sale & showcase)",
+        "1": "Services & build styles on your profile",
+        "2": "Contact button for direct inquiries",
+        "3": "Analytics dashboard with visitor data",
+        "4": "Logo, cover image & description",
+        "5": "Visible on the map",
+        "6": "Founding Partner badge",
+        "7": "All future PRO features included"
+      }
+    },
+    "riderBadge": "Free · Always",
+    "riderSubtitle": "Create your profile, discover workshops and join the custom bike community — at no cost.",
+    "riderFeatures": {
+      "0": "Your own rider profile with your bike",
+      "1": "Find rides nearby",
+      "2": "Sell custom bikes",
+      "3": "Custom workshops near you",
+      "4": "Inspiration through builds & magazine",
+      "5": "Discover community events",
+      "6": "Direct line to workshops & riders"
+    }
   },
   "Partner": {
     "metaTitle": "Become a partner — MotoDigital",
@@ -296,7 +506,27 @@
     "adsCta": "Request media kit",
     "coopTitle": "Partnerships & media",
     "coopCta": "Get in touch",
-    "contactKicker": "Direct inquiry"
+    "contactKicker": "Direct inquiry",
+    "heroSubtitle": "Secure one of the limited Founding Partner seats for your workshop — €39/mo for 12 months, then automatically PRO (€79/mo). Cancel anytime.",
+    "foundingPartnerBody": "Your workshop on MotoDigital — with logo, gallery, top placement and an exclusive Founding Partner badge. €39/mo for 12 months, then €79/mo (PRO).",
+    "slotsRemaining": "{slots} of 10 seats still available",
+    "redirectingStripe": "Redirecting to Stripe...",
+    "cards": {
+      "ads": {
+        "body": "Reach thousands of custom enthusiasts with targeted placements — on the homepage, Explore page or in the newsletter."
+      },
+      "coop": {
+        "body": "Events, associations, press work or other ideas — we welcome every inquiry."
+      }
+    },
+    "mailSubjects": {
+      "ads": "Media kit request",
+      "coop": "Partnership inquiry"
+    },
+    "contact": {
+      "intro": "For all inquiries:",
+      "outro": "— we reply within 48 hours."
+    }
   },
   "Auth": {
     "loginTitle": "Log in",

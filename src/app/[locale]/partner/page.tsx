@@ -21,18 +21,16 @@ export default async function PartnerPage() {
     {
       icon: <Megaphone size={24} className="text-[#06a5a5]" />,
       title: t('adsTitle'),
-      // i18n: body copy — translate later
-      text: 'Erreiche tausende Custom-Enthusiasten gezielt — auf der Startseite, Explore-Page oder im Newsletter.',
+      text: t('cards.ads.body'),
       cta: t('adsCta'),
-      href: 'mailto:info@motodigital.de?subject=Media Kit Anfrage',
+      href: `mailto:info@motodigital.de?subject=${encodeURIComponent(t('mailSubjects.ads'))}`,
     },
     {
       icon: <Handshake size={24} className="text-[#06a5a5]" />,
       title: t('coopTitle'),
-      // i18n: body copy — translate later
-      text: 'Veranstaltungen, Verbände, Pressearbeit oder andere Ideen — wir freuen uns über jede Anfrage.',
+      text: t('cards.coop.body'),
       cta: t('coopCta'),
-      href: 'mailto:info@motodigital.de?subject=Kooperationsanfrage',
+      href: `mailto:info@motodigital.de?subject=${encodeURIComponent(t('mailSubjects.coop'))}`,
     },
   ]
 
@@ -62,9 +60,8 @@ export default async function PartnerPage() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 max-w-3xl">
             {t('heading')}
           </h1>
-          {/* i18n: body copy — translate later */}
           <p className="text-base text-white/40 max-w-lg leading-relaxed">
-            Sichere dir als Werkstatt einen der limitierten Founding Partner Plätze — €39/Mo für 12 Monate, danach automatisch PRO (€79/Mo). Jederzeit kündbar.
+            {t('heroSubtitle')}
           </p>
         </div>
       </section>
@@ -102,13 +99,12 @@ export default async function PartnerPage() {
           <p className="text-xs font-bold uppercase tracking-widest text-[#06a5a5] mb-4">
             {t('contactKicker')}
           </p>
-          {/* i18n: body copy — translate later */}
           <p className="text-base text-white/40 leading-relaxed">
-            Für alle Anfragen:{' '}
+            {t('contact.intro')}{' '}
             <a href="mailto:info@motodigital.de" className="text-[#06a5a5] font-semibold hover:text-[#058f8f] transition-colors">
               info@motodigital.de
             </a>
-            {' '}— wir antworten innerhalb von 48 Stunden.
+            {' '}{t('contact.outro')}
           </p>
         </div>
       </section>

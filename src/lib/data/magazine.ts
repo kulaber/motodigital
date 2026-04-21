@@ -1015,3 +1015,177 @@ export const CATEGORY_META = {
       'Kaufratgeber, Vergleiche und Leitfäden rund um Custom Motorcycles. Alles was du wissen musst, bevor du kaufst.',
   },
 } as const
+
+// ──────────────────────────────────────────────────────────────
+// i18n overlays
+//
+// Article bodies (the `content[]` sections) stay German — they're long-form
+// editorial copy and get translated in a dedicated content pass. For EN we
+// override the surfaces that are indexed/displayed in previews (title,
+// metaTitle, metaDescription, excerpt, categoryLabel). Readers use the
+// `getArticlesForLocale` / `getArticleBySlugForLocale` helpers below and get
+// a fully-overlaid Article; missing EN fields fall back to DE.
+// ──────────────────────────────────────────────────────────────
+
+type ArticleOverlay = Partial<
+  Pick<Article, 'title' | 'metaTitle' | 'metaDescription' | 'excerpt' | 'categoryLabel' | 'readTime'>
+>
+
+const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'warum-heisst-es-cafe-racer': {
+    title: 'Why is it called Café Racer? The story behind the myth',
+    metaTitle: 'Why is it called Café Racer? Origin, history & myth',
+    metaDescription:
+      "Café Racer: the name was born in 1950s London — the Ace Cafe, the Ton-up Boys and the rocker cult. The full story behind the iconic bike.",
+    excerpt:
+      "The name 'Café Racer' came from 1950s London — from the Ace Cafe on the North Circular, from young rockers racing between cafes on ton-up motorcycles. The complete story of how a cultural subculture became one of the most iconic bike styles.",
+    categoryLabel: 'Guide',
+  },
+  'scrambler-kaufen-guide': {
+    title: 'Buying a scrambler in 2026: the complete guide',
+    metaTitle: 'Buying a scrambler in 2026 — models, prices & what to check',
+    metaDescription:
+      'Everything you need to know before buying a scrambler: the best models, typical prices, key checks and the difference between retro and modern builds.',
+    excerpt:
+      'Scramblers are back — and the choice has never been bigger. From the Ducati Scrambler to the Triumph Street Scrambler to classic conversions, this guide walks you through models, prices and what to look for before you sign.',
+    categoryLabel: 'Guide',
+  },
+  'bobber-kaufen-guide': {
+    title: 'Buying a bobber: the guide for real low riders',
+    metaTitle: 'Buying a bobber 2026 — models, prices & check points',
+    metaDescription:
+      'Everything that matters when buying a bobber: the best models on the used market, realistic prices, typical problem areas and how to spot a well-built custom.',
+    excerpt:
+      "Bobbers stand for stripped-down minimalism, fat rear tyres and rebellious soul. This guide shows you which bobbers are genuinely worth the money, what to look out for on the used market and where the hidden costs are hiding.",
+    categoryLabel: 'Guide',
+  },
+  'cafe-racer-selber-bauen-basis-bikes': {
+    title: 'Building your own Café Racer: the 10 best donor bikes',
+    metaTitle: 'Building a Café Racer — the 10 best donor bikes in 2026',
+    metaDescription:
+      'The best donor bikes for a Café Racer conversion: classic Hondas, reliable Yamahas, characterful BMWs. With typical prices, parts availability and difficulty.',
+    excerpt:
+      'You want to build your own Café Racer but don\'t know where to start? This guide ranks the 10 best donor platforms — from Honda CB to Yamaha XS to BMW R — with realistic prices, conversion effort and what to watch out for.',
+    categoryLabel: 'Guide',
+  },
+  'was-kostet-ein-custom-bike': {
+    title: 'What does a custom bike cost? Prices, effort & hidden costs',
+    metaTitle: 'What does a custom bike cost? Prices, effort & hidden costs',
+    metaDescription:
+      'Realistic prices for custom motorcycles — from simple conversions to full builds. Plus: the hidden costs no one mentions up front.',
+    excerpt:
+      "A custom bike from €3,000? From €15,000? From €40,000? The honest answer: it depends — but not on what you think. A realistic look at what a custom really costs and where the hidden line items are.",
+    categoryLabel: 'Guide',
+  },
+  'tuev-eintragung-custom-bike': {
+    title: 'TÜV registration for custom bikes: what\'s actually legal in Germany',
+    metaTitle: 'TÜV registration custom bike — what\'s legal in Germany',
+    metaDescription:
+      'What can be registered and what can\'t: fender mods, exhaust, lighting, seat. With a practical checklist and tips for the TÜV appointment.',
+    excerpt:
+      "Every rider knows the fear: 'Will the TÜV pass my custom?' This guide shows which mods are actually legal in Germany, how the registration process works in practice, and where most builds fail.",
+    categoryLabel: 'Guide',
+  },
+  'cafe-racer-kaufen-guide': {
+    title: 'Buying a Café Racer: the complete guide for 2026',
+    metaTitle: 'Buying a Café Racer 2026 — tips, prices & what to check',
+    metaDescription:
+      'The complete buying guide for Café Racers: the best models, fair prices, red flags and pro tips for the first viewing and test ride.',
+    excerpt:
+      'Whether you\'re buying new, used or custom — a Café Racer is a big decision. This guide gives you the full picture: models at every price point, what to check at the first viewing, and how to tell a well-built conversion from a dressed-up disaster.',
+    categoryLabel: 'Guide',
+  },
+  'jakob-kraft-berlin-interview': {
+    title: '"A bike without a story is just a vehicle" — Jakob Kraft interviewed',
+    metaTitle: 'Jakob Kraft interview — Café Racer builder from Berlin',
+    metaDescription:
+      'Berlin-based builder Jakob Kraft on custom culture, his approach to Café Racers and what makes a great build.',
+    excerpt:
+      "Jakob Kraft builds Café Racers in a workshop in Neukölln. No social-media theatrics, no series builds — just one-offs with a backstory. A conversation about craft, patience and why every bike gets a name.",
+    categoryLabel: 'Interview',
+  },
+  'shovelhead-revival-kai-fuchs': {
+    title: 'Shovelhead Revival: 16 months, a \'76 engine and a clear statement',
+    metaTitle: 'Shovel Devil build story — Kai Fuchs Custom Stuttgart',
+    metaDescription:
+      'Kai Fuchs tells the full build story of the Shovel Devil — from a dusty 1976 Harley engine to a finished hand-built Shovelhead.',
+    excerpt:
+      "Sixteen months, a 1976 Shovelhead engine and a workshop in Stuttgart. Kai Fuchs tells the complete story of the Shovel Devil — including everything that went wrong along the way.",
+    categoryLabel: 'Build Story',
+  },
+  'scrambler-vs-tracker-vergleich': {
+    title: 'Scrambler vs. Tracker: what\'s the difference and which one suits you?',
+    metaTitle: 'Scrambler vs. Tracker — differences & which to buy in 2025',
+    metaDescription:
+      'Scrambler or Tracker? Geometry, tyres, use cases and which bike matches which rider. With concrete examples from the used market.',
+    excerpt:
+      'They look similar at first glance — but scramblers and trackers are fundamentally different bikes. This comparison explains the differences, where each works best, and which one actually suits your riding style.',
+    categoryLabel: 'Guide',
+  },
+  'max-steiner-bobber-interview': {
+    title: 'Max Steiner on bobbers, patience and why every bolt matters',
+    metaTitle: 'Max Steiner interview — Bobber builder Munich',
+    metaDescription:
+      "Munich-based builder Max Steiner on his bobber philosophy, the temptation of shortcuts and why his builds take 18 months.",
+    excerpt:
+      "Max Steiner builds one bobber a year — and is booked out for the next three. A conversation about slow craft, customers who understand the wait, and why 'a bobber' always means more than just a silhouette.",
+    categoryLabel: 'Interview',
+  },
+  'berlin-ghost-build-story': {
+    title: 'Berlin Ghost: the slate-grey build nobody expected',
+    metaTitle: 'Berlin Ghost build story — Studio Nord Hamburg Custom',
+    metaDescription:
+      'Studio Nord Hamburg on the Berlin Ghost — a minimalist BMW R-series build with deliberately muted finishes and maximum attention to detail.',
+    excerpt:
+      'No chrome. No high-gloss paint. No Instagram-ready photoshoot. The Berlin Ghost breaks every convention of the custom scene — and that\'s exactly why it works. A conversation with Studio Nord about a build that lets the work speak.',
+    categoryLabel: 'Build Story',
+  },
+}
+
+const CATEGORY_META_EN = {
+  'build-story': {
+    label: 'Build Story',
+    title: 'Build Stories — Custom Motorcycle Projects | MotoDigital',
+    description:
+      "The complete build stories behind Europe's most exceptional custom motorcycles. From the first sketch to the finished bike.",
+  },
+  interview: {
+    label: 'Interview',
+    title: 'Builder interviews — Custom motorcycle culture | MotoDigital',
+    description:
+      "Conversations with custom builders about philosophy, projects and the passion behind the handlebars.",
+  },
+  guide: {
+    label: 'Guide',
+    title: 'Custom motorcycle guides & buying advice 2025 | MotoDigital',
+    description:
+      "Buying guides, comparisons and how-tos around custom motorcycles. Everything you need to know before you buy.",
+  },
+} as const
+
+function applyOverlay(article: Article, locale: string): Article {
+  if (locale === 'de') return article
+  const overlay = ARTICLE_OVERLAYS_EN[article.slug]
+  if (!overlay) return article
+  return { ...article, ...overlay }
+}
+
+export function getArticlesForLocale(locale: string): Article[] {
+  return ARTICLES.map((a) => applyOverlay(a, locale))
+}
+
+export function getArticleBySlugForLocale(slug: string, locale: string): Article | undefined {
+  const raw = ARTICLES.find((a) => a.slug === slug)
+  return raw ? applyOverlay(raw, locale) : undefined
+}
+
+export function getArticlesByCategoryForLocale(
+  category: Article['category'],
+  locale: string,
+): Article[] {
+  return getArticlesForLocale(locale).filter((a) => a.category === category)
+}
+
+export function getCategoryMetaForLocale(locale: string) {
+  return locale === 'en' ? CATEGORY_META_EN : CATEGORY_META
+}

@@ -25,7 +25,31 @@
     "myArea": "Mein Bereich",
     "discover": "Entdecken",
     "more": "Mehr",
-    "aboutMotoDigital": "Über MotoDigital"
+    "aboutMotoDigital": "Über MotoDigital",
+    "overview": "Übersicht",
+    "myBikes": "Meine Bikes",
+    "editWorkshopProfile": "Werkstatt-Profil bearbeiten",
+    "profileView": "Profilansicht",
+    "superadminWorkshops": "Werkstätten",
+    "superadminBikes": "Custom Bikes",
+    "superadminRider": "Rider",
+    "superadminMagazine": "Magazin",
+    "superadminEvents": "Events",
+    "signOut": "Abmelden",
+    "home": "Home",
+    "post": "Posten",
+    "workshop": "Werkstatt"
+  },
+  "BikeStyles": {
+    "naked": "Naked",
+    "cafe_racer": "Cafe Racer",
+    "bobber": "Bobber",
+    "scrambler": "Scrambler",
+    "tracker": "Tracker",
+    "chopper": "Chopper",
+    "street": "Street",
+    "enduro": "Enduro",
+    "other": "Basis-Bike"
   },
   "Footer": {
     "about": "Über MotoDigital",
@@ -240,6 +264,57 @@
     "contactCta": "Keine Antwort gefunden? Schreib uns im Support.",
     "contactButton": "Zum Support"
   },
+  "FAQContent": {
+    "generalHeading": "Allgemein",
+    "workshopHeading": "Custom Werkstatt",
+    "riderHeading": "Rider",
+    "general": {
+      "0": {
+        "q": "Was ist MotoDigital?",
+        "a": "MotoDigital ist die erste digitale Plattform für Custom Motorcycle Culture in Europa. Wir verbinden Custom-Werkstätten, Bike-Käufer und Rider — direkt und ohne Umwege."
+      },
+      "1": {
+        "q": "Was kostet MotoDigital?",
+        "a": "Für Rider und Werkstätten ist der Einstieg kostenlos (FREE-Plan). Werkstätten können auf Founding Partner (€39/Monat, nur 10 Plätze) oder PRO (€79/Monat) upgraden — mit Logo, Galerie, Prio-Listung und bis zu 10 Custom Bike Uploads."
+      },
+      "2": {
+        "q": "In welchen Ländern ist MotoDigital verfügbar?",
+        "a": "Aktuell fokussieren wir uns auf den DACH-Raum (Deutschland, Österreich, Schweiz). Die Expansion in weitere europäische Märkte ist geplant."
+      },
+      "3": {
+        "q": "Welche Motorrad-Stile gibt es auf MotoDigital?",
+        "a": "Auf MotoDigital findest du alle gängigen Custom-Stile: Cafe Racer, Bobber, Scrambler, Tracker, Chopper, Street und Enduro. Du kannst nach Stil filtern, um genau das zu finden, was du suchst."
+      },
+      "4": {
+        "q": "Wie kann ich MotoDigital kontaktieren?",
+        "a": "Du kannst uns jederzeit über das Kontaktformular auf unserer Support-Seite erreichen oder eine E-Mail an info@motodigital.de senden. Wir antworten in der Regel innerhalb von 48 Stunden."
+      }
+    },
+    "workshop": {
+      "0": {
+        "q": "Wie kann ich meine Werkstatt registrieren?",
+        "a": "Klicke auf „Kostenlos starten\", gib deine E-Mail ein und bestätige den Magic Link. Danach kannst du dein Werkstatt-Profil mit Standort und erstem Bike anlegen — in wenigen Minuten bist du live."
+      },
+      "1": {
+        "q": "Wie finde ich eine Custom-Werkstatt in meiner Nähe?",
+        "a": "Auf der Seite „Custom Werkstatt\" findest du eine interaktive Karte mit allen registrierten Werkstätten. Du kannst nach Standort, Stil und Spezialisierung filtern."
+      },
+      "2": {
+        "q": "Wie funktioniert die Kontaktaufnahme mit Werkstätten?",
+        "a": "Auf jeder Werkstatt-Profilseite findest du einen Kontakt-Button. Darüber kannst du direkt eine Nachricht an die Werkstatt senden — ohne Umwege oder Gebühren."
+      }
+    },
+    "rider": {
+      "0": {
+        "q": "Kann ich als Rider ein Profil erstellen?",
+        "a": "Ja! Als Rider kannst du dein eigenes Profil mit deinem Custom Bike erstellen, andere Rider entdecken und Teil der Community werden."
+      },
+      "1": {
+        "q": "Wie kann ich ein Custom Bike verkaufen?",
+        "a": "Der Custom Bike Marktplatz wird demnächst verfügbar sein. Du kannst dann dein Bike mit Fotos, Beschreibung und Preis einstellen. Käufer kontaktieren dich direkt über die Plattform."
+      }
+    }
+  },
   "Support": {
     "metaTitle": "Support — MotoDigital",
     "metaDescription": "Hilfe, Kontakt und technischer Support für MotoDigital.",
@@ -270,7 +345,95 @@
     "visionText": "Eine europaweite Plattform, die die gesamte Custom-Motorrad-Szene vernetzt: Builder, Rider, Teile-Hersteller, Events und Magazine.",
     "team": "Das Team",
     "roadmap": "Roadmap",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "heroSubtitle": "MotoDigital verbindet Custom-Werkstätten, Bike-Käufer und Rider — direkt und ohne Umwege.",
+    "ctaSubtitle": "Registriere dich als Werkstatt oder Rider. In wenigen Minuten live.",
+    "sections": {
+      "workshops": {
+        "tag": "Für Custom-Werkstätten",
+        "heading": "Deine Werkstatt.\nSichtbar für die\nrichtigen Kunden.",
+        "description": "MotoDigital ist die erste digitale Anlaufstelle für Custom-Werkstätten in Europa. Kein Algorithmus, kein Pay-to-Win — nur echte Sichtbarkeit bei Menschen, die Custom Bikes wirklich wollen.",
+        "cta": "Kostenlos starten",
+        "usps": {
+          "0": "Profilseite mit Galerie, Fotos & Videos",
+          "1": "Werde auf der interaktiven Karte gefunden",
+          "2": "Zeig deine Builds als Referenz",
+          "3": "Direkter Kontakt mit Kunden",
+          "4": "Verifiziertes Profil für mehr Vertrauen"
+        }
+      },
+      "buyers": {
+        "tag": "Für Custom-Bike-Käufer",
+        "heading": "Finde dein nächstes\nCustom Bike —\nohne Umwege.",
+        "description": "Durchstöbere hunderte handgefertigte Custom Bikes direkt von Werkstätten und Privatverkäufern. Filtere nach Stil, Marke oder Region.",
+        "cta": "Bikes entdecken",
+        "usps": {
+          "0": "Cafe Racer, Bobber, Scrambler, Tracker & mehr",
+          "1": "Hochwertige Fotos von jedem Bike",
+          "2": "Direktkontakt zum Verkäufer",
+          "3": "Merkliste für deine Favoriten",
+          "4": "Regionale Suche & Stilfilter"
+        }
+      },
+      "riders": {
+        "tag": "Für Rider",
+        "heading": "Werde Teil der\nCustom-Bike\nCommunity.",
+        "description": "Als Rider auf MotoDigital kannst du dein eigenes Bike präsentieren oder verkaufen, Werkstätten entdecken, Rider in der Nähe finden, die das gleiche Mindset haben wie du. Erlebe die wirkliche Custom Motorcycle Culture.",
+        "cta": "Als Rider registrieren",
+        "usps": {
+          "0": "Eigenes Rider-Profil mit deinem Bike",
+          "1": "Fahrten in der Nähe finden durch Map",
+          "2": "Custom Bikes verkaufen",
+          "3": "Custom-Werkstätten in deiner Nähe",
+          "4": "Inspiration durch Builds & Magazin",
+          "5": "Events in der Community entdecken",
+          "6": "Direkter Draht zu Werkstätten & Ridern"
+        }
+      }
+    },
+    "roadmapStatus": {
+      "live": "Live",
+      "soon": "Demnächst",
+      "planned": "Geplant"
+    },
+    "roadmapItems": {
+      "0": {
+        "title": "Custom Werkstatt Verzeichnis",
+        "description": "Interaktive Karte mit allen Custom-Werkstätten in Europa — inkl. Profil, Galerie & Direktkontakt."
+      },
+      "1": {
+        "title": "Rider Community",
+        "description": "Eigene Rider-Profile mit Bike-Vorstellung und Vernetzung innerhalb der Community."
+      },
+      "2": {
+        "title": "Custom Bike Marktplatz",
+        "description": "Kauf & Verkauf von handgefertigten Custom Bikes direkt zwischen Werkstätten und Ridern."
+      },
+      "3": {
+        "title": "Werkstatt Bewertungen",
+        "description": "Verifizierte Kundenbewertungen für Custom-Werkstätten — transparent und authentisch."
+      },
+      "4": {
+        "title": "Shop Integration",
+        "description": "Werkstätten können Merchandise, Teile und Services direkt über ihre Profilseite verkaufen."
+      },
+      "5": {
+        "title": "Teile-Datenbank",
+        "description": "Intelligente Datenbank für passende Umbauteile — gefiltert nach Motorrad, Baujahr und Stil."
+      },
+      "6": {
+        "title": "Digitaler Custom Bike-Pass",
+        "description": "Ein MotoDigital-Pass zur Verifizierung und Dokumentation von Custom Bikes. Für mehr Sicherheit und Transparenz für deine Custom Bike-Identität."
+      },
+      "7": {
+        "title": "App — iOS & Android",
+        "description": "Die MotoDigital App für unterwegs — Bikes entdecken, Werkstätten finden, Community erleben."
+      },
+      "8": {
+        "title": "Europäische Expansion",
+        "description": "Lokalisierte Versionen für DE, AT, CH, NL, FR, IT und weitere europäische Märkte."
+      }
+    }
   },
   "Benefits": {
     "metaTitle": "Mitgliedschaft & Preise — MotoDigital",
@@ -282,7 +445,54 @@
     "riderHeading": "Für Rider ist MotoDigital kostenlos.",
     "registerWorkshop": "Kostenlos als Werkstatt registrieren",
     "registerRider": "Kostenlos als Rider registrieren",
-    "foundingPartner": "Founding Partner werden"
+    "foundingPartner": "Founding Partner werden",
+    "heroSubtitle": "Ob Custom Werkstatt oder Rider — finde den passenden Plan für dich.",
+    "choosePlan": "Wähle deinen Plan.",
+    "perMonth": "/Monat",
+    "redirecting": "Weiterleitung...",
+    "disclaimer": "Nach Ablauf der 12 Monate wechselt der Plan automatisch auf PRO (€79/Monat). Jederzeit kündbar.",
+    "freePlan": {
+      "kicker": "Basis",
+      "title": "FREE",
+      "price": "€0",
+      "desc": "Für den Einstieg — dauerhaft kostenlos",
+      "bullets": {
+        "0": "In der Map sichtbar",
+        "1": "1 Custom Bike (Verkauf oder Showcase)",
+        "2": "Logo & Titelbild hinzufügen",
+        "3": "Beschreibungstext hinzufügen",
+        "4": "Keine Leistungen & Umbaustile",
+        "5": "Kein Kontaktieren-Button",
+        "6": "Kein Analytics Dashboard"
+      }
+    },
+    "foundingPartnerPlan": {
+      "title": "FOUNDING PARTNER",
+      "price": "€39",
+      "desc": "Für die ersten 10 Werkstätten · €39/Mo für 12 Monate, danach €79/Mo",
+      "scarcity": "Nur noch 10 von 10 Plätzen frei",
+      "bullets": {
+        "0": "Unbegrenzte Custom Bikes (Verkauf & Showcase)",
+        "1": "Leistungen & Umbaustile auf deinem Profil",
+        "2": "Kontaktieren-Button für Direktanfragen",
+        "3": "Analytics Dashboard mit Besucherdaten",
+        "4": "Logo, Titelbild & Beschreibungstext",
+        "5": "In der Map sichtbar",
+        "6": "Founding Partner Badge",
+        "7": "Alle zukünftigen PRO-Features inklusive"
+      }
+    },
+    "riderBadge": "Kostenlos · Immer",
+    "riderSubtitle": "Erstelle dein Profil, entdecke Werkstätten und werde Teil der Custom-Bike Community — ohne Kosten.",
+    "riderFeatures": {
+      "0": "Eigenes Rider-Profil mit deinem Bike",
+      "1": "Fahrten in der Nähe finden",
+      "2": "Custom Bikes verkaufen",
+      "3": "Custom-Werkstätten in deiner Nähe",
+      "4": "Inspiration durch Builds & Magazin",
+      "5": "Events in der Community entdecken",
+      "6": "Direkter Draht zu Werkstätten & Ridern"
+    }
   },
   "Partner": {
     "metaTitle": "Partner werden — MotoDigital",
@@ -296,7 +506,27 @@
     "adsCta": "Media Kit anfragen",
     "coopTitle": "Kooperation & Medien",
     "coopCta": "Kontakt aufnehmen",
-    "contactKicker": "Direkte Anfrage"
+    "contactKicker": "Direkte Anfrage",
+    "heroSubtitle": "Sichere dir als Werkstatt einen der limitierten Founding Partner Plätze — €39/Mo für 12 Monate, danach automatisch PRO (€79/Mo). Jederzeit kündbar.",
+    "foundingPartnerBody": "Deine Werkstatt auf MotoDigital — mit Logo, Galerie, Top-Platzierung und exklusivem Founding Partner Badge. €39/Mo für 12 Monate, danach €79/Mo (PRO).",
+    "slotsRemaining": "{slots} von 10 Plätzen noch verfügbar",
+    "redirectingStripe": "Weiterleitung zu Stripe...",
+    "cards": {
+      "ads": {
+        "body": "Erreiche tausende Custom-Enthusiasten gezielt — auf der Startseite, Explore-Page oder im Newsletter."
+      },
+      "coop": {
+        "body": "Veranstaltungen, Verbände, Pressearbeit oder andere Ideen — wir freuen uns über jede Anfrage."
+      }
+    },
+    "mailSubjects": {
+      "ads": "Media Kit Anfrage",
+      "coop": "Kooperationsanfrage"
+    },
+    "contact": {
+      "intro": "Für alle Anfragen:",
+      "outro": "— wir antworten innerhalb von 48 Stunden."
+    }
   },
   "Auth": {
     "loginTitle": "Einloggen",

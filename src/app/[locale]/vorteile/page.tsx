@@ -34,9 +34,8 @@ export default async function VorteilePage({
           >
             {t('heading')}
           </h1>
-          {/* i18n: body copy — translate later */}
           <p className="text-sm text-[#717171] max-w-md mx-auto leading-relaxed">
-            Ob Custom Werkstatt oder Rider — finde den passenden Plan für dich.
+            {t('heroSubtitle')}
           </p>
         </div>
       </section>

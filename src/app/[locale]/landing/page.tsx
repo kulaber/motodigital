@@ -9,18 +9,16 @@ import type { Builder } from '@/lib/data/builders'
 import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import EventsCarousel from '@/components/landing/EventsCarousel'
 import MagazineCarousel from '@/components/landing/MagazineCarousel'
-import { ARTICLES } from '@/lib/data/magazine'
+import { getArticlesForLocale } from '@/lib/data/magazine'
+import { getLocale } from 'next-intl/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 
-const STYLE_LABELS: Record<string, string> = {
-  naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
-  scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
-  street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
-}
+// Bike-style labels resolved per-locale inside the default export via
+// the `BikeStyles` namespace.
 
 interface FeaturedBuild {
   slug: string; href?: string; title: string; style: string; base: string; year?: number | null; builder: string; city: string; img: string | null; role?: string; listingType?: string | null; priceAmount?: number | null; priceOnRequest?: boolean | null; publishedAt?: string
@@ -133,6 +131,13 @@ const getLandingData = unstable_cache(
 export default async function LandingPage() {
   const t = await getTranslations('Landing2')
   const tL = await getTranslations('Landing')
+  const tStyles = await getTranslations('BikeStyles')
+  const locale = await getLocale()
+  const ARTICLES_LOCALIZED = getArticlesForLocale(locale)
+
+  const styleLabel = (style: string): string => {
+    try { return tStyles(style as Parameters<typeof tStyles>[0]) } catch { return style }
+  }
 
   const USPS = [
     { icon: USP_ICONS[0], title: tL('usps.builderRider.title'),    desc: tL('usps.builderRider.desc') },
@@ -164,7 +169,7 @@ export default async function LandingPage() {
       slug:    r.id as string,
       href:    `/custom-bike/${r.slug ?? generateBikeSlug(r.title, r.id)}`,
       title:   r.title as string,
-      style:   STYLE_LABELS[r.style] ?? (r.style as string),
+      style:   styleLabel(r.style as string),
       base:    `${r.make} ${r.model}`,
       year:    r.year as number | null,
       builder: sellerName[r.seller_id] ?? '',
@@ -443,7 +448,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── MAGAZIN ── */}
-      {ARTICLES.length > 0 && (
+      {ARTICLES_LOCALIZED.length > 0 && (
         <section className="py-20 lg:py-28 bg-white overflow-hidden" id="magazin">
           <div className="max-w-6xl mx-auto px-5 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
             <div>
@@ -455,7 +460,7 @@ export default async function LandingPage() {
               Alle Artikel →
             </Link>
           </div>
-          <MagazineCarousel articles={ARTICLES} />
+          <MagazineCarousel articles={ARTICLES_LOCALIZED} />
           <div className="sm:hidden mt-8 text-center px-5">
             <Link href="/magazine" className="inline-flex border border-[#222222]/15 text-[#222222]/60 hover:text-[#222222] hover:border-[#222222]/30 text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200">
               Alle Artikel →

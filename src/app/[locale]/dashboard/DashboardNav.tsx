@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { usePathname } from '@/i18n/navigation'
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export default function DashboardNav({ role, userName: initialUserName, avatarUrl: initialAvatarUrl, slug }: Props) {
+  const t = useTranslations('Nav')
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -61,47 +63,47 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
     isActive(href) ? 'text-[#06a5a5]' : 'text-[#222222]/30'
 
   const mainItems: NavItem[] = [
-    ...(role !== 'rider' ? [{ label: 'Übersicht', href: '/dashboard', icon: <LayoutDashboard size={15} /> }] : []),
+    ...(role !== 'rider' ? [{ label: t('overview'), href: '/dashboard', icon: <LayoutDashboard size={15} /> }] : []),
     ...(role === 'rider'
-      ? [{ label: 'Profil bearbeiten', href: '/dashboard/profile', icon: <User size={15} /> }]
+      ? [{ label: t('editProfile'), href: '/dashboard/profile', icon: <User size={15} /> }]
       : []),
-    { label: 'Nachrichten', href: '/dashboard/messages', icon: <MessageCircle size={15} /> },
+    { label: t('messages'), href: '/dashboard/messages', icon: <MessageCircle size={15} /> },
     ...(role === 'rider' || role === 'custom-werkstatt'
-      ? [{ label: role === 'rider' ? 'Meine Garage' : 'Meine Bikes', href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
+      ? [{ label: role === 'rider' ? t('myGarage') : t('myBikes'), href: '/dashboard/meine-garage', icon: <Bike size={15} /> }]
       : []),
     ...(role !== 'superadmin'
       ? [
-          ...(role !== 'rider' ? [{ label: 'Benachrichtigungen', href: '/dashboard/notifications', icon: <Bell size={15} /> }] : []),
-          { label: 'Merkliste', href: '/dashboard/merkliste', icon: <Star size={15} /> },
+          ...(role !== 'rider' ? [{ label: t('notifications'), href: '/dashboard/notifications', icon: <Bell size={15} /> }] : []),
+          { label: t('watchlist'), href: '/dashboard/merkliste', icon: <Star size={15} /> },
         ]
       : []),
   ]
 
   const adminItems: NavItem[] = role === 'superadmin'
     ? [
-        { label: 'Werkstätten', href: '/admin/custom-werkstatt', icon: <Wrench size={15} /> },
-        { label: 'Custom Bikes', href: '/admin/custom-bikes', icon: <Bike size={15} /> },
-        { label: 'Rider', href: '/admin/riders', icon: <Users size={15} /> },
-        { label: 'Magazin', href: '/admin/magazine', icon: <BookOpen size={15} /> },
-        { label: 'Events', href: '/admin/events', icon: <Calendar size={15} /> },
+        { label: t('superadminWorkshops'), href: '/admin/custom-werkstatt', icon: <Wrench size={15} /> },
+        { label: t('superadminBikes'),     href: '/admin/custom-bikes',     icon: <Bike size={15} /> },
+        { label: t('superadminRider'),     href: '/admin/riders',           icon: <Users size={15} /> },
+        { label: t('superadminMagazine'),  href: '/admin/magazine',         icon: <BookOpen size={15} /> },
+        { label: t('superadminEvents'),    href: '/admin/events',           icon: <Calendar size={15} /> },
       ]
     : []
 
   const workshopProfileItems: NavItem[] = role === 'custom-werkstatt'
     ? [
-        { label: 'Werkstatt-Profil bearbeiten', href: '/dashboard/profile', icon: <User size={15} /> },
-        ...(slug ? [{ label: 'Profilansicht', href: `/custom-werkstatt/${slug}`, icon: <Eye size={15} /> }] : []),
+        { label: t('editWorkshopProfile'), href: '/dashboard/profile', icon: <User size={15} /> },
+        ...(slug ? [{ label: t('profileView'), href: `/custom-werkstatt/${slug}`, icon: <Eye size={15} /> }] : []),
       ]
     : []
 
   const accountItems: NavItem[] = [
-    { label: 'Konto-Einstellungen', href: '/dashboard/account', icon: <Settings size={15} /> },
+    { label: t('accountSettings'), href: '/dashboard/account', icon: <Settings size={15} /> },
   ]
 
   const roleLabel =
     role === 'custom-werkstatt' ? 'Custom Werkstatt'
     : role === 'superadmin' ? 'Admin'
-    : 'Rider'
+    : t('rider')
 
   return (
     <aside className="w-80 flex-shrink-0 flex flex-col gap-3 pt-3 pb-3 pl-4 sm:pl-5 lg:pl-8 pr-3 sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto">
@@ -178,7 +180,7 @@ export default function DashboardNav({ role, userName: initialUserName, avatarUr
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-[#222222]/35 hover:text-red-400 hover:bg-red-50 transition-all"
         >
           <LogOut size={15} className="text-[#222222]/25" />
-          Abmelden
+          {t('logout')}
         </button>
       </div>
 

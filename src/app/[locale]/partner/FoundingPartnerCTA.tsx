@@ -62,16 +62,15 @@ export default function FoundingPartnerCTA({ slotsLeft }: { slotsLeft: number })
 
           <h3 className="text-lg font-bold text-white mb-2">{t('foundingPartnerTitle')}</h3>
 
-          {/* i18n: body copy — translate later */}
           <p className="text-sm text-white/40 leading-relaxed mb-3 flex-1">
-            Deine Werkstatt auf MotoDigital — mit Logo, Galerie, Top-Platzierung und exklusivem Founding Partner Badge. €39/Mo für 12 Monate, danach €79/Mo (PRO).
+            {t('foundingPartnerBody')}
           </p>
 
           {/* Slot counter */}
           <p className={`text-sm font-semibold mb-6 ${soldOut ? 'text-red-400' : 'text-[#06a5a5]'}`}>
             {soldOut
-              ? 'Alle 10 Plätze vergeben'
-              : `${slotsLeft} von 10 Plätzen noch verfügbar`
+              ? t('foundingPartnerSoldOut')
+              : t('slotsRemaining', { slots: slotsLeft })
             }
           </p>
 
@@ -83,8 +82,7 @@ export default function FoundingPartnerCTA({ slotsLeft }: { slotsLeft: number })
             {loading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                {/* i18n: body copy — translate later */}
-                Weiterleitung zu Stripe...
+                {t('redirectingStripe')}
               </>
             ) : soldOut ? (
               t('foundingPartnerSoldOut')

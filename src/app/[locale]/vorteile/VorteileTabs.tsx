@@ -9,15 +9,7 @@ import { CheckCircle, ArrowRight, X as XIcon, Crown, Loader2, Bike, Map, Shoppin
 
 type Tab = 'werkstatt' | 'rider'
 
-const RIDER_FEATURES = [
-  { icon: Bike, label: 'Eigenes Rider-Profil mit deinem Bike' },
-  { icon: Map, label: 'Fahrten in der Nähe finden' },
-  { icon: ShoppingBag, label: 'Custom Bikes verkaufen' },
-  { icon: Wrench, label: 'Custom-Werkstätten in deiner Nähe' },
-  { icon: BookOpen, label: 'Inspiration durch Builds & Magazin' },
-  { icon: CalendarDays, label: 'Events in der Community entdecken' },
-  { icon: MessageCircle, label: 'Direkter Draht zu Werkstätten & Ridern' },
-]
+const RIDER_FEATURE_ICONS = [Bike, Map, ShoppingBag, Wrench, BookOpen, CalendarDays, MessageCircle]
 
 function TabsInner({ initialTab }: { initialTab: Tab }) {
   const t = useTranslations('Benefits')
@@ -80,29 +72,29 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
         {activeTab === 'werkstatt' && (
           <div>
             <p className="text-center text-sm text-[#717171] mb-10">
-              Wähle deinen Plan.
+              {t('choosePlan')}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto items-stretch">
 
               {/* FREE Card */}
               <div className="rounded-3xl border border-[#222222]/8 bg-white p-7 sm:p-8 flex flex-col shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-3">Basis</p>
-                <h3 className="text-2xl font-black text-[#222222] mb-1">FREE</h3>
-                <p className="text-3xl font-black text-[#222222] mb-1">€0<span className="text-base font-semibold text-[#222222]/30">/Monat</span></p>
-                <p className="text-sm text-[#222222]/40 mb-8">Für den Einstieg — dauerhaft kostenlos</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#222222]/30 mb-3">{t('freePlan.kicker')}</p>
+                <h3 className="text-2xl font-black text-[#222222] mb-1">{t('freePlan.title')}</h3>
+                <p className="text-3xl font-black text-[#222222] mb-1">{t('freePlan.price')}<span className="text-base font-semibold text-[#222222]/30">{t('perMonth')}</span></p>
+                <p className="text-sm text-[#222222]/40 mb-8">{t('freePlan.desc')}</p>
 
                 <div className="h-px bg-[#222222]/6 mb-6" />
 
                 <ul className="flex flex-col gap-3 mb-10 flex-1">
                   {[
-                    { ok: true,  text: 'In der Map sichtbar' },
-                    { ok: true,  text: '1 Custom Bike (Verkauf oder Showcase)' },
-                    { ok: true,  text: 'Logo & Titelbild hinzufügen' },
-                    { ok: true,  text: 'Beschreibungstext hinzufügen' },
-                    { ok: false, text: 'Keine Leistungen & Umbaustile' },
-                    { ok: false, text: 'Kein Kontaktieren-Button' },
-                    { ok: false, text: 'Kein Analytics Dashboard' },
+                    { ok: true,  text: t('freePlan.bullets.0') },
+                    { ok: true,  text: t('freePlan.bullets.1') },
+                    { ok: true,  text: t('freePlan.bullets.2') },
+                    { ok: true,  text: t('freePlan.bullets.3') },
+                    { ok: false, text: t('freePlan.bullets.4') },
+                    { ok: false, text: t('freePlan.bullets.5') },
+                    { ok: false, text: t('freePlan.bullets.6') },
                   ].map((item) => (
                     <li key={item.text} className="flex items-start gap-3">
                       {item.ok ? (
@@ -133,10 +125,10 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
                 <div className="relative z-10 flex flex-col flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <Crown size={18} className="text-[#06a5a5]" />
-                    <h3 className="text-2xl font-black text-[#222222]">FOUNDING PARTNER</h3>
+                    <h3 className="text-2xl font-black text-[#222222]">{t('foundingPartnerPlan.title')}</h3>
                   </div>
-                  <p className="text-3xl font-black text-[#222222] mb-1">€39<span className="text-base font-semibold text-[#222222]/30">/Monat</span></p>
-                  <p className="text-sm text-[#222222]/40 mb-4">Für die ersten 10 Werkstätten · €39/Mo für 12 Monate, danach €79/Mo</p>
+                  <p className="text-3xl font-black text-[#222222] mb-1">{t('foundingPartnerPlan.price')}<span className="text-base font-semibold text-[#222222]/30">{t('perMonth')}</span></p>
+                  <p className="text-sm text-[#222222]/40 mb-4">{t('foundingPartnerPlan.desc')}</p>
 
                   {/* Scarcity inside the card */}
                   {/* TODO: Pull founding_partner_count dynamically and compute remaining slots */}
@@ -145,22 +137,13 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#06a5a5] opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#06a5a5]" />
                     </span>
-                    <span className="text-xs font-semibold text-[#06a5a5]">Nur noch 10 von 10 Plätzen frei</span>
+                    <span className="text-xs font-semibold text-[#06a5a5]">{t('foundingPartnerPlan.scarcity')}</span>
                   </div>
 
                   <div className="h-px bg-[#06a5a5]/10 mb-6" />
 
                   <ul className="flex flex-col gap-3 mb-10 flex-1">
-                    {[
-                      'Unbegrenzte Custom Bikes (Verkauf & Showcase)',
-                      'Leistungen & Umbaustile auf deinem Profil',
-                      'Kontaktieren-Button für Direktanfragen',
-                      'Analytics Dashboard mit Besucherdaten',
-                      'Logo, Titelbild & Beschreibungstext',
-                      'In der Map sichtbar',
-                      'Founding Partner Badge',
-                      'Alle zukünftigen PRO-Features inklusive',
-                    ].map((text) => (
+                    {Array.from({ length: 8 }, (_, idx) => t(`foundingPartnerPlan.bullets.${idx}`)).map((text) => (
                       <li key={text} className="flex items-start gap-3">
                         <CheckCircle size={15} className="flex-shrink-0 mt-0.5 text-[#06a5a5]" />
                         <span className="text-sm text-[#222222]/70">{text}</span>
@@ -176,8 +159,7 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
                     {checkoutLoading ? (
                       <>
                         <Loader2 size={14} className="animate-spin" />
-                        {/* i18n: body copy — translate later */}
-                        Weiterleitung...
+                        {t('redirecting')}
                       </>
                     ) : (
                       t('foundingPartner')
@@ -188,7 +170,7 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
             </div>
 
             <p className="text-center text-xs text-[#222222]/30 mt-8 max-w-lg mx-auto leading-relaxed">
-              Nach Ablauf der 12 Monate wechselt der Plan automatisch auf PRO (€79/Monat). Jederzeit kündbar.
+              {t('disclaimer')}
             </p>
           </div>
         )}
@@ -199,26 +181,28 @@ function TabsInner({ initialTab }: { initialTab: Tab }) {
             {/* Free badge */}
             <div className="flex justify-center mb-6">
               <span className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full bg-[#06a5a5]/10 text-[#06a5a5]">
-                Kostenlos · Immer
+                {t('riderBadge')}
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-[#222222] leading-tight mb-3">
               {t('riderHeading')}
             </h2>
-            {/* i18n: body copy — translate later */}
             <p className="text-sm text-[#717171] mb-10 max-w-md mx-auto leading-relaxed">
-              Erstelle dein Profil, entdecke Werkstätten und werde Teil der Custom-Bike Community — ohne Kosten.
+              {t('riderSubtitle')}
             </p>
 
             {/* Feature grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto mb-10">
-              {RIDER_FEATURES.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-3 rounded-2xl bg-[#F7F7F7] px-5 py-4">
-                  <Icon size={18} className="flex-shrink-0 text-[#06a5a5]" />
-                  <span className="text-sm text-[#222222]/70">{label}</span>
-                </div>
-              ))}
+              {RIDER_FEATURE_ICONS.map((Icon, idx) => {
+                const label = t(`riderFeatures.${idx}`)
+                return (
+                  <div key={label} className="flex items-center gap-3 rounded-2xl bg-[#F7F7F7] px-5 py-4">
+                    <Icon size={18} className="flex-shrink-0 text-[#06a5a5]" />
+                    <span className="text-sm text-[#222222]/70">{label}</span>
+                  </div>
+                )
+              })}
             </div>
 
             <Link

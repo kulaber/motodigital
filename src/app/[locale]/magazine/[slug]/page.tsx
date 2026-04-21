@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { notFound, redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import {
   ARTICLES,
-  getArticleBySlug,
-  getArticlesByCategory,
+  getArticleBySlugForLocale,
+  getArticlesByCategoryForLocale,
   type ArticleSection,
 } from '@/lib/data/magazine'
 import { createClient } from '@/lib/supabase/server'
@@ -24,8 +25,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const article = getArticleBySlug(slug)
-  if (!article) return { title: 'Artikel nicht gefunden' }
+  const locale = await getLocale()
+  const article = getArticleBySlugForLocale(slug, locale)
+  if (!article) return { title: locale === 'en' ? 'Article not found' : 'Artikel nicht gefunden' }
 
   return {
     title: article.metaTitle,
@@ -177,7 +179,8 @@ export default async function ArticlePage({
     redirect(`/magazine/${slug}`)
   }
 
-  const article = getArticleBySlug(slug)
+  const locale = await getLocale()
+  const article = getArticleBySlugForLocale(slug, locale)
   if (!article) notFound()
 
   // Fetch related builder from DB
@@ -221,7 +224,7 @@ export default async function ArticlePage({
     }
   }
 
-  const moreArticles = getArticlesByCategory(article.category)
+  const moreArticles = getArticlesByCategoryForLocale(article.category, locale)
     .filter(a => a.slug !== article.slug)
     .slice(0, 3)
 
@@ -248,7 +251,7 @@ export default async function ArticlePage({
     articleSection: article.categoryLabel,
     keywords: article.tags.join(', '),
     wordCount,
-    inLanguage: 'de-DE',
+    inLanguage: locale === 'en' ? 'en-US' : 'de-DE',
   }
 
   const breadcrumbLd = {
@@ -274,7 +277,7 @@ export default async function ArticlePage({
 
   // Resolve related articles for cross-linking
   const relatedArticles = (article.relatedSlugs ?? [])
-    .map(s => getArticleBySlug(s))
+    .map(s => getArticleBySlugForLocale(s, locale))
     .filter((a): a is NonNullable<typeof a> => !!a)
 
   return (
