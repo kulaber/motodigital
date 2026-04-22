@@ -2,10 +2,10 @@
 // Schedule (configure in Supabase Dashboard): "*/10 * * * *" — every 10 minutes.
 //
 // The function only acts when BOTH conditions are true:
-//   1. current Europe/Berlin time falls inside the active window (10:00–23:30),
+//   1. current Europe/Berlin time falls inside the active window (10:00–19:30),
 //   2. a random probability check passes (ACTION_PROBABILITY).
-// With a 10-min cron and ~74% probability, expected volume is ~60 actions/day
-// (split 50/30/20 → ~30 posts, ~18 likes, ~12 rides). Timing stays randomized
+// With a 10-min cron and ~74% probability, expected volume is ~42 actions/day
+// (split 50/30/20 → ~21 posts, ~13 likes, ~8 rides). Timing stays randomized
 // so actions don't land on predictable tick boundaries.
 // DST-safe (window is computed in Europe/Berlin zone, cron stays in UTC).
 //
@@ -18,7 +18,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const WINDOW_START_HOUR = 10
-const WINDOW_END_HOUR = 23
+const WINDOW_END_HOUR = 19
 const WINDOW_END_MINUTE = 30
 const ACTION_PROBABILITY = 0.74
 
