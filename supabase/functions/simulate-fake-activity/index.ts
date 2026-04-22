@@ -1,11 +1,12 @@
 // Supabase Edge Function: simulate-fake-activity
-// Schedule (configure in Supabase Dashboard): "*/15 * * * *" — every 15 minutes.
+// Schedule (configure in Supabase Dashboard): "*/10 * * * *" — every 10 minutes.
 //
 // The function only acts when BOTH conditions are true:
 //   1. current Europe/Berlin time falls inside the active window (10:00–23:30),
 //   2. a random probability check passes (ACTION_PROBABILITY).
-// With a 15-min cron and ~10% probability, expected volume is ~5 actions/day,
-// but timing is fully randomized so posts don't land on predictable hour marks.
+// With a 10-min cron and ~74% probability, expected volume is ~60 actions/day
+// (split 50/30/20 → ~30 posts, ~18 likes, ~12 rides). Timing stays randomized
+// so actions don't land on predictable tick boundaries.
 // DST-safe (window is computed in Europe/Berlin zone, cron stays in UTC).
 //
 // On each active tick, it picks one random bot profile (is_bot = true) and
@@ -19,7 +20,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const WINDOW_START_HOUR = 10
 const WINDOW_END_HOUR = 23
 const WINDOW_END_MINUTE = 30
-const ACTION_PROBABILITY = 0.10
+const ACTION_PROBABILITY = 0.74
 
 const POSTS: string[] = [
   'Endlich läuft die CB450 wieder sauber. Zwei Wochen Vergaser-Abstimmung haben sich gelohnt.',
@@ -266,7 +267,7 @@ Deno.serve(async (req) => {
     return jsonResponse({ skipped: true, reason: 'outside active window', berlinTime })
   }
 
-  // Probabilistic trigger: only act on ~10% of ticks for natural spacing.
+  // Probabilistic trigger: only act on ~74% of ticks for natural spacing.
   if (!force && Math.random() >= ACTION_PROBABILITY) {
     return jsonResponse({ skipped: true, reason: 'probability gate', berlinTime })
   }
