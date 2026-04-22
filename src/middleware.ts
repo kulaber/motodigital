@@ -38,9 +38,10 @@ function withLocale(locale: string, path: string): string {
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const path = request.nextUrl.pathname
-  // Non-canonical hosts (motodigital.vercel.app, preview URLs, localhost) must
-  // be hidden from search engines so they don't duplicate-index motodigital.io.
-  const isCanonicalHost = host.includes('motodigital.io')
+  // Canonical host = the public production domain only. Staging, Vercel preview
+  // URLs, and localhost must be hidden from search engines and skip the
+  // coming-soon rewrite below.
+  const isCanonicalHost = host === 'motodigital.io' || host === 'www.motodigital.io'
   const applyNoIndex = (res: NextResponse) => {
     if (!isCanonicalHost) res.headers.set('X-Robots-Tag', 'noindex, nofollow')
     return res
