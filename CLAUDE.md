@@ -125,7 +125,7 @@ const { data } = await supabase.from('bikes').select().eq('id', id).single()
 - Views must use `security_invoker = true`
 
 **Documented exception — PostGIS system tables:**
-`public.spatial_ref_sys` is owned by `supabase_admin` and cannot have RLS enabled by us (`ERROR 42501: must be owner`). The Supabase Advisor warning `rls_disabled_in_public` for this table is a known false positive — anon/authenticated roles only have `SELECT` grants, no write access. Dismiss the advisor entry instead of attempting a migration. This exception applies ONLY to PostGIS system tables (`spatial_ref_sys`), never to our own tables.
+`public.spatial_ref_sys` is owned by `supabase_admin` and cannot have RLS enabled by us (`ERROR 42501: must be owner`). The Supabase Advisor warning `rls_disabled_in_public` for this table is a known false positive — anon/authenticated roles only have `SELECT` grants, no write access. Supabase provides no dismiss/ignore UI, so the warning is permanent; accept it. The only "real" fix is moving PostGIS from `public` to the `extensions` schema — high-risk migration, only worthwhile during a planned PostGIS refactor. Do not attempt `ALTER TABLE` migrations on this table. This exception applies ONLY to PostGIS system tables (`spatial_ref_sys`), never to our own tables.
 
 ```sql
 -- ✅ Correct ownership check
