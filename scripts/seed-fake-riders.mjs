@@ -352,6 +352,7 @@ async function updateProfile(profileId, rider) {
       onboarding_completed: true,
       onboarding_step: 3,
       slug: rider.username,
+      is_bot: true,
     })
     .eq('id', profileId)
 
