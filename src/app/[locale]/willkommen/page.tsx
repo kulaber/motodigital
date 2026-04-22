@@ -22,8 +22,14 @@ export default async function WillkommenPage({
       address: string | null; lat: number | null; lng: number | null; bio: string | null; bio_long: string | null;
     } | null }
 
+  // Profile missing (trigger failed, schema drift, RLS): surface the cause
+  // instead of crashing the onboarding with a null reference.
+  if (!profile) {
+    throw new Error(`Profil für User ${user.id} nicht gefunden. Trigger oder DB-Schema prüfen.`)
+  }
+
   // Bereits onboarded → weg hier
-  if (profile?.onboarding_completed === true) {
+  if (profile.onboarding_completed === true) {
     redirect(profile.role === 'custom-werkstatt' ? '/dashboard' : '/explore')
   }
 
@@ -31,7 +37,7 @@ export default async function WillkommenPage({
   const forcedStep = stepParam ? parseInt(stepParam, 10) : null
 
   // Werkstatt-Flow
-  if (profile?.role === 'custom-werkstatt') {
+  if (profile.role === 'custom-werkstatt') {
     const { data: werkstatt } = await supabase
       .from('workshops')
       .select('id, name, slug, description, address, logo_url, cover_image_url, services')
@@ -43,7 +49,7 @@ export default async function WillkommenPage({
         profile={profile}
         werkstatt={werkstatt}
         confirmed={confirmed === 'true'}
-        initialStep={forcedStep ?? profile?.onboarding_step ?? 0}
+        initialStep={forcedStep ?? profile.onboarding_step ?? 0}
       />
     )
   }
@@ -51,9 +57,9 @@ export default async function WillkommenPage({
   // Rider-Flow (default)
   return (
     <RiderOnboarding
-      profile={profile!}
+      profile={profile}
       confirmed={confirmed === 'true'}
-      initialStep={forcedStep ?? profile?.onboarding_step ?? 0}
+      initialStep={forcedStep ?? profile.onboarding_step ?? 0}
     />
   )
 }
