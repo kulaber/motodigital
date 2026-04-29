@@ -11,9 +11,12 @@
 //
 // On each active tick, it picks one random bot profile (is_bot = true) and
 // performs one of three actions:
-//   - post:  new community post with a German caption about custom bikes
+//   - post:  new community post with a German caption about custom bikes;
+//            ~15% of posts also include 1–2 phone-style photos from MEDIA_POOL
 //   - like:  like a recent post from another user
-//   - ride:  create a short, realistic ride inside Germany (post_type='ride')
+//   - ride:  create a short, realistic ride inside Germany (post_type='ride');
+//            routes already used by upcoming rides are excluded so no two
+//            simultaneously-open rides share a route
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -60,6 +63,43 @@ const POSTS: string[] = [
   'Neues Lederpad für die Sitzbank kam heute an. Handgenäht in Italien. Bisschen Luxus muss sein.',
   'Sonntag früh um 7 losgefahren, leere Straßen, Nebel über den Wiesen. Einer der besten Rides dieses Jahr.',
 ]
+
+// Media pool for occasional photo posts — phone-shot style, café racers + roads/landscapes.
+// Used by ~15% of posts (1–2 images each). All URLs verified reachable on Unsplash.
+const MEDIA_POOL: string[] = [
+  // Custom bikes / café racers
+  'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80',
+  'https://images.unsplash.com/photo-1558981359-219d6364c9c8?w=800&q=80',
+  'https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=800&q=80',
+  'https://images.unsplash.com/photo-1622185135505-2d795003994a?w=800&q=80',
+  'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=800&q=80',
+  'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80',
+  // Landscapes, roads, mountain passes
+  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+  'https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=800&q=80',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
+  'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800&q=80',
+  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80',
+  'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?w=800&q=80',
+  'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&q=80',
+  'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=800&q=80',
+  'https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800&q=80',
+  'https://images.unsplash.com/photo-1547549082-6bc09f2049ae?w=800&q=80',
+]
+
+const MEDIA_PROBABILITY = 0.15
+
+function pickMediaUrls(): string[] {
+  if (Math.random() >= MEDIA_PROBABILITY) return []
+  const target = Math.random() < 0.7 ? 1 : 2
+  const urls: string[] = []
+  while (urls.length < target) {
+    const candidate = pick(MEDIA_POOL)
+    if (!urls.includes(candidate)) urls.push(candidate)
+  }
+  return urls
+}
 
 const RIDE_CAPTIONS: (string | null)[] = [
   'Kurze Runde, entspanntes Tempo. Wer mitfahren will – einfach einsteigen.',
@@ -324,19 +364,20 @@ Deno.serve(async (req) => {
 async function doPost(supabase: any, botId: string) {
   const body = pick(POSTS)
   const topic = Math.random() < 0.3 ? 'projekte' : 'allgemein'
+  const mediaUrls = pickMediaUrls()
   const { data, error } = await supabase
     .from('community_posts')
     .insert({
       user_id: botId,
       body,
-      media_urls: [],
+      media_urls: mediaUrls,
       topic,
       post_type: 'post',
     })
     .select('id')
     .maybeSingle()
   if (error) throw error
-  return { postId: data?.id, topic }
+  return { postId: data?.id, topic, mediaCount: mediaUrls.length }
 }
 
 // deno-lint-ignore no-explicit-any
@@ -368,7 +409,18 @@ async function doLike(supabase: any, botId: string) {
 
 // deno-lint-ignore no-explicit-any
 async function doRide(supabase: any, botId: string) {
-  const route = pick(ROUTES)
+  // Avoid repeating routes already taken by upcoming rides (any user, bot or real).
+  // Each route in ROUTES has a unique first-stop city, so location_name identifies it.
+  // Once a ride's start date passes, its route becomes available again.
+  const { data: upcoming } = await supabase
+    .from('community_posts')
+    .select('location_name')
+    .eq('post_type', 'ride')
+    .gt('ride_start_at', new Date().toISOString())
+
+  const usedNames = new Set((upcoming ?? []).map((r: { location_name: string | null }) => r.location_name))
+  const available = ROUTES.filter((r) => !usedNames.has(r.stops[0].name))
+  const route = available.length > 0 ? pick(available) : pick(ROUTES)
   const caption = pick(RIDE_CAPTIONS)
 
   // Start 2–14 days from now, between 10:00 and 14:30 local time.
