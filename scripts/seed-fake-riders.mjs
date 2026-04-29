@@ -131,7 +131,7 @@ const RIDERS = [
     riding_style: 'flott',
     riding_styles: ['Café Racer', 'Brat Style'],
     instagram_url: 'https://www.instagram.com/stephanschraubt',
-    avatar_url: 'https://images.unsplash.com/photo-1525160354320-d8e92641c563?w=400&h=400&fit=crop',
+    avatar_url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=400&h=400&fit=crop',
   },
   {
     username: 'flo_xr',

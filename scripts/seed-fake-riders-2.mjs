@@ -161,7 +161,7 @@ const RIDERS = [
     riding_style: 'legende',
     riding_styles: ['Classic', 'Brat Style'],
     visited_cities: ['Berlin', 'Spreewald', 'Ostsee', 'Leipzig'],
-    avatar_url: 'https://images.unsplash.com/photo-1525160354320-d8e92641c563?w=400&h=400&fit=crop',
+    avatar_url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=400&h=400&fit=crop',
   },
   {
     username: 'bobber_henning',

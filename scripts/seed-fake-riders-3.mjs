@@ -43,7 +43,6 @@ const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 //    cafe racer, scrambler, triumph). Use null to opt out of an avatar.
 const AVATAR_POOL = [
   'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=400&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1525160354320-d8e92641c563?w=400&h=400&fit=crop',
   'https://images.unsplash.com/photo-1558980394-4c7c9299fe96?w=400&h=400&fit=crop',
   'https://images.unsplash.com/photo-1558980394-da1f85d3b540?w=400&h=400&fit=crop',
   'https://images.unsplash.com/photo-1558981359-219d6364c9c8?w=400&h=400&fit=crop',

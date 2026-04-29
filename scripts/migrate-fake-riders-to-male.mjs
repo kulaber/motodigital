@@ -70,7 +70,7 @@ const RENAMES = [
     new_full_name: 'Stephan V.',
     new_bio: 'Ich schraube selbst. Aktuell: BMW R80 Umbau in der Garage. Updates folgen!',
     new_instagram_url: 'https://www.instagram.com/stephanschraubt',
-    new_avatar_url: 'https://images.unsplash.com/photo-1525160354320-d8e92641c563?w=400&h=400&fit=crop',
+    new_avatar_url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=400&h=400&fit=crop',
   },
   {
     old_username: 'anna.ontour',
