@@ -88,7 +88,9 @@ const MEDIA_POOL: string[] = [
   'https://images.unsplash.com/photo-1547549082-6bc09f2049ae?w=800&q=80',
 ]
 
-const MEDIA_PROBABILITY = 0.15
+// Disabled until a verified, on-topic photo pool exists. The previous Unsplash pool
+// included an off-topic car image; 0 means no photo posts from fake riders.
+const MEDIA_PROBABILITY = 0
 
 function pickMediaUrls(): string[] {
   if (Math.random() >= MEDIA_PROBABILITY) return []
