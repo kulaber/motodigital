@@ -209,6 +209,8 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
 
 type Props = { params: Promise<{ slug: string }> }
 
+const RIDER_BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const rider = await getRiderBySlug(slug)
@@ -216,6 +218,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${rider.name} — Rider auf MotoDigital`,
     description: rider.bio || `${rider.name} ist Rider auf MotoDigital.`,
+    alternates: { canonical: `/rider/${rider.slug}` },
   }
 }
 
@@ -228,8 +231,49 @@ export default async function RiderProfilePage({ params }: Props) {
 
   const isOwnProfile = user?.id === rider.id
 
+  const riderUrl = `${RIDER_BASE_URL}/rider/${rider.slug}`
+  const sameAs = [rider.instagram, rider.tiktok, rider.website].filter(Boolean) as string[]
+
+  const personLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: rider.name,
+    url: riderUrl,
+    ...(rider.bio && { description: rider.bio.slice(0, 2000) }),
+    ...(rider.avatarUrl && { image: rider.avatarUrl }),
+    ...(rider.city && {
+      address: { '@type': 'PostalAddress', addressLocality: rider.city, addressCountry: 'DE' },
+    }),
+    ...(sameAs.length > 0 && { sameAs }),
+  }
+
+  const profilePageLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    url: riderUrl,
+    mainEntity: personLd,
+  }
+
+  const riderBreadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: RIDER_BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Rider', item: `${RIDER_BASE_URL}/rider` },
+      { '@type': 'ListItem', position: 3, name: rider.name, item: riderUrl },
+    ],
+  }
+
   const content = (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(riderBreadcrumbLd) }}
+      />
       <Header activePage="explore" />
 
       {/* ── COVER BANNER ── */}
