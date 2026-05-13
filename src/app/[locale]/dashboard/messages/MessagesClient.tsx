@@ -439,6 +439,7 @@ function MessageThread({
   const [reactions, setReactions] = useState<Record<string, Record<string, { count: number; userReacted: boolean }>>>({})
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   useHideNavOnModal(!!lightboxUrl)
   const [plusMenuOpen, setPlusMenuOpen] = useState(false)
@@ -549,7 +550,19 @@ function MessageThread({
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
-    await sendMessage(body, userId)
+    const { error } = await sendMessage(body, userId)
+    if (error) {
+      // Restore the unsent text so the user can retry.
+      setText(body)
+      const msg = (error as { message?: string } | null)?.message ?? ''
+      if (msg.includes('rate_limit_exceeded')) {
+        setSendError('Du sendest zu schnell. Bitte warte einen Moment.')
+      } else {
+        setSendError('Nachricht konnte nicht gesendet werden.')
+      }
+    } else {
+      setSendError(null)
+    }
     setSending(false)
     onSent()
   }
@@ -755,6 +768,12 @@ function MessageThread({
 
       {/* Input area */}
       <div className="flex-shrink-0 border-t border-[#222222]/5 bg-white">
+
+        {sendError && (
+          <div role="status" className="px-4 pt-2 text-xs text-[#B91C1C]">
+            {sendError}
+          </div>
+        )}
 
         {/* Image preview */}
         {previewFile && (
