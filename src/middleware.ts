@@ -39,22 +39,11 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const path = request.nextUrl.pathname
   // Canonical host = the public production domain only. Staging, Vercel preview
-  // URLs, and localhost must be hidden from search engines and skip the
-  // coming-soon rewrite below.
+  // URLs, and localhost must be hidden from search engines.
   const isCanonicalHost = host === 'motodigital.io' || host === 'www.motodigital.io'
   const applyNoIndex = (res: NextResponse) => {
     if (!isCanonicalHost) res.headers.set('X-Robots-Tag', 'noindex, nofollow')
     return res
-  }
-
-  // Coming-soon rewrite for motodigital.io — runs before i18n handling.
-  // The page itself lives under [locale]/coming-soon, so we must target the
-  // fully-qualified locale path (next-intl's internal rewriting doesn't fire
-  // because we short-circuit before its middleware runs).
-  if (isCanonicalHost && !path.includes('coming-soon')) {
-    return NextResponse.rewrite(
-      new URL(`/${routing.defaultLocale}/coming-soon`, request.url)
-    )
   }
 
   // Skip API routes completely — no i18n, no auth redirect logic here
