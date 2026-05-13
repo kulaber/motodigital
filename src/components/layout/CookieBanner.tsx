@@ -54,20 +54,13 @@ export default function CookieBanner() {
           {t('accept')}
         </button>
 
-        <div className="mt-2.5 flex items-center justify-center gap-3 text-[12px] text-white/45">
+        <div className="mt-2.5 flex items-center justify-center text-[12px] text-white/45">
           <button
             type="button"
             onClick={() => decide('declined')}
             className="hover:text-white/70 transition-colors"
           >
             {t('decline')}
-          </button>
-          <span aria-hidden className="text-white/20">·</span>
-          <button
-            type="button"
-            className="hover:text-white/70 transition-colors"
-          >
-            {t('settings')}
           </button>
         </div>
 

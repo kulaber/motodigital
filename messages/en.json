@@ -69,10 +69,9 @@
   },
   "CookieBanner": {
     "title": "Cookies",
-    "message": "We use cookies to improve the platform and analyse usage.",
+    "message": "We use technically necessary cookies for login and session, plus pseudonymous reach analytics (Vercel Analytics and our own usage statistics). See the privacy policy for details.",
     "accept": "Accept",
     "decline": "Decline",
-    "settings": "Manage settings",
     "privacy": "Privacy",
     "imprint": "Legal notice"
   },

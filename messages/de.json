@@ -69,10 +69,9 @@
   },
   "CookieBanner": {
     "title": "Cookies",
-    "message": "Wir nutzen Cookies, um die Plattform zu verbessern und die Nutzung zu analysieren.",
+    "message": "Wir nutzen technisch notwendige Cookies für Login und Sitzung sowie pseudonyme Reichweitenanalysen (Vercel Analytics, eigene Nutzungsstatistik). Details findest du in der Datenschutzerklärung.",
     "accept": "Akzeptieren",
     "decline": "Ablehnen",
-    "settings": "Einstellungen verwalten",
     "privacy": "Datenschutz",
     "imprint": "Impressum"
   },

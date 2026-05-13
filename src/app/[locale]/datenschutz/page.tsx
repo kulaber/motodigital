@@ -240,11 +240,33 @@ export default function DatenschutzPage() {
               <p>
                 Sie können sich auf dieser Website per Magic Link (E-Mail)
                 registrieren und anmelden. Dabei wird Ihre E-Mail-Adresse
-                gespeichert, um die Authentifizierung durchzuführen. Die
+                gespeichert, um die Authentifizierung durchzuführen. Der
+                Versand des Magic-Link-Codes erfolgt über unseren
+                Versanddienstleister Resend (siehe Abschnitt 5). Die
                 Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b
                 DSGVO (Vertragserfüllung). Ihre Registrierungsdaten werden
                 solange gespeichert, wie Sie auf unserer Website registriert
                 sind, und werden danach gelöscht.
+              </p>
+
+              <h3>Reichweitenanalyse und Nutzungsstatistik</h3>
+              <p>
+                Zur Verbesserung der Plattform erheben wir aggregierte
+                Nutzungsdaten in unserer Datenbank: aufgerufene Seiten und
+                Sektionen, Klicks auf Profile, Bikes und Werkstätten,
+                Kontaktklicks und vergleichbare Interaktionen. Zur
+                Wiedererkennung wiederkehrender Besucher wird Ihre
+                IP-Adresse zusammen mit dem User-Agent vor der Speicherung
+                mittels SHA-256-Hash-Verfahren in einen 16-stelligen
+                pseudonymen Besucher-Fingerprint umgewandelt; die
+                ursprüngliche IP-Adresse wird nicht gespeichert, ein
+                Rückschluss auf Ihre Person ist hierdurch nicht möglich.
+                Die Speicherung erfolgt in unserer Supabase-Datenbank in der
+                EU (Region Frankfurt). Rechtsgrundlage ist Art. 6 Abs. 1
+                lit. f DSGVO; unser berechtigtes Interesse liegt in der
+                statistischen Auswertung und Verbesserung des Angebots. Sie
+                können dieser Verarbeitung jederzeit per E-Mail an
+                info@motodigital.de widersprechen.
               </p>
             </section>
 
@@ -292,6 +314,53 @@ export default function DatenschutzPage() {
                 <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">
                   https://vercel.com/docs/analytics/privacy-policy
                 </a>
+              </p>
+
+              <h3>Resend (E-Mail-Versand)</h3>
+              <p>
+                Für den transaktionalen E-Mail-Versand (Anmeldung,
+                Bestätigungen, Support-Antworten, Einladungen,
+                Benachrichtigungen, Kontolöschungen) nutzen wir Resend.
+                Anbieter ist die Resend, Inc., 2261 Market Street #5039,
+                San Francisco, CA 94114, USA. Übertragen werden die für
+                den Versand notwendigen Daten, insbesondere Ihre
+                E-Mail-Adresse sowie Inhalt und Metadaten der jeweiligen
+                Nachricht. Die Verwendung erfolgt auf Grundlage von Art. 6
+                Abs. 1 lit. b und lit. f DSGVO. Details:{' '}
+                <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">
+                  https://resend.com/legal/privacy-policy
+                </a>
+              </p>
+
+              <h3>Stripe (Zahlungsabwicklung)</h3>
+              <p>
+                Für die Abwicklung kostenpflichtiger Pläne und
+                Hervorhebungen nutzen wir Stripe. Anbieter innerhalb der
+                EU ist die Stripe Payments Europe, Limited, 1 Grand Canal
+                Street Lower, Grand Canal Dock, Dublin, Irland. Karten-
+                bzw. SEPA-Daten werden ausschließlich von Stripe
+                verarbeitet und uns nicht im Klartext übermittelt; wir
+                erhalten lediglich für die Vertragsabwicklung notwendige
+                Metadaten (z.&nbsp;B. Status, Transaktions-ID, gekaufter
+                Plan). Die Verwendung erfolgt auf Grundlage von Art. 6
+                Abs. 1 lit. b DSGVO (Vertragserfüllung). Details:{' '}
+                <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer">
+                  https://stripe.com/de/privacy
+                </a>
+              </p>
+
+              <h3>Hinweis zur Datenübertragung in Drittländer</h3>
+              <p>
+                Die vorgenannten Anbieter Vercel, Mapbox, Cloudinary und
+                Resend haben ihren Sitz in den USA. Die Übermittlung
+                personenbezogener Daten in die USA erfolgt auf Grundlage
+                von Standardvertragsklauseln (Art. 46 Abs. 2 DSGVO) sowie
+                – soweit der jeweilige Anbieter zertifiziert ist – auf
+                Basis des EU-US Data Privacy Framework
+                (Angemessenheitsbeschluss nach Art. 45 DSGVO). Supabase
+                hostet unsere Datenbank in der EU (Region Frankfurt).
+                Stripe verarbeitet Zahlungsdaten innerhalb der EU
+                (Irland).
               </p>
             </section>
 
