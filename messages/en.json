@@ -297,6 +297,10 @@
       "4": {
         "q": "How can I get in touch with MotoDigital?",
         "a": "You can reach us anytime through the contact form on our support page or by emailing info@motodigital.de. We typically respond within 48 hours."
+      },
+      "5": {
+        "q": "Are there demo profiles on MotoDigital?",
+        "a": "Yes. During the build-up phase we display a small number of demo profiles that automatically generate posts, likes and ride suggestions in the community feed. These profiles only interact publicly and never send direct messages to real users."
       }
     },
     "workshop": {

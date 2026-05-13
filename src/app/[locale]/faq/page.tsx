@@ -45,6 +45,7 @@ export default async function FaqPage() {
     { question: tFaq('general.2.q'), answer: tFaq('general.2.a') },
     { question: tFaq('general.3.q'), answer: tFaq('general.3.a') },
     { question: tFaq('general.4.q'), answer: tFaq('general.4.a') },
+    { question: tFaq('general.5.q'), answer: tFaq('general.5.a') },
   ]
 
   const FAQ_WERKSTATT: FaqItem[] = [

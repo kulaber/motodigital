@@ -163,6 +163,7 @@ function ConversationList({
         .select('id, full_name, username, avatar_url, role, slug')
         .or(`full_name.ilike.%${value}%,username.ilike.%${value}%`)
         .in('role', ['rider', 'custom-werkstatt'])
+        .eq('is_bot', false)
         .neq('id', userId)
         .limit(8)
       setProfileResults((data ?? []) as ProfileResult[])

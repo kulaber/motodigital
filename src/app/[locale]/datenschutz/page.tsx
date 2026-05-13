@@ -296,7 +296,20 @@ export default function DatenschutzPage() {
             </section>
 
             <section>
-              <h2>6. Kontakt</h2>
+              <h2>6. Demo-Profile in der Community</h2>
+              <p>
+                Zur Belebung des Community-Feeds nutzen wir während der
+                Aufbauphase computergestützt erzeugte Demo-Profile. Diese
+                erscheinen in öffentlichen Listen und Feeds, erstellen Posts
+                und können Beiträge anderer liken. Sie versenden keine
+                Direktnachrichten an echte Nutzer. Personenbezogene Daten
+                echter Nutzer werden durch diese Aktivität nicht
+                verarbeitet.
+              </p>
+            </section>
+
+            <section>
+              <h2>7. Kontakt</h2>
               <p>
                 Bei Fragen zum Datenschutz können Sie sich jederzeit an uns
                 wenden:
@@ -308,7 +321,7 @@ export default function DatenschutzPage() {
 
             <section className="pt-4 border-t border-white/10">
               <p className="text-xs text-white/30">
-                Stand: März 2026
+                Stand: Mai 2026
               </p>
             </section>
 
