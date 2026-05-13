@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ARTICLES } from '@/lib/data/magazine'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
+import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 
 const BASE = 'https://motodigital.io'
 
@@ -51,8 +52,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .not('slug', 'is', null) as Promise<{ data: { slug: string; updated_at?: string }[] | null }>,
     supabase
       .from('bikes')
-      .select('id, updated_at')
-      .eq('status', 'active') as unknown as Promise<{ data: { id: string; updated_at: string }[] | null }>,
+      .select('id, slug, title, updated_at')
+      .eq('status', 'active') as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
   ])
 
   const now = new Date()
@@ -116,8 +117,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   const bikePages: MetadataRoute.Sitemap = (bikes ?? []).map((b) => {
+    const bikeSlug = b.slug ?? (b.title ? generateBikeSlug(b.title) : null) ?? b.id
     const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/bikes/${b.id}`])
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/custom-bike/${bikeSlug}`])
     )
     return {
       url: urls[routing.defaultLocale],
