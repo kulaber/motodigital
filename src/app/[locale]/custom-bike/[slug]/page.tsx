@@ -31,24 +31,28 @@ interface Props {
 // ISR: bike detail pages are public content, revalidate periodically
 export const revalidate = 1800 // 30 minutes
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
     const supabase = await createClient()
     let { data } = await (supabase.from('bikes') as any)
-      .select('title, style')
+      .select('title, style, slug')
       .eq('slug', slug)
       .maybeSingle()
     if (!data) {
       const { data: byId } = await (supabase.from('bikes') as any)
-        .select('title, style')
+        .select('title, style, slug')
         .eq('id', slug)
         .maybeSingle()
       data = byId
     }
     if (!data) return {}
+    const canonicalSlug = (data.slug as string | null) ?? slug
     return {
       title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
+      alternates: { canonical: `/custom-bike/${canonicalSlug}` },
     }
   } catch {
     return {}
@@ -136,8 +140,55 @@ export default async function CustomBikePage({ params }: Props) {
       : null
     const styleLabel = STYLE_LABELS[bike.style] ?? bike.style?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? ''
 
+    const canonicalSlug = bike.slug ?? bike.id
+    const pageUrl = `${BASE_URL}/custom-bike/${canonicalSlug}`
+    const priceNumeric = Number(bike.price_amount ?? bike.price ?? 0)
+    const hasOffer = !bike.price_on_request && priceNumeric > 0
+
+    const vehicleLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Vehicle',
+      name: bike.title,
+      url: pageUrl,
+      ...(bike.make && { brand: { '@type': 'Brand', name: bike.make } }),
+      ...(bike.model && { model: bike.model }),
+      ...(bike.year && { vehicleModelDate: String(bike.year) }),
+      ...(bike.description && { description: String(bike.description).slice(0, 5000) }),
+      ...(imageUrls.length > 0 && { image: imageUrls.slice(0, 6) }),
+      ...(hasOffer && {
+        offers: {
+          '@type': 'Offer',
+          price: priceNumeric,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+          url: pageUrl,
+          ...(sellerProfile?.full_name && {
+            seller: { '@type': 'Person', name: sellerProfile.full_name },
+          }),
+        },
+      }),
+    }
+
+    const breadcrumbLd = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Custom Bikes', item: `${BASE_URL}/bikes` },
+        { '@type': 'ListItem', position: 3, name: bike.title },
+      ],
+    }
+
     return (
       <div className="min-h-screen bg-white text-[#222222]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(vehicleLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        />
         <ScrollToTop />
         <BikeTracker bikeId={bike.id} workshopId={resolvedWorkshopId} />
         <Header activePage="bikes" />

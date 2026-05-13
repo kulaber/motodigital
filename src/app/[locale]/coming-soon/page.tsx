@@ -4,6 +4,7 @@ import Image from 'next/image'
 export const metadata: Metadata = {
   title: 'Coming Soon — MotoDigital',
   description: 'MotoDigital kommt bald. Die erste Plattform für Custom Motorrad Kultur.',
+  robots: { index: false, follow: false },
   openGraph: {
     title: 'Coming Soon — MotoDigital',
     description: 'MotoDigital kommt bald. Die erste Plattform für Custom Motorrad Kultur.',

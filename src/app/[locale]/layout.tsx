@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import { Bodoni_Moda, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -98,9 +99,38 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale)
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+  const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'MotoDigital',
+    url: baseUrl,
+    logo: `${baseUrl}/icon.svg`,
+    description:
+      'MotoDigital — Plattform für Custom Motorcycle Culture in Europa. Custom Bikes, Builder & Werkstätten an einem Ort.',
+    founder: { '@type': 'Person', name: 'Joe Mel Ramos' },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Stadtheider Straße 66',
+      postalCode: '33609',
+      addressLocality: 'Bielefeld',
+      addressCountry: 'DE',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'info@motodigital.de',
+      availableLanguage: ['de', 'en'],
+    },
+  }
+
   return (
     <html lang={locale} className={`${bodoniModa.variable} ${inter.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
         <NextIntlClientProvider>
           <AuthProvider>
             {children}
@@ -113,6 +143,7 @@ export default async function LocaleLayout({
             <CookieBanner />
             <PageViewTracker />
             <Analytics />
+            <SpeedInsights />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

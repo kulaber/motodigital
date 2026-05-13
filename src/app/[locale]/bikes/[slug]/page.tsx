@@ -127,8 +127,48 @@ export default async function BikeSlugPage({ params }: Props) {
       }
     })
 
+    const STYLE_BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+    const styleUrl = `${STYLE_BASE_URL}/bikes/${slug}`
+    const styleBuildsForLd = allBuilds.filter(b => b.style === styleInfo.name).slice(0, 20)
+
+    const styleCollectionLd = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: `${styleInfo.name} — Custom Motorcycles`,
+      description: styleInfo.description,
+      url: styleUrl,
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: styleBuildsForLd.length,
+        itemListElement: styleBuildsForLd.map((b, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${STYLE_BASE_URL}${b.href}`,
+          name: b.title,
+        })),
+      },
+    }
+
+    const styleBreadcrumbLd = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: STYLE_BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Custom Bikes', item: `${STYLE_BASE_URL}/bikes` },
+        { '@type': 'ListItem', position: 3, name: styleInfo.name, item: styleUrl },
+      ],
+    }
+
     return (
       <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(styleCollectionLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(styleBreadcrumbLd) }}
+        />
         <Header activePage="bikes" />
 
         {/* PAGE HEADER — same as /bikes */}
@@ -185,8 +225,71 @@ export default async function BikeSlugPage({ params }: Props) {
   const sellerName = seller?.full_name ?? seller?.username ?? ''
   const sellerInitials = sellerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+  const pageUrl = `${BASE_URL}/bikes/${bike.id}`
+  const priceNumeric = Number(bike.price ?? 0)
+  const hasOffer = priceNumeric > 0
+
+  const vehicleLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Vehicle',
+    name: bike.title,
+    url: pageUrl,
+    ...(bike.make && { brand: { '@type': 'Brand', name: bike.make } }),
+    ...(bike.model && { model: bike.model }),
+    ...(bike.year && { vehicleModelDate: String(bike.year) }),
+    ...(bike.cc && {
+      vehicleEngine: {
+        '@type': 'EngineSpecification',
+        engineDisplacement: {
+          '@type': 'QuantitativeValue',
+          value: bike.cc,
+          unitCode: 'CMQ',
+          unitText: 'cm³',
+        },
+      },
+    }),
+    ...(bike.mileage_km && {
+      mileageFromOdometer: {
+        '@type': 'QuantitativeValue',
+        value: bike.mileage_km,
+        unitCode: 'KMT',
+      },
+    }),
+    ...(bike.description && { description: String(bike.description).slice(0, 5000) }),
+    ...(imageUrls.length > 0 && { image: imageUrls.slice(0, 6) }),
+    ...(hasOffer && {
+      offers: {
+        '@type': 'Offer',
+        price: priceNumeric,
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: pageUrl,
+        ...(sellerName && { seller: { '@type': 'Person', name: sellerName } }),
+      },
+    }),
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Custom Bikes', item: `${BASE_URL}/bikes` },
+      { '@type': 'ListItem', position: 3, name: bike.title },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(vehicleLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Header activePage="bikes" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
