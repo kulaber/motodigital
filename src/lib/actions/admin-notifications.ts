@@ -5,6 +5,8 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+const ADMIN_NOTIFICATION_RECIPIENTS = ['info@motodigital.de']
+
 export async function notifyNewRegistration(data: { name: string; email: string; role: string }) {
   try {
     const admin = createAdmin(
@@ -12,28 +14,29 @@ export async function notifyNewRegistration(data: { name: string; email: string;
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Find all superadmin emails
+    const emails = new Set<string>(ADMIN_NOTIFICATION_RECIPIENTS)
+
+    // Add all superadmin emails (in addition to fixed recipients)
     const { data: superadmins } = await admin
       .from('profiles')
       .select('id')
       .eq('role', 'superadmin')
 
-    if (!superadmins?.length) return
-
-    const emails: string[] = []
-    for (const sa of superadmins) {
-      const { data: { user } } = await admin.auth.admin.getUserById(sa.id)
-      if (user?.email) emails.push(user.email)
+    if (superadmins?.length) {
+      for (const sa of superadmins) {
+        const { data: { user } } = await admin.auth.admin.getUserById(sa.id)
+        if (user?.email) emails.add(user.email)
+      }
     }
 
-    if (!emails.length) return
+    if (!emails.size) return
 
     const roleLabel = data.role === 'custom-werkstatt' ? 'Custom Werkstatt' : 'Rider'
     const time = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin', dateStyle: 'medium', timeStyle: 'short' })
 
     await resend.emails.send({
       from: 'MotoDigital <noreply@motodigital.de>',
-      to: emails,
+      to: Array.from(emails),
       subject: `Neue Registrierung: ${roleLabel} — ${data.name}`,
       text: `Neue Registrierung auf MotoDigital:\n\nName: ${data.name}\nE-Mail: ${data.email}\nRolle: ${roleLabel}\nZeitpunkt: ${time}`,
       html: `
