@@ -8,6 +8,7 @@ import { Eye, ChevronRight, Users, Wrench, Radio, BarChart3, Shield, Settings, S
 import UpgradeSuccessToast from '@/components/werkstatt/UpgradeSuccessToast'
 import { PageViewsChart } from '@/components/dashboard/PageViewsChart'
 import { LockedDashboard, FullDashboard } from '@/components/dashboard/WorkshopAnalytics'
+import SignOutButton from './SignOutButton'
 import { isPremium } from '@/lib/werkstatt-tier'
 import type { Database } from '@/types/database'
 
@@ -340,6 +341,11 @@ export default async function DashboardPage() {
         ) : null}
 
         {/* empty — profile card and bike list removed for workshop dashboard */}
+
+        {/* Mobile-only logout (desktop has it in DashboardNav sidebar) */}
+        <div className="lg:hidden mt-8">
+          <SignOutButton />
+        </div>
 
     </div>
   )
