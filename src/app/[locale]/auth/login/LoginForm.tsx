@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getPostLoginRedirect, validateRedirectTo } from '@/lib/auth/redirectAfterLogin'
+import { getEmailRedirectBase } from '@/lib/auth/emailRedirect'
 
 function LoginFormInner() {
   const t = useTranslations('Auth')
@@ -65,7 +66,7 @@ function LoginFormInner() {
     if (!email) { setError(t('enterEmailFirst')); return }
     setResetLoading(true); setError(null)
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard/account`,
+      redirectTo: `${getEmailRedirectBase()}/auth/callback?redirectTo=/dashboard/account`,
     })
     setResetSent(true)
     setResetLoading(false)
@@ -80,7 +81,7 @@ function LoginFormInner() {
       : '/auth/callback'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}${callbackUrl}` },
+      options: { emailRedirectTo: `${getEmailRedirectBase()}${callbackUrl}` },
     })
     if (error) setError(error.message)
     else setMagicSent(true)

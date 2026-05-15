@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Wrench, Bike, Eye, EyeOff, ArrowLeft, Check, X, Loader2 } from 'lucide-react'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
+import { getEmailRedirectBase } from '@/lib/auth/emailRedirect'
 import { notifyNewRegistration } from '@/lib/actions/admin-notifications'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 
@@ -61,7 +62,7 @@ export default function RegisterForm({ initialRole, onRoleChange }: { initialRol
       password,
       options: {
         data: { full_name: name, username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(getRoleDefaultRedirect(role as Parameters<typeof getRoleDefaultRedirect>[0]))}`,
+        emailRedirectTo: `${getEmailRedirectBase()}/auth/callback?redirectTo=${encodeURIComponent(getRoleDefaultRedirect(role as Parameters<typeof getRoleDefaultRedirect>[0]))}`,
       },
     })
 

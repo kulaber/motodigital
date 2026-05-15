@@ -9,6 +9,7 @@ import { X, Mail, Loader2, ArrowLeft, Wrench, Bike, Check, Eye, EyeOff } from 'l
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getPostLoginRedirect } from '@/lib/auth/redirectAfterLogin'
+import { getEmailRedirectBase } from '@/lib/auth/emailRedirect'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
 /* ─── Trigger Context ────────────────────────────────────── */
@@ -182,7 +183,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}` },
+      options: { emailRedirectTo: `${getEmailRedirectBase()}/auth/callback${callbackRedirectParam}` },
     })
 
     if (error) {
@@ -202,7 +203,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}` },
+      options: { emailRedirectTo: `${getEmailRedirectBase()}/auth/callback${callbackRedirectParam}` },
     })
 
     if (error) {
@@ -278,7 +279,7 @@ export function LoginModal({ isOpen, onClose, triggerContext, initialMode = 'log
       password,
       options: {
         data: { full_name: name.trim(), username, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback${callbackRedirectParam}`,
+        emailRedirectTo: `${getEmailRedirectBase()}/auth/callback${callbackRedirectParam}`,
       },
     })
 

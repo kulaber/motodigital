@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { translateAuthError } from '@/lib/auth/translateError'
 import { getRoleDefaultRedirect } from '@/lib/auth/redirectAfterLogin'
+import { getEmailRedirectBase } from '@/lib/auth/emailRedirect'
 
 const COOLDOWN_SECONDS = 60
 const POLL_INTERVAL_MS = 3000
@@ -54,6 +55,9 @@ export default function VerifyEmailGate({ email }: { email: string }) {
     const { error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email,
+      options: {
+        emailRedirectTo: `${getEmailRedirectBase()}/auth/callback`,
+      },
     })
 
     if (resendError) {
