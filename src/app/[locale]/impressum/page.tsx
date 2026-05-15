@@ -4,8 +4,8 @@ import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Impressum — MotoDigital',
-  description: 'Impressum und Angaben gemäß § 5 TMG für MotoDigital.',
-  robots: 'noindex, nofollow',
+  description: 'Impressum und Angaben gemäß § 5 DDG für MotoDigital.',
+  alternates: { canonical: '/impressum' },
 }
 
 export default function ImpressumPage() {

@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Datenschutzerklärung — MotoDigital',
   description: 'Datenschutzerklärung von MotoDigital — Informationen zur Verarbeitung personenbezogener Daten.',
-  robots: 'noindex, nofollow',
+  alternates: { canonical: '/datenschutz' },
 }
 
 export default function DatenschutzPage() {

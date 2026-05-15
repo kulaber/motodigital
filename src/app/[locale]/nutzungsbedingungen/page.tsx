@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Nutzungsbedingungen — MotoDigital',
   description: 'Allgemeine Geschäftsbedingungen (AGB) & Nutzungsbedingungen von MotoDigital.',
-  robots: 'noindex, nofollow',
+  alternates: { canonical: '/nutzungsbedingungen' },
 }
 
 export default function NutzungsbedingungenPage() {
