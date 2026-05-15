@@ -10,5 +10,32 @@ export default async function RootPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
-  return <LandingPage />
+
+  // WebSite + SearchAction LD — only on the homepage so Google may render
+  // a Sitelinks Search Box. Site search is at /search?q=<query>.
+  const websiteLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'MotoDigital',
+    url: 'https://motodigital.io',
+    inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://motodigital.io/search?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+      />
+      <LandingPage />
+    </>
+  )
 }

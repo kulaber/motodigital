@@ -15,6 +15,7 @@ import { sortBikeImages } from '@/lib/utils/bikeImages'
 import type { Build } from '@/lib/data/builds'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { BIKE_STYLE_CONTENT } from '@/lib/data/bikeStyleContent'
 import BikesClient from '../BikesClient'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -163,6 +164,19 @@ export default async function BikeSlugPage({ params }: Props) {
       ],
     }
 
+    // Style-spezifischer Content (Intro + FAQs) — füttert FAQPage-LD und
+    // gibt jeder Style-Hub-Seite eine einzigartige Lese-Substanz.
+    const content = BIKE_STYLE_CONTENT[slug]
+    const styleFaqLd = content && content.faqs.length > 0 ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: content.faqs.map(f => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    } : null
+
     return (
       <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
         <script
@@ -173,14 +187,71 @@ export default async function BikeSlugPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(styleBreadcrumbLd) }}
         />
+        {styleFaqLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(styleFaqLd) }}
+          />
+        )}
         <Header activePage="bikes" />
 
-        {/* PAGE HEADER — same as /bikes */}
-        <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
-          <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
-        </div>
+        {/* Style-spezifischer SEO-Header */}
+        {content && (
+          <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pt-8 sm:pt-12 pb-6">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#717171] mb-3">
+              Custom Bikes · {styleInfo.name}
+            </p>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#222222] tracking-tight leading-[1.1] mb-4">
+              {content.heading}
+            </h1>
+            <p className="text-base sm:text-lg text-[#717171] leading-relaxed max-w-3xl">
+              {content.lead}
+            </p>
+          </section>
+        )}
+        {!content && (
+          <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
+            <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
+          </div>
+        )}
 
         <BikesClient builds={allBuilds} initialStyle={styleInfo.name} />
+
+        {/* Intro + FAQs unter der Liste — Lesefutter für Google */}
+        {content && (
+          <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pb-16 pt-12">
+            <div className="border-t border-[#EBEBEB] pt-12">
+              <div className="prose prose-sm sm:prose-base max-w-3xl">
+                {content.intro.map((p, i) => (
+                  <p key={i} className="text-[#444] leading-relaxed mb-4">{p}</p>
+                ))}
+              </div>
+              {content.faqs.length > 0 && (
+                <div className="mt-12 max-w-3xl">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight mb-6">
+                    Häufige Fragen zu {styleInfo.name}
+                  </h2>
+                  <div className="flex flex-col gap-4">
+                    {content.faqs.map((f, i) => (
+                      <details
+                        key={i}
+                        className="group border border-[#EBEBEB] rounded-2xl overflow-hidden bg-white"
+                      >
+                        <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-3 text-sm font-semibold text-[#222222]">
+                          <span>{f.q}</span>
+                          <span className="text-[#717171] group-open:rotate-45 transition-transform text-lg leading-none flex-shrink-0">+</span>
+                        </summary>
+                        <div className="px-5 pb-5 text-sm text-[#555] leading-relaxed">
+                          {f.a}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         <Footer />
       </div>

@@ -143,7 +143,28 @@ async function BuilderContent() {
   const nonSponsored = dbBuilders.filter(b => !b.featured)
   const sorted = [...sponsored, ...nonSponsored]
 
-  return <BuilderPageClientLoader builders={sorted} />
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Custom Werkstätten auf MotoDigital',
+    numberOfItems: sorted.length,
+    itemListElement: sorted.slice(0, 30).map((b, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${BASE_URL}/custom-werkstatt/${b.slug}`,
+      name: b.name,
+    })),
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+      />
+      <BuilderPageClientLoader builders={sorted} />
+    </>
+  )
 }
 
 /* ── Page component — Header renders instantly, data streams in ── */

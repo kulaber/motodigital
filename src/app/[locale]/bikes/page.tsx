@@ -85,8 +85,38 @@ export default async function BikesPage() {
 
   const allBuilds = dbBuilds
 
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Custom Bikes auf MotoDigital',
+    numberOfItems: allBuilds.length,
+    itemListElement: allBuilds.slice(0, 30).map((b, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${BASE_URL}${b.href}`,
+      name: b.title,
+    })),
+  }
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Custom Bikes', item: `${BASE_URL}/bikes` },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222] overflow-x-clip" style={{ fontFamily: 'var(--font-sans)' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Header activePage="bikes" />
 
       {/* PAGE HEADER */}

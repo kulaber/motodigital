@@ -109,8 +109,60 @@ export default async function EventDetailPage({ params }: Props) {
   const galleryImages = event.gallery_images ?? []
   const videos = event.videos ?? []
 
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+  const eventUrl = `${BASE_URL}/events/${event.slug}`
+  const eventLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.name,
+    url: eventUrl,
+    ...(event.description && { description: String(event.description).slice(0, 5000) }),
+    ...(event.date_start && { startDate: event.date_start }),
+    ...(event.date_end && { endDate: event.date_end }),
+    ...(event.image && { image: [event.image] }),
+    eventStatus: isPast ? 'https://schema.org/EventScheduled' : 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    ...(event.location && {
+      location: {
+        '@type': 'Place',
+        name: event.location,
+        ...(coords && {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: coords.lat,
+            longitude: coords.lng,
+          },
+        }),
+        address: event.location,
+      },
+    }),
+    organizer: {
+      '@type': 'Organization',
+      name: 'MotoDigital',
+      url: BASE_URL,
+    },
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Events', item: `${BASE_URL}/events` },
+      { '@type': 'ListItem', position: 3, name: event.name, item: eventUrl },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Header activePage="events" />
 
       {/* Hero Image — taller, more prominent */}

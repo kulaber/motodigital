@@ -18,6 +18,11 @@ type StaticHref =
   | '/magazine/guide'
   | '/events'
   | '/ueber-motodigital'
+  | '/sell'
+  | '/faq'
+  | '/partner'
+  | '/vorteile'
+  | '/marken'
 
 type Freq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 
@@ -45,7 +50,7 @@ function localizedEntry(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
 
-  const [{ data: builders }, { data: bikes }] = await Promise.all([
+  const [{ data: builders }, { data: bikes }, { data: riders }, { data: events }, { data: brands }] = await Promise.all([
     (supabase.from('profiles') as any)
       .select('slug, created_at')
       .eq('role', 'custom-werkstatt')
@@ -54,6 +59,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from('bikes')
       .select('id, slug, title, updated_at')
       .eq('status', 'active') as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
+    (supabase.from('profiles') as any)
+      .select('slug, updated_at')
+      .eq('role', 'rider')
+      .not('slug', 'is', null) as Promise<{ data: { slug: string; updated_at?: string }[] | null }>,
+    (supabase.from('events') as any)
+      .select('slug, date_start')
+      .not('slug', 'is', null) as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
+    (supabase.from('base_bike_brands') as any)
+      .select('slug')
+      .not('slug', 'is', null) as Promise<{ data: { slug: string }[] | null }>,
   ])
 
   const now = new Date()
@@ -62,6 +77,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/',                          now, 'daily',   1.0),
     localizedEntry('/custom-werkstatt',          now, 'daily',   0.9),
     localizedEntry('/bikes',                     now, 'daily',   0.9),
+    localizedEntry('/sell',                      now, 'monthly', 0.8),
+    localizedEntry('/marken',                    now, 'weekly',  0.7),
     localizedEntry('/explore',                   now, 'weekly',  0.7),
     localizedEntry('/magazine',                  now, 'weekly',  0.8),
     localizedEntry('/magazine/build-story',      now, 'weekly',  0.6),
@@ -69,11 +86,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/magazine/guide',            now, 'weekly',  0.6),
     localizedEntry('/events',                    now, 'weekly',  0.7),
     localizedEntry('/ueber-motodigital',         now, 'monthly', 0.6),
+    localizedEntry('/faq',                       now, 'monthly', 0.5),
+    localizedEntry('/partner',                   now, 'monthly', 0.5),
+    localizedEntry('/vorteile',                  now, 'monthly', 0.5),
   ]
 
   // `getPathname` honours routing.localePrefix ('as-needed') — default
   // locale returns no prefix, others return `/<locale>/...`.
-  const bikeStyleSlugs = ['cafe-racer', 'bobber', 'scrambler', 'tracker', 'chopper', 'street', 'enduro']
+  const bikeStyleSlugs = [
+    'cafe-racer', 'bobber', 'scrambler', 'tracker', 'chopper',
+    'street', 'enduro', 'brat-style', 'street-fighter', 'old-school',
+    'naked', 'basis-bike',
+  ]
   const bikeStylePages: MetadataRoute.Sitemap = bikeStyleSlugs.map((slug) => {
     const urls = Object.fromEntries(
       routing.locales.map((l) => [l, `${BASE}/${l === routing.defaultLocale ? '' : `${l}/`}bikes/${slug}`.replace(/\/$/, '') || '/'])
@@ -130,5 +154,53 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  return [...staticPages, ...bikeStylePages, ...articlePages, ...builderPages, ...bikePages]
+  const riderPages: MetadataRoute.Sitemap = (riders ?? []).map((r) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/rider/${r.slug}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: r.updated_at ? new Date(r.updated_at) : now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+      alternates: { languages: urls },
+    }
+  })
+
+  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((e) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/events/${e.slug}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: e.date_start ? new Date(e.date_start) : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: { languages: urls },
+    }
+  })
+
+  const brandPages: MetadataRoute.Sitemap = (brands ?? []).map((b) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/marken/${b.slug}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: { languages: urls },
+    }
+  })
+
+  return [
+    ...staticPages,
+    ...bikeStylePages,
+    ...articlePages,
+    ...builderPages,
+    ...bikePages,
+    ...riderPages,
+    ...eventPages,
+    ...brandPages,
+  ]
 }
