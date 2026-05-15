@@ -37,13 +37,18 @@ export default async function BikeOgImage({ params }: Params) {
 
   const rawImages = (bike?.bike_images as { url: string; is_cover: boolean; position: number }[] | null) ?? []
   const cover = sortedBikeImageUrls(rawImages)[0] ?? null
+  // Satori can't decode WebP; Supabase's render endpoint serves the same file as JPEG.
+  const renderable = cover?.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+  const ogSrc = renderable
+    ? `${renderable}?width=1200&height=630&resize=cover&quality=85`
+    : null
 
-  if (cover) {
+  if (ogSrc) {
     return new ImageResponse(
       (
         <div style={{ display: 'flex', width: '100%', height: '100%' }}>
           <img
-            src={cover}
+            src={ogSrc}
             alt=""
             width={1200}
             height={630}
