@@ -7,8 +7,9 @@ import { createClient } from '@/lib/supabase/server'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Custom Motorrad Marken — Honda, BMW, Triumph & mehr | MotoDigital',
+  title: 'Custom Motorrad Marken — Honda, BMW, Triumph & mehr — MotoDigital',
   description: 'Entdecke Custom Builds nach Marke — Honda CB750, BMW R nineT, Triumph Bonneville, Harley-Davidson Sportster und viele mehr. Jetzt auf MotoDigital.',
+  alternates: { canonical: '/marken' },
 }
 
 export default async function MarkenPage() {

@@ -46,7 +46,7 @@ export async function generateMetadata({
   return {
     title: {
       default: t('defaultTitle'),
-      template: '%s | MotoDigital',
+      template: '%s',
     },
     description: t('defaultDescription'),
     metadataBase: new URL(baseUrl),

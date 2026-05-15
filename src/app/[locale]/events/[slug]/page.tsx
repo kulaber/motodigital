@@ -60,6 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${name} — MotoDigital`,
     description,
+    alternates: { canonical: `/events/${slug}` },
   }
 }
 

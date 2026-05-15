@@ -50,8 +50,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
     if (!data) return {}
     const canonicalSlug = (data.slug as string | null) ?? slug
+    const styleLabel = STYLE_LABELS[data.style as string] ?? (data.style as string)?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
     return {
-      title: `${data.title} — ${data.style} Custom Build · MotoDigital`,
+      title: `${data.title} — ${styleLabel} Custom Build · MotoDigital`,
       alternates: { canonical: `/custom-bike/${canonicalSlug}` },
     }
   } catch {

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { BadgeCheck, MapPin, ArrowLeft, Calendar, Euro } from 'lucide-react'
@@ -63,21 +63,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${style.name} Motorcycles for sale — MotoDigital`,
       description: `${style.description}. Kaufe und verkaufe Custom ${style.name} Motorräder auf MotoDigital.`,
+      alternates: { canonical: `/bikes/${slug}` },
     }
   }
 
-  // Supabase bike
+  // Supabase bike — alte UUID-Route. Canonical zeigt auf die neue Pretty-URL
+  // /custom-bike/[slug], damit Google die Duplicate-Route konsolidiert.
   const supabase = await createClient()
   const { data: bike } = await supabase
     .from('bikes')
-    .select('title, make, model, year, price')
+    .select('title, make, model, year, price, slug')
     .eq('id', slug)
-    .maybeSingle() as { data: Pick<BikeRow, 'title' | 'make' | 'model' | 'year' | 'price'> | null; error: unknown }
+    .maybeSingle() as { data: (Pick<BikeRow, 'title' | 'make' | 'model' | 'year' | 'price'> & { slug: string | null }) | null; error: unknown }
 
   if (!bike) return { title: 'Bike nicht gefunden' }
+  const canonicalSlug = bike.slug ?? slug
   return {
     title: `${bike.title} — ${formatPrice(bike.price)}`,
     description: `${bike.make} ${bike.model} ${bike.year} auf MotoDigital`,
+    alternates: { canonical: `/custom-bike/${canonicalSlug}` },
   }
 }
 
@@ -200,6 +204,11 @@ export default async function BikeSlugPage({ params }: Props) {
     .maybeSingle() as { data: BikeWithRelations | null; error: unknown }
 
   if (!bike) notFound()
+
+  // Duplicate-Route konsolidieren: alte UUID-URL → neue Pretty-URL.
+  // `permanentRedirect()` liefert HTTP 308; Google behandelt das wie ein 301.
+  const prettySlug = bike.slug ?? generateBikeSlug(bike.title, bike.id)
+  if (prettySlug) permanentRedirect(`/custom-bike/${prettySlug}`)
 
   ;(supabase.from('bikes') as any)
     .update({ view_count: (bike.view_count ?? 0) + 1 })

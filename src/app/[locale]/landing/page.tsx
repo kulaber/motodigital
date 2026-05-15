@@ -1,6 +1,14 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Send, Map as MapIcon, MessageCircle, ShieldCheck, Users, Route, Compass, Bike, Sparkles, HeartHandshake } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+
+// /landing rendert dieselbe Komponente wie die Startseite (Klon-URL).
+// Aus dem Index halten, damit /-Canonical nicht verwässert wird.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+  alternates: { canonical: '/' },
+}
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'

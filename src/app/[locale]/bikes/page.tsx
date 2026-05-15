@@ -12,6 +12,7 @@ export const revalidate = 1800 // ISR: revalidate every 30 minutes
 export const metadata: Metadata = {
   title: 'Custom Bikes kaufen — MotoDigital',
   description: 'Kaufe und verkaufe handgefertigte Custom Motorcycles — Cafe Racer, Bobber, Scrambler, Tracker und Chopper aus ganz Europa.',
+  alternates: { canonical: '/bikes' },
 }
 
 const STYLE_LABELS: Record<string, string> = {

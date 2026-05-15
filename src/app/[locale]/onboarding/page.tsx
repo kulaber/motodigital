@@ -6,6 +6,7 @@ import OnboardingAddressForm from './OnboardingAddressForm'
 export const metadata: Metadata = {
   title: 'Onboarding — MotoDigital',
   description: 'Richte dein MotoDigital-Profil ein.',
+  robots: { index: false, follow: false },
 }
 
 export default async function OnboardingPage() {

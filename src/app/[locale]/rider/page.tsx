@@ -10,6 +10,9 @@ import { createClient } from '@/lib/supabase/server'
 export const metadata: Metadata = {
   title: 'Rider — MotoDigital',
   description: 'Entdecke Rider aus der Custom-Motorrad-Community auf MotoDigital.',
+  // AuthGate ohne Login → für Crawler eine Login-Wand. Bis das Verzeichnis
+  // öffentlich wird: aus dem Index halten.
+  robots: { index: false, follow: false },
 }
 
 export interface RiderCard {

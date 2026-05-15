@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer'
 export const metadata: Metadata = {
   title: 'Custom Bike verkaufen — MotoDigital',
   description: 'Verkaufe dein Custom Bike auf MotoDigital — weltweit sichtbar, verifizierte Käufer, einfach hochladen.',
+  alternates: { canonical: '/sell' },
 }
 
 const BENEFITS = [

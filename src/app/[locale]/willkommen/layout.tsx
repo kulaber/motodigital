@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'Willkommen bei MotoDigital',
+  robots: { index: false, follow: false },
 }
 
 export default function OnboardingLayout({

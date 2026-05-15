@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 
-export const metadata: Metadata = { title: 'Account gelöscht' }
+export const metadata: Metadata = {
+  title: 'Account gelöscht',
+  robots: { index: false, follow: false },
+}
 
 const messages: Record<string, { title: string; text: string }> = {
   success: {
