@@ -1,5 +1,25 @@
+import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import LandingPage from './landing/page'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const canonicalUrl = locale === 'de' ? 'https://motodigital.io/' : `https://motodigital.io/${locale}`
+  return {
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        de: 'https://motodigital.io/',
+        en: 'https://motodigital.io/en',
+        'x-default': 'https://motodigital.io/',
+      },
+    },
+  }
+}
 
 // Locale-aware root landing. Rider/workshop redirects are handled by
 // middleware so we avoid a blocking getUser() call on every landing hit.
