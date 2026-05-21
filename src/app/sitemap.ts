@@ -18,6 +18,7 @@ type StaticHref =
   | '/magazine/guide'
   | '/events'
   | '/ueber-motodigital'
+  | '/motorrad-umbau'
   | '/sell'
   | '/faq'
   | '/partner'
@@ -90,6 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/magazine/guide',            now, 'weekly',  0.6),
     localizedEntry('/events',                    now, 'weekly',  0.7),
     localizedEntry('/ueber-motodigital',         now, 'monthly', 0.6),
+    localizedEntry('/motorrad-umbau',            now, 'monthly', 0.8),
     localizedEntry('/faq',                       now, 'monthly', 0.5),
     localizedEntry('/partner',                   now, 'monthly', 0.5),
     localizedEntry('/vorteile',                  now, 'monthly', 0.5),
@@ -101,6 +103,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // `getPathname` honours routing.localePrefix ('as-needed') — default
   // locale returns no prefix, others return `/<locale>/...`.
+  const cityHubSlugs = ['muenchen', 'berlin', 'hamburg', 'frankfurt', 'koeln', 'stuttgart', 'wien', 'zuerich']
+  const cityHubPages: MetadataRoute.Sitemap = cityHubSlugs.map((slug) => {
+    const urls = Object.fromEntries(
+      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/custom-werkstatt/${slug}`])
+    )
+    return {
+      url: urls[routing.defaultLocale],
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+      alternates: { languages: urls },
+    }
+  })
+
   const bikeStyleSlugs = [
     'cafe-racer', 'bobber', 'scrambler', 'tracker', 'chopper',
     'street', 'enduro', 'brat-style', 'street-fighter', 'old-school',
@@ -203,6 +219,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
+    ...cityHubPages,
     ...bikeStylePages,
     ...articlePages,
     ...builderPages,

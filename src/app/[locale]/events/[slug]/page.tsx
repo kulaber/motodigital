@@ -43,12 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations('EventsPage')
   const supabase = await createClient()
   const { data: event } = await (supabase.from('events') as any)
-    .select('name, description, name_i18n, description_i18n')
+    .select('name, description, image, name_i18n, description_i18n')
     .eq('slug', slug)
     .maybeSingle() as {
       data: {
         name: string
         description: string
+        image?: string | null
         name_i18n?: Record<string, string> | null
         description_i18n?: Record<string, string> | null
       } | null
@@ -57,10 +58,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!event) return { title: `${t('notFound')} — MotoDigital` }
   const name = localizedText(event.name_i18n, locale, event.name)
   const description = localizedText(event.description_i18n, locale, event.description)
+  const ogImage = event.image ?? '/og-image.jpg'
   return {
     title: `${name} — MotoDigital`,
     description,
     alternates: { canonical: `/events/${slug}` },
+    openGraph: {
+      title: `${name} — MotoDigital`,
+      description,
+      url: `https://motodigital.io/events/${slug}`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${name} — MotoDigital`,
+      description,
+      images: [ogImage],
+    },
   }
 }
 

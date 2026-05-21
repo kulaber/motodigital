@@ -23,8 +23,123 @@ import WorkshopTracker from './WorkshopTracker'
 import { createClient } from '@/lib/supabase/server'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { isPremium } from '@/lib/werkstatt-tier'
+import BuilderPageClientLoader from '../BuilderPageClientLoader'
+import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 
 export const dynamicParams = true
+
+// ── City Hub Pages (/custom-werkstatt/muenchen etc.) ────────────────────────
+interface CityHub {
+  name: string
+  state: string
+  lead: string
+  intro: string[]
+  faqs: { q: string; a: string }[]
+}
+
+const CITY_HUBS: Record<string, CityHub> = {
+  'muenchen': {
+    name: 'München',
+    state: 'Bayern',
+    lead: 'Café Racer aus Schwabing bis Bobber aus der Maxvorstadt — Custom-Werkstätten im Großraum München und Umland.',
+    intro: [
+      'München ist einer der aktivsten Custom-Bike-Standorte in Deutschland. Die Nähe zu alpinen Strecken, ein starkes Wirtschaftsumfeld und eine passionierte Szene machen die bayerische Hauptstadt zu einem natürlichen Zentrum für hochwertige Umbauten. Vom puristischen Café Racer auf Basis einer alten Honda bis zum modernen Scrambler auf BMW-Plattform — Münchner Werkstätten decken das gesamte Spektrum ab.',
+      'Auf MotoDigital findest du verifizierte Custom-Werkstätten in München, Augsburg, Ingolstadt und dem gesamten bayerischen Voralpenland. Alle Profile zeigen Portfolio, Spezialgebiete, Referenzbuilds und Kontaktmöglichkeiten — kein Mittelmann, kein Umweg.',
+    ],
+    faqs: [
+      { q: 'Welche Custom-Stile sind in München besonders verbreitet?', a: 'In München dominieren Café Racer und Scrambler auf japanischen und deutschen Basen (BMW, Honda, Yamaha). Die alpine Lage begünstigt Allroad-fähige Umbauten. Chopper-Werkstätten gibt es in der Region ebenfalls, aber in geringerer Zahl.' },
+      { q: 'Was kostet ein Custom-Umbau bei einer Münchner Werkstatt?', a: 'Einfache Umbauten (Lenker, Auspuff, Sitzbank) starten bei ca. 1.500–3.500 €. Komplettumbauten mit Lackierung und TÜV-Papieren liegen je nach Komplexität zwischen 8.000 und 25.000 €. Renommierte Münchner Werkstätten können für Show-Bikes deutlich darüber liegen.' },
+      { q: 'Kann ich mein Motorrad zur Eintragung direkt in München vorstellen?', a: 'Ja. In München und Umland gibt es mehrere Dekra- und TÜV-Süd-Prüfstellen, die Custom-Einzelabnahmen nach §21 StVZO durchführen. Viele Werkstätten begleiten ihre Kunden zum Termin oder haben feste Prüfpartnerschaften.' },
+    ],
+  },
+  'berlin': {
+    name: 'Berlin',
+    state: 'Berlin',
+    lead: 'Vom Industrieloft in Neukölln bis zur alten Halle in Lichtenberg — Berlins Custom-Bike-Szene ist so vielseitig wie die Stadt selbst.',
+    intro: [
+      'Berlin hat eine der dichtesten Custom-Bike-Szenen in Deutschland. Die Stadt kombiniert urbane Kreativkultur mit einem starken Handwerk — viele der bekanntesten deutschen Builder kommen aus dem Berliner Raum oder haben hier ihre Karriere gestartet. Von puristischen Scramblern bis zu ausgefeilten Show-Builds ist alles vertreten.',
+      'Auf MotoDigital findest du Berliner Custom-Werkstätten mit Portfolio, Spezialgebieten und direktem Kontakt. Egal ob Erstumbau oder Showbike — hier findest du die passende Werkstatt.',
+    ],
+    faqs: [
+      { q: 'Wo sind die meisten Custom-Werkstätten in Berlin konzentriert?', a: 'Die meisten Custom-Werkstätten in Berlin liegen in den Außenbezirken mit gewerbegeeigneten Hallenstrukturen — Neukölln, Lichtenberg, Reinickendorf, Pankow und Spandau. Die Innenstadtlagen sind durch hohe Mieten für größere Werkstätten kaum erschwinglich.' },
+      { q: 'Gibt es in Berlin Werkstätten, die auf TÜV-Eintragungen spezialisiert sind?', a: 'Ja. Einige Berliner Custom-Werkstätten haben enge Kooperationen mit TÜV Berlin-Brandenburg oder Dekra-Prüfstellen und begleiten den Eintragungsprozess vollständig. Frag gezielt nach, ob die Werkstatt §21-Erfahrung hat.' },
+      { q: 'Kann ich als Privatperson ein halbfertiges Projekt in eine Berliner Werkstatt bringen?', a: 'Die meisten Berliner Custom-Werkstätten nehmen Fremdprojekte an — entweder zur Fertigstellung oder für einzelne Teilleistungen (Schweißen, Lackierung, TÜV-Vorbereitung). Vereinbare vorher einen Beratungstermin, damit Umfang und Kosten klar sind.' },
+    ],
+  },
+  'hamburg': {
+    name: 'Hamburg',
+    state: 'Hamburg',
+    lead: 'Rauer Norden, klare Linie: Custom-Werkstätten in Hamburg bauen Bikes für Küstenluft und Kopfsteinpflaster.',
+    intro: [
+      'Hamburg ist Norddeutschlands wichtigstes Custom-Bike-Zentrum. Die Hafenstadt hat eine eigene Motorradkultur: eher schlicht, technisch präzise, ohne unnötigen Schnickschnack. Norddeutsche Werkstätten bauen gerne Bikes, die fahren — nicht nur stehen. Bobber, Tracker und klassische Café Racer auf japanischen und britischen Basen sind typisch für die Region.',
+      'Auf MotoDigital findest du Custom-Werkstätten aus Hamburg und dem Hamburger Umland — von Schleswig bis Lüneburg. Alle Profile mit Portfolio und Direktkontakt.',
+    ],
+    faqs: [
+      { q: 'Welcher Custom-Stil ist in Hamburg besonders typisch?', a: 'Norddeutsche Custom-Werkstätten bevorzugen tendenziell reduzierte, fahrorientierte Stile: Tracker, Bobber und nüchterne Café Racer. Viel Chrome und dekorativer Schnickschnack sind weniger typisch als in Süddeutschland.' },
+      { q: 'Gibt es in Hamburg Custom-Werkstätten, die sich auf britische Klassiker spezialisiert haben?', a: 'Ja — Triumph, BSA und Norton haben in Norddeutschland historisch eine starke Fangemeinde. Einige Hamburger Werkstätten haben sich auf Triumph-Umbauten spezialisiert, darunter Scrambler- und Bonneville-Varianten.' },
+    ],
+  },
+  'frankfurt': {
+    name: 'Frankfurt',
+    state: 'Hessen',
+    lead: 'Zwischen Taunus und Skyline: Custom-Werkstätten in Frankfurt und dem Rhein-Main-Gebiet.',
+    intro: [
+      'Frankfurt am Main ist das wirtschaftliche Zentrum Deutschlands — und hat eine Custom-Szene, die dieser Rolle gerecht wird. Hochwertige Komplettumbauten für anspruchsvolle Kunden, international orientierte Builder und eine Szene, die sich durch das gesamte Rhein-Main-Gebiet erstreckt.',
+      'Auf MotoDigital findest du verifizierte Custom-Werkstätten in Frankfurt, Wiesbaden, Darmstadt und dem gesamten Rhein-Main-Raum.',
+    ],
+    faqs: [
+      { q: 'Sind Frankfurter Custom-Werkstätten eher auf neue oder alte Basen spezialisiert?', a: 'Im Rhein-Main-Gebiet gibt es beides — klassische Umbauten auf Honda CB- und Yamaha XS-Basis, aber auch moderne Builds auf BMW R nineT oder Ducati Scrambler. Die Region hat genug Kaufkraft für beide Segmente.' },
+    ],
+  },
+  'koeln': {
+    name: 'Köln',
+    state: 'Nordrhein-Westfalen',
+    lead: 'Am Rhein und im Herzen von NRW: Custom-Werkstätten aus dem Raum Köln, Düsseldorf und Bonn.',
+    intro: [
+      'Nordrhein-Westfalen ist Deutschlands bevölkerungsreichstes Bundesland — und hat eine entsprechend lebhafte Custom-Szene. Köln, Düsseldorf und das Ruhrgebiet bilden gemeinsam eine der größten Custom-Bike-Communitys im Land.',
+      'Auf MotoDigital findest du verifizierte Werkstätten aus dem Kölner Raum und ganz NRW — mit Portfolio, Kontakt und Referenzbuilds.',
+    ],
+    faqs: [
+      { q: 'Gibt es Custom-Bike-Events in der Region Köln/NRW?', a: 'Ja — neben privaten Stammtischen und Treffen gibt es jährlich mehrere Custom-Events in NRW, darunter die Custombike-Saison am Nürburgring (Eifel). Die Intermediate Days in Kamp-Lintfort und lokale Szene-Events in Köln und Düsseldorf ergänzen das Angebot.' },
+    ],
+  },
+  'stuttgart': {
+    name: 'Stuttgart',
+    state: 'Baden-Württemberg',
+    lead: 'Technische Präzision, schwäbisches Handwerk: Custom-Werkstätten in Stuttgart und dem Ländle.',
+    intro: [
+      'Stuttgart und Baden-Württemberg stehen für technische Ingenieurskultur — das spiegelt sich auch in der Custom-Bike-Szene wider. Präzise Umbauten, hohe Verarbeitungsqualität und eine starke Affinität zu deutschen Basis-Bikes (BMW, MZ) prägen die Region.',
+      'Auf MotoDigital findest du Custom-Werkstätten in Stuttgart, Karlsruhe, Freiburg und dem gesamten Südwesten Deutschlands.',
+    ],
+    faqs: [
+      { q: 'Sind schwäbische Custom-Werkstätten auf BMW spezialisiert?', a: 'Viele Baden-Württemberger Werkstätten haben eine Präferenz für BMW — besonders R-Serie und K-Serie. Die Region hat eine starke BMW-Fangemeinde und entsprechende Teileverfügbarkeit. Aber auch japanische und britische Basen werden verbreitet umgebaut.' },
+    ],
+  },
+  'wien': {
+    name: 'Wien',
+    state: 'Wien',
+    lead: 'Von der Donau bis zu den Alpen: Custom-Werkstätten in Wien und der österreichischen Custom-Szene.',
+    intro: [
+      'Wien hat eine eigenständige, lebhafte Custom-Bike-Szene. Österreichische Builder sind für hochwertige Handarbeit bekannt — viele internationale Shows wurden von Wiener und österreichischen Werkstätten beliefert. Die Alpenregion bedingt einen starken Fokus auf Scrambler und allroadfähige Umbauten.',
+      'Auf MotoDigital findest du Custom-Werkstätten aus Wien und ganz Österreich — mit Portfolio, Spezialgebieten und direktem Kontakt.',
+    ],
+    faqs: [
+      { q: 'Was muss ich bei Custom-Umbauten in Österreich rechtlich beachten?', a: 'In Österreich gelten ähnliche Regelungen wie in Deutschland — geänderte Teile müssen in den Fahrzeugpapieren eingetragen werden. Zuständig ist der TÜV Austria (Prüfstelle §57a KFG). Vor dem Umbau immer prüfen, ob ein §57a-Gutachten erforderlich ist.' },
+    ],
+  },
+  'zuerich': {
+    name: 'Zürich',
+    state: 'Zürich',
+    lead: 'Präzision und Leidenschaft: Custom-Werkstätten in Zürich und der Deutschschweizer Custom-Szene.',
+    intro: [
+      'Die Schweizer Custom-Bike-Szene ist international wenig bekannt, aber hochwertig. Zürich und Umgebung beherbergen einige der besten Custom-Werkstätten im deutschsprachigen Raum — mit internationalen Kontakten und einem Qualitätsanspruch, der das Schweizer Handwerk widerspiegelt.',
+      'Auf MotoDigital findest du Custom-Werkstätten aus Zürich und der Deutschschweiz — mit vollständigen Profilen und direktem Kontakt.',
+    ],
+    faqs: [
+      { q: 'Was kostet ein Custom-Umbau in der Schweiz im Vergleich zu Deutschland?', a: 'Custom-Umbauten in der Schweiz sind aufgrund des höheren Lohnniveaus in der Regel 30–50% teurer als in Deutschland. Für internationale Kunden lohnt sich die Reise trotzdem — die Qualität und Verarbeitung sind oft überdurchschnittlich.' },
+    ],
+  },
+}
 
 const TAG_ICON_MAP: Record<string, React.ReactNode> = {
   'Komplettumbau':          <Wrench size={14} />,
@@ -202,6 +317,21 @@ const BASE_URL = 'https://motodigital.io'
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const locale = await getLocale()
+
+  // City hub page
+  const cityHub = CITY_HUBS[slug]
+  if (cityHub) {
+    const title = `Custom Werkstatt ${cityHub.name} — Verzeichnis auf MotoDigital`
+    const description = `Verifizierte Custom-Werkstätten in ${cityHub.name}${cityHub.state !== cityHub.name ? ` (${cityHub.state})` : ''} — Café Racer, Bobber, Scrambler-Umbauten mit Portfolio und Direktkontakt auf MotoDigital.`
+    return {
+      title,
+      description,
+      alternates: { canonical: `${BASE_URL}/custom-werkstatt/${slug}` },
+      openGraph: { title, description, url: `${BASE_URL}/custom-werkstatt/${slug}`, type: 'website' },
+      twitter: { card: 'summary_large_image', title, description },
+    }
+  }
+
   const builder = await getBuilderBySlugFromDB(slug, locale)
   if (!builder) return {}
 
@@ -233,6 +363,158 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BuilderProfilePage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
+
+  // ── City hub page ──────────────────────────────────────────────────────────
+  const cityHub = CITY_HUBS[slug]
+  if (cityHub) {
+    const supabase = await createClient()
+    const CITY_SELECT = 'id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, created_at, builder_media(url, type, title, position)'
+    const { data: dbRows } = await (supabase.from('profiles') as any)
+      .select(CITY_SELECT)
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    const cityNameLc = cityHub.name.toLowerCase()
+    const allBuilders: Builder[] = (dbRows ?? []).map((row: Record<string, unknown>) => {
+      const name    = (row.full_name as string | null) ?? 'Unbekannt'
+      const address = (row.address  as string | null) ?? undefined
+      const rawCity = (row.city     as string | null)
+      const city    = address ? cityFromAddress(address) : (rawCity ?? '')
+      const country = address ? countryFromAddress(address) : ''
+      return {
+        id:        row.id as string,
+        slug:      row.slug as string,
+        initials:  name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+        name, city, country, address,
+        lat:       (row.lat as number | null) ?? undefined,
+        lng:       (row.lng as number | null) ?? undefined,
+        specialty: (row.specialty as string | null) ?? '',
+        builds:    0,
+        rating:    (row.rating as number | null) ?? 5.0,
+        verified:  (row.is_verified as boolean | null) ?? false,
+        featured:  (row.featured   as boolean | null) ?? false,
+        since:     (row.since_year as number | null)?.toString() ?? '',
+        tags:      (row.tags       as string[] | null) ?? [],
+        bio:       (row.bio        as string | null) ?? '',
+        bioLong:   (row.bio_long   as string | null) ?? '',
+        bases:     (row.bases      as string[] | null) ?? [],
+        instagram: (row.instagram_url as string | null) ?? undefined,
+        website:   (row.website_url   as string | null) ?? undefined,
+        media: ((row.builder_media as { url: string; type: string; title?: string; position?: number }[] | null) ?? [])
+          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+          .map(m => ({ url: m.url, type: m.type as 'image' | 'video', title: m.title ?? undefined })),
+        featuredBuilds: [],
+      }
+    })
+
+    const cityBuilders = allBuilders.filter(b =>
+      b.city?.toLowerCase().includes(cityNameLc) ||
+      b.address?.toLowerCase().includes(cityHub.name.toLowerCase()) ||
+      b.address?.toLowerCase().includes(cityNameLc)
+    )
+
+    const cityUrl = `${BASE_URL}/custom-werkstatt/${slug}`
+    const itemListLd = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: `Custom Werkstätten in ${cityHub.name}`,
+      url: cityUrl,
+      numberOfItems: cityBuilders.length,
+      itemListElement: cityBuilders.map((b, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        url: `${BASE_URL}/custom-werkstatt/${b.slug}`,
+        name: b.name,
+      })),
+    }
+    const breadcrumbLd = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Custom Werkstatt', item: `${BASE_URL}/custom-werkstatt` },
+        { '@type': 'ListItem', position: 3, name: cityHub.name, item: cityUrl },
+      ],
+    }
+    const faqLd = cityHub.faqs.length > 0 ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: cityHub.faqs.map(f => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    } : null
+
+    return (
+      <div className="min-h-screen bg-white text-[#222222]">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+        {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
+        <Header activePage="custom-werkstatt" />
+
+        {/* City hero */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pt-8 sm:pt-12 pb-6">
+          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#717171] mb-3">
+            Custom Werkstatt · {cityHub.name}
+          </p>
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#222222] tracking-tight leading-[1.1] mb-4">
+            Custom Werkstatt {cityHub.name}
+          </h1>
+          <p className="text-base sm:text-lg text-[#717171] leading-relaxed max-w-3xl">
+            {cityHub.lead}
+          </p>
+        </section>
+
+        {/* Workshop grid or empty state */}
+        {cityBuilders.length > 0 ? (
+          <BuilderPageClientLoader builders={cityBuilders} />
+        ) : (
+          <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 py-12">
+            <p className="text-[#717171] text-sm">
+              Noch keine Werkstätten für {cityHub.name} eingetragen.{' '}
+              <Link href="/custom-werkstatt" className="text-[#2AABAB] font-semibold hover:underline">
+                Alle Werkstätten ansehen →
+              </Link>
+            </p>
+          </section>
+        )}
+
+        {/* Intro text + FAQs */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 pb-16 pt-12">
+          <div className="border-t border-[#EBEBEB] pt-12 max-w-3xl">
+            {cityHub.intro.map((p, i) => (
+              <p key={i} className="text-[#444] leading-relaxed mb-4 text-sm sm:text-base">{p}</p>
+            ))}
+            {cityHub.faqs.length > 0 && (
+              <div className="mt-10">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight mb-6">
+                  Häufige Fragen — Custom Werkstatt {cityHub.name}
+                </h2>
+                <div className="flex flex-col gap-4">
+                  {cityHub.faqs.map((f, i) => (
+                    <details key={i} className="group border border-[#EBEBEB] rounded-2xl overflow-hidden bg-white">
+                      <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-3 text-sm font-semibold text-[#222222]">
+                        <span>{f.q}</span>
+                        <span className="text-[#717171] group-open:rotate-45 transition-transform text-lg leading-none flex-shrink-0">+</span>
+                      </summary>
+                      <div className="px-5 pb-5 text-sm text-[#555] leading-relaxed">{f.a}</div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <Footer />
+      </div>
+    )
+  }
+
+  // ── Individual builder profile page ───────────────────────────────────────
   const builder = await getBuilderBySlugFromDB(slug, locale)
   if (!builder) notFound()
 

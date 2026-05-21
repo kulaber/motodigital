@@ -89,6 +89,10 @@ export const routing = defineRouting({
     '/rider': '/rider',
     '/rider/[slug]': '/rider/[slug]',
     '/partner': '/partner',
+    '/motorrad-umbau': {
+      de: '/motorrad-umbau',
+      en: '/motorcycle-customization',
+    },
     '/faq': '/faq',
     '/support': '/support',
     '/landing': '/landing',
