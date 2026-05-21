@@ -8,6 +8,7 @@ import { getSearchDefaults } from '@/lib/actions/search'
 export const metadata: Metadata = {
   title: 'Suche — MotoDigital',
   description: 'Finde Custom Bikes, Werkstätten und Rider auf MotoDigital.',
+  robots: { index: false, follow: false },
 }
 
 export default async function SearchPage({

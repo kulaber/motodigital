@@ -4,7 +4,7 @@ import VerifyEmailGate from './VerifyEmailGate'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Auth')
-  return { title: t('verifyPageTitle') }
+  return { title: t('verifyPageTitle'), robots: { index: false, follow: false } }
 }
 
 interface Props {

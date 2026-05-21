@@ -26,6 +26,7 @@ type StaticHref =
   | '/impressum'
   | '/datenschutz'
   | '/nutzungsbedingungen'
+  | '/support'
 
 type Freq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 
@@ -95,6 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/impressum',                 now, 'yearly',  0.3),
     localizedEntry('/datenschutz',               now, 'yearly',  0.3),
     localizedEntry('/nutzungsbedingungen',       now, 'yearly',  0.3),
+    localizedEntry('/support',                   now, 'monthly', 0.4),
   ]
 
   // `getPathname` honours routing.localePrefix ('as-needed') — default
