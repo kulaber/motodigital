@@ -38,8 +38,41 @@ export default async function EventsPage() {
     location:    localizedText(e.location_i18n,    locale, e.location),
   }))
 
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
+
+  const eventListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: t('heading'),
+    url: `${BASE_URL}/events`,
+    numberOfItems: events.length,
+    itemListElement: events.slice(0, 30).map((e, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${BASE_URL}/events/${e.slug}`,
+      name: e.name,
+    })),
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: t('heading'), item: `${BASE_URL}/events` },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventListLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Header activePage="events" />
 
       {/* Hero */}
