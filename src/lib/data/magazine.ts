@@ -594,7 +594,7 @@ export const ARTICLES: Article[] = [
       'Von der Rahmenprüfung bis zur Zulassung — unser vollständiger Leitfaden für Custom-Bike-Käufer.',
     coverImage:
       'https://images.unsplash.com/photo-1568708167243-438efa1d7697?w=1200&q=85',
-    publishedAt: '2025-11-15',
+    publishedAt: '2026-02-27',
     readTime: '15 min',
     author: 'MotoDigital Redaktion',
     tags: ['Cafe Racer', 'Kaufratgeber', 'Custom Motorcycle', 'TÜV', 'Deutschland'],
@@ -665,7 +665,7 @@ export const ARTICLES: Article[] = [
       'Der Berliner Builder über luftgekühlte Japaner, handgefertigte Einzelstücke und warum er jeden Build als Zusammenarbeit versteht.',
     coverImage:
       'https://images.unsplash.com/photo-1522850003946-16cb11d41a86?w=1200&q=85',
-    publishedAt: '2025-10-20',
+    publishedAt: '2026-02-20',
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Interview', 'Cafe Racer', 'Builder', 'Berlin', 'Honda CB750'],
@@ -728,7 +728,7 @@ export const ARTICLES: Article[] = [
       'Ein 1976er Shovelhead, 16 Monate Arbeit und eine klare Haltung: Old School ist keine Nostalgie.',
     coverImage:
       'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
-    publishedAt: '2025-09-08',
+    publishedAt: '2026-02-13',
     readTime: '10 min',
     author: 'MotoDigital Redaktion',
     tags: ['Build Story', 'Chopper', 'Harley-Davidson', 'Shovelhead', 'Stuttgart'],
@@ -797,7 +797,7 @@ export const ARTICLES: Article[] = [
       'Beide Stile sind vielseitig — aber der Unterschied liegt im Detail. Wir erklären, was dich erwartet.',
     coverImage:
       'https://images.unsplash.com/photo-1582092722992-b2f960bafbfb?w=1200&q=85',
-    publishedAt: '2025-08-22',
+    publishedAt: '2026-02-06',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
     tags: ['Scrambler', 'Tracker', 'Kaufratgeber', 'Custom Motorcycle', 'Vergleich'],
@@ -866,7 +866,7 @@ export const ARTICLES: Article[] = [
       'Der Münchner Builder über Bobber-Philosophie, handlackierte Tanks und warum er nie Kompromisse eingeht.',
     coverImage:
       'https://images.unsplash.com/photo-1609202748711-feef2cdc7da3?w=1200&q=85',
-    publishedAt: '2025-07-14',
+    publishedAt: '2026-01-30',
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Interview', 'Bobber', 'Builder', 'München', 'BMW R-Serie'],
@@ -929,7 +929,7 @@ export const ARTICLES: Article[] = [
       'Das Hamburger Duo über Hafenluft, schlanke Builds und die Kunst des Weglassens.',
     coverImage:
       'https://images.unsplash.com/photo-1629628083289-009e6f87f5cf?w=1200&q=85',
-    publishedAt: '2025-06-03',
+    publishedAt: '2026-05-10',
     readTime: '9 min',
     author: 'MotoDigital Redaktion',
     tags: ['Build Story', 'Street', 'Suzuki', 'Hamburg', 'Custom'],
