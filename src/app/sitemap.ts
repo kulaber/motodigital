@@ -57,9 +57,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [{ data: builders }, { data: bikes }, { data: riders }, { data: events }, { data: brands }] = await Promise.all([
     (supabase.from('profiles') as any)
-      .select('slug, created_at')
+      .select('slug, created_at, updated_at')
       .eq('role', 'custom-werkstatt')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
+      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string; updated_at?: string }[] | null }>,
     supabase
       .from('bikes')
       .select('id, slug, title, updated_at')
@@ -157,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
     return {
       url: urls[routing.defaultLocale],
-      lastModified: b.created_at ? new Date(b.created_at) : now,
+      lastModified: b.updated_at ? new Date(b.updated_at) : b.created_at ? new Date(b.created_at) : now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
       alternates: { languages: urls },

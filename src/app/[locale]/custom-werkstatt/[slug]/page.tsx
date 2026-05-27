@@ -336,7 +336,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!builder) return {}
 
   const title = `${builder.name} — Custom Werkstatt auf MotoDigital`
-  const description = builder.bioLong || builder.bio || `${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}. Builds, Leistungen und Direktkontakt auf MotoDigital.`
+  const rawBio = builder.bio
+    || (builder.bioLong ? builder.bioLong.slice(0, 130).trimEnd() + (builder.bioLong.length > 130 ? '…' : '') : null)
+  const topTags = builder.tags.slice(0, 3).join(', ')
+  const fallbackDesc = `${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}${topTags ? `. ${topTags}` : ''}. Portfolio und Direktkontakt auf MotoDigital.`
+  const description = rawBio || fallbackDesc
   const url = `${BASE_URL}/custom-werkstatt/${slug}`
   const coverImage = builder.media.find(m => m.type === 'image')?.url
 
@@ -532,6 +536,15 @@ export default async function BuilderProfilePage({ params }: Props) {
 
   const coverImage = builder.media.find(m => m.type === 'image')
 
+  // German day abbreviations → schema.org format (ISO 8601 day names)
+  const DE_DAY: Record<string, string> = { Mo: 'Mo', Di: 'Tu', Mi: 'We', Do: 'Th', Fr: 'Fr', Sa: 'Sa', So: 'Su' }
+  function mapDayToSchema(day: string) {
+    return day.replace(/\b(Mo|Di|Mi|Do|Fr|Sa|So)\b/g, m => DE_DAY[m] ?? m)
+  }
+  const openingHoursSchema = builder.openingHours
+    ?.filter(h => h.hours && h.hours !== 'Geschlossen' && h.hours !== 'Nur nach Vereinbarung')
+    .map(h => `${mapDayToSchema(h.day)} ${h.hours.replace(/\s*[–-]\s*/, '-')}`)
+
   // JSON-LD: LocalBusiness
   const localBusinessJsonLd = {
     '@context': 'https://schema.org',
@@ -542,6 +555,8 @@ export default async function BuilderProfilePage({ params }: Props) {
     ...(coverImage && { image: coverImage.url }),
     ...(builder.address && { address: { '@type': 'PostalAddress', streetAddress: builder.address } }),
     ...(builder.lat && builder.lng && { geo: { '@type': 'GeoCoordinates', latitude: builder.lat, longitude: builder.lng } }),
+    ...(builder.city && { areaServed: builder.city }),
+    ...(openingHoursSchema && openingHoursSchema.length > 0 && { openingHours: openingHoursSchema }),
     ...((builder.instagram || builder.youtube) && { sameAs: [
       ...(builder.instagram ? [`https://instagram.com/${builder.instagram.replace('@', '')}`] : []),
       ...(builder.youtube ? [builder.youtube.startsWith('http') ? builder.youtube : `https://youtube.com/${builder.youtube}`] : []),
@@ -555,7 +570,7 @@ export default async function BuilderProfilePage({ params }: Props) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'MotoDigital', item: BASE_URL },
       { '@type': 'ListItem', position: 2, name: 'Custom Werkstatt', item: `${BASE_URL}/custom-werkstatt` },
-      { '@type': 'ListItem', position: 3, name: builder.name },
+      { '@type': 'ListItem', position: 3, name: builder.name, item: `${BASE_URL}/custom-werkstatt/${slug}` },
     ],
   }
 
@@ -822,7 +837,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               {builder.galleryImages && builder.galleryImages.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
                   <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Werkstatt-Insights</h2>
-                  <GallerySlider images={builder.galleryImages} />
+                  <GallerySlider images={builder.galleryImages} workshopName={builder.name} />
                 </div>
               )}
 

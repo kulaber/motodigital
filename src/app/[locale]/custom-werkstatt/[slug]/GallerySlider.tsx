@@ -93,7 +93,7 @@ function GalleryModal({ images, startIndex, onClose }: { images: GalleryImage[];
 }
 
 /* ── Slider ── */
-export default function GallerySlider({ images }: { images: GalleryImage[] }) {
+export default function GallerySlider({ images, workshopName }: { images: GalleryImage[]; workshopName?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [modalIndex, setModalIndex] = useState<number | null>(null)
 
@@ -123,7 +123,7 @@ export default function GallerySlider({ images }: { images: GalleryImage[] }) {
             >
               <NextImage
                 src={img.url}
-                alt={img.title ?? `Werkstatt-Bild ${i + 1}`}
+                alt={img.title ?? (workshopName ? `${workshopName} — Werkstatt-Einblick ${i + 1}` : `Werkstatt-Einblick ${i + 1}`)}
                 fill
                 sizes="(max-width: 640px) 85vw, (max-width: 1024px) 60vw, 48vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
