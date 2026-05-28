@@ -31,8 +31,8 @@ export default function RegisterForm({ initialRole, onRoleChange }: { initialRol
     { text: t('workshopBenefit1') },
     { text: t('workshopBenefit2') },
     { text: t('workshopBenefit3') },
-    { text: t('workshopBenefit4'), badge: t('proBadge') },
-    { text: t('workshopBenefit5'), badge: t('proBadge') },
+    { text: t('workshopBenefit4') },
+    { text: t('workshopBenefit5') },
   ]
 
   const RIDER_BENEFITS = [
