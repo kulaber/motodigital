@@ -37,8 +37,7 @@ export default async function RiderOverviewPage() {
     (supabase.from('profiles') as any)
       .select('id, full_name, slug, username, city, address, avatar_url, riding_style, last_seen_at')
       .eq('role', 'rider')
-      .order('created_at', { ascending: false })
-      .limit(50),
+      .order('created_at', { ascending: false }),
     supabase
       .from('bikes')
       .select('seller_id, style'),
