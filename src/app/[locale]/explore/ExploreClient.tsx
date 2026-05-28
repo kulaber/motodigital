@@ -16,6 +16,7 @@ import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { getProfileUrl } from '@/lib/utils/profileLink'
 import RiderList from '@/components/explore/RiderStories'
+import { sendEmailNotification } from '@/lib/actions/notifications'
 import { useAuth } from '@/hooks/useAuth'
 import LazyMap from '@/components/map/LazyMap'
 import LazyRideMap from '@/components/map/LazyRideMap'
@@ -322,6 +323,7 @@ function CommunityPostCard({ post, onLike, loggedIn, userId, isSuperadmin, onDel
       if (inserted) {
         // Replace temp id with real id
         setComments(prev => prev.map(c => c.id === tempId ? { ...c, id: inserted.id } : c))
+        sendEmailNotification({ type: 'comment', actorId: userId, postId: post.id, commentBody: text }).catch(() => {})
       }
     } catch {
       // Table may not exist yet — comment stays in local state
@@ -1021,6 +1023,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
 
     if (optimistic) {
       await (supabase.from('community_post_likes') as any).insert({ post_id: postId, user_id: userId })
+      sendEmailNotification({ type: 'like', actorId: userId, postId }).catch(() => {})
     } else {
       await (supabase.from('community_post_likes') as any).delete().eq('post_id', postId).eq('user_id', userId)
     }

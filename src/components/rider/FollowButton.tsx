@@ -5,6 +5,7 @@ import { UserPlus, UserCheck, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { sendEmailNotification } from '@/lib/actions/notifications'
 
 interface Props {
   riderId: string
@@ -50,6 +51,7 @@ export default function FollowButton({ riderId }: Props) {
       await (supabase.from('followers') as any)
         .insert({ follower_id: user.id, following_id: riderId })
       setIsFollowing(true)
+      sendEmailNotification({ type: 'follow', actorId: user.id, recipientId: riderId }).catch(() => {})
     }
     setLoading(false)
   }

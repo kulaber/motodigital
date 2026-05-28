@@ -76,8 +76,8 @@ export default function RegisterForm({ initialRole, onRoleChange }: { initialRol
       .update({ invited_at: new Date().toISOString() })
       .eq('email', email)
 
-    // Notify superadmin (non-blocking)
-    notifyNewRegistration({ name, email, role })
+    // Notify superadmin (await so navigation doesn't abort the request)
+    await notifyNewRegistration({ name, email, role })
 
     toast.success(t('toastCheckMails'))
     router.push('/verify-email?email=' + encodeURIComponent(email))

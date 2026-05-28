@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
+import { sendEmailNotification } from '@/lib/actions/notifications'
 
 type Message = Database['public']['Tables']['messages']['Row']
 
@@ -64,6 +65,8 @@ export function useMessages(conversationId: string) {
       await (supabase.from('conversations') as any)
         .update({ last_message_at: (data as Message).created_at })
         .eq('id', conversationId)
+      // Fire-and-forget email notification to the other participant
+      sendEmailNotification({ type: 'message', actorId: senderId, conversationId }).catch(() => {})
     }
 
     return { error }
