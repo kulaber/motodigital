@@ -2,7 +2,6 @@
 
 import { Resend } from 'resend'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import { createClient } from '@/lib/supabase/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
@@ -40,17 +39,13 @@ export async function sendEmailNotification(params: {
     const { type, actorId, postId, conversationId, commentBody } = params
     let { recipientId } = params
 
-    // Verify caller identity server-side
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.id !== actorId) return
-
     const admin = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Derive recipient from DB context (never trust client-sent recipientId for like/comment)
+    // Recipient for like/comment is always fetched from DB (never trusted from client)
+    // Recipient for follow is passed directly as riderId (already a validated user ID)
     if ((type === 'like' || type === 'comment') && postId) {
       const { data: post } = await (admin.from('community_posts') as any)
         .select('user_id')
