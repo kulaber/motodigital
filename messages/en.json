@@ -283,7 +283,7 @@
       },
       "1": {
         "q": "How much does MotoDigital cost?",
-        "a": "Getting started is free for both riders and workshops (FREE plan). Workshops can upgrade to Founding Partner (€39/month, only 10 seats) or PRO (€79/month) — with logo, gallery, priority listing and up to 10 custom bike uploads."
+        "a": "MotoDigital is free — for riders and workshops alike. The first 100 workshops become Founding Members and get all PRO features free until end of 2026."
       },
       "2": {
         "q": "Which countries does MotoDigital cover?",
@@ -448,41 +448,20 @@
     }
   },
   "Benefits": {
-    "metaTitle": "Membership & Pricing — MotoDigital",
-    "metaDescription": "Membership and pricing for custom workshops and riders on MotoDigital.",
-    "heading": "Membership & Pricing",
+    "metaTitle": "For Workshops & Riders — MotoDigital",
+    "metaDescription": "Become a Founding Member and get all PRO features free until end of 2026.",
+    "heading": "Membership",
     "workshopTab": "Custom Workshop",
     "riderTab": "Rider",
-    "workshopHeading": "For custom workshops",
     "riderHeading": "MotoDigital is free for riders.",
-    "registerWorkshop": "Sign up as a workshop for free",
+    "registerWorkshop": "Start free as a workshop",
     "registerRider": "Sign up as a rider for free",
-    "foundingPartner": "Become a Founding Partner",
-    "heroSubtitle": "Whether you're a custom workshop or a rider — find the right plan for you.",
-    "choosePlan": "Choose your plan.",
-    "perMonth": "/month",
-    "redirecting": "Redirecting...",
-    "disclaimer": "After 12 months the plan switches automatically to PRO (€79/month). Cancel anytime.",
-    "freePlan": {
-      "kicker": "Basic",
-      "title": "FREE",
-      "price": "€0",
-      "desc": "For getting started — free forever",
-      "bullets": {
-        "0": "Visible on the map",
-        "1": "1 custom bike (for sale or showcase)",
-        "2": "Add logo & cover image",
-        "3": "Add a description",
-        "4": "No services or build styles",
-        "5": "No contact button",
-        "6": "No analytics dashboard"
-      }
-    },
+    "foundingPartner": "Start free as a workshop",
+    "heroSubtitle": "Become a Founding Member — all PRO features free until end of 2026.",
+    "disclaimer": "The first 100 workshops become Founding Members — with a lasting benefit after 2026.",
     "foundingPartnerPlan": {
-      "title": "FOUNDING PARTNER",
-      "price": "€39",
-      "desc": "For the first 10 workshops · €39/mo for 12 months, then €79/mo",
-      "scarcity": "Only 10 of 10 seats left",
+      "title": "FOUNDING MEMBER",
+      "desc": "Free until end of 2026 — all PRO features included",
       "bullets": {
         "0": "Unlimited custom bikes (for sale & showcase)",
         "1": "Services & build styles on your profile",
@@ -490,7 +469,7 @@
         "3": "Analytics dashboard with visitor data",
         "4": "Logo, cover image & description",
         "5": "Visible on the map",
-        "6": "Founding Partner badge",
+        "6": "Founding Member badge",
         "7": "All future PRO features included"
       }
     },
@@ -510,19 +489,18 @@
     "metaTitle": "Become a partner — MotoDigital",
     "metaDescription": "List your workshop, book advertising space or start a partnership — become a partner of MotoDigital.",
     "kicker": "Founding Partner Program",
-    "heading": "Become one of the first 10 partners",
-    "foundingPartnerTitle": "Founding Partner",
-    "foundingPartnerCta": "Become a Founding Partner now — 39 €/mo",
-    "foundingPartnerSoldOut": "All 10 seats taken",
+    "heading": "Become one of the first 100 Founding Members",
+    "foundingPartnerTitle": "Founding Member",
+    "foundingPartnerCta": "Start free as a workshop",
+    "foundingPartnerSoldOut": "All 100 seats taken",
     "adsTitle": "Book advertising space",
     "adsCta": "Request media kit",
     "coopTitle": "Partnerships & media",
     "coopCta": "Get in touch",
     "contactKicker": "Direct inquiry",
-    "heroSubtitle": "Secure one of the limited Founding Partner seats for your workshop — €39/mo for 12 months, then automatically PRO (€79/mo). Cancel anytime.",
-    "foundingPartnerBody": "Your workshop on MotoDigital — with logo, gallery, top placement and an exclusive Founding Partner badge. €39/mo for 12 months, then €79/mo (PRO).",
-    "slotsRemaining": "{slots} of 10 seats still available",
-    "redirectingStripe": "Redirecting to Stripe...",
+    "heroSubtitle": "The first 100 workshops become Founding Members — all PRO features free until end of 2026.",
+    "foundingPartnerBody": "Your workshop on MotoDigital — with logo, gallery, top placement and an exclusive Founding Member badge. Free until end of 2026.",
+    "slotsRemaining": "{slots} of 100 seats still available",
     "cards": {
       "ads": {
         "body": "Reach thousands of custom enthusiasts with targeted placements — on the homepage, Explore page or in the newsletter."
@@ -683,8 +661,8 @@
     "duoSubtitle": "Tailored for custom workshops and the community behind them.",
     "duoWerkstattBadge": "Workshop",
     "duoWerkstattHeading": "Be part of the new platform for custom workshops.",
-    "duoWerkstattText": "Start free with your workshop profile. Upgrade to Founding Partner (€39/mo) for logo, gallery & priority listing.",
-    "duoWerkstattNote": "Founding Partner: 10 seats only · €79/mo (PRO) afterwards",
+    "duoWerkstattText": "Become a Founding Member — all PRO features free until end of 2026. Only 100 seats available.",
+    "duoWerkstattNote": "Founding Member: 100 seats · all PRO features included",
     "duoWerkstattCta": "Start for free",
     "duoWerkstattMore": "Learn more",
     "duoRiderBadge": "Rider",

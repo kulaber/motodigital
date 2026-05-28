@@ -12,19 +12,17 @@ type Props = {
 }
 
 const TIER_LABELS: Record<string, string> = {
-  free: 'Free',
-  founding_partner: 'Founding Partner',
+  free: 'Founding Member',
+  founding_partner: 'Founding Member',
   pro: 'Pro',
 }
 
 export default function SubscriptionSection({ subscriptionTier, subscriptionStartedAt, subscriptionCancelAt, hasStripeCustomer }: Props) {
   const [loading, setLoading] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
   const { toasts, error } = useToast()
 
-  const isPaid = subscriptionTier !== 'free'
   const tierLabel = TIER_LABELS[subscriptionTier] ?? subscriptionTier
-  const isCancelling = isPaid && !!subscriptionCancelAt
+  const isCancelling = hasStripeCustomer && !!subscriptionCancelAt
 
   async function openPortal() {
     setLoading(true)
@@ -42,71 +40,38 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
     setLoading(false)
   }
 
-  async function handleCheckout() {
-    setCheckoutLoading(true)
-    try {
-      const res = await fetch('/api/checkout', { method: 'POST' })
-      const text = await res.text()
-      let data
-      try {
-        data = JSON.parse(text)
-      } catch {
-        console.error('[Checkout] Non-JSON response:', text.substring(0, 500))
-        error('Server-Fehler. Bitte versuche es erneut.')
-        setCheckoutLoading(false)
-        return
-      }
-      if (res.ok && data.url) {
-        window.location.href = data.url
-        return
-      }
-      error(data.error || 'Fehler beim Checkout')
-    } catch (err) {
-      console.error('[Checkout] Fetch error:', err)
-      error('Verbindungsfehler. Bitte versuche es erneut.')
-    }
-    setCheckoutLoading(false)
-  }
-
   return (
     <>
       <div className="bg-white border border-[#222222]/6 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-sm font-semibold text-[#222222] mb-5">Abo & Abrechnung</h2>
+        <h2 className="text-sm font-semibold text-[#222222] mb-5">Mitgliedschaft</h2>
 
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              {isPaid && <Crown size={14} className="text-[#06a5a5]" />}
+              <Crown size={14} className="text-[#06a5a5]" />
               <span className="text-sm font-semibold text-[#222222]">{tierLabel}</span>
-              {isPaid && (
-                <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                  isCancelling
-                    ? 'bg-amber-500/10 text-amber-600'
-                    : 'bg-[#06a5a5]/10 text-[#06a5a5]'
-                }`}>
-                  {isCancelling ? 'Wird gekündigt' : 'Aktiv'}
-                </span>
-              )}
+              <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                isCancelling
+                  ? 'bg-amber-500/10 text-amber-600'
+                  : 'bg-[#06a5a5]/10 text-[#06a5a5]'
+              }`}>
+                {isCancelling ? 'Wird gekündigt' : 'Aktiv'}
+              </span>
             </div>
-            {isPaid && isCancelling && (
+            {isCancelling && (
               <p className="text-xs text-amber-600">
                 Aktiv bis {new Date(subscriptionCancelAt!).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })} — danach endet dein Abo.
               </p>
             )}
-            {isPaid && !isCancelling && subscriptionStartedAt && (
+            {!isCancelling && subscriptionStartedAt && hasStripeCustomer && (
               <p className="text-xs text-[#222222]/40">
                 Mitglied seit {new Date(subscriptionStartedAt).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-              </p>
-            )}
-            {!isPaid && (
-              <p className="text-xs text-[#222222]/40">
-                Basis-Zugang — upgrade jederzeit möglich
               </p>
             )}
           </div>
         </div>
 
-        {isPaid && hasStripeCustomer ? (
+        {hasStripeCustomer ? (
           <button
             onClick={openPortal}
             disabled={loading}
@@ -121,27 +86,10 @@ export default function SubscriptionSection({ subscriptionTier, subscriptionStar
           </button>
         ) : (
           <div className="border border-[#06a5a5]/15 rounded-xl p-5 bg-[#06a5a5]/[0.03]">
-            <ul className="text-xs text-[#222222]/50 mb-4 space-y-1.5 leading-relaxed">
-              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Unbegrenzte Custom Bikes (Verkauf & Showcase)</li>
-              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Leistungen & Umbaustile auf deinem Profil</li>
-              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Kontaktieren-Button für Direktanfragen</li>
-              <li className="flex items-start gap-2"><span className="text-[#06a5a5] mt-0.5">✓</span> Analytics Dashboard mit Besucherdaten</li>
-            </ul>
-            <p className="text-[11px] font-semibold text-[#06a5a5] mb-4">Nur 10 von 10 Founding Partner Plätzen verfügbar</p>
-            <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="inline-flex items-center gap-2 bg-[#06a5a5] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#058f8f] transition-colors disabled:opacity-50"
-            >
-              {checkoutLoading ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Weiterleitung...
-                </>
-              ) : (
-                <>Jetzt upgraden — <span className="line-through opacity-60">79 €</span> 39 €/Monat</>
-              )}
-            </button>
+            <p className="text-sm font-semibold text-[#222222] mb-1">Alle PRO-Features kostenlos bis Ende 2026</p>
+            <p className="text-xs text-[#222222]/40 leading-relaxed">
+              Du bist Founding Member — unbegrenzte Bikes, Analytics, Kontaktieren-Button und alle zukünftigen Features inklusive.
+            </p>
           </div>
         )}
       </div>

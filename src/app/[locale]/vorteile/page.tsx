@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
+import { createClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import VorteileTabs from './VorteileTabs'
@@ -22,6 +23,11 @@ export default async function VorteilePage({
   const initialTab = tab === 'rider' ? 'rider' : 'werkstatt'
   const t = await getTranslations('Benefits')
 
+  const supabase = await createClient()
+  const { count } = await (supabase.from('workshops') as any)
+    .select('id', { count: 'exact', head: true })
+  const slotsUsed = count ?? 0
+
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header />
@@ -41,7 +47,7 @@ export default async function VorteilePage({
         </div>
       </section>
 
-      <VorteileTabs initialTab={initialTab} />
+      <VorteileTabs initialTab={initialTab} slotsUsed={slotsUsed} />
 
       <Footer />
     </div>

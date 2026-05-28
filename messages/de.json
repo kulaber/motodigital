@@ -283,7 +283,7 @@
       },
       "1": {
         "q": "Was kostet MotoDigital?",
-        "a": "Für Rider und Werkstätten ist der Einstieg kostenlos (FREE-Plan). Werkstätten können auf Founding Partner (€39/Monat, nur 10 Plätze) oder PRO (€79/Monat) upgraden — mit Logo, Galerie, Prio-Listung und bis zu 10 Custom Bike Uploads."
+        "a": "MotoDigital ist kostenlos — für Rider und Werkstätten. Die ersten 100 Werkstätten werden Founding Members und erhalten alle PRO-Features kostenlos bis Ende 2026."
       },
       "2": {
         "q": "In welchen Ländern ist MotoDigital verfügbar?",
@@ -448,41 +448,20 @@
     }
   },
   "Benefits": {
-    "metaTitle": "Mitgliedschaft & Preise — MotoDigital",
-    "metaDescription": "Mitgliedschaft und Preise für Custom-Werkstätten und Rider auf MotoDigital.",
-    "heading": "Mitgliedschaft & Preise",
+    "metaTitle": "Für Werkstätten & Rider — MotoDigital",
+    "metaDescription": "Werde Founding Member und erhalte alle PRO-Features kostenlos bis Ende 2026.",
+    "heading": "Mitgliedschaft",
     "workshopTab": "Custom Werkstatt",
     "riderTab": "Rider",
-    "workshopHeading": "Für Custom-Werkstätten",
     "riderHeading": "Für Rider ist MotoDigital kostenlos.",
-    "registerWorkshop": "Kostenlos als Werkstatt registrieren",
+    "registerWorkshop": "Jetzt kostenlos als Werkstatt starten",
     "registerRider": "Kostenlos als Rider registrieren",
-    "foundingPartner": "Founding Partner werden",
-    "heroSubtitle": "Ob Custom Werkstatt oder Rider — finde den passenden Plan für dich.",
-    "choosePlan": "Wähle deinen Plan.",
-    "perMonth": "/Monat",
-    "redirecting": "Weiterleitung...",
-    "disclaimer": "Nach Ablauf der 12 Monate wechselt der Plan automatisch auf PRO (€79/Monat). Jederzeit kündbar.",
-    "freePlan": {
-      "kicker": "Basis",
-      "title": "FREE",
-      "price": "€0",
-      "desc": "Für den Einstieg — dauerhaft kostenlos",
-      "bullets": {
-        "0": "In der Map sichtbar",
-        "1": "1 Custom Bike (Verkauf oder Showcase)",
-        "2": "Logo & Titelbild hinzufügen",
-        "3": "Beschreibungstext hinzufügen",
-        "4": "Keine Leistungen & Umbaustile",
-        "5": "Kein Kontaktieren-Button",
-        "6": "Kein Analytics Dashboard"
-      }
-    },
+    "foundingPartner": "Jetzt kostenlos als Werkstatt starten",
+    "heroSubtitle": "Werde Founding Member — alle PRO-Features kostenlos bis Ende 2026.",
+    "disclaimer": "Die ersten 100 Werkstätten werden Founding Members — mit dauerhaftem Vorteil nach 2026.",
     "foundingPartnerPlan": {
-      "title": "FOUNDING PARTNER",
-      "price": "€39",
-      "desc": "Für die ersten 10 Werkstätten · €39/Mo für 12 Monate, danach €79/Mo",
-      "scarcity": "Nur noch 10 von 10 Plätzen frei",
+      "title": "FOUNDING MEMBER",
+      "desc": "Kostenlos bis Ende 2026 — alle PRO-Features inklusive",
       "bullets": {
         "0": "Unbegrenzte Custom Bikes (Verkauf & Showcase)",
         "1": "Leistungen & Umbaustile auf deinem Profil",
@@ -490,7 +469,7 @@
         "3": "Analytics Dashboard mit Besucherdaten",
         "4": "Logo, Titelbild & Beschreibungstext",
         "5": "In der Map sichtbar",
-        "6": "Founding Partner Badge",
+        "6": "Founding Member Badge",
         "7": "Alle zukünftigen PRO-Features inklusive"
       }
     },
@@ -510,19 +489,18 @@
     "metaTitle": "Partner werden — MotoDigital",
     "metaDescription": "Werkstatt kostenlos eintragen, Werbefläche buchen oder Kooperation starten — werde Partner von MotoDigital.",
     "kicker": "Founding Partner Programm",
-    "heading": "Werde einer der ersten 10 Partner",
-    "foundingPartnerTitle": "Founding Partner",
-    "foundingPartnerCta": "Jetzt Founding Partner werden — 39 €/Mo",
-    "foundingPartnerSoldOut": "Alle 10 Plätze vergeben",
+    "heading": "Werde eines der ersten 100 Founding Members",
+    "foundingPartnerTitle": "Founding Member",
+    "foundingPartnerCta": "Jetzt kostenlos als Werkstatt starten",
+    "foundingPartnerSoldOut": "Alle 100 Plätze vergeben",
     "adsTitle": "Werbefläche buchen",
     "adsCta": "Media Kit anfragen",
     "coopTitle": "Kooperation & Medien",
     "coopCta": "Kontakt aufnehmen",
     "contactKicker": "Direkte Anfrage",
-    "heroSubtitle": "Sichere dir als Werkstatt einen der limitierten Founding Partner Plätze — €39/Mo für 12 Monate, danach automatisch PRO (€79/Mo). Jederzeit kündbar.",
-    "foundingPartnerBody": "Deine Werkstatt auf MotoDigital — mit Logo, Galerie, Top-Platzierung und exklusivem Founding Partner Badge. €39/Mo für 12 Monate, danach €79/Mo (PRO).",
-    "slotsRemaining": "{slots} von 10 Plätzen noch verfügbar",
-    "redirectingStripe": "Weiterleitung zu Stripe...",
+    "heroSubtitle": "Die ersten 100 Werkstätten werden Founding Members — alle PRO-Features kostenlos bis Ende 2026.",
+    "foundingPartnerBody": "Deine Werkstatt auf MotoDigital — mit Logo, Galerie, Top-Platzierung und exklusivem Founding Member Badge. Kostenlos bis Ende 2026.",
+    "slotsRemaining": "{slots} von 100 Plätzen noch verfügbar",
     "cards": {
       "ads": {
         "body": "Erreiche tausende Custom-Enthusiasten gezielt — auf der Startseite, Explore-Page oder im Newsletter."
@@ -683,8 +661,8 @@
     "duoSubtitle": "Maßgeschneidert für Custom-Werkstätten und die Community dahinter.",
     "duoWerkstattBadge": "Werkstatt",
     "duoWerkstattHeading": "Werde Teil der neuen Plattform für Custom-Werkstätten.",
-    "duoWerkstattText": "Starte kostenlos mit deinem Werkstattprofil. Upgrade auf Founding Partner (€39/Mo) für Logo, Galerie & Prio-Listung.",
-    "duoWerkstattNote": "Founding Partner: nur 10 Plätze · danach €79/Monat (PRO)",
+    "duoWerkstattText": "Werde Founding Member — alle PRO-Features kostenlos bis Ende 2026. Nur 100 Plätze verfügbar.",
+    "duoWerkstattNote": "Founding Member: 100 Plätze · alle PRO-Features inklusive",
     "duoWerkstattCta": "Kostenlos starten",
     "duoWerkstattMore": "Mehr erfahren",
     "duoRiderBadge": "Rider",
