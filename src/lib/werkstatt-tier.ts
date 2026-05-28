@@ -1,3 +1,4 @@
-export function isPremium(tier: string | null | undefined): boolean {
-  return tier === 'founding_partner' || tier === 'pro'
+// Founding period until end of 2026 — all workshops have full access
+export function isPremium(_tier: string | null | undefined): boolean {
+  return true
 }
