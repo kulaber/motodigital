@@ -1073,7 +1073,7 @@ export const ARTICLES: Article[] = [
     categoryLabel: 'Guide',
     excerpt:
       'Nicht jede Werkstatt ist für jeden Umbau geeignet. Diese 7 Kriterien helfen dir, die richtige Custom-Werkstatt für dein Projekt zu finden.',
-    coverImage: 'https://images.unsplash.com/photo-1504817343863-5092a923803e?w=1200&q=85',
+    coverImage: 'https://images.unsplash.com/photo-yVcH5GJlTyY?w=1200&q=85',
     publishedAt: '2026-05-21',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
@@ -1309,7 +1309,7 @@ export const ARTICLES: Article[] = [
     categoryLabel: 'Guide',
     excerpt:
       'Der Street Fighter ist das aggressivste Kind der Custom-Szene — eine Sport- oder Superbike-Basis, entkleidet und aufgewühlt. Was ihn ausmacht und welche Basen sich eignen.',
-    coverImage: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=1200&q=85',
+    coverImage: 'https://images.unsplash.com/photo-TtUAbxQs_CY?w=1200&q=85',
     publishedAt: '2026-05-21',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
