@@ -1073,7 +1073,7 @@ export const ARTICLES: Article[] = [
     categoryLabel: 'Guide',
     excerpt:
       'Nicht jede Werkstatt ist für jeden Umbau geeignet. Diese 7 Kriterien helfen dir, die richtige Custom-Werkstatt für dein Projekt zu finden.',
-    coverImage: 'https://images.unsplash.com/photo-yVcH5GJlTyY?w=1200&q=85',
+    coverImage: 'https://images.unsplash.com/photo-1490040294057-084081e0a643?w=1200&q=85',
     publishedAt: '2026-05-21',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
@@ -1153,7 +1153,7 @@ export const ARTICLES: Article[] = [
     categoryLabel: 'Guide',
     excerpt:
       'Der Auspuff ist eine der wirkungsvollsten Modifikationen am Custom Bike — und eine der rechtlich sensibelsten. Was ABE bedeutet, wann TÜV-Eintragung nötig ist und was ein custom Auspuff wirklich kostet.',
-    coverImage: 'https://images.unsplash.com/photo-gjSmaZcFy8k?w=1200&q=85',
+    coverImage: 'https://images.unsplash.com/photo-1769537754889-8d731b83547f?w=1200&q=85',
     publishedAt: '2026-05-29',
     readTime: '9 min',
     author: 'MotoDigital Redaktion',
@@ -1211,7 +1211,7 @@ export const ARTICLES: Article[] = [
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-2pye-SDKLiI?w=1200&q=85',
+        src: 'https://images.unsplash.com/photo-1660159523481-4058153e1bf3?w=1200&q=85',
         caption: 'Handgefertigte Auspuffanlage am Custom Scrambler — schön, aber nur mit Eintragung legal.',
       },
       { type: 'h2', text: 'So läuft die TÜV-Eintragung ab' },
@@ -1309,7 +1309,7 @@ export const ARTICLES: Article[] = [
     categoryLabel: 'Guide',
     excerpt:
       'Der Street Fighter ist das aggressivste Kind der Custom-Szene — eine Sport- oder Superbike-Basis, entkleidet und aufgewühlt. Was ihn ausmacht und welche Basen sich eignen.',
-    coverImage: 'https://images.unsplash.com/photo-TtUAbxQs_CY?w=1200&q=85',
+    coverImage: 'https://images.unsplash.com/photo-1730755372556-653fbe52c15e?w=1200&q=85',
     publishedAt: '2026-05-21',
     readTime: '7 min',
     author: 'MotoDigital Redaktion',
