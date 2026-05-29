@@ -1142,7 +1142,163 @@ export const ARTICLES: Article[] = [
     ],
   },
 
-  // ── I: Street Fighter Motorrad ───────────────────────────────────────────
+  // ── I: Custom Auspuff ────────────────────────────────────────────────────
+  {
+    slug: 'custom-auspuff-eintragung-kosten',
+    title: 'Custom Auspuff: Eintragung, Kosten und die besten Hersteller 2026',
+    metaTitle: 'Custom Auspuff Eintragung — Kosten, Regeln & Hersteller Deutschland',
+    metaDescription:
+      'Custom Auspuff legal eingetragen: Was ABE bedeutet, wann TÜV-Abnahme nötig ist, was Slip-On und Komplettanlage kosten und welche Hersteller in Deutschland empfohlen werden.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Der Auspuff ist eine der wirkungsvollsten Modifikationen am Custom Bike — und eine der rechtlich sensibelsten. Was ABE bedeutet, wann TÜV-Eintragung nötig ist und was ein custom Auspuff wirklich kostet.',
+    coverImage: 'https://images.unsplash.com/photo-gjSmaZcFy8k?w=1200&q=85',
+    publishedAt: '2026-05-29',
+    readTime: '9 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Custom Auspuff', 'TÜV Eintragung', 'Motorrad Auspuff', 'Slip-On', 'ABE', 'Custom Bike', 'Umbau'],
+    relatedSlugs: ['tuev-eintragung-custom-bike', 'motorrad-umbau-kosten', 'was-kostet-ein-custom-bike'],
+    faq: [
+      {
+        q: 'Muss ein Custom-Auspuff eingetragen werden?',
+        a: 'Ja, wenn die neue Anlage keine gültige ABE (Allgemeine Betriebserlaubnis) für das exakte Modell und Baujahr mitbringt. In diesem Fall ist eine individuelle TÜV- oder Dekra-Eintragung nach §21 StVZO nötig. Ohne Eintragung erlischt die Betriebserlaubnis des Fahrzeugs — mit entsprechenden Folgen für Versicherungsschutz und Hauptuntersuchung.',
+      },
+      {
+        q: 'Was kostet eine TÜV-Eintragung für einen Auspuff?',
+        a: 'Die Eintragung beim TÜV oder Dekra kostet in der Regel 80–180 Euro, je nach Prüfstelle und Aufwand. Hinzu kommen ggf. Werkstattkosten für Anpassungen (Lambdasondenausleitung, Dichtheitsprüfung). Gesamtkosten inkl. Vorbereitung: realistisch 100–300 Euro.',
+      },
+      {
+        q: 'Welche Hersteller bauen Custom-Abgasanlagen für den deutschen Markt?',
+        a: 'Empfehlenswerte Hersteller mit ABE-Erfahrung: Akrapovič (Slowenien), Arrow und SC-Project (Italien), Remus (Österreich), Zard (Italien) und der deutsche Hersteller Falcon Exhausts. Alle bieten homologierte "Street Legal"-Varianten an. Vance & Hines ist stark bei Harley-Davidson, aber oft TÜV-pflichtig in Deutschland.',
+      },
+      {
+        q: 'Was passiert bei der Hauptuntersuchung mit einem nicht eingetragenen Auspuff?',
+        a: 'Ohne Eintragung oder ABE ist der Auspuff ein erheblicher Mangel — die HU wird nicht bestanden. Der Prüfer kann außerdem die Betriebserlaubnis des Fahrzeugs als erloschen feststellen. Empfehlung: Vor der HU entweder Serienauspuff montieren oder die Eintragung nachholen.',
+      },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Der Auspuff ist eine der wirkungsvollsten Modifikationen an einem Custom Bike — optisch, akustisch und fahrdynamisch. Gleichzeitig ist er eine der rechtlich sensibelsten. Wer hier ohne Vorbereitung umbaut, riskiert seinen Versicherungsschutz, das Bestehen der Hauptuntersuchung — und im schlimmsten Fall die Zulassung. Dieser Guide erklärt, was bei einem Custom-Auspuff in Deutschland gilt.',
+      },
+      { type: 'h2', text: 'Slip-On oder Komplettanlage — was ist der Unterschied?' },
+      {
+        type: 'p',
+        text: 'Bevor es um Eintragungspflicht geht, lohnt sich die Unterscheidung nach Umbauumfang. Denn der bestimmt sowohl Kosten als auch rechtlichen Aufwand:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Slip-On (Endschalldämpfer-Tausch): Nur der hintere Teil der Abgasanlage wird ersetzt. Einfach montierbar, 200–900 Euro. Häufigste Wahl für optische und akustische Aufwertungen.',
+          'Komplettanlage (Full System): Krümmer, Mittelrohr und Schalldämpfer werden vollständig ersetzt. Aufwendiger, 600–3.000+ Euro — aber maximaler Effekt auf Klang und Performance.',
+          '2-in-1-Anlage: Beide Krümmer laufen in einen einzigen Schalldämpfer zusammen. Klassisch bei Café Racern und Scramblers — kompaktes Erscheinungsbild.',
+          '2-in-2-Anlage: Jeder Zylinder hat seinen eigenen Schalldämpfer. Symmetrischer Look, teurer in Herstellung und Eintragung.',
+        ],
+      },
+      { type: 'h2', text: 'ABE oder TÜV-Eintragung — was gilt wann?' },
+      {
+        type: 'p',
+        text: 'Jede Abgasanlage, die am deutschen Straßenverkehr teilnimmt, braucht entweder eine Allgemeine Betriebserlaubnis (ABE) oder eine individuelle Eintragung nach §21 StVZO.',
+      },
+      {
+        type: 'p',
+        text: 'Die ABE ist die einfachere Option: Viele markenfähige Auspuffanlagen (Akrapovič "Street Legal", Arrow, SC-Project "Homologated") kommen mit einer ABE-Nummer, die für ein bestimmtes Modell und Baujahr freigegeben ist. Die ABE-Dokumentation muss beim Fahrzeug mitgeführt werden. Wichtig: Das Produkt muss exakt für Modell und Baujahr freigegeben sein — "passt auch für" reicht nicht.',
+      },
+      {
+        type: 'p',
+        text: 'Die TÜV-Eintragung ist nötig, wenn keine ABE vorliegt — zum Beispiel bei einer handgefertigten Custom-Anlage, einer Racing-Anlage ohne Straßenzulassung oder einer älteren Anlage ohne Papiere. Ein anerkannter Prüfer nimmt die Anlage dann individuell ab: Schallmessung, Sichtprüfung, Abgastest. Bei Bestehen folgt der Eintrag ins Fahrzeugschein.',
+      },
+      {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-2pye-SDKLiI?w=1200&q=85',
+        caption: 'Handgefertigte Auspuffanlage am Custom Scrambler — schön, aber nur mit Eintragung legal.',
+      },
+      { type: 'h2', text: 'So läuft die TÜV-Eintragung ab' },
+      {
+        type: 'list',
+        items: [
+          'Anlage montieren und auf Dichtheit prüfen — Rußspuren am Krümmer sind ein sofortiger Ablehnungsgrund',
+          'Termin beim TÜV oder Dekra (§21-Beauftragter) mit vollständigem Fahrzeugschein buchen',
+          'Schallmessung: Fahrgeräusch und Standgeräusch werden protokolliert',
+          'Abgasmessung: Bei Bikes ab Euro 3 besonders relevant — Lambda-Werte müssen stimmen',
+          'OBD-Check: Neuere Bikes mit Einspritzung werden auf Fehlercodes geprüft (Lambdasondenausleitung beachten)',
+          'Bei Bestehen: Eintrag in den Fahrzeugschein, Gutachten im Original mitführen',
+        ],
+      },
+      { type: 'h2', text: 'Lärm-Grenzwerte in Deutschland' },
+      {
+        type: 'p',
+        text: 'Die häufigste Ursache für eine gescheiterte Abnahme ist Lärm. In Deutschland gelten folgende Richtwerte:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Fahrgeräusch: je nach Baujahr und Motorklasse 73–80 dB(A) gemäß ECE-R41',
+          'Standgeräusch: im Fahrzeugschein eingetragen — die neue Anlage darf diesen Wert nicht überschreiten',
+          '"Drive-by"-Messung: Einige Kommunen und Polizeistreifen messen aktiv; 80–82 dB(A) gelten als Grenzbereich',
+          'Achtung: Ein Auspuff, der kalt leiser klingt, kann warm die Grenzwerte reißen — Messung immer bei Betriebstemperatur',
+        ],
+      },
+      {
+        type: 'quote',
+        text: 'Seriöse Hersteller liefern Schallmessprotokolle nach UNECE-R41 mit. Diese Dokumente erleichtern die TÜV-Eintragung erheblich.',
+      },
+      { type: 'h2', text: 'Was kostet ein Custom-Auspuff insgesamt?' },
+      {
+        type: 'list',
+        items: [
+          'Slip-On mit ABE (Markenware): 250–900 Euro',
+          'Komplettanlage mit ABE: 800–3.000 Euro',
+          'Handmade Custom-Anlage (ohne ABE): 600–2.500 Euro',
+          'TÜV-Einzelabnahme für Auspuff: 80–180 Euro',
+          'Werkstattaufwand für Vorbereitung und Nacharbeit: 50–200 Euro',
+          'Gesamtkosten bei Custom-Anlage inkl. Eintragung: realistisch ab 700 Euro aufwärts',
+        ],
+      },
+      { type: 'h2', text: 'Empfehlenswerte Hersteller für Custom-Abgasanlagen' },
+      {
+        type: 'p',
+        text: 'Wer auf der sicheren Seite sein will, kauft bei Herstellern mit ABE-Erfahrung und Straßenzulassung für den deutschen Markt:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Akrapovič (Slowenien): Marktführer im Hochleistungsbereich. "Street Legal"-Varianten mit ABE, Racing-Varianten ohne. Titan- und Edelstahloptionen — die teuerste, aber hochwertigste Wahl.',
+          'Arrow (Italien): Breites Portfolio, viele ABE-fähige Anlagen für Custom-Basen (Honda CB, Triumph Bonneville). Gutes Preis-Leistungs-Verhältnis, besonders im Retrobereich.',
+          'SC-Project (Italien): Bekannt für konische Schalldämpfer im Café-Racer-Look. Viele "Homologated"-Varianten. Sehr beliebt in der deutschen Custom-Szene.',
+          'Remus (Österreich): Stark bei Harley-Davidson-Plattformen und Retrobikes. Lange ABE-Erfahrung in Deutschland und Österreich.',
+          'Falcon Exhausts (Deutschland): Einer der wenigen deutschen Custom-Auspuff-Hersteller. Handgefertigte Einzelstücke und Kleinserien, oft mit aktiver Eintragungsunterstützung. Gut verankert in der europäischen Café-Racer-Szene.',
+          'Zard (Italien): Spezialisiert auf Retro- und Classic-Bikes (Triumph, Moto Guzzi). Handwerkliche Qualität, viele TÜV-fähige Varianten mit Messprotokollen.',
+          'Vance & Hines (USA): Harley-Davidson-Spezialist. In den USA uneingeschränkt, in Deutschland meist TÜV-pflichtig — aber sehr gut dokumentierte Anlagen mit umfangreichem Support-Material.',
+        ],
+      },
+      { type: 'h2', text: 'Was beim TÜV häufig übersehen wird' },
+      {
+        type: 'p',
+        text: 'Viele Eintragungen scheitern nicht an der Anlage selbst, sondern an leicht vermeidbaren Begleitproblemen:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Lambdasondenausleitung fehlt oder ist verschlossen — verursacht OBD-Fehler und Abgasprobleme',
+          'Krümmerverbindungen undicht (Rußspuren am Flansch) — sofortiger Ablehnungsgrund',
+          'Serienhalterungen entfernt, ohne gleichwertigen Ersatz zu dokumentieren',
+          'Kein Nachweis der Abgasnorm des Bikes (bei Euro 3/4/5 besonders kritisch)',
+          'Hitzeschutz fehlt — zu nah an Kabel, Rahmen oder Benzinleitung',
+          'Standgeräusch nicht vorab gemessen — Überraschungen am Prüfstand vermeidbar',
+        ],
+      },
+      {
+        type: 'cta',
+        text: 'Custom Bikes mit legalem Auspuff auf MotoDigital',
+        href: '/custom-bike',
+        label: 'Custom Bikes entdecken',
+      },
+    ],
+  },
+
+  // ── J: Street Fighter Motorrad ───────────────────────────────────────────
   {
     slug: 'street-fighter-motorrad-umbau',
     title: 'Street Fighter Motorrad: Umbau, Basis-Bikes und was den Stil definiert',
@@ -1324,6 +1480,15 @@ const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
     excerpt:
       "Max Steiner builds one bobber a year — and is booked out for the next three. A conversation about slow craft, customers who understand the wait, and why 'a bobber' always means more than just a silhouette.",
     categoryLabel: 'Interview',
+  },
+  'custom-auspuff-eintragung-kosten': {
+    title: 'Custom exhaust: registration, costs and the best manufacturers',
+    metaTitle: 'Custom exhaust registration Germany — costs, rules & brands 2026',
+    metaDescription:
+      'Everything about registering a custom exhaust in Germany: what ABE means, when TÜV approval is required, realistic costs and which manufacturers to trust.',
+    excerpt:
+      'A custom exhaust is one of the most impactful modifications on a custom bike — and one of the most legally complex. This guide explains ABE vs. TÜV registration, noise limits and what the whole thing actually costs.',
+    categoryLabel: 'Guide',
   },
   'berlin-ghost-build-story': {
     title: 'Berlin Ghost: the slate-grey build nobody expected',
