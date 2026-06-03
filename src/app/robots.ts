@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         '/admin/',
         '/auth/',
         '/api/',
+        '/websites/',
         '/*?SA',
         '/*?SD',
         '/*?SA=*',

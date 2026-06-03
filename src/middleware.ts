@@ -51,6 +51,24 @@ export async function middleware(request: NextRequest) {
     return applyNoIndex(NextResponse.next())
   }
 
+  // /websites/* — static client pages, not i18n routes
+  if (path === '/websites' || path === '/websites/' || path.startsWith('/websites/')) {
+    if (path.startsWith('/websites/login')) {
+      return NextResponse.next()
+    }
+    const isIndex =
+      path === '/websites' || path === '/websites/' || path === '/websites/index.html'
+    if (isIndex) {
+      const authCookie = request.cookies.get('websites_auth')?.value
+      if (authCookie !== process.env.WEBSITES_PASSWORD) {
+        return NextResponse.redirect(new URL('/websites/login', request.url))
+      }
+    }
+    const res = NextResponse.next()
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return res
+  }
+
   // Run next-intl first — it handles locale detection, redirects (/ → /de),
   // and translated-pathname rewrites under the hood.
   const intlResponse = intlMiddleware(request)

@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Franks Motorrad Center Berlin | Frank Bilda</title>
+    <meta name="description" content="Franks Motorrad Center Berlin Tempelhof – Ihr Spezialist für BMW Motorräder. Ankauf & Verkauf, Fachwerkstatt, Service, Lagerung.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========================
+           RESET & BASE
+        ======================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red:      #cc0000;
+            --red-hi:   #e50000;
+            --dark:     #0d0d0d;
+            --dark-2:   #141414;
+            --dark-3:   #1c1c1c;
+            --dark-4:   #242424;
+            --border:   rgba(255,255,255,0.07);
+            --text:     #f0f0f0;
+            --muted:    #888;
+            --dim:      #555;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        img { max-width: 100%; display: block; }
+        a   { text-decoration: none; color: inherit; }
+
+        /* ========================
+           NAVIGATION
+        ======================== */
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(13,13,13,0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+        .logo-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+        .logo-sub {
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--red);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+        .nav-links a {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted);
+            padding: 8px 14px;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        .nav-links .nav-cta {
+            background: var(--red);
+            color: #fff !important;
+            padding: 9px 20px;
+            border-radius: 8px;
+        }
+        .nav-links .nav-cta:hover { background: var(--red-hi); }
+
+        /* Burger */
+        .burger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+        }
+        .burger span {
+            display: block;
+            width: 22px; height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .nav-mobile {
+            display: none;
+            flex-direction: column;
+            padding: 8px 24px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .nav-mobile a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--muted);
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            transition: color 0.2s;
+        }
+        .nav-mobile a:hover { color: var(--red); }
+        .nav-mobile.open { display: flex; }
+
+        /* ========================
+           HERO
+        ======================== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 580px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('images/laden_aussen.jpg') center/cover no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                110deg,
+                rgba(13,13,13,0.97) 0%,
+                rgba(13,13,13,0.88) 42%,
+                rgba(13,13,13,0.55) 68%,
+                rgba(13,13,13,0.15) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(204,0,0,0.12);
+            border: 1px solid rgba(204,0,0,0.3);
+            color: var(--red);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-radius: 100px;
+            margin-bottom: 26px;
+        }
+        .hero-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--red);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            margin-bottom: 22px;
+            max-width: 580px;
+        }
+        .hero h1 em {
+            font-style: normal;
+            color: var(--red);
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 460px;
+            margin-bottom: 38px;
+            line-height: 1.75;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.22s ease;
+            cursor: pointer;
+            border: none;
+            letter-spacing: 0.01em;
+        }
+        .btn-primary {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--red-hi);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(204,0,0,0.45);
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.18);
+            transform: translateY(-2px);
+        }
+
+        /* Scroll indicator */
+        .hero-scroll {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--dim);
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .hero-scroll-bar {
+            width: 1px;
+            height: 42px;
+            background: linear-gradient(to bottom, var(--dim), transparent);
+            animation: slide 2s ease-in-out infinite;
+        }
+        @keyframes slide {
+            0%,100% { opacity: 0.3; }
+            50%      { opacity: 1; }
+        }
+
+        /* ========================
+           STATS BAR
+        ======================== */
+        .stats-bar {
+            background: var(--dark-3);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 36px 24px;
+        }
+        .stats-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .stat {
+            text-align: center;
+            padding: 12px;
+        }
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--red);
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-lbl {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ========================
+           SHARED SECTION STYLES
+        ======================== */
+        section { padding: 96px 24px; }
+
+        .inner { max-width: 1200px; margin: 0 auto; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .eyebrow::before {
+            content: '';
+            display: block;
+            width: 22px; height: 2px;
+            background: var(--red);
+        }
+
+        .sec-title {
+            font-size: clamp(1.75rem, 3vw, 2.7rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.12;
+            margin-bottom: 14px;
+        }
+        .sec-sub {
+            font-size: 0.95rem;
+            color: var(--muted);
+            max-width: 520px;
+            line-height: 1.75;
+        }
+
+        /* ========================
+           ÜBER UNS
+        ======================== */
+        #ueber-uns { background: var(--dark); }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-top: 56px;
+        }
+
+        .about-img-wrap {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .about-img-wrap img {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+        }
+        .about-badge {
+            position: absolute;
+            bottom: 18px; right: 18px;
+            background: var(--red);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            text-align: center;
+        }
+        .about-badge small {
+            display: block;
+            font-weight: 400;
+            font-size: 0.72rem;
+            opacity: 0.85;
+        }
+
+        .about-text p {
+            color: var(--muted);
+            line-height: 1.82;
+            margin-bottom: 16px;
+        }
+
+        .about-tags {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .about-tag {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+        .about-tag::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--red);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ========================
+           AKTUELLES
+        ======================== */
+        #aktuelles { background: var(--dark-2); }
+
+        .news-card {
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px;
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+            margin-top: 48px;
+            transition: border-color 0.25s;
+        }
+        .news-card:hover { border-color: rgba(204,0,0,0.3); }
+
+        .news-icon {
+            width: 56px; height: 56px;
+            background: rgba(204,0,0,0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .news-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+        .news-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .news-card p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.72;
+        }
+
+        /* ========================
+           GALERIE SLIDER
+        ======================== */
+        #galerie { background: var(--dark-2); padding: 96px 0; }
+
+        .galerie-header {
+            max-width: 1200px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+        }
+
+        .slider-wrap {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .slide {
+            min-width: 100%;
+            position: relative;
+            height: 560px;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .slide-caption {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 48px 40px 28px;
+            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.75);
+            font-weight: 500;
+        }
+
+        /* Arrows */
+        .slider-arrow {
+            position: absolute;
+            top: 50%; transform: translateY(-50%);
+            z-index: 10;
+            width: 48px; height: 48px;
+            background: rgba(13,13,13,0.7);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-size: 1rem;
+            backdrop-filter: blur(8px);
+        }
+        .slider-arrow:hover {
+            background: var(--red);
+            border-color: var(--red);
+        }
+        .slider-arrow.prev { left: 20px; }
+        .slider-arrow.next { right: 20px; }
+
+        /* Dots */
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 24px 0 0;
+        }
+        .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--dark-4);
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot.active {
+            background: var(--red);
+            border-color: var(--red);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Counter */
+        .slider-counter {
+            position: absolute;
+            top: 16px; right: 20px;
+            background: rgba(13,13,13,0.65);
+            backdrop-filter: blur(8px);
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 100px;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 768px) {
+            .slide { height: 320px; }
+            .slider-arrow { width: 38px; height: 38px; font-size: 0.85rem; }
+        }
+        @media (max-width: 480px) {
+            .slide { height: 260px; }
+        }
+
+        /* ========================
+           SERVICE
+        ======================== */
+        #service { background: var(--dark); }
+
+        .service-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.28s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--red);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            border-color: rgba(204,0,0,0.28);
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+        }
+        .card:hover::after { transform: scaleX(1); }
+
+        .card-icon {
+            width: 46px; height: 46px;
+            background: rgba(204,0,0,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+        }
+        .card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+        .card p {
+            font-size: 0.845rem;
+            color: var(--muted);
+            line-height: 1.72;
+        }
+
+        /* ========================
+           MOTORRÄDER
+        ======================== */
+        #motorraeder { background: var(--dark-2); }
+
+        .moto-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .moto-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .moto-card {
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.28s ease;
+        }
+        .moto-card:hover {
+            border-color: rgba(204,0,0,0.28);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .moto-img {
+            position: relative;
+            height: 210px;
+            overflow: hidden;
+        }
+        .moto-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .moto-card:hover .moto-img img { transform: scale(1.06); }
+
+        .moto-label {
+            position: absolute;
+            top: 12px; left: 12px;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.67rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .moto-body { padding: 20px; }
+        .moto-body h3 { font-size: 0.98rem; font-weight: 700; margin-bottom: 8px; }
+
+        .moto-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .moto-meta span {
+            font-size: 0.76rem;
+            color: var(--muted);
+        }
+
+        .moto-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .moto-price {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--red);
+        }
+        .moto-price small {
+            font-size: 0.72rem;
+            font-weight: 400;
+            color: var(--muted);
+            margin-left: 4px;
+        }
+        .moto-link {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .moto-link:hover {
+            color: var(--text);
+            border-color: rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .moto-hint {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 0.83rem;
+            color: var(--dim);
+        }
+
+        /* ========================
+           KONTAKT
+        ======================== */
+        #kontakt { background: var(--dark); }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 56px;
+        }
+
+        .c-card {
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 38px;
+        }
+        .c-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 26px;
+        }
+
+        .c-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .c-icon {
+            width: 38px; height: 38px;
+            background: rgba(204,0,0,0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        .c-lbl {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2px;
+        }
+        .c-val {
+            font-size: 0.875rem;
+            color: var(--text);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .c-val a { color: var(--red); }
+        .c-val a:hover { text-decoration: underline; }
+
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        .hours-row:last-of-type { border-bottom: none; }
+        .h-season { color: var(--muted); font-weight: 500; }
+        .h-time   { color: var(--red); font-weight: 700; }
+        .h-closed { color: var(--dim); font-weight: 500; }
+
+        .hours-note {
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: rgba(204,0,0,0.07);
+            border: 1px solid rgba(204,0,0,0.18);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .hours-note strong { color: var(--red); }
+
+        /* ========================
+           MAP BAND
+        ======================== */
+        .map-band {
+            height: 360px;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .map-band img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) brightness(0.38);
+        }
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .map-pin {
+            background: var(--dark-2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 24px 30px;
+            text-align: center;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.75);
+        }
+        .map-pin h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+        .map-pin p  { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+        .map-pin a  {
+            display: inline-block;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 9px 20px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .map-pin a:hover { background: var(--red-hi); }
+
+        /* ========================
+           FOOTER
+        ======================== */
+        footer {
+            background: var(--dark-2);
+            border-top: 1px solid var(--border);
+            padding: 60px 24px 32px;
+        }
+
+        .footer-inner { max-width: 1200px; margin: 0 auto; }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr 1fr;
+            gap: 48px;
+            padding-bottom: 48px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+
+        .f-brand-desc {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.75;
+            margin-top: 14px;
+            max-width: 270px;
+        }
+
+        .f-col h4 {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 16px;
+        }
+        .f-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .f-links a {
+            font-size: 0.85rem;
+            color: var(--muted);
+            transition: color 0.2s;
+        }
+        .f-links a:hover { color: var(--red); }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .f-copy {
+            font-size: 0.78rem;
+            color: var(--dim);
+        }
+
+        /* ========================
+           RESPONSIVE
+        ======================== */
+        @media (max-width: 1024px) {
+            .about-grid      { gap: 48px; }
+            .service-grid    { grid-template-columns: repeat(2, 1fr); }
+            .moto-grid       { grid-template-columns: repeat(2, 1fr); }
+            .footer-top      { grid-template-columns: 1fr 1fr; gap: 32px; }
+        }
+
+        @media (max-width: 768px) {
+            section { padding: 64px 20px; }
+
+            .nav-links { display: none; }
+            .burger    { display: flex; }
+
+            .stats-inner   { grid-template-columns: repeat(2, 1fr); }
+            .about-grid    { grid-template-columns: 1fr; gap: 36px; }
+            .about-img-wrap img { height: 300px; }
+            .service-grid  { grid-template-columns: 1fr; }
+            .moto-grid     { grid-template-columns: 1fr; }
+            .contact-grid  { grid-template-columns: 1fr; gap: 20px; }
+            .footer-top    { grid-template-columns: 1fr 1fr; gap: 28px; }
+            .news-card     { flex-direction: column; gap: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-inner  { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .footer-top   { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; }
+            .hero-actions .btn { justify-content: center; }
+            .about-tags   { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======================== NAVIGATION ======================== -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <a href="#">
+            <img src="images/frank-logo.png" alt="Franks Motorrad Center" style="height:110px;width:auto;display:block;">
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="#ueber-uns">Über uns</a></li>
+            <li><a href="#aktuelles">Aktuelles</a></li>
+            <li><a href="#service">Service</a></li>
+            <li><a href="#gespann">BMW Gespann</a></li>
+            <li><a href="#anhaenger">Anhängervermietung</a></li>
+            <li><a href="#kontakt" class="nav-cta">Kontakt</a></li>
+        </ul>
+
+        <button class="burger" onclick="toggleMenu()" aria-label="Menü öffnen">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+    <div class="nav-mobile" id="navMobile">
+        <a href="#ueber-uns"   onclick="closeMenu()">Über uns</a>
+        <a href="#aktuelles"   onclick="closeMenu()">Aktuelles</a>
+        <a href="#service"     onclick="closeMenu()">Service</a>
+        <a href="#gespann"     onclick="closeMenu()">BMW Gespann</a>
+        <a href="#anhaenger"   onclick="closeMenu()">Anhängervermietung</a>
+        <a href="#kontakt"     onclick="closeMenu()">Kontakt</a>
+    </div>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge">BMW-Spezialist &nbsp;·&nbsp; Berlin Tempelhof</div>
+        <h1>Ihr <em>Motorrad-</em><br>experte in Berlin</h1>
+        <p class="hero-sub">Typ-offene Fachwerkstatt mit Schwerpunkt BMW. Ankauf &amp; Verkauf, Service, Lagerung — alles aus einer Hand seit über 15&nbsp;Jahren.</p>
+        <div class="hero-actions">
+            <a href="#motorraeder" class="btn btn-primary">Motorräder ansehen</a>
+            <a href="#kontakt"     class="btn btn-ghost">Kontakt aufnehmen</a>
+        </div>
+    </div>
+    <div class="hero-scroll">
+        <div class="hero-scroll-bar"></div>
+        Scroll
+    </div>
+</section>
+
+<!-- ======================== STATS BAR ======================== -->
+<div class="stats-bar">
+    <div class="stats-inner">
+        <div class="stat">
+            <div class="stat-num">15+</div>
+            <div class="stat-lbl">Jahre Erfahrung</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">BMW</div>
+            <div class="stat-lbl">Spezialist</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">100%</div>
+            <div class="stat-lbl">Leidenschaft</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">Berlin</div>
+            <div class="stat-lbl">Tempelhof</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== ÜBER UNS ======================== -->
+<section id="ueber-uns">
+    <div class="inner">
+        <div class="about-grid">
+            <div class="about-img-wrap">
+                <img
+                    src="images/sidecar_hund.jpg"
+                    alt="BMW Gespann mit Beiwagen Berlin"
+                    loading="lazy"
+                >
+            </div>
+            <div class="about-text">
+                <span class="eyebrow">Über uns</span>
+                <h2 class="sec-title">Typ-offene Fachwerkstatt für Motorräder aller Marken</h2>
+                <p>Franks Motorrad Center ist Ihre Anlaufstelle rund um das motorisierte Zweirad in Berlin Tempelhof. Inhaber Frank Bilda steht Ihnen mit langjähriger Erfahrung bei allen Fragen offen gegenüber.</p>
+                <p>Als typ-offene Fachwerkstatt arbeiten wir mit allen Marken. Unser besonderes Know-how gilt BMW Motorrädern und Rollern — von der Diagnose über die Wartung bis hin zur Winterlagerung.</p>
+                <div class="about-tags">
+                    <div class="about-tag">Ankauf &amp; Verkauf</div>
+                    <div class="about-tag">BMW-Spezialist</div>
+                    <div class="about-tag">Diagnose &amp; Service</div>
+                    <div class="about-tag">Reifenservice</div>
+                    <div class="about-tag">Motorrad-Transport</div>
+                    <div class="about-tag">Winterlagerung</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================== AKTUELLES ======================== -->
+<section id="aktuelles">
+    <div class="inner">
+        <span class="eyebrow">Aktuelles</span>
+        <h2 class="sec-title">Neuigkeiten &amp; Angebote</h2>
+        <p class="sec-sub">Aktuelle Infos, Sonderaktionen und Neuigkeiten aus dem Franks Motorrad Center.</p>
+
+        <div class="news-card">
+            <div class="news-icon">🔧</div>
+            <div>
+                <div class="news-tag">Sonderangebot</div>
+                <h3>Basis-Check zum Sonderpreis</h3>
+                <p>Günstige Basis-Checks an Ihrem Motorrad — jetzt zu einem speziellen Aktionspreis. Lassen Sie Ihr Bike fit für die Saison machen. Einfach anrufen und Termin vereinbaren.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================== SERVICE ======================== -->
+<section id="service">
+    <div class="inner">
+        <div class="service-head">
+            <div>
+                <span class="eyebrow">Service</span>
+                <h2 class="sec-title">Was wir für Sie tun</h2>
+            </div>
+            <p class="sec-sub" style="max-width:320px;">Umfassender Service rund ums Motorrad — von der Inspektion bis zur Saisonlagerung.</p>
+        </div>
+
+        <div class="service-grid">
+            <div class="card">
+                <div class="card-icon">🏍️</div>
+                <h3>Ankauf &amp; Verkauf</h3>
+                <p>Großes Sortiment an gebrauchten Motorrädern und Zubehör vieler namhafter Hersteller. Wir kaufen auch Ihr Motorrad fair an.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔧</div>
+                <h3>Fachwerkstatt</h3>
+                <p>Typ-offene Werkstatt mit Spezialisierung auf BMW Motorräder und Roller. Reparatur, Inspektion und Wartung aller Marken.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">💻</div>
+                <h3>Diagnose</h3>
+                <p>Mit modernen Diagnosegeräten lesen wir die Eigendiagnose Ihres Fahrzeugs aus und lokalisieren Fehler schnell und zuverlässig.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h3>Reifenservice</h3>
+                <p>Reifenwechsel, Montage und Auswuchten für Ihr Motorrad. Schnell, fachgerecht und zu fairen Preisen.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">❄️</div>
+                <h3>Winterlagerung</h3>
+                <p>Günstige Lagerung Ihres Motorrads in den Wintermonaten inkl. Batteriewartung — damit der Saisonstart reibungslos klappt.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🚛</div>
+                <h3>Transport &amp; Anhänger</h3>
+                <p>Motorradtransport mit Abholung im Berliner Raum. Günstiger Anhängerverleih mit geeignetem Zurrgurt zur Fahrzeugsicherung.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ======================== BMW GESPANN ======================== -->
+<section id="gespann" style="background: var(--dark);">
+    <div class="inner">
+        <span class="eyebrow">BMW Gespann</span>
+        <h2 class="sec-title">BMW Gespanne & Beiwagen</h2>
+        <p class="sec-sub">Klassische BMW Gespanne mit Beiwagen — Berlins faszinierendste Zweiräder. Ankauf, Verkauf und Werkstattservice.</p>
+
+        <div class="about-grid" style="margin-top:56px;">
+            <div class="about-img-wrap">
+                <img src="images/sidecar_hund.jpg" alt="BMW Gespann mit Beiwagen" loading="lazy">
+            </div>
+            <div class="about-text">
+                <p>Gespanne sind unsere Leidenschaft. Ob klassischer Beiwagen oder modernes Outfit — wir kennen jede Schraube dieser faszinierenden Fahrzeuge.</p>
+                <p>Wir kaufen und verkaufen BMW Gespanne, übernehmen Restaurierungen und bieten den kompletten Werkstattservice für alle BMW Boxer-Gespanne.</p>
+                <div class="about-tags">
+                    <div class="about-tag">Ankauf &amp; Verkauf</div>
+                    <div class="about-tag">Restaurierung</div>
+                    <div class="about-tag">Wartung &amp; Reparatur</div>
+                    <div class="about-tag">BMW Boxer Spezialist</div>
+                </div>
+                <div style="margin-top:28px;">
+                    <a href="#kontakt" class="btn btn-primary">Gespann anfragen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================== ANHÄNGERVERMIETUNG ======================== -->
+<section id="anhaenger" style="background: var(--dark-2);">
+    <div class="inner">
+        <span class="eyebrow">Anhängervermietung</span>
+        <h2 class="sec-title">Motorradanhänger mieten</h2>
+        <p class="sec-sub">Günstiger Anhängerverleih mit geeignetem Zurrgurt zur Fahrzeugsicherung — ideal für Transport und Umzug Ihres Motorrads.</p>
+
+        <div class="about-grid" style="margin-top:56px;">
+            <div class="about-text">
+                <p>Sie benötigen einen Anhänger für Ihr Motorrad? Wir verleihen günstig Motorradanhänger inklusive passendem Zurrgurt zur sicheren Fahrzeugsicherung.</p>
+                <p>Einfach anrufen, Termin vereinbaren und Anhänger abholen. Kein langer Vorlauf, keine Bürokratie — unkompliziert wie bei uns alles ist.</p>
+                <div class="about-tags">
+                    <div class="about-tag">Tagesmiete möglich</div>
+                    <div class="about-tag">Zurrgurt inklusive</div>
+                    <div class="about-tag">Für alle Motorräder</div>
+                    <div class="about-tag">Faire Preise</div>
+                </div>
+                <div style="margin-top:28px;">
+                    <a href="tel:+493070130498" class="btn btn-primary">Jetzt anrufen</a>
+                </div>
+            </div>
+            <div class="about-img-wrap">
+                <img src="images/transport.jpg" alt="Motorradtransport mit Anhänger" loading="lazy">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================== GALERIE ======================== -->
+<section id="galerie">
+    <div class="galerie-header">
+        <span class="eyebrow">Galerie</span>
+        <h2 class="sec-title">Einblicke in unsere Arbeiten</h2>
+        <p class="sec-sub">Klassiker, Raritäten und Alltagsmaschinen — bei uns in guten Händen.</p>
+    </div>
+
+    <div class="slider-wrap">
+        <div class="slider-track" id="sliderTrack">
+
+            <div class="slide">
+                <img src="images/bmw_classic.jpg" alt="BMW Klassiker in der Werkstatt">
+                <div class="slide-caption">BMW Klassiker — liebevoll restauriert in unserer Werkstatt</div>
+            </div>
+
+            <div class="slide">
+                <img src="images/rad_detail.jpg" alt="Detailarbeit Bremse und Fahrwerk">
+                <div class="slide-caption">Präzisionsarbeit — Bremse und Fahrwerk unter der Lupe</div>
+            </div>
+
+            <div class="slide">
+                <img src="images/sidecar_hund.jpg" alt="BMW mit Beiwagen">
+                <div class="slide-caption">Berliner Original — BMW mit Beiwagen und dem besten Beifahrer</div>
+            </div>
+
+            <div class="slide">
+                <img src="images/laden_aussen.jpg" alt="Franks Motorrad Center Außenansicht">
+                <div class="slide-caption">Franks Motorrad Center — Industriestraße 25, Berlin-Tempelhof</div>
+            </div>
+
+            <div class="slide">
+                <img src="images/transport.jpg" alt="Motorrad-Transport mit Anhänger">
+                <div class="slide-caption">Motorradtransport — wir holen Ihr Bike im Berliner Raum ab</div>
+            </div>
+
+        </div>
+
+        <!-- Pfeile -->
+        <button class="slider-arrow prev" onclick="sliderMove(-1)" aria-label="Zurück">&#8592;</button>
+        <button class="slider-arrow next" onclick="sliderMove(1)"  aria-label="Weiter">&#8594;</button>
+
+        <!-- Zähler -->
+        <div class="slider-counter" id="sliderCounter">1 / 5</div>
+    </div>
+
+    <!-- Dots -->
+    <div class="slider-dots" id="sliderDots">
+        <div class="dot active" onclick="sliderGoTo(0)"></div>
+        <div class="dot"        onclick="sliderGoTo(1)"></div>
+        <div class="dot"        onclick="sliderGoTo(2)"></div>
+        <div class="dot"        onclick="sliderGoTo(3)"></div>
+        <div class="dot"        onclick="sliderGoTo(4)"></div>
+    </div>
+</section>
+
+<!-- ======================== KONTAKT ======================== -->
+<section id="kontakt">
+    <div class="inner">
+        <span class="eyebrow">Kontakt</span>
+        <h2 class="sec-title">So erreichen Sie uns</h2>
+
+        <div class="contact-grid">
+            <!-- Kontaktdaten -->
+            <div class="c-card">
+                <h3>Kontaktdaten</h3>
+
+                <div class="c-item">
+                    <div class="c-icon">📍</div>
+                    <div>
+                        <div class="c-lbl">Adresse</div>
+                        <div class="c-val">Industriestraße 25<br>12099 Berlin-Tempelhof</div>
+                    </div>
+                </div>
+
+                <div class="c-item">
+                    <div class="c-icon">📞</div>
+                    <div>
+                        <div class="c-lbl">Telefon</div>
+                        <div class="c-val"><a href="tel:+493070130498">+49 30 / 701 304 98</a></div>
+                    </div>
+                </div>
+
+                <div class="c-item">
+                    <div class="c-icon">📠</div>
+                    <div>
+                        <div class="c-lbl">Fax</div>
+                        <div class="c-val">+49 30 / 701 304 97</div>
+                    </div>
+                </div>
+
+                <div class="c-item">
+                    <div class="c-icon">✉️</div>
+                    <div>
+                        <div class="c-lbl">E-Mail</div>
+                        <div class="c-val"><a href="mailto:frank.bilda@web.de">frank.bilda@web.de</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Öffnungszeiten -->
+            <div class="c-card">
+                <h3>Öffnungszeiten</h3>
+
+                <div class="hours-row">
+                    <span class="h-season">März – Oktober</span>
+                    <span class="h-time">09:00 – 17:00 Uhr</span>
+                </div>
+                <div class="hours-row">
+                    <span class="h-season">November – Februar</span>
+                    <span class="h-time">10:00 – 16:30 Uhr</span>
+                </div>
+                <div class="hours-row">
+                    <span class="h-season">Samstag</span>
+                    <span class="h-time" style="color:var(--muted);">nach Vereinbarung</span>
+                </div>
+                <div class="hours-row">
+                    <span class="h-season">Sonn- &amp; Feiertage</span>
+                    <span class="h-closed">geschlossen</span>
+                </div>
+
+                <div class="hours-note">
+                    <strong>Hinweis:</strong> Für Motorradtransport und Abholung im Berliner Raum sprechen Sie uns gerne direkt an.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================== MAP ======================== -->
+<div class="map-band">
+    <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1800&q=80" alt="Berlin Karte">
+    <div class="map-overlay">
+        <div class="map-pin">
+            <h4>Franks Motorrad Center</h4>
+            <p>Industriestraße 25 · 12099 Berlin-Tempelhof</p>
+            <a href="https://maps.google.com/?q=Industriestraße+25,+12099+Berlin" target="_blank" rel="noopener noreferrer">In Google Maps öffnen →</a>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== FOOTER ======================== -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div>
+                <div class="logo">
+                    <span class="logo-name">Franks Motorrad Center</span>
+                    <span class="logo-sub">Berlin Tempelhof</span>
+                </div>
+                <p class="f-brand-desc">Ihr Spezialist für Motorräder aller Marken in Berlin. Fachwerkstatt, Ankauf &amp; Verkauf, Lagerung und mehr — Frank Bilda, Inhaber.</p>
+            </div>
+
+            <div class="f-col">
+                <h4>Navigation</h4>
+                <ul class="f-links">
+                    <li><a href="#ueber-uns">Über uns</a></li>
+                    <li><a href="#aktuelles">Aktuelles</a></li>
+                    <li><a href="#service">Service</a></li>
+                    <li><a href="#gespann">BMW Gespann</a></li>
+                    <li><a href="#anhaenger">Anhängervermietung</a></li>
+                    <li><a href="#kontakt">Kontakt</a></li>
+                </ul>
+            </div>
+
+            <div class="f-col">
+                <h4>Service</h4>
+                <ul class="f-links">
+                    <li><a href="#service">Fachwerkstatt</a></li>
+                    <li><a href="#service">Reifenservice</a></li>
+                    <li><a href="#service">Winterlagerung</a></li>
+                    <li><a href="#service">Diagnose</a></li>
+                    <li><a href="#service">Transport</a></li>
+                </ul>
+            </div>
+
+            <div class="f-col">
+                <h4>Rechtliches</h4>
+                <ul class="f-links">
+                    <li><a href="#">Impressum</a></li>
+                    <li><a href="#">Disclaimer</a></li>
+                    <li><a href="#">Gästebuch / Feedback</a></li>
+                    <li><a href="#">Der Weg zu uns</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="f-copy" id="footer-copy"></p>
+            <a href="https://motodigital.io" target="_blank" rel="noopener noreferrer"
+               style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;opacity:0.6;transition:opacity 0.2s;"
+               onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                <span style="font-size:0.75rem;color:var(--muted);white-space:nowrap;">Erstellt durch</span>
+                <img src="images/favicon_motodigital.png" alt="MotoDigital" style="height:20px;width:auto;display:block;filter:brightness(0) invert(1);">
+            </a>
+        </div>
+    </div>
+</footer>
+
+<!-- ======================== JS ======================== -->
+<script>
+    document.getElementById('footer-copy').textContent =
+        '© ' + new Date().getFullYear() + ' Franks Motorrad Center · Frank Bilda · Industriestraße 25, 12099 Berlin';
+
+    // ======================== SLIDER ========================
+    let sliderIndex = 0;
+    const totalSlides = 5;
+    let sliderTimer;
+
+    function sliderRender() {
+        document.getElementById('sliderTrack').style.transform = `translateX(-${sliderIndex * 100}%)`;
+        document.getElementById('sliderCounter').textContent = `${sliderIndex + 1} / ${totalSlides}`;
+        document.querySelectorAll('.dot').forEach((d, i) => {
+            d.classList.toggle('active', i === sliderIndex);
+        });
+    }
+
+    function sliderMove(dir) {
+        sliderIndex = (sliderIndex + dir + totalSlides) % totalSlides;
+        sliderRender();
+        sliderResetTimer();
+    }
+
+    function sliderGoTo(i) {
+        sliderIndex = i;
+        sliderRender();
+        sliderResetTimer();
+    }
+
+    function sliderResetTimer() {
+        clearInterval(sliderTimer);
+        sliderTimer = setInterval(() => sliderMove(1), 4500);
+    }
+
+    sliderTimer = setInterval(() => sliderMove(1), 4500);
+
+    // Touch/Swipe Support
+    (function() {
+        const track = document.getElementById('sliderTrack');
+        let startX = 0;
+        track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+        track.addEventListener('touchend', e => {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) sliderMove(diff > 0 ? 1 : -1);
+        });
+    })();
+
+    // ======================== NAV ========================
+    function toggleMenu() {
+        document.getElementById('navMobile').classList.toggle('open');
+    }
+    function closeMenu() {
+        document.getElementById('navMobile').classList.remove('open');
+    }
+
+    // Navbar opacity on scroll
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        nav.style.background = window.scrollY > 60
+            ? 'rgba(13,13,13,0.98)'
+            : 'rgba(13,13,13,0.88)';
+    });
+
+    // Close mobile menu on outside click
+    document.addEventListener('click', e => {
+        if (!document.getElementById('navbar').contains(e.target)) closeMenu();
+    });
+</script>
+
+</body>
+</html>

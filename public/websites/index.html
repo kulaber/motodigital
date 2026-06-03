@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Meine Projekte — MotoDigital</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent:       #06a5a5;
+            --accent-dark:  #058f8f;
+            --bg:           #ffffff;
+            --bg-2:         #ffffff;
+            --bg-3:         #f7f7f7;
+            --bg-4:         #f0f0f0;
+            --text:         #222222;
+            --text-2:       #717171;
+            --text-3:       #b0b0b0;
+            --border:       #dddddd;
+            --border-light: #ebebeb;
+            --radius-sm:    6px;
+            --radius-md:    10px;
+            --radius-lg:    16px;
+            --radius-xl:    24px;
+        }
+
+        html { -webkit-font-smoothing: antialiased; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-3);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ── TOP NAV ── */
+        .topnav {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topnav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topnav-logo img {
+            height: 28px;
+            width: auto;
+        }
+
+        .topnav-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+        }
+
+        .topnav-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+
+        .topnav-link {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--accent);
+            transition: all 0.2s;
+        }
+
+        .topnav-link:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* ── PAGE ── */
+        .page {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            font-size: 0.88rem;
+            color: var(--text-2);
+        }
+
+        /* ── PRICING CARDS ── */
+        .pricing-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .pricing-card {
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(6,165,165,0.04) 0%, #fff 100%);
+        }
+
+        .pricing-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 3px 9px;
+            border-radius: 100px;
+            background: rgba(6,165,165,0.1);
+            color: var(--accent);
+            border: 1px solid rgba(6,165,165,0.2);
+            margin-bottom: 8px;
+        }
+
+        .pricing-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pricing-card p {
+            font-size: 0.78rem;
+            color: var(--text-2);
+            line-height: 1.55;
+        }
+
+        .pricing-right { text-align: right; flex-shrink: 0; }
+
+        .price-amount {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .price-note {
+            font-size: 0.68rem;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 2px;
+        }
+
+        .price-or {
+            font-size: 0.72rem;
+            color: var(--text-3);
+            margin-top: 6px;
+        }
+
+        .price-amount-alt {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-2);
+            white-space: nowrap;
+        }
+
+        .price-amount-alt span {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-3);
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-2);
+            white-space: nowrap;
+        }
+
+        .section-header .sh-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 100px;
+            background: rgba(6,165,165,0.1);
+            color: var(--accent);
+            border: 1px solid rgba(6,165,165,0.18);
+            white-space: nowrap;
+        }
+
+        .section-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .section-block { margin-bottom: 48px; }
+
+        /* ── PROJECT GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        /* ── PROJECT CARD ── */
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.22s ease;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.28s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(6,165,165,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+        }
+
+        .card:hover::after { transform: scaleX(1); }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 42px; height: 42px;
+            background: rgba(6,165,165,0.08);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.64rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .status::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+        }
+
+        .status.live    { background: rgba(34,197,94,0.1);   color: #16a34a; }
+        .status.live::before    { background: #16a34a; }
+        .status.wip     { background: rgba(234,179,8,0.1);   color: #b45309; }
+        .status.wip::before     { background: #d97706; }
+        .status.planned { background: rgba(148,163,184,0.1); color: #64748b; }
+        .status.planned::before { background: #94a3b8; }
+
+        .card h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .card-meta {
+            font-size: 0.77rem;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: auto;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-2);
+            background: var(--bg-3);
+            border: 1px solid var(--border-light);
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .card-arrow {
+            position: absolute;
+            bottom: 20px; right: 20px;
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: all 0.22s;
+        }
+
+        .card:hover .card-arrow { opacity: 1; transform: translateX(0); }
+
+        /* Neue Karte */
+        .card-new {
+            border-style: dashed;
+            border-color: var(--border);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 160px;
+            background: transparent;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .card-new:hover {
+            border-color: var(--accent);
+            background: rgba(6,165,165,0.02);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .card-new-icon {
+            width: 34px; height: 34px;
+            border: 1px dashed var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            margin: 0 auto 8px;
+            color: var(--text-3);
+        }
+
+        .card-new span {
+            font-size: 0.78rem;
+            color: var(--text-3);
+            font-weight: 500;
+        }
+
+        /* Alte Website Link */
+        .old-link {
+            font-size: 0.75rem;
+            color: var(--text-2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .old-link:hover {
+            color: var(--accent);
+            border-color: rgba(6,165,165,0.4);
+            background: rgba(6,165,165,0.03);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            margin-top: 64px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-copy {
+            font-size: 0.76rem;
+            color: var(--text-3);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .footer-logo:hover { opacity: 1; }
+
+        .footer-logo img { height: 18px; width: auto; }
+
+        @media (max-width: 640px) {
+            .pricing-row { grid-template-columns: 1fr; }
+            .topnav { padding: 0 16px; }
+            .page { padding: 32px 16px 60px; }
+            .page-header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+    <div class="topnav-logo">
+        <img src="motodigital-logo-cropped.svg" alt="MotoDigital" style="filter:invert(1);">
+        <div class="topnav-divider"></div>
+        <span class="topnav-label">Websites</span>
+    </div>
+    <a href="https://motodigital.io" target="_blank" rel="noopener noreferrer" class="topnav-link">
+        motodigital.io ↗
+    </a>
+</nav>
+
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <h1>Meine Websites</h1>
+        <p>Alle laufenden und geplanten Kundenprojekte auf einen Blick.</p>
+    </div>
+
+    <!-- PRICING -->
+    <div class="pricing-row">
+        <div class="pricing-card">
+            <div>
+                <div class="pricing-pill">Paket</div>
+                <h3>Onepager</h3>
+                <p>Moderne, einseitige Website — responsiv, Darkmode, Smooth Scroll. Inkl. Hosting &amp; Anpassungswünsche (z.B. Popup Modal, Feiertage etc.).</p>
+            </div>
+            <div class="pricing-right">
+                <div class="price-amount">690 € <span style="font-size:0.75rem;font-weight:500;color:var(--text-3);">einmalig</span></div>
+                <div class="price-or">zzgl. 39 €/Monat</div>
+            </div>
+        </div>
+        <div class="pricing-card featured">
+            <div>
+                <div class="pricing-pill">Paket</div>
+                <h3>Premium Website</h3>
+                <p>Mehrseitige Website mit CMS, SEO-Optimierung, erweitertem Funktionsumfang. Inkl. Hosting &amp; Anpassungswünsche (z.B. Popup Modal, Feiertage etc.).</p>
+            </div>
+            <div class="pricing-right">
+                <div class="price-amount">3.950 € <span style="font-size:0.75rem;font-weight:500;color:var(--text-3);">einmalig</span></div>
+                <div class="price-or">zzgl. 59 €/Monat</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONEPAGER -->
+    <div class="section-block">
+        <div class="section-header">
+            <h2>Onepager</h2>
+            <span class="sh-badge">690 € · zzgl. 39 €/Monat</span>
+        </div>
+
+        <div class="grid">
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a class="card" href="franks-motorrad-center/index.html">
+                    <div class="card-top">
+                        <div class="card-icon">🏍️</div>
+                        <span class="status wip">In Arbeit</span>
+                    </div>
+                    <div>
+                        <h2>Franks Motorrad Center</h2>
+                        <p class="card-meta">Berlin Tempelhof · Frank Bilda<br>Motorradwerkstatt, Ankauf &amp; Verkauf, BMW Gespann</p>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag">HTML</span>
+                        <span class="tag">CSS</span>
+                        <span class="tag">Darkmode</span>
+                        <span class="tag">Responsive</span>
+                    </div>
+                    <span class="card-arrow">→ öffnen</span>
+                </a>
+                <a href="http://www.franksmotorradcenter.de/" target="_blank" rel="noopener noreferrer" class="old-link">
+                    🔗 Alte Website ansehen
+                </a>
+            </div>
+
+            <div class="card card-new">
+                <div class="card-new-icon">+</div>
+                <span>Neues Projekt</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div class="section-block">
+        <div class="section-header">
+            <h2>Premium Website</h2>
+            <span class="sh-badge">3.950 € · zzgl. 59 €/Monat</span>
+        </div>
+
+        <div class="grid">
+            <div class="card card-new">
+                <div class="card-new-icon">+</div>
+                <span>Neues Projekt</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <span class="footer-copy">© <script>document.write(new Date().getFullYear())</script> Projektübersicht</span>
+        <a href="https://motodigital.io" target="_blank" rel="noopener noreferrer" class="footer-logo">
+            <img src="motodigital-logo-cropped.svg" alt="MotoDigital" style="filter:invert(1);">
+        </a>
+    </footer>
+
+</div>
+</body>
+</html>
