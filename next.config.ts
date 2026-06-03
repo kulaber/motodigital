@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     return [
       { source: '/', has: [{ type: 'query', key: 'SA' }], destination: '/', permanent: true },
       { source: '/', has: [{ type: 'query', key: 'SD' }], destination: '/', permanent: true },
+      // Clean URLs for static client pages — strip /index.html from browser URL
+      { source: '/franks-motorrad-center/index.html', destination: '/franks-motorrad-center', permanent: true },
+      { source: '/websites/index.html', destination: '/websites', permanent: true },
     ]
   },
   compress: true,
