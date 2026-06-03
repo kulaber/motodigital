@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         '/auth/',
         '/api/',
         '/websites/',
+        '/franks-motorrad-center/',
         '/*?SA',
         '/*?SD',
         '/*?SA=*',

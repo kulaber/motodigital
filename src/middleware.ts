@@ -51,6 +51,13 @@ export async function middleware(request: NextRequest) {
     return applyNoIndex(NextResponse.next())
   }
 
+  // /franks-motorrad-center/* — static client page, noindex only
+  if (path.startsWith('/franks-motorrad-center')) {
+    const res = NextResponse.next()
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return res
+  }
+
   // /websites/* — static client pages, not i18n routes
   if (path === '/websites' || path === '/websites/' || path.startsWith('/websites/')) {
     if (path.startsWith('/websites/login')) {
