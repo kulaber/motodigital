@@ -51,8 +51,11 @@ export async function middleware(request: NextRequest) {
     return applyNoIndex(NextResponse.next())
   }
 
-  // /franks-motorrad-center/* — static client page, noindex only
-  if (path.startsWith('/franks-motorrad-center')) {
+  // Static client pages — bypass i18n middleware, noindex only
+  if (
+    path.startsWith('/franks-motorrad-center') ||
+    path.startsWith('/tommys-garage')
+  ) {
     const res = NextResponse.next()
     res.headers.set('X-Robots-Tag', 'noindex, nofollow')
     return res
