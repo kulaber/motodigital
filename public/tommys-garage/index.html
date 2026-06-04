@@ -12,10 +12,10 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --teal:      #2AABAB;
-            --teal-dark: #1e8888;
-            --teal-10:   rgba(42,171,171,0.10);
-            --teal-20:   rgba(42,171,171,0.20);
+            --teal:      #F5A623;
+            --teal-dark: #d4891a;
+            --teal-10:   rgba(245,166,35,0.10);
+            --teal-20:   rgba(245,166,35,0.22);
             --bg:        #0d0d0d;
             --bg-2:      #141414;
             --bg-3:      #1c1c1c;
@@ -61,9 +61,11 @@
             padding: 0 24px; height: 68px;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .logo {
-            font-size: 1rem; font-weight: 900;
-            letter-spacing: 0.1em; text-transform: uppercase;
+        .logo { display: flex; align-items: center; }
+        .logo img {
+            height: 44px; width: auto;
+            mix-blend-mode: screen;
+            filter: brightness(1.05);
         }
         .logo span { color: var(--teal); }
         .nav-links { display: flex; align-items: center; gap: 2px; }
@@ -484,7 +486,10 @@
 <!-- NAV -->
 <nav class="nav" id="mainNav">
     <div class="nav-inner">
-        <a href="#home" class="logo">TOMMYS <span>GARAGE</span></a>
+        <a href="#home" class="logo">
+            <img src="/tommys-garage/images/tommysgarage.png" alt="Tommys Garage" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+            <span style="display:none;font-size:1rem;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;">TOMMYS <span style="color:var(--teal)">GARAGE</span></span>
+        </a>
         <div class="nav-links">
             <a href="#bikes">Bikes</a>
             <a href="#leistungen">Leistungen</a>
@@ -507,7 +512,7 @@
 
 <!-- HERO -->
 <section class="hero" id="home">
-    <div class="hero-bg" id="heroBg" style="background-image:url('https://www.kawavan.de/images/tg/galerie_sort/harley_davidson/54_Sportster_Bobber_Umbau/image01.jpg')"></div>
+    <div class="hero-bg" id="heroBg" style="background-image:url('/tommys-garage/images/hero.jpg')"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <div class="hero-badge">Custom Bikes · Teltow</div>
@@ -725,37 +730,29 @@
             name: 'Yamaha TR1 — Neuaufbau',
             desc: 'Kompletter Neuaufbau einer Yamaha TR1 — vom blanken Rahmen zum fertigen Custom Bike.',
             images: Array.from({length: 13}, (_, i) =>
-                `https://www.kawavan.de/images/tg/galerie_sort/yamaha/61_Yamaha_TR1_Neuaufbau/image${String(i+1).padStart(2,'0')}.jpg`
+                `/tommys-garage/images/bikes/tr1/image${String(i+1).padStart(2,'0')}.jpg`
             )
         },
         {
             name: 'Honda CB 750 Sevenfifty — Umbau',
             desc: 'Die Legende neu interpretiert. CB 750 trifft modernes Custom-Design.',
             images: Array.from({length: 16}, (_, i) =>
-                `https://www.kawavan.de/images/tg/galerie_sort/honda/51_CB_750_Sevenfifty_Umbau/image${String(i+1).padStart(2,'0')}.jpg`
+                `/tommys-garage/images/bikes/cb750/image${String(i+1).padStart(2,'0')}.jpg`
             )
         },
         {
             name: 'Harley-Davidson Sportster — Bobber',
             desc: 'Sportster trifft Bobber-Stil. Minimalistisch, kraftvoll, unverwechselbar.',
             images: Array.from({length: 12}, (_, i) =>
-                `https://www.kawavan.de/images/tg/galerie_sort/harley_davidson/54_Sportster_Bobber_Umbau/image${String(i+1).padStart(2,'0')}.jpg`
+                `/tommys-garage/images/bikes/sportster/image${String(i+1).padStart(2,'0')}.jpg`
             )
         },
         {
             name: 'Yamaha XVS 650 — Umbau',
             desc: 'Yamaha V-Star als eleganter Custom Chopper — tief, lang, charakterstark.',
-            images: [
-                'https://www.kawavan.de/cache/com_zoo/images/image01_2c999c10c9aff587f149ea56ed709127.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image02_ba541e3d51c3b7d67a186fa5b9b437d0.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image03_ed088147ca621bd9b31a5d03606a3d3f.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image04_17552c44dfbba3855afb0fb04667c207.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image05_343feaeb1f89941aafe68df950fc4bfd.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image06_1a09abca03c008f33fbd9482ac7c517b.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image07_1233b9b0ba57f95fdb6c08178a62fc0f.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image08_e7ff5058bdce66670ae612ac94b3b693.jpg',
-                'https://www.kawavan.de/cache/com_zoo/images/image09_7ffabe0102038aa3124a59cce0235c53.jpg',
-            ]
+            images: Array.from({length: 9}, (_, i) =>
+                `/tommys-garage/images/bikes/xvs650/image${String(i+1).padStart(2,'0')}.jpg`
+            )
         }
     ];
 
@@ -764,30 +761,30 @@
             brand: 'Yamaha',
             name: 'TR1 Second Edition',
             desc: 'Bj. 1984 — zweiter Umbau',
-            img: 'https://www.kawavan.de/cache/com_zoo/images/image18_4412e567f272ac71ba184b335c2b64f8.jpg'
+            img: '/tommys-garage/images/klassiker/tr1_second.jpg'
         },
         {
             brand: 'Honda',
             name: 'GL 1000',
             desc: 'Teilrestauration — Touring-Klassiker',
-            img: 'https://www.kawavan.de/cache/com_zoo/images/image09_60f2ea200dbdafb24e0c91ffdf260250.jpg'
+            img: '/tommys-garage/images/klassiker/honda_gl1000.jpg'
         },
         {
             brand: 'Laverda',
             name: 'Laverda 1000',
             desc: 'Teilrestauration — Italienische Legende',
-            img: 'https://www.kawavan.de/cache/com_zoo/images/image02_51d9d11a86d5c1ff46b90ba18573f0d0.jpg'
+            img: '/tommys-garage/images/klassiker/laverda.jpg'
         },
         {
             brand: 'Yamaha',
             name: 'XT 250',
             desc: 'Teilrestauration — Enduro-Klassiker',
-            img: 'https://www.kawavan.de/cache/com_zoo/images/image02_da5f43fe17268344c6118fe4787ddcc9.jpg'
+            img: '/tommys-garage/images/klassiker/xt250.jpg'
         }
     ];
 
     const werkstattImgs = [2,3,4,5,6,7,8,9,10,11,12,13].map(i =>
-        `https://www.kawavan.de/images/tg/werkstatt/01_werkstatt_allgemein/image${String(i).padStart(2,'0')}.jpg`
+        `/tommys-garage/images/werkstatt/image${String(i).padStart(2,'0')}.jpg`
     );
 
     /* ── RENDER BIKES ── */
@@ -921,7 +918,7 @@
     const heroBgEl = document.getElementById('heroBg');
     const preload = new Image();
     preload.onload = () => heroBgEl.classList.add('loaded');
-    preload.src = 'https://www.kawavan.de/images/tg/galerie_sort/harley_davidson/54_Sportster_Bobber_Umbau/image01.jpg';
+    preload.src = '/tommys-garage/images/hero.jpg';
 
     /* ── FORM ── */
     function handleSubmit(e) {
