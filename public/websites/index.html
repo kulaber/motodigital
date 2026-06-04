@@ -466,11 +466,71 @@
 
         .footer-logo img { height: 18px; width: auto; }
 
+        /* ── SERVICE BOX ── */
+        .service-box {
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .service-box h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .service-box .service-sub {
+            font-size: 0.8rem;
+            color: var(--text-2);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .service-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 24px;
+            margin-bottom: 20px;
+        }
+
+        .service-list li {
+            font-size: 0.82rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-list li::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            background: rgba(6,165,165,0.12);
+            border: 1px solid rgba(6,165,165,0.25);
+            border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%2306a5a5' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .service-note {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text-2);
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
         @media (max-width: 640px) {
             .pricing-row { grid-template-columns: 1fr; }
             .topnav { padding: 0 16px; }
             .page { padding: 32px 16px 60px; }
             .page-header h1 { font-size: 1.4rem; }
+            .service-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -502,22 +562,22 @@
             <div>
                 <div class="pricing-pill">Paket</div>
                 <h3>Onepager</h3>
-                <p>Moderne, einseitige Website — responsiv, Darkmode, Smooth Scroll. Inkl. Hosting &amp; Anpassungswünsche (z.B. Popup Modal, Feiertage etc.).</p>
+                <p>Moderne, responsive Website mit individuellem Design, Darkmode und optimaler Darstellung auf allen Geräten.</p>
             </div>
             <div class="pricing-right">
-                <div class="price-amount">799 € <span style="font-size:0.75rem;font-weight:500;color:var(--text-3);">einmalig</span></div>
-                <div class="price-or">zzgl. 39 €/Monat</div>
+                <div class="price-amount">1.490 € <span style="font-size:0.75rem;font-weight:500;color:var(--text-3);">einmalig</span></div>
+                <div class="price-or">zzgl. 49 €/Monat</div>
             </div>
         </div>
         <div class="pricing-card featured">
             <div>
                 <div class="pricing-pill">Paket</div>
                 <h3>Premium Website</h3>
-                <p>Mehrseitige Website mit CMS, SEO-Optimierung, erweitertem Funktionsumfang. Inkl. Hosting &amp; Anpassungswünsche (z.B. Popup Modal, Feiertage etc.).</p>
+                <p>Mehrseitige Website mit erweitertem Funktionsumfang, CMS, SEO-Basisoptimierung und individueller Nutzerführung.</p>
             </div>
             <div class="pricing-right">
                 <div class="price-amount">3.950 € <span style="font-size:0.75rem;font-weight:500;color:var(--text-3);">einmalig</span></div>
-                <div class="price-or">zzgl. 59 €/Monat</div>
+                <div class="price-or">zzgl. 99 €/Monat</div>
             </div>
         </div>
     </div>
@@ -526,7 +586,7 @@
     <div class="section-block">
         <div class="section-header">
             <h2>Onepager</h2>
-            <span class="sh-badge">799 € · zzgl. 39 €/Monat</span>
+            <span class="sh-badge">1.490 € · zzgl. 49 €/Monat</span>
         </div>
 
         <div class="grid">
@@ -633,7 +693,7 @@
     <div class="section-block">
         <div class="section-header">
             <h2>Premium Website</h2>
-            <span class="sh-badge">3.950 € · zzgl. 59 €/Monat</span>
+            <span class="sh-badge">3.950 € · zzgl. 99 €/Monat</span>
         </div>
 
         <div class="grid">
@@ -641,6 +701,33 @@
                 <div class="card-new-icon">+</div>
                 <span>Neues Projekt</span>
             </div>
+        </div>
+    </div>
+
+    <!-- BETREUUNG & HOSTING -->
+    <div class="section-block">
+        <div class="section-header">
+            <h2>Betreuung &amp; Hosting</h2>
+            <span class="sh-badge">Inklusive</span>
+        </div>
+
+        <div class="service-box">
+            <h3>Betreuung &amp; Hosting inklusive</h3>
+            <p class="service-sub">Mit dem monatlichen Servicepaket kümmern wir uns um alles, damit Ihre Website stets aktuell, sicher und professionell bleibt.</p>
+            <ul class="service-list">
+                <li>Hosting der Website</li>
+                <li>Sicherheits-Updates</li>
+                <li>Regelmäßige technische Wartung</li>
+                <li>Weihnachtsbanner und saisonale Aktionen</li>
+                <li>Anpassung von Betriebsurlauben und Öffnungszeiten</li>
+                <li>Hinzufügen neuer Mitarbeiter</li>
+                <li>Austausch und Upload neuer Bilder</li>
+                <li>Kleine Inhaltsänderungen nach Wunsch</li>
+                <li>Direkter Kontakt per WhatsApp</li>
+                <li>Persönlicher Ansprechpartner</li>
+                <li>Schnelle Umsetzung von Änderungswünschen</li>
+            </ul>
+            <p class="service-note">Keine versteckten Kosten – alles inklusive.</p>
         </div>
     </div>
 
