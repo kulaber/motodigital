@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       // Clean URLs for static client pages — strip /index.html from browser URL
       { source: '/franks-motorrad-center/index.html', destination: '/franks-motorrad-center', permanent: true },
       { source: '/websites/index.html', destination: '/websites', permanent: true },
+      { source: '/tommys-garage/index.html', destination: '/tommys-garage', permanent: true },
     ]
   },
   compress: true,
