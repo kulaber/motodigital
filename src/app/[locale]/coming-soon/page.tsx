@@ -45,7 +45,12 @@ export default function ComingSoonPage() {
           Verifizierte Builder, direkt kontaktierbar — ohne Umwege, ohne Provision. Wir starten bald.
         </p>
 
-
+        <a
+          href="mailto:info@motodigital.de"
+          className="inline-flex items-center gap-2 bg-[#2AABAB] hover:bg-[#249999] text-white font-semibold text-sm px-6 py-3 rounded-full transition-colors"
+        >
+          Jetzt Kontakt aufnehmen
+        </a>
 
       </div>
     </div>
