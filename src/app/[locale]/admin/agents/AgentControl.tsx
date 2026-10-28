@@ -40,6 +40,13 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
   const [briefing, setBriefing] = useState(initialBriefing)
   const [note, setNote] = useState(DEFAULT_NOTE)
   const [saving, setSaving] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('ac-panel-collapsed') === '1' } catch { return false }
+  })
+  const toggleCollapsed = () => setCollapsed(c => {
+    try { localStorage.setItem('ac-panel-collapsed', c ? '0' : '1') } catch { /* storage unavailable */ }
+    return !c
+  })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -77,8 +84,9 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
       header: headerRef.current!,
       panel: panelRef.current!,
       getState: () => sceneState.current,
-      onPickAgent: id => setSel({ kind: 'agent', id, view: 'work' }),
-      onPickCafe: () => setSel({ kind: 'cafe' }),
+      // Picking something in the scene always opens the panel again
+      onPickAgent: id => { setSel({ kind: 'agent', id, view: 'work' }); setCollapsed(false) },
+      onPickCafe: () => { setSel({ kind: 'cafe' }); setCollapsed(false) },
     })
     sceneRef.current = scene
     return () => { scene.destroy(); sceneRef.current = null }
@@ -271,11 +279,25 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
           </Link>
         </div>
       </header>
-      <div ref={panelRef} className="panel">
-        <div><h2>{title}</h2><span className="ar">{sub}</span><span className="st">{status}</span></div>
-        <div className="body">{body}</div>
-        <div className="acts">{actions}</div>
-        <div className="note">{note}</div>
+      <div ref={panelRef} className={'panel' + (collapsed ? ' collapsed' : '')}>
+        <div className="ph">
+          <div><h2>{title}</h2><span className="ar">{sub}</span><span className="st">{status}</span></div>
+          <button
+            className="toggle"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            aria-controls="ac-panel-content"
+            aria-label={collapsed ? 'Panel aufklappen' : 'Panel zuklappen'}
+            title={collapsed ? 'Aufklappen' : 'Zuklappen'}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
+        </div>
+        <div id="ac-panel-content" hidden={collapsed}>
+          <div className="body">{body}</div>
+          <div className="acts">{actions}</div>
+          <div className="note">{note}</div>
+        </div>
       </div>
     </div>
   )
@@ -324,6 +346,13 @@ const CSS = `
 @keyframes ac-p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.ac-root .node.work i{animation:none}}
 .ac-root .panel{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:min(600px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;backdrop-filter:blur(10px);box-sizing:border-box;z-index:5}
+.ac-root .panel.collapsed{padding:10px 12px 10px 16px}
+.ac-root .ph{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ac-root .toggle{flex:none;display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;background:transparent;color:var(--fg);border-color:var(--line)}
+.ac-root .toggle svg{transition:transform .2s}
+.ac-root .panel.collapsed .toggle svg{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.ac-root .toggle svg{transition:none}}
+.ac-root [hidden]{display:none!important}
 .ac-root .panel h2{font-size:14px;margin:0;font-weight:800;display:inline}
 .ac-root .ar{font-size:11px;color:var(--mut);font-weight:600;margin-left:8px}
 .ac-root .st{font-size:11px;color:var(--teal);font-weight:600;margin-left:8px}
