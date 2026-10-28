@@ -55,7 +55,9 @@ function localizedEntry(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
 
-  const [{ data: builders }, { data: bikes }, { data: riders }, { data: events }, { data: brands }] = await Promise.all([
+  // Rider profiles are login-gated (PROTECTED_ROUTES in middleware → 307 to
+  // /auth/login), so they are deliberately not part of the sitemap.
+  const [{ data: builders }, { data: bikes }, { data: events }, { data: brands }] = await Promise.all([
     (supabase.from('profiles') as any)
       // profiles has no updated_at column — selecting it makes the whole query fail
       .select('slug, created_at')
@@ -65,11 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from('bikes')
       .select('id, slug, title, updated_at')
       .eq('status', 'active') as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
-    (supabase.from('profiles') as any)
-      .select('slug, created_at')
-      .eq('role', 'rider')
-      .not('slug', 'is', null)
-      .or('is_bot.is.null,is_bot.eq.false') as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
       .not('slug', 'is', null) as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
@@ -176,19 +173,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const riderPages: MetadataRoute.Sitemap = (riders ?? []).map((r) => {
-    const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/rider/${r.slug}`])
-    )
-    return {
-      url: urls[routing.defaultLocale],
-      lastModified: r.created_at ? new Date(r.created_at) : now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-      alternates: { languages: urls },
-    }
-  })
-
   const eventPages: MetadataRoute.Sitemap = (events ?? []).map((e) => {
     const urls = Object.fromEntries(
       routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/events/${e.slug}`])
@@ -222,7 +206,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...articlePages,
     ...builderPages,
     ...bikePages,
-    ...riderPages,
     ...eventPages,
     ...brandPages,
   ]
