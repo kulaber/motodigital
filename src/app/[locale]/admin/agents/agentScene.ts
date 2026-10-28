@@ -99,7 +99,7 @@ export function createAgentScene(o: SceneOptions): SceneApi {
   for (const x of [-0.5, 0.3, 1.1]) for (const z of [0.05, 1.75]) {
     cyl(0.17, 0.17, 0.05, M(0x111111), x, 0.47, z, cafe); cyl(0.03, 0.03, 0.34, M(0x111111), x, 0.28, z, cafe); cyl(0.14, 0.14, 0.02, M(0x111111), x, 0.12, z, cafe)
   }
-  for (const [x, z] of [[-0.35, 0.75], [0.55, 1.15]]) cyl(0.05, 0.04, 0.08, M(0xFAF8F2), x, 0.79, z, cafe)
+  for (const [x, z] of [[-0.35, 0.75], [1.0, 1.2]]) cyl(0.05, 0.04, 0.08, M(0xFAF8F2), x, 0.79, z, cafe)
   const helmet = (c: number, st: number, x: number, y: number, z: number, ry = 0) => {
     const g = new THREE.Group(); g.position.set(x, y + 0.052, z); g.rotation.y = ry; cafe.add(g)
     g.add(new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62), M(c)))
@@ -118,7 +118,7 @@ export function createAgentScene(o: SceneOptions): SceneApi {
 
   // ── Figures ──
   const SKIN = [0xE9C9A8, 0xC99A76, 0x8D5F40, 0xF1D3B8], HAIR = [0x2a1d14, 0x111111, 0x6b4a2b, 0xb08d57], SHIRT = [0x111111, TEAL, 0x6b675e, 0xFAF8F2, 0x44505A]
-  const person = (i: number, shirtC?: number): Person => {
+  const person = (i: number, shirtC?: number, beard = false): Person => {
     const g = new THREE.Group()
     const shirt = M(shirtC ?? SHIRT[i % SHIRT.length]), skin = M(SKIN[i % 4]), pants = M(0x2b2d33), hair = M(HAIR[(i + 1) % 4]), shoe = M(0x111111)
     const legs: Person['legs'] = [], arms: THREE.Group[] = []
@@ -131,6 +131,14 @@ export function createAgentScene(o: SceneOptions): SceneApi {
     }
     box(0.32, 0.38, 0.19, shirt, 0, 0.2, 0, g)
     ball(0.115, skin, 0, 0.5, 0, g); const h = ball(0.12, hair, 0, 0.54, 0.03, g); h.scale.set(1, 0.75, 1)
+    if (beard) {
+      // Three-day stubble: thin translucent shell over jaw and chin (face looks towards -z)
+      const stubble = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 18, 12, Math.PI * 1.05, Math.PI * 0.9, Math.PI * 0.5, Math.PI * 0.42),
+        new THREE.MeshLambertMaterial({ color: 0x2e231c, transparent: true, opacity: 0.72 }),
+      )
+      stubble.position.set(0, 0.5, 0); g.add(stubble)
+    }
     for (const sx of [-0.2, 0.2]) {
       const sh = new THREE.Group(); sh.position.set(sx, 0.36, 0); g.add(sh)
       box(0.08, 0.3, 0.09, shirt, 0, -0.15, 0, sh); ball(0.045, skin, 0, -0.32, 0, sh); arms.push(sh)
@@ -141,7 +149,12 @@ export function createAgentScene(o: SceneOptions): SceneApi {
     p.legs.forEach(l => { l.hip.rotation.x = s * Math.PI / 2; l.knee.rotation.x = -s * Math.PI / 2 })
     p.arms.forEach((a, i) => { a.rotation.x = s * 1.25 + (typing ? Math.sin(t / 70 + i * 2 + ph) * 0.14 : 0) })
   }
-  const barista = person(1, TEAL); barista.g.position.set(1.3, 0.62, -2.45); pose(barista, 0, 0, false, 0); cafe.add(barista.g)
+  // Portafilter + cup on the machine's working side, barista behind it
+  cyl(0.05, 0.05, 0.05, M(0x1d1d1d), 0.1, 1.07, -2.27, cafe)
+  box(0.03, 0.025, 0.16, M(0x111111), 0.1, 1.06, -2.38, cafe)
+  cyl(0.04, 0.035, 0.07, M(0xFAF8F2), 0.1, 0.96, -2.27, cafe)
+  const barista = person(1, TEAL); barista.g.position.set(0.1, 0.62, -2.55); barista.g.rotation.y = Math.PI
+  pose(barista, 0, 0, false, 0); barista.arms.forEach(a => { a.rotation.x = 0.95 }); cafe.add(barista.g)
   const bike = (tank: number, hump?: number) => {
     const g = new THREE.Group(); const blk = M(0x151515), chr = M(0xC9CACC)
     for (const z of [-0.36, 0.36]) {
@@ -161,27 +174,31 @@ export function createAgentScene(o: SceneOptions): SceneApi {
   // ── Workstations ──
   const stations: Station[] = []
   const byId = new Map<string, Station>()
-  const station = (def: AgentDef, areaName: string, x: number, y: number, z: number) => {
+  const station = (def: AgentDef, areaName: string, x: number, y: number, z: number, atCafeTable = false) => {
     const g = new THREE.Group(); g.position.set(x, y, z); S.add(g)
-    box(1.25, 0.05, 0.62, TM.desk, 0, 0.53, -0.25, g); box(0.04, 0.51, 0.56, M(0x111111), -0.58, 0.265, -0.25, g); box(0.04, 0.51, 0.56, M(0x111111), 0.58, 0.265, -0.25, g)
+    if (!atCafeTable) { box(1.25, 0.05, 0.62, TM.desk, 0, 0.53, -0.25, g); box(0.04, 0.51, 0.56, M(0x111111), -0.58, 0.265, -0.25, g); box(0.04, 0.51, 0.56, M(0x111111), 0.58, 0.265, -0.25, g) }
     const al = M(0xD3D4D6); box(0.22, 0.015, 0.15, al, 0, 0.565, -0.4, g); box(0.08, 0.24, 0.04, al, 0, 0.68, -0.42, g)
     box(0.68, 0.44, 0.035, al, 0, 0.88, -0.4, g); box(0.68, 0.07, 0.036, M(0xE4E5E7), 0, 0.69, -0.4, g)
     const scr = new THREE.MeshBasicMaterial({ color: 0x1b1b1b }); const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.33), scr); sc.position.set(0, 0.9, -0.381); g.add(sc)
     const lines = [0, 1, 2].map(k => { const m = box(0.36 - k * 0.08, 0.025, 0.002, new THREE.MeshBasicMaterial({ color: 0xFAF8F2 }), -0.1 + k * 0.04, 0.98 - k * 0.06, -0.378, g); m.visible = false; return m })
     box(0.42, 0.015, 0.14, M(0xF4F4F4), 0, 0.565, -0.12, g); box(0.06, 0.02, 0.1, M(0xF4F4F4), 0.32, 0.565, -0.12, g)
-    cyl(0.02, 0.02, 0.24, M(0x111111), 0, 0.12, 0.35, g, 8); box(0.36, 0.03, 0.36, M(0x111111), 0, 0.02, 0.35, g)
-    box(0.44, 0.06, 0.42, M(0x111111), 0, 0.24, 0.35, g); box(0.44, 0.42, 0.05, M(0x111111), 0, 0.47, 0.57, g)
-    const p = person(stations.length, def.id === COS.id ? TEAL : undefined); g.add(p.g)
+    if (!atCafeTable) {
+      cyl(0.02, 0.02, 0.24, M(0x111111), 0, 0.12, 0.35, g, 8); box(0.36, 0.03, 0.36, M(0x111111), 0, 0.02, 0.35, g)
+      box(0.44, 0.06, 0.42, M(0x111111), 0, 0.24, 0.35, g); box(0.44, 0.42, 0.05, M(0x111111), 0, 0.47, 0.57, g)
+    }
+    const isCos = def.id === COS.id
+    const p = person(stations.length, isCos ? TEAL : undefined, isCos); g.add(p.g)
     const el = document.createElement('button')
     el.className = 'node'; el.innerHTML = '<i></i><span></span>'; el.querySelector('span')!.textContent = def.n
     el.setAttribute('aria-label', `${def.n}, ${areaName}`)
     el.onclick = () => o.onPickAgent(def.id)
     o.overlay.appendChild(el)
-    const st: Station = { def, areaName, g, scr, lines, p, s: 0, ph: Math.random() * 6, lp: 0, el }
+    // The Chief of Staff starts (and stays) seated
+    const st: Station = { def, areaName, g, scr, lines, p, s: isCos ? 1 : 0, ph: Math.random() * 6, lp: 0, el }
     g.traverse(obj => { obj.userData.agentId = def.id })
     stations.push(st); byId.set(def.id, st)
   }
-  station(COS, 'Zentrale', -1.75, 0.12, -0.75)
+  station(COS, 'Zentrale', 0.3, 0.185, 1.4, true)
 
   const areaEls: { el: HTMLDivElement; x: number; z: number; sz: number }[] = []
   AREAS.forEach(area => {
@@ -206,7 +223,7 @@ export function createAgentScene(o: SceneOptions): SceneApi {
   const pk: { m: THREE.Mesh; from: THREE.Vector3; to: THREE.Vector3; t: number; d: number }[] = []
   const pg = new THREE.BoxGeometry(0.2, 0.2, 0.2)
   const pm = new THREE.MeshLambertMaterial({ color: TEAL, emissive: TEAL, emissiveIntensity: 0.35 })
-  const CAFE_T = new THREE.Vector3(-1.75, 1.4, -0.9)
+  const CAFE_T = new THREE.Vector3(0.3, 1.4, 1.1)
   const packet = (fromId: string, toId?: string) => {
     const a = byId.get(fromId); if (!a) return
     const from = new THREE.Vector3(); a.g.getWorldPosition(from); from.y += 1.1
@@ -305,7 +322,7 @@ export function createAgentScene(o: SceneOptions): SceneApi {
     const dense = sBase * zoom < 36
     stations.forEach(a => {
       const state = st.states[a.def.id] ?? 'bereit', w = state === 'arbeitet', inbox = st.inbox.has(a.def.id), sel = st.selectedAgent === a.def.id
-      a.s += ((w ? 1 : 0) - a.s) * (RM ? 1 : 0.08)
+      a.s += ((w || a.def.id === COS.id ? 1 : 0) - a.s) * (RM ? 1 : 0.08)
       a.p.g.position.lerpVectors(STAND, SEAT, a.s); a.p.g.rotation.y = (1 - a.s) * Math.PI; pose(a.p, a.s, t, w && a.s > 0.9, a.ph)
       a.scr.color.setHex(w ? (Math.sin(t / 180 + a.ph) > -0.2 ? TEAL : 0x249494) : state === 'fertig' ? 0x8FD3D3 : 0x1b1b1b)
       a.lines.forEach((m, i) => { m.visible = w || state === 'fertig'; if (w) m.scale.x = 0.6 + 0.4 * Math.abs(Math.sin(t / 300 + i + a.ph)) })

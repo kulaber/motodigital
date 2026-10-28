@@ -1,11 +1,14 @@
-// Read-only data tools for Agent Control. Server-side only — every caller
-// must have passed the superadmin check first. No tool writes, sends or
-// changes anything. Personal contact data (emails, phone numbers, private
-// message bodies) never leaves this file.
+// Data tools for Agent Control. Server-side only — every caller must have
+// passed the superadmin check (or the cron secret) first. All tools read,
+// except save_article_draft, which only stores a DRAFT and is granted to the
+// editorial agent alone. Nothing is published or sent by an agent. Personal
+// contact data (emails, phone numbers, private message bodies) never leaves
+// this file.
 
 import { createClient as createAdminClient, type SupabaseClient } from '@supabase/supabase-js'
 import type Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
+import { ARTICLES } from '@/lib/data/magazine'
 
 const PLACEHOLDER_DOMAIN = '@motodigital.local'
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -271,9 +274,110 @@ async function getBikes(input: z.infer<typeof GetBikesInput>) {
   }
 }
 
+// ── Magazine ──────────────────────────────────────────────────────────
+
+async function getMagazineArticles() {
+  const db = admin()
+  const { data } = await db.from('magazine_articles').select('slug, title, category, tags, status, published_at').order('created_at', { ascending: false }).limit(200)
+  return {
+    articles: [
+      ...(data ?? []).map((a: any) => ({ slug: a.slug, title: a.title, category: a.category, tags: a.tags, status: a.status })),
+      ...ARTICLES.map(a => ({ slug: a.slug, title: a.title, category: a.category, tags: a.tags, status: 'published' })),
+    ],
+  }
+}
+
+const SECTION_TYPES = ['intro', 'h2', 'p', 'list', 'quote', 'cta'] as const
+
+const Section = z.object({
+  type: z.enum(SECTION_TYPES),
+  text: z.string().max(3000).optional(),
+  items: z.array(z.string().max(500)).max(20).optional(),
+  href: z.string().max(200).optional(),
+  label: z.string().max(60).optional(),
+}).superRefine((s, ctx) => {
+  if (s.type === 'list' ? !s.items?.length : !s.text?.trim()) ctx.addIssue({ code: 'custom', message: `${s.type} braucht ${s.type === 'list' ? 'items' : 'text'}` })
+  if (s.type === 'cta' && (!s.href?.startsWith('/') || !s.label)) ctx.addIssue({ code: 'custom', message: 'cta braucht label und eine interne href, die mit / beginnt' })
+})
+
+const SaveDraftInput = z.object({
+  title: z.string().min(10).max(120),
+  slug: z.string().min(3).max(90),
+  meta_title: z.string().min(10).max(70),
+  meta_description: z.string().min(50).max(170),
+  category: z.enum(['guide', 'interview', 'build-story']),
+  excerpt: z.string().min(40).max(300),
+  tags: z.array(z.string().max(40)).max(10),
+  related_workshop_slugs: z.array(z.string().max(90)).max(12),
+  faq: z.array(z.object({ q: z.string().max(200), a: z.string().max(800) })).max(6),
+  content: z.array(Section).min(4).max(60),
+})
+
+const slugify = (s: string) => s.toLowerCase()
+  .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80)
+
+/** The only write tool: stores an article as DRAFT. Publishing is a founder action. */
+async function saveArticleDraft(input: z.infer<typeof SaveDraftInput>, ctx: ToolContext) {
+  const db = admin()
+  const base = slugify(input.slug) || slugify(input.title)
+  const { data: taken } = await db.from('magazine_articles').select('slug').like('slug', `${base}%`)
+  const takenSet = new Set([...(taken ?? []).map((r: any) => r.slug), ...ARTICLES.map(a => a.slug)])
+  let slug = base
+  for (let i = 2; takenSet.has(slug); i++) slug = `${base}-${i}`
+
+  // Cover: first related workshop's cover photo (our own storage), if any
+  let cover: string | null = null
+  let relatedBuilder: string | null = null
+  if (input.related_workshop_slugs.length) {
+    const { data: ws } = await db.from('profiles').select('id, slug').in('slug', input.related_workshop_slugs).eq('role', 'custom-werkstatt')
+    const first = input.related_workshop_slugs.map(s => (ws ?? []).find((w: any) => w.slug === s)).find(Boolean) as { id: string; slug: string } | undefined
+    if (first) {
+      relatedBuilder = first.slug
+      const { data: m } = await db.from('builder_media').select('url').eq('builder_id', first.id).eq('type', 'image').order('position').limit(1)
+      cover = m?.[0]?.url ?? null
+    }
+  }
+
+  const words = input.content.reduce((n, s) => n + `${s.text ?? ''} ${(s.items ?? []).join(' ')}`.split(/\s+/).filter(Boolean).length, 0)
+  const content = input.content.map(s => (
+    s.type === 'list' ? { type: 'list', items: s.items }
+      : s.type === 'cta' ? { type: 'cta', text: s.text, href: s.href, label: s.label }
+        : { type: s.type, text: s.text }
+  ))
+
+  const { data, error } = await db.from('magazine_articles').insert({
+    slug, title: input.title, meta_title: input.meta_title, meta_description: input.meta_description,
+    category: input.category, excerpt: input.excerpt, cover_image: cover, tags: input.tags,
+    related_builder_slug: relatedBuilder, faq: input.faq, content,
+    read_time: `${Math.max(3, Math.round(words / 200))} min`,
+    status: 'draft', created_by_agent: ctx.agentId, source_output_id: ctx.outputId,
+  }).select('id').single()
+  if (error) throw new Error(`Entwurf konnte nicht gespeichert werden: ${error.message}`)
+  return { saved: true, id: data.id, slug, status: 'draft', words, note: 'Entwurf gespeichert. Er wird erst veröffentlicht, wenn der Gründer ihn freigibt.' }
+}
+
 // ── Tool registry ─────────────────────────────────────────────────────
 
+export interface ToolContext {
+  agentId: string
+  outputId: string
+}
+
 const noArgs = z.object({})
+
+const SECTION_SCHEMA = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', enum: [...SECTION_TYPES] },
+    text: { type: 'string', description: 'Text für intro, h2, p, quote und den Satz neben dem cta-Button' },
+    items: { type: 'array', items: { type: 'string' }, description: 'Nur für list' },
+    href: { type: 'string', description: 'Nur für cta: interner Pfad, z. B. /custom-werkstatt/<slug> oder /magazine/<slug>' },
+    label: { type: 'string', description: 'Nur für cta: Button-Text, z. B. „Profil ansehen“' },
+  },
+  required: ['type'],
+  additionalProperties: false,
+}
 
 const REGISTRY = {
   get_platform_stats: {
@@ -344,24 +448,65 @@ const REGISTRY = {
       },
     },
   },
+  get_magazine_articles: {
+    schema: noArgs,
+    run: async () => getMagazineArticles(),
+    def: {
+      name: 'get_magazine_articles',
+      description: 'Alle Magazin-Artikel (veröffentlicht und Entwürfe) mit Slug, Titel, Kategorie und Tags — um Doppelungen zu vermeiden und intern zu verlinken (/magazine/<slug>).',
+      input_schema: { type: 'object', properties: {}, required: [], additionalProperties: false },
+    },
+  },
+  // ── Write tool: only offered to agents that list it in definitions.ts ──
+  save_article_draft: {
+    schema: SaveDraftInput,
+    run: saveArticleDraft,
+    write: true,
+    def: {
+      name: 'save_article_draft',
+      description: 'Speichert einen Magazin-Artikel als ENTWURF. Er wird nicht veröffentlicht — der Gründer prüft und gibt ihn frei. Abschnitte: intro (Einstieg), h2 (Zwischenüberschrift), p (Absatz), list (Aufzählung), quote (Zitat-Kasten, keine erfundenen Zitate von Personen), cta (Satz plus Button mit internem Link). Keine Bilder.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'H1, 10–120 Zeichen' },
+          slug: { type: 'string', description: 'URL-Slug in Kleinbuchstaben mit Bindestrichen' },
+          meta_title: { type: 'string', description: 'max. 60 Zeichen' },
+          meta_description: { type: 'string', description: '120–155 Zeichen' },
+          category: { type: 'string', enum: ['guide', 'interview', 'build-story'] },
+          excerpt: { type: 'string', description: 'Teaser, 1–2 Sätze' },
+          tags: { type: 'array', items: { type: 'string' } },
+          related_workshop_slugs: { type: 'array', items: { type: 'string' }, description: 'Slugs der verlinkten Werkstätten aus get_workshops; die erste liefert das Titelbild' },
+          faq: { type: 'array', items: { type: 'object', properties: { q: { type: 'string' }, a: { type: 'string' } }, required: ['q', 'a'], additionalProperties: false } },
+          content: { type: 'array', items: SECTION_SCHEMA },
+        },
+        required: ['title', 'slug', 'meta_title', 'meta_description', 'category', 'excerpt', 'tags', 'related_workshop_slugs', 'faq', 'content'],
+        additionalProperties: false,
+      },
+    },
+  },
 } as const
 
 type ToolName = keyof typeof REGISTRY
+type ToolEntry = { schema: z.ZodTypeAny; run: (input: any, ctx: ToolContext) => Promise<unknown>; write?: boolean; def: object }
 
-export const AGENT_TOOLS: Anthropic.Beta.BetaTool[] = Object.values(REGISTRY).map(t => ({
-  ...t.def,
-  strict: true,
-})) as Anthropic.Beta.BetaTool[]
+const isWrite = (name: string) => !!(REGISTRY[name as ToolName] as ToolEntry | undefined)?.write
 
-/** Validate + run a tool. Returns [resultJson, isError]. */
-export async function runAgentTool(name: string, input: unknown): Promise<[string, boolean]> {
-  const tool = REGISTRY[name as ToolName]
+/** Read-only tools for everyone, plus the write tools an agent is explicitly granted */
+export function toolsForAgent(extra: string[] = []): Anthropic.Beta.BetaTool[] {
+  return (Object.entries(REGISTRY) as [string, ToolEntry][])
+    .filter(([name]) => !isWrite(name) || extra.includes(name))
+    .map(([, t]) => ({ ...t.def, strict: true })) as Anthropic.Beta.BetaTool[]
+}
+
+/** Validate + run a tool. Write tools only run if granted. Returns [resultJson, isError]. */
+export async function runAgentTool(name: string, input: unknown, ctx: ToolContext, granted: string[] = []): Promise<[string, boolean]> {
+  const tool = REGISTRY[name as ToolName] as ToolEntry | undefined
   if (!tool) return [JSON.stringify({ error: `Unbekanntes Tool: ${name}` }), true]
-  const parsed = (tool.schema as z.ZodTypeAny).safeParse(input ?? {})
+  if (tool.write && !granted.includes(name)) return [JSON.stringify({ error: `Tool nicht erlaubt: ${name}` }), true]
+  const parsed = tool.schema.safeParse(input ?? {})
   if (!parsed.success) return [JSON.stringify({ INVALID_INPUT: parsed.error.flatten() }), true]
   try {
-    const result = await (tool.run as (i: any) => Promise<unknown>)(parsed.data)
-    return [JSON.stringify(result), false]
+    return [JSON.stringify(await tool.run(parsed.data, ctx)), false]
   } catch (e) {
     return [JSON.stringify({ error: e instanceof Error ? e.message : 'Tool fehlgeschlagen' }), true]
   }

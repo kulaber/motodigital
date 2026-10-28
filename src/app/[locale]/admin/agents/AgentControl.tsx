@@ -9,11 +9,44 @@ import { createAgentScene, type AgentState, type SceneApi, type SceneState } fro
 
 export interface AblageItem { id: string; task: string; text: string; at: string }
 
+export interface ArticleDraft {
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  meta_title: string
+  meta_description: string
+  cover_image: string | null
+  read_time: string | null
+  created_by_agent: string | null
+  created_at: string
+  content: { type: string; text?: string; items?: string[]; href?: string; label?: string }[]
+  faq: { q: string; a: string }[]
+}
+
+export interface TeamOrder {
+  id: string
+  instruction: string
+  summary: string | null
+  plan: { agent_id: string; instruction: string }[]
+  recurrence: 'none' | 'weekly'
+  status: 'planned' | 'approved' | 'running' | 'done' | 'error' | 'rejected'
+  active: boolean
+  next_run_at: string | null
+  last_run_at?: string | null
+  created_at: string
+}
+
 export interface AgentControlProps {
   stats: PlatformStats
   briefing: string
   ablage: Record<string, AblageItem[]>
+  drafts: ArticleDraft[]
+  orders: TeamOrder[]
 }
+
+type StreamResult = { ok: boolean; id: string | null; output: string; error?: string }
 
 interface AgentUi {
   state: AgentState
@@ -24,12 +57,14 @@ interface AgentUi {
   inbox: { from: string; text: string; outputId: string } | null
 }
 
-type Selection = { kind: 'agent'; id: string; view: 'work' | 'ablage' } | { kind: 'cafe' } | null
+type AgentView = 'work' | 'ablage' | 'order' | 'recurring'
+type Selection = { kind: 'agent'; id: string; view: AgentView } | { kind: 'cafe' } | { kind: 'draft'; id: string } | null
 
 const DEFAULT_NOTE = 'Mitarbeiter arbeiten nur auf deinen Klick und liefern Entwürfe. Nichts wird gepostet oder versendet.'
 const fmt = (n: number) => n.toLocaleString('de-DE')
+const dateTime = (iso: string) => new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })
 
-export default function AgentControl({ stats, briefing: initialBriefing, ablage: initialAblage }: AgentControlProps) {
+export default function AgentControl({ stats, briefing: initialBriefing, ablage: initialAblage, drafts: initialDrafts, orders: initialOrders }: AgentControlProps) {
   const router = useRouter()
   const localeRouter = useLocaleRouter()
   const agents = useMemo(() => allAgents(), [])
@@ -40,6 +75,23 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
   const [briefing, setBriefing] = useState(initialBriefing)
   const [note, setNote] = useState(DEFAULT_NOTE)
   const [saving, setSaving] = useState(false)
+  const [drafts, setDrafts] = useState(initialDrafts)
+  const [orders, setOrders] = useState(initialOrders)
+  const [orderText, setOrderText] = useState('')
+  const [orderWeekly, setOrderWeekly] = useState(false)
+  const [planning, setPlanning] = useState(false)
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(
+    () => initialOrders.find(o => o.status === 'planned')?.id ?? null)
+  const [progress, setProgress] = useState<{ step: number; total: number; label: string } | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  // Fresh server data after router.refresh() (e.g. new drafts from a team order)
+  useEffect(() => {
+    setDrafts(initialDrafts)
+  }, [initialDrafts])
+  useEffect(() => {
+    setOrders(initialOrders)
+  }, [initialOrders])
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('ac-panel-collapsed') === '1' } catch { return false }
   })
@@ -62,7 +114,8 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
     `<span>Rider registriert</span><strong>${fmt(stats.riders)}</strong>` +
     `<span>Bikes aktiv</span><strong>${fmt(stats.bikesActive)}</strong>` +
     `<span>Seitenaufrufe (30 T.)</span><strong>${fmt(stats.pageViews30d)}</strong>` +
-    '</div>', [stats])
+    (drafts.length ? `<span class="alert">Freigaben offen</span><strong class="alert">${drafts.length}</strong>` : '') +
+    '</div>', [stats, drafts.length])
 
   // The scene reads React state through a ref every frame
   const sceneState = useRef<SceneState>({ states: {}, inbox: new Set(), selectedAgent: null, cafeSelected: false, cafeHtml })
@@ -106,17 +159,15 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
     setUi(prev => ({ ...prev, [id]: { ...prev[id], ...p } }))
   }, [])
 
-  const run = useCallback(async (id: string) => {
-    const a = ui[id]
-    if (a.state === 'arbeitet') return
+  /** POST /run and stream the result into the agent's panel; files it into the Ablage when done */
+  const streamRun = useCallback(async (id: string, body: Record<string, unknown>, taskLabel: string): Promise<StreamResult> => {
     patch(id, { state: 'arbeitet', out: '', outId: null })
-    setNote(DEFAULT_NOTE)
     let text = ''
     try {
       const res = await fetch('/api/admin/agents/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: id, taskIndex: a.task, details: a.det, handoffFromId: a.inbox?.outputId ?? null }),
+        body: JSON.stringify({ agentId: id, ...body }),
       })
       if (!res.ok || !res.body) {
         const err = await res.json().catch(() => null) as { error?: string } | null
@@ -135,20 +186,103 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
           if (!line) continue
           const ev = JSON.parse(line) as { type: string; delta?: string; name?: string; id?: string; output?: string; message?: string }
           if (ev.type === 'text' && ev.delta) { text += ev.delta; patch(id, { out: text }) }
-          else if (ev.type === 'tool') setNote(`Liest Daten: ${ev.name}`)
+          else if (ev.type === 'tool') setNote(ev.name === 'save_article_draft' ? 'Speichert Artikel-Entwurf …' : `Liest Daten: ${ev.name}`)
           else if (ev.type === 'done') {
-            const task = getAgent(id)!.tasks[a.task].t
-            patch(id, { state: 'fertig', out: ev.output ?? text, outId: ev.id ?? null, inbox: null })
-            setAblage(prev => ({ ...prev, [id]: [{ id: ev.id!, task, text: ev.output ?? text, at: new Date().toISOString() }, ...(prev[id] ?? [])].slice(0, 12) }))
+            const output = ev.output ?? text
+            patch(id, { state: 'fertig', out: output, outId: ev.id ?? null, inbox: null })
+            setAblage(prev => ({ ...prev, [id]: [{ id: ev.id!, task: taskLabel, text: output, at: new Date().toISOString() }, ...(prev[id] ?? [])].slice(0, 12) }))
             sceneRef.current?.packet(id)
             setNote(DEFAULT_NOTE)
+            return { ok: true, id: ev.id ?? null, output }
           } else if (ev.type === 'error') throw new Error(ev.message ?? 'Der Mitarbeiter konnte nicht antworten.')
         }
       }
+      throw new Error('Verbindung abgebrochen.')
     } catch (e) {
-      patch(id, { state: 'bereit', out: text || (e instanceof Error ? e.message : 'Der Mitarbeiter konnte nicht antworten.') })
+      const error = e instanceof Error ? e.message : 'Der Mitarbeiter konnte nicht antworten.'
+      patch(id, { state: 'bereit', out: text || error })
+      return { ok: false, id: null, output: text, error }
     }
-  }, [ui, patch])
+  }, [patch])
+
+  const run = useCallback(async (id: string) => {
+    const a = ui[id]
+    if (a.state === 'arbeitet') return
+    setNote(DEFAULT_NOTE)
+    const res = await streamRun(id, { taskIndex: a.task, details: a.det, handoffFromId: a.inbox?.outputId ?? null }, getAgent(id)!.tasks[a.task].t)
+    if (res.ok && getAgent(id)!.tools?.includes('save_article_draft')) router.refresh()
+  }, [ui, streamRun, router])
+
+  // ── Team orders (Chief of Staff plans, founder approves, staff executes) ──
+  const activeOrder = orders.find(o => o.id === activeOrderId) ?? null
+  const upsertOrder = (o: TeamOrder) => setOrders(prev => [o, ...prev.filter(x => x.id !== o.id)])
+
+  const createOrder = async () => {
+    setPlanning(true); setNote('Der Chief of Staff plant den Auftrag …')
+    const res = await fetch('/api/admin/agents/orders', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instruction: orderText, recurrence: orderWeekly ? 'weekly' : 'none' }),
+    }).catch(() => null)
+    const data = await res?.json().catch(() => null) as { order?: TeamOrder; error?: string } | null
+    setPlanning(false)
+    if (!res?.ok || !data?.order) { setNote(data?.error ?? 'Plan konnte nicht erstellt werden.'); return }
+    upsertOrder(data.order); setActiveOrderId(data.order.id); setOrderText('')
+    setNote('Plan steht. Prüfe ihn und gib ihn frei — vorher passiert nichts.')
+  }
+
+  const orderAction = async (id: string, action: 'approve' | 'reject' | 'finish' | 'fail' | 'pause' | 'resume') => {
+    const res = await fetch(`/api/admin/agents/orders/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }),
+    }).catch(() => null)
+    const data = await res?.json().catch(() => null) as { order?: TeamOrder; error?: string } | null
+    if (res?.ok && data?.order) upsertOrder(data.order)
+    else setNote(data?.error ?? 'Aktion fehlgeschlagen.')
+    return res?.ok ? data?.order ?? null : null
+  }
+
+  const approveAndRun = async (order: TeamOrder) => {
+    if (busy) return
+    setBusy(true)
+    const approved = await orderAction(order.id, 'approve')
+    if (!approved) { setBusy(false); return }
+    let previous: { agentId: string; outputId: string } | null = null
+    let ok = true
+    for (let i = 0; i < order.plan.length; i++) {
+      const step = order.plan[i]
+      const agent = getAgent(step.agent_id)
+      if (!agent) continue
+      setProgress({ step: i + 1, total: order.plan.length + 1, label: agent.n })
+      if (previous) sceneRef.current?.packet(previous.agentId, step.agent_id)
+      const r = await streamRun(step.agent_id, { orderId: order.id, orderStep: i, handoffFromId: previous?.outputId ?? null }, 'Team-Auftrag')
+      if (!r.ok || !r.id) { ok = false; setNote(`${agent.n}: ${r.error ?? 'fehlgeschlagen'}`); break }
+      previous = { agentId: step.agent_id, outputId: r.id }
+    }
+    if (ok) {
+      setProgress({ step: order.plan.length + 1, total: order.plan.length + 1, label: 'Chief of Staff fasst zusammen' })
+      if (previous) sceneRef.current?.packet(previous.agentId, 'cos')
+      await streamRun('cos', { orderId: order.id, orderSummary: true }, 'Zusammenfassung Team-Auftrag')
+    }
+    await orderAction(order.id, ok ? 'finish' : 'fail')
+    setProgress(null); setBusy(false)
+    setNote(ok
+      ? order.recurrence === 'weekly' ? 'Erledigt. Wiederholt sich wöchentlich als Entwurf — Freigaben findest du im Café.' : 'Erledigt. Freigaben findest du im Café.'
+      : 'Auftrag abgebrochen. Details in der Ablage der Mitarbeiter.')
+    router.refresh()
+  }
+
+  // ── Article approvals (founder publishes) ──
+  const decideDraft = async (draft: ArticleDraft, action: 'publish' | 'reject') => {
+    setBusy(true)
+    const res = await fetch(`/api/admin/agents/articles/${draft.id}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }),
+    }).catch(() => null)
+    const data = await res?.json().catch(() => null) as { url?: string | null; error?: string } | null
+    setBusy(false)
+    if (!res?.ok) { setNote(data?.error ?? 'Aktion fehlgeschlagen.'); return }
+    setDrafts(prev => prev.filter(d => d.id !== draft.id))
+    setSel({ kind: 'cafe' })
+    setNote(action === 'publish' ? `Veröffentlicht: motodigital.io${data?.url ?? ''}` : 'Entwurf abgelehnt.')
+  }
 
   const handoff = (fromId: string, toId: string) => {
     const from = ui[fromId]
@@ -179,8 +313,84 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
 
   if (sel?.kind === 'agent') {
     const a = getAgent(sel.id)!, u = ui[sel.id], items = ablage[sel.id] ?? []
-    title = a.n; sub = `${a.r}, ${a.areaName}`; status = u.state
-    if (sel.view === 'ablage') {
+    const isCos = a.id === 'cos'
+    const recurring = orders.filter(o => o.recurrence === 'weekly' && ['approved', 'running', 'done', 'error'].includes(o.status))
+    title = a.n; sub = `${a.r}, ${a.areaName}`; status = progress && isCos ? `Team-Auftrag ${progress.step}/${progress.total}` : u.state
+    const tabs = isCos && sel.view !== 'ablage' && (
+      <div className="tabs" role="tablist">
+        {([['work', 'Aufgaben'], ['order', 'Team-Auftrag'], ['recurring', `Daueraufträge (${recurring.length})`]] as const).map(([v, label]) => (
+          <button key={v} role="tab" aria-selected={sel.view === v} className={'chip' + (sel.view === v ? ' on' : '')} onClick={() => setSel({ ...sel, view: v })}>{label}</button>
+        ))}
+      </div>
+    )
+    if (isCos && sel.view === 'order') {
+      if (activeOrder && ['planned', 'approved', 'running'].includes(activeOrder.status)) {
+        const running = activeOrder.status !== 'planned' || busy
+        body = (
+          <>
+            {tabs}
+            <p className="job"><b>Auftrag:</b> {activeOrder.instruction}</p>
+            {activeOrder.summary && <p className="job"><b>Ziel:</b> {activeOrder.summary}</p>}
+            <ol className="steps">
+              {activeOrder.plan.map((s, i) => {
+                const state = progress ? (i + 1 < progress.step ? 'done' : i + 1 === progress.step ? 'now' : '') : ''
+                return <li key={i} className={state}><b>{getAgent(s.agent_id)?.n ?? s.agent_id}:</b> {s.instruction}</li>
+              })}
+              <li className={progress && progress.step === progress.total ? 'now' : ''}><b>Chief of Staff:</b> fasst die Ergebnisse für dich zusammen.</li>
+            </ol>
+            {activeOrder.recurrence === 'weekly' && <p className="job">Wiederholt sich danach jede Woche automatisch — nur als Entwürfe, nichts geht ohne deine Freigabe raus.</p>}
+            {progress && <p className="job"><b>Läuft:</b> Schritt {progress.step} von {progress.total} — {progress.label}</p>}
+          </>
+        )
+        actions = running ? null : (
+          <>
+            <button onClick={() => approveAndRun(activeOrder)}>Freigeben &amp; starten</button>
+            <button className="line" onClick={async () => { await orderAction(activeOrder.id, 'reject'); setActiveOrderId(null) }}>Verwerfen</button>
+          </>
+        )
+      } else {
+        body = (
+          <>
+            {tabs}
+            <p className="job">Gib dem Team einen Auftrag. Der Chief of Staff plant, wer was macht — du gibst den Plan frei, dann arbeiten die Mitarbeiter nacheinander und übergeben sich die Ergebnisse.</p>
+            <textarea
+              placeholder="z. B. Erstellt diese Woche einen Magazin-Beitrag über BMW-Scrambler mit Links zu passenden Werkstätten und einen Instagram-Post dazu."
+              aria-label="Auftrag an das Team"
+              value={orderText}
+              onChange={e => setOrderText(e.target.value)}
+              style={{ minHeight: 80 }}
+            />
+            <label className="check">
+              <input type="checkbox" checked={orderWeekly} onChange={e => setOrderWeekly(e.target.checked)} />
+              Jede Woche wiederholen (nur Entwürfe)
+            </label>
+            {activeOrder?.status === 'done' && ui.cos.out && <div className="out">{ui.cos.out}</div>}
+          </>
+        )
+        actions = <button disabled={planning || orderText.trim().length < 5} onClick={createOrder}>{planning ? 'Plant …' : 'Plan erstellen'}</button>
+      }
+    } else if (isCos && sel.view === 'recurring') {
+      body = (
+        <>
+          {tabs}
+          {recurring.length === 0 && <p className="job">Noch keine Daueraufträge. Setze beim Team-Auftrag den Haken „Jede Woche wiederholen“.</p>}
+          <div className="list">
+            {recurring.map(o => (
+              <div key={o.id} className="row">
+                <div>
+                  {o.instruction.length > 110 ? o.instruction.slice(0, 110) + '…' : o.instruction}
+                  <small>
+                    {o.active ? `Nächster Lauf: ${o.next_run_at ? dateTime(o.next_run_at) : '–'}` : 'Pausiert'}
+                    {o.last_run_at ? ` · zuletzt ${dateTime(o.last_run_at)}${o.status === 'error' ? ' (Fehler)' : ''}` : ''}
+                  </small>
+                </div>
+                <button className="line" onClick={() => orderAction(o.id, o.active ? 'pause' : 'resume')}>{o.active ? 'Pausieren' : 'Fortsetzen'}</button>
+              </div>
+            ))}
+          </div>
+        </>
+      )
+    } else if (sel.view === 'ablage') {
       body = (
         <div className="list">
           {items.map(it => (
@@ -195,6 +405,7 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
     } else {
       body = (
         <>
+          {tabs}
           <p className="job"><b>Verantwortung:</b> {a.job} <b>Kennzahl:</b> {a.kpi}</p>
           <div className="chips">
             {a.tasks.map((t, i) => (
@@ -241,6 +452,21 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
           <dt>Neuanmeldungen (30 Tage)</dt><dd>{fmt(stats.newSignups30d)}</dd>
           <dt>Kontaktanfragen (30 Tage)</dt><dd>{fmt(stats.contactRequests30d)}</dd>
         </dl>
+        <div className="w">
+          <h3 className="sec">Freigaben ({drafts.length})</h3>
+          {drafts.length === 0
+            ? <p className="job">Keine Entwürfe offen.</p>
+            : (
+              <div className="list">
+                {drafts.map(d => (
+                  <button key={d.id} onClick={() => setSel({ kind: 'draft', id: d.id })}>
+                    {d.title}
+                    <small>Magazin-Entwurf · {getAgent(d.created_by_agent ?? '')?.n ?? 'Redaktion'} · {dateTime(d.created_at)}</small>
+                  </button>
+                ))}
+              </div>
+            )}
+        </div>
         <label className="w">
           Briefing: Stand, Ziele, Entscheidungen
           <textarea value={briefing} onChange={e => setBriefing(e.target.value)} style={{ minHeight: 96 }} />
@@ -253,6 +479,49 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
         <button className="line" onClick={() => { router.refresh(); setNote('Zahlen werden neu geladen.') }}>Zahlen aktualisieren</button>
       </>
     )
+  } else if (sel?.kind === 'draft') {
+    const d = drafts.find(x => x.id === sel.id)
+    title = 'Freigabe'; sub = 'Magazin-Entwurf'
+    if (!d) {
+      body = <p className="job">Dieser Entwurf ist nicht mehr offen.</p>
+      actions = <button className="line" onClick={() => setSel({ kind: 'cafe' })}>Zurück</button>
+    } else {
+      body = (
+        <article className="draft">
+          <p className="job"><b>/magazine/{d.slug}</b> · {d.category} · {d.read_time ?? ''} · von {getAgent(d.created_by_agent ?? '')?.n ?? 'Redaktion'}</p>
+          <p className="job"><b>Google-Titel:</b> {d.meta_title}<br /><b>Beschreibung:</b> {d.meta_description}</p>
+          {d.cover_image
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={d.cover_image} alt="" className="cover" />
+            : <p className="job">Kein Titelbild — es wird das Standardbild verwendet.</p>}
+          <h3>{d.title}</h3>
+          <p className="lead">{d.excerpt}</p>
+          {d.content.map((s, i) => {
+            switch (s.type) {
+              case 'h2': return <h4 key={i}>{s.text}</h4>
+              case 'list': return <ul key={i}>{(s.items ?? []).map((it, j) => <li key={j}>{it}</li>)}</ul>
+              case 'quote': return <blockquote key={i}>{s.text}</blockquote>
+              case 'cta': return <p key={i} className="cta">{s.text} <span>[{s.label} → {s.href}]</span></p>
+              case 'intro': return <p key={i} className="lead">{s.text}</p>
+              default: return <p key={i}>{s.text}</p>
+            }
+          })}
+          {d.faq.length > 0 && (
+            <>
+              <h4>FAQ</h4>
+              {d.faq.map((f, i) => <p key={i}><b>{f.q}</b><br />{f.a}</p>)}
+            </>
+          )}
+        </article>
+      )
+      actions = (
+        <>
+          <button disabled={busy} onClick={() => decideDraft(d, 'publish')}>Freigeben &amp; veröffentlichen</button>
+          <button className="line" disabled={busy} onClick={() => decideDraft(d, 'reject')}>Ablehnen</button>
+          <button className="line" onClick={() => setSel({ kind: 'cafe' })}>Zurück</button>
+        </>
+      )
+    }
   } else {
     body = (
       <>
@@ -378,4 +647,23 @@ const CSS = `
 .ac-root .list{display:flex;flex-direction:column;gap:6px}
 .ac-root .list button{text-align:left;border-radius:10px;background:transparent;color:var(--fg);border-color:var(--line);font-weight:600}
 .ac-root .list small{display:block;color:var(--mut);font-weight:600;font-size:11px}
+.ac-root .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.ac-root .steps{margin:8px 0;padding-left:20px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.ac-root .steps li.done{color:var(--mut)}
+.ac-root .steps li.now{color:var(--teal);font-weight:600}
+.ac-root .check{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;margin-top:8px;cursor:pointer}
+.ac-root .check input{width:auto;accent-color:var(--teal)}
+.ac-root .row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:600}
+.ac-root .row small{display:block;color:var(--mut);font-weight:600;font-size:11px;margin-top:2px}
+.ac-root .row button{padding:5px 10px;font-size:12px;flex:none}
+.ac-root .sec{font-size:12px;font-weight:800;margin:6px 0 6px}
+.ac-root .cafe .g .alert{color:var(--teal)}
+.ac-root .draft h3{font-size:16px;font-weight:800;margin:10px 0 4px}
+.ac-root .draft h4{font-size:13.5px;font-weight:800;margin:12px 0 2px}
+.ac-root .draft p{margin:6px 0}
+.ac-root .draft .lead{font-weight:600}
+.ac-root .draft ul{margin:6px 0;padding-left:18px}
+.ac-root .draft blockquote{margin:8px 0;padding-left:10px;border-left:3px solid var(--teal);font-style:italic}
+.ac-root .draft .cta span{color:var(--teal);font-weight:600}
+.ac-root .draft .cover{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:6px 0}
 `

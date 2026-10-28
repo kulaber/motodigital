@@ -5,12 +5,8 @@ import { notFound, redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import {
-  ARTICLES,
-  getArticleBySlugForLocale,
-  getArticlesByCategoryForLocale,
-  type ArticleSection,
-} from '@/lib/data/magazine'
+import { ARTICLES, type ArticleSection } from '@/lib/data/magazine'
+import { getAllArticles, getArticleBySlugAll } from '@/lib/magazine/articles'
 import { createClient } from '@/lib/supabase/server'
 
 const CATEGORY_SLUGS = ['build-story', 'interview', 'guide'] as const
@@ -26,7 +22,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const locale = await getLocale()
-  const article = getArticleBySlugForLocale(slug, locale)
+  const article = await getArticleBySlugAll(slug, locale)
   if (!article) return { title: locale === 'en' ? 'Article not found' : 'Artikel nicht gefunden' }
 
   return {
@@ -181,7 +177,8 @@ export default async function ArticlePage({
   }
 
   const locale = await getLocale()
-  const article = getArticleBySlugForLocale(slug, locale)
+  const allArticles = await getAllArticles(locale)
+  const article = allArticles.find(a => a.slug === slug)
   if (!article) notFound()
 
   // Fetch related builder from DB
@@ -225,8 +222,8 @@ export default async function ArticlePage({
     }
   }
 
-  const moreArticles = getArticlesByCategoryForLocale(article.category, locale)
-    .filter(a => a.slug !== article.slug)
+  const moreArticles = allArticles
+    .filter(a => a.category === article.category && a.slug !== article.slug)
     .slice(0, 3)
 
   const canonicalUrl = `https://motodigital.io/magazine/${article.slug}`
@@ -278,7 +275,7 @@ export default async function ArticlePage({
 
   // Resolve related articles for cross-linking
   const relatedArticles = (article.relatedSlugs ?? [])
-    .map(s => getArticleBySlugForLocale(s, locale))
+    .map(s => allArticles.find(a => a.slug === s))
     .filter((a): a is NonNullable<typeof a> => !!a)
 
   return (

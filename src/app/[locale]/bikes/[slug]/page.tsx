@@ -16,7 +16,7 @@ import type { Build } from '@/lib/data/builds'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { BIKE_STYLE_CONTENT } from '@/lib/data/bikeStyleContent'
-import { ARTICLES } from '@/lib/data/magazine'
+import { getAllArticles } from '@/lib/magazine/articles'
 import BikesClient from '../BikesClient'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -156,7 +156,7 @@ export default async function BikeSlugPage({ params }: Props) {
           .order('created_at', { ascending: true })
           .limit(12) as { data: { full_name: string; slug: string; city: string | null }[] | null }
       : { data: null }
-    const styleGuides = ARTICLES
+    const styleGuides = (await getAllArticles('de'))
       .filter(a => a.tags.some(t => t.toLowerCase() === styleInfo.name.toLowerCase()) || a.slug.includes(slug))
       .slice(0, 6)
 

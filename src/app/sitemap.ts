@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { ARTICLES } from '@/lib/data/magazine'
+import { getAllArticles } from '@/lib/magazine/articles'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -136,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Article bodies are German-only, so the EN URLs are noindexed duplicates —
   // no hreflang alternates, otherwise Google ranks /en/ for German queries.
-  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => ({
+  const articlePages: MetadataRoute.Sitemap = (await getAllArticles('de')).map((a) => ({
     url: `${BASE}/magazine/${a.slug}`,
     lastModified: new Date(a.updatedAt ?? a.publishedAt),
     changeFrequency: 'monthly' as const,

@@ -4,7 +4,8 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { getArticlesByCategoryForLocale, getCategoryMetaForLocale } from '@/lib/data/magazine'
+import { getCategoryMetaForLocale } from '@/lib/data/magazine'
+import { getArticlesByCategoryAll } from '@/lib/magazine/articles'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BuildStoryPage() {
   const t = await getTranslations('MagazinePage')
   const locale = await getLocale()
-  const articles = getArticlesByCategoryForLocale('build-story', locale)
+  const articles = await getArticlesByCategoryAll('build-story', locale)
 
   const CATEGORY_TABS = [
     { label: t('tabAll'),          href: '/magazine' as const },

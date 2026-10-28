@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { ARTICLES } from '@/lib/data/magazine'
+import { getArticleBySlugAll } from '@/lib/magazine/articles'
 
 export const runtime = 'nodejs'
 export const alt = 'MotoDigital Magazin'
@@ -11,8 +11,8 @@ interface Params {
 }
 
 export default async function MagazineOgImage({ params }: Params) {
-  const { slug } = await params
-  const article = ARTICLES.find((a) => a.slug === slug)
+  const { slug, locale } = await params
+  const article = await getArticleBySlugAll(slug, locale ?? 'de')
 
   if (!article) return fallback()
 

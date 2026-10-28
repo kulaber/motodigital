@@ -4,7 +4,8 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { ARTICLES, getArticlesForLocale } from '@/lib/data/magazine'
+import { ARTICLES } from '@/lib/data/magazine'
+import { getAllArticles } from '@/lib/magazine/articles'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('MagazinePage')
@@ -38,7 +39,7 @@ function formatDateLocalized(iso: string, locale: string): string {
 export default async function MagazinePage() {
   const t = await getTranslations('MagazinePage')
   const locale = await getLocale()
-  const localizedArticles = getArticlesForLocale(locale)
+  const localizedArticles = await getAllArticles(locale)
   const [heroArticle, ...restArticles] = localizedArticles
 
   const CATEGORY_TABS = [

@@ -18,7 +18,7 @@ import BuilderCarousel from '@/components/ui/BuilderCarousel'
 import EventsCarousel from '@/components/landing/EventsCarousel'
 import MagazineCarousel from '@/components/landing/MagazineCarousel'
 import HeroVideo from '@/components/landing/HeroVideo'
-import { getArticlesForLocale } from '@/lib/data/magazine'
+import { getAllArticles } from '@/lib/magazine/articles'
 import { getLocale } from 'next-intl/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
@@ -142,7 +142,7 @@ export default async function LandingPage() {
   const tL = await getTranslations('Landing')
   const tStyles = await getTranslations('BikeStyles')
   const locale = await getLocale()
-  const ARTICLES_LOCALIZED = getArticlesForLocale(locale)
+  const ARTICLES_LOCALIZED = await getAllArticles(locale)
 
   const styleLabel = (style: string): string => {
     try { return tStyles(style as Parameters<typeof tStyles>[0]) } catch { return style }

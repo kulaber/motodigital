@@ -9,6 +9,8 @@ export interface AgentTask {
   p: string
   /** Needs the latest results of all departments (Chief of Staff report) */
   ab?: boolean
+  /** Word limit for the result (default 220) */
+  words?: number
 }
 
 // Price/performance: Sonnet for the drafting staff, Opus for strategy at HQ
@@ -18,6 +20,8 @@ export interface AgentDef {
   id: string
   /** Claude model id; DEFAULT_MODEL when omitted */
   model?: string
+  /** Extra (write) tools on top of the read-only data tools */
+  tools?: string[]
   /** Display name */
   n: string
   /** Role */
@@ -64,7 +68,8 @@ export const AREAS: AreaDef[] = [
       { t: 'Post', p: 'Schreibe einen Instagram-Post zum Thema aus den Details (sonst frei gewählt): Caption, 5 Hashtags, konkrete Bildidee.' },
       { t: 'Werkstatt-Feature', p: 'Schreibe einen Instagram-Post, der die Werkstatt aus den Details vorstellt. Nur Fakten aus den Details oder aus deinen Daten-Tools verwenden.' },
       { t: 'Wochenplan', p: 'Erstelle einen Instagram-Wochenplan (Mo bis So) mit je einem Post oder einer Story und Ziel.' }] },
-    { id: 'redaktion', n: 'Redaktion & SEO', r: 'Magazin', job: 'Plant und gliedert Magazin-Artikel, die Käufer und Werkstattsuchende über Google bringen.', kpi: 'organische Besucher', to: ['social'], tasks: [
+    { id: 'redaktion', n: 'Redaktion & SEO', r: 'Magazin', job: 'Plant, gliedert und schreibt Magazin-Artikel, die Käufer und Werkstattsuchende über Google bringen.', kpi: 'organische Besucher', to: ['social'], tools: ['save_article_draft'], tasks: [
+      { t: 'Artikel schreiben', words: 1500, p: 'Schreibe einen vollständigen Magazin-Artikel (900 bis 1300 Wörter) zum Thema aus den Details, sonst zu einem Thema mit klarer Suchintention, das die bestehenden Guides ergänzt. Prüfe mit get_magazine_articles, welche Artikel es schon gibt, und doppel keine. Verlinke passende Werkstätten über CTA-Abschnitte (nutze get_workshops für echte Profil-Links). Speichere den Artikel mit save_article_draft als Entwurf — er wird erst nach Freigabe durch den Gründer veröffentlicht. Antworte danach nur mit Titel, Slug, Zielsuchbegriff und einer Zeile „Nächster Schritt:“.' },
       { t: 'Themenplan', p: 'Schlage 5 neue Artikelthemen mit Suchintention vor, die bestehende Guides zu Kaufberatung, Umbaukosten, TÜV und Stilen ergänzen statt doppeln.' },
       { t: 'Gliederung', p: 'Erstelle eine Artikel-Gliederung mit H2/H3 zum Thema aus den Details.' },
       { t: 'Meta-Texte', p: 'Schreibe Title (max. 60 Zeichen) und Meta-Description (max. 155 Zeichen) für das Thema aus den Details, drei Varianten.' }] },
@@ -93,7 +98,11 @@ export const AREAS: AreaDef[] = [
     { id: 'support', n: 'Support', r: 'Hilfe und Anfragen', job: 'Beantwortet Fragen von Werkstätten und Ridern schnell und freundlich.', kpi: 'Antwortzeit und gelöste Anfragen', to: ['po'], tasks: [
       { t: 'FAQ', p: 'Schreibe 5 FAQ-Einträge (Frage und Antwort) für Werkstätten zum Founding-Member-Angebot.' },
       { t: 'Antwort', p: 'Schreibe eine Antwort auf die Anfrage aus den Details.' },
-      { t: 'Hilfetext', p: 'Schreibe einen kurzen Hilfetext zur Funktion aus den Details.' }] }] },
+      { t: 'Hilfetext', p: 'Schreibe einen kurzen Hilfetext zur Funktion aus den Details.' }] },
+    { id: 'dev', n: 'Entwickler', r: 'Web-Entwicklung', job: 'Übersetzt Änderungswünsche an der Website in präzise Tickets, die in Claude Code umgesetzt werden. Ändert selbst nichts.', kpi: 'Tickets, die ohne Rückfrage umsetzbar sind', to: ['po', 'security'], tasks: [
+      { t: 'Änderungs-Ticket', words: 400, p: 'Schreibe aus dem Änderungswunsch in den Details ein Ticket für die Umsetzung in Claude Code. Gliederung: Ziel (1–2 Sätze), betroffene Seiten mit URL, gewünschtes Verhalten, Akzeptanzkriterien als Checkliste, Risiken (Login, Zahlungen, Datenbank, SEO), offene Fragen. Du siehst den Code nicht: benenne Dateien nur als Vermutung und kennzeichne sie so.' },
+      { t: 'Bug-Ticket', words: 300, p: 'Schreibe aus der Fehlerbeschreibung in den Details ein Bug-Ticket für Claude Code: Schritte zum Nachstellen, erwartetes und tatsächliches Verhalten, betroffene Seiten, Dringlichkeit, Akzeptanzkriterien.' },
+      { t: 'Aufwand & Risiko', p: 'Schätze für den Änderungswunsch aus den Details Aufwand (klein, mittel, groß) und Risiko ein, mit Begründung und einem Vorschlag, wie man ihn in kleine, einzeln prüfbare Schritte zerlegt.' }] }] },
   { id: 'finanzen', n: 'Finanzen', s: 'Kosten und Preise', ang: 18, agents: [
     { id: 'controller', n: 'Controller', r: 'Finanzen', job: 'Hält Kosten, Runway und Break-even im Blick.', kpi: 'Monate Runway', to: ['pricing', 'cos'], tasks: [
       { t: 'Kostenstruktur', p: 'Erstelle eine Kostenstruktur für die Plattform (Hosting, Datenbank, Karten, Bilder, Zahlungen, Domain, Tools, Marketing). Beträge nur aus den Details, sonst Platzhalter.' },

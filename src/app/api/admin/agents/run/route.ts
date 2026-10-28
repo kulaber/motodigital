@@ -1,36 +1,29 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getSuperadminId } from '@/lib/auth/requireSuperadmin'
-import { DEFAULT_MODEL, getAgent } from '@/lib/agents/definitions'
-import { AGENT_TOOLS, getPlatformStats, runAgentTool } from '@/lib/agents/tools'
-import { systemPrompt, userPrompt } from '@/lib/agents/context'
+import { getAgent } from '@/lib/agents/definitions'
+import { runAgent, orderStepTask, ORDER_SUMMARY_TASK, type RunEvent } from '@/lib/agents/runAgent'
+import type { RunTask } from '@/lib/agents/context'
 
-// Agents only run when an admin clicks — this route is the only entry point.
+// Agents only run when an admin clicks — this route is the click entry point.
 export const runtime = 'nodejs'
-export const maxDuration = 120
-
-const MAX_TURNS = 6
+export const maxDuration = 300
 
 const Body = z.object({
   agentId: z.string().min(1).max(40),
-  taskIndex: z.number().int().min(0).max(10),
+  // Either a predefined task chip …
+  taskIndex: z.number().int().min(0).max(10).optional(),
+  // … or a step of an approved team order
+  orderId: z.string().uuid().optional(),
+  orderStep: z.number().int().min(0).max(10).optional(),
+  orderSummary: z.boolean().optional(),
   details: z.string().max(4000).default(''),
   handoffFromId: z.string().uuid().nullable().optional(),
 })
 
-type StreamEvent =
-  | { type: 'start'; id: string }
-  | { type: 'text'; delta: string }
-  | { type: 'tool'; name: string }
-  | { type: 'done'; id: string; output: string }
-  | { type: 'error'; message: string }
-
-const notFound = () => new Response('Not Found', { status: 404 })
-
 export async function POST(request: Request) {
   const userId = await getSuperadminId()
-  if (!userId) return notFound()
+  if (!userId) return new Response('Not Found', { status: 404 })
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json({ error: 'ANTHROPIC_API_KEY ist nicht gesetzt' }, { status: 500 })
@@ -38,137 +31,51 @@ export async function POST(request: Request) {
 
   const parsed = Body.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return Response.json({ error: 'Ungültige Anfrage' }, { status: 400 })
-  const { agentId, taskIndex, details, handoffFromId } = parsed.data
+  const b = parsed.data
 
-  const agent = getAgent(agentId)
-  const task = agent?.tasks[taskIndex]
-  if (!agent || !task) return Response.json({ error: 'Unbekannter Agent oder Aufgabe' }, { status: 400 })
-  const model = agent.model ?? DEFAULT_MODEL
+  const agent = getAgent(b.agentId)
+  if (!agent) return Response.json({ error: 'Unbekannter Agent' }, { status: 400 })
 
-  // Session client: agent tables are protected by RLS (is_superadmin())
   const db = await createClient()
+  let task: RunTask | null = null
+  let orderId: string | null = null
 
-  const [{ data: briefingRow }, handoffRow, stats] = await Promise.all([
-    (db.from('agent_briefing') as any).select('content').eq('scope', 'global').maybeSingle() as Promise<{ data: { content: string } | null }>,
-    handoffFromId
-      ? ((db.from('agent_outputs') as any).select('agent_key, output').eq('id', handoffFromId).eq('status', 'done').maybeSingle() as Promise<{ data: { agent_key: string; output: string } | null }>)
-      : Promise.resolve({ data: null }),
-    getPlatformStats(),
-  ])
-  const handoff = handoffRow.data
-    ? { from: getAgent(handoffRow.data.agent_key)?.n ?? handoffRow.data.agent_key, text: handoffRow.data.output }
-    : null
+  if (b.orderId) {
+    // Order steps come from the stored, approved plan — never from the request body
+    const { data: order } = await (db.from('agent_orders') as any)
+      .select('id, status, plan').eq('id', b.orderId).maybeSingle() as { data: { id: string; status: string; plan: { agent_id: string; instruction: string }[] } | null }
+    if (!order || !['approved', 'running'].includes(order.status)) {
+      return Response.json({ error: 'Auftrag ist nicht freigegeben' }, { status: 409 })
+    }
+    orderId = order.id
+    if (b.orderSummary) {
+      if (agent.id !== 'cos') return Response.json({ error: 'Zusammenfassung nur durch den Chief of Staff' }, { status: 400 })
+      task = ORDER_SUMMARY_TASK
+    } else {
+      const step = b.orderStep != null ? order.plan[b.orderStep] : undefined
+      if (!step || step.agent_id !== agent.id) return Response.json({ error: 'Schritt passt nicht zum Plan' }, { status: 400 })
+      task = orderStepTask(agent, step.instruction)
+      if (order.status === 'approved') await (db.from('agent_orders') as any).update({ status: 'running' }).eq('id', order.id)
+    }
+  } else if (b.taskIndex != null && agent.tasks[b.taskIndex]) {
+    const t = agent.tasks[b.taskIndex]
+    task = { label: t.t, prompt: t.p, team: t.ab, words: t.words }
+  }
+  if (!task) return Response.json({ error: 'Unbekannte Aufgabe' }, { status: 400 })
 
-  const prompt = await userPrompt({
-    task, details, stats, handoff, db,
-    briefing: briefingRow?.content ?? '',
-  })
-
-  const { data: row, error: insertError } = await (db.from('agent_outputs') as any)
-    .insert({
-      agent_key: agent.id,
-      area_key: agent.areaId,
-      task: task.t,
-      details: details || null,
-      handoff_from: handoff ? handoffFromId : null,
-      status: 'running',
-      model,
-      run_by: userId,
-    })
-    .select('id')
-    .single() as { data: { id: string } | null; error: unknown }
-  if (insertError || !row) return Response.json({ error: 'Lauf konnte nicht angelegt werden' }, { status: 500 })
-  const runId = row.id
-
-  const client = new Anthropic()
-  const tools = AGENT_TOOLS.map(t => ({ ...t, eager_input_streaming: true }))
   const encoder = new TextEncoder()
-
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (e: StreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(e) + '\n'))
-      const messages: Anthropic.Beta.BetaMessageParam[] = [{ role: 'user', content: prompt }]
-      const toolLog: { name: string; input: unknown; error: boolean }[] = []
-      let output = ''
-      let inputTokens = 0
-      let outputTokens = 0
-      let jsonRetries = 0
-
-      send({ type: 'start', id: runId })
-
+      const send = (e: RunEvent) => controller.enqueue(encoder.encode(JSON.stringify(e) + '\n'))
       try {
-        for (let turn = 0; turn < MAX_TURNS; turn++) {
-          const s = client.beta.messages.stream({
-            model,
-            max_tokens: 16000,
-            thinking: { type: 'adaptive' },
-            output_config: { effort: 'medium' },
-            system: systemPrompt(agent),
-            tools,
-            messages,
-            // Server-side fallback if the model declines — routed by refusal category
-            betas: ['server-side-fallback-2026-07-01'],
-            fallbacks: 'default',
-          })
-          s.on('text', delta => {
-            output += delta
-            send({ type: 'text', delta })
-          })
-
-          let message: Anthropic.Beta.BetaMessage
-          try {
-            message = await s.finalMessage()
-            jsonRetries = 0
-          } catch (err) {
-            // Only an unparseable tool input is retried; API errors propagate
-            if (err instanceof Anthropic.APIError || jsonRetries++ >= 2) throw err
-            continue
-          }
-          inputTokens += message.usage.input_tokens
-          outputTokens += message.usage.output_tokens
-
-          if (message.stop_reason === 'refusal') {
-            output += output ? '\n\n' : ''
-            output += 'Diese Aufgabe wurde vom Modell abgelehnt.'
-            break
-          }
-          if (message.stop_reason === 'pause_turn') {
-            messages.push({ role: 'assistant', content: message.content })
-            continue
-          }
-
-          const toolUses = message.content.filter((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === 'tool_use')
-          if (toolUses.length === 0) break
-          if (message.stop_reason === 'max_tokens') throw new Error('Tool-Eingabe abgeschnitten (max_tokens)')
-
-          messages.push({ role: 'assistant', content: message.content })
-          const results = await Promise.all(toolUses.map(async tu => {
-            send({ type: 'tool', name: tu.name })
-            const [content, isError] = await runAgentTool(tu.name, tu.input)
-            toolLog.push({ name: tu.name, input: tu.input, error: isError })
-            return { type: 'tool_result' as const, tool_use_id: tu.id, content, is_error: isError }
-          }))
-          // All results of a turn go back in one user message
-          messages.push({ role: 'user', content: results })
-        }
-
-        output = output.trim()
-        await (db.from('agent_outputs') as any).update({
-          output, tool_calls: toolLog, status: 'done',
-          input_tokens: inputTokens, output_tokens: outputTokens,
-        }).eq('id', runId)
-        send({ type: 'done', id: runId, output })
-      } catch (err) {
-        const message = err instanceof Anthropic.RateLimitError
-          ? 'Zu viele Anfragen, bitte kurz warten.'
-          : err instanceof Anthropic.APIError
-            ? `API-Fehler ${err.status ?? ''}`.trim()
-            : 'Der Mitarbeiter konnte nicht antworten.'
-        await (db.from('agent_outputs') as any).update({
-          output: output || null, tool_calls: toolLog, status: 'error',
-          input_tokens: inputTokens, output_tokens: outputTokens,
-        }).eq('id', runId)
-        send({ type: 'error', message })
+        await runAgent({
+          db, agent, task: task!, orderId,
+          details: b.details,
+          handoffFromId: b.handoffFromId ?? null,
+          source: orderId ? 'order' : 'manual',
+          runBy: userId,
+          onEvent: send,
+        })
       } finally {
         controller.close()
       }
@@ -176,9 +83,6 @@ export async function POST(request: Request) {
   })
 
   return new Response(stream, {
-    headers: {
-      'Content-Type': 'application/x-ndjson; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
+    headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' },
   })
 }
