@@ -11,8 +11,13 @@ export interface AgentTask {
   ab?: boolean
 }
 
+// Price/performance: Sonnet for the drafting staff, Opus for strategy at HQ
+export const DEFAULT_MODEL = 'claude-sonnet-5-5'
+
 export interface AgentDef {
   id: string
+  /** Claude model id; DEFAULT_MODEL when omitted */
+  model?: string
   /** Display name */
   n: string
   /** Role */
@@ -101,7 +106,7 @@ export const AREAS: AreaDef[] = [
 ]
 
 export const COS: AgentDef = {
-  id: 'cos', n: 'Chief of Staff', r: 'Zentrale', job: 'Hält den Überblick über alle Abteilungen, bündelt Ergebnisse und setzt Prioritäten.', kpi: 'du weißt jede Woche, was die drei wichtigsten Schritte sind', to: [], tasks: [
+  id: 'cos', model: 'claude-opus-5-5', n: 'Chief of Staff', r: 'Zentrale', job: 'Hält den Überblick über alle Abteilungen, bündelt Ergebnisse und setzt Prioritäten.', kpi: 'du weißt jede Woche, was die drei wichtigsten Schritte sind', to: [], tasks: [
     { t: 'Wochenbericht', ab: true, p: 'Schreibe einen Wochenbericht aus den letzten Ergebnissen der Abteilungen unten: was erledigt ist, was offen ist, die drei wichtigsten nächsten Schritte mit Zuständigkeit.' },
     { t: 'Prioritäten', p: 'Lege anhand des Briefings die drei wichtigsten Prioritäten bis Ende 2026 fest, mit Begründung und zuständiger Abteilung.' },
     { t: 'Entscheidungsvorlage', p: 'Bereite eine Entscheidungsvorlage zum Thema aus den Details vor: Optionen, Vor- und Nachteile, Empfehlung.' }],

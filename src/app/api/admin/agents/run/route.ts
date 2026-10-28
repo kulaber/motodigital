@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getSuperadminId } from '@/lib/auth/requireSuperadmin'
-import { getAgent } from '@/lib/agents/definitions'
+import { DEFAULT_MODEL, getAgent } from '@/lib/agents/definitions'
 import { AGENT_TOOLS, getPlatformStats, runAgentTool } from '@/lib/agents/tools'
 import { systemPrompt, userPrompt } from '@/lib/agents/context'
 
@@ -10,7 +10,6 @@ import { systemPrompt, userPrompt } from '@/lib/agents/context'
 export const runtime = 'nodejs'
 export const maxDuration = 120
 
-const MODEL = 'claude-opus-5-5'
 const MAX_TURNS = 6
 
 const Body = z.object({
@@ -44,6 +43,7 @@ export async function POST(request: Request) {
   const agent = getAgent(agentId)
   const task = agent?.tasks[taskIndex]
   if (!agent || !task) return Response.json({ error: 'Unbekannter Agent oder Aufgabe' }, { status: 400 })
+  const model = agent.model ?? DEFAULT_MODEL
 
   // Session client: agent tables are protected by RLS (is_superadmin())
   const db = await createClient()
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       details: details || null,
       handoff_from: handoff ? handoffFromId : null,
       status: 'running',
-      model: MODEL,
+      model,
       run_by: userId,
     })
     .select('id')
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
       try {
         for (let turn = 0; turn < MAX_TURNS; turn++) {
           const s = client.beta.messages.stream({
-            model: MODEL,
+            model,
             max_tokens: 16000,
             thinking: { type: 'adaptive' },
             output_config: { effort: 'medium' },
