@@ -33,7 +33,8 @@ export async function generateMetadata({
     title: article.metaTitle,
     description: article.metaDescription,
     alternates: { canonical: `https://motodigital.io/magazine/${article.slug}` },
-    robots: { index: true, follow: true },
+    // Body content is German-only; keep the EN duplicate out of the index
+    robots: locale === 'de' ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: {
       title: article.metaTitle,
       description: article.metaDescription,

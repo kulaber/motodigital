@@ -29,6 +29,7 @@ interface RiderProfile {
   avatarUrl?: string
   coverImageUrl?: string
   isOnline: boolean
+  isBot: boolean
   lat?: number
   lng?: number
   tags: string[]
@@ -80,7 +81,7 @@ async function geocode(query: string): Promise<{ lat: number; lng: number; count
 
 async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
   const supabase = await createClient()
-  const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url, last_seen_at'
+  const cols = 'id, full_name, slug, username, bio, city, avatar_url, lat, lng, tags, riding_style, visited_cities, instagram_url, tiktok_url, website_url, last_seen_at, is_bot'
 
   // Try slug + username lookups in parallel (2 queries instead of 2 sequential)
   const [{ data: bySlug }, { data: byUsername }] = await Promise.all([
@@ -189,6 +190,7 @@ async function getRiderBySlug(slug: string): Promise<RiderProfile | null> {
     bio: (row.bio as string | null) ?? '',
     city: (row.city as string | null) ?? '',
     isOnline,
+    isBot: (row.is_bot as boolean | null) ?? false,
     avatarUrl: (row.avatar_url as string | null) ?? undefined,
     lat,
     lng,
@@ -219,6 +221,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${rider.name} — Rider auf MotoDigital`,
     description: rider.bio || `${rider.name} ist Rider auf MotoDigital.`,
     alternates: { canonical: `/rider/${rider.slug}` },
+    // Seeded demo profiles are thin content — keep them out of the index
+    ...(rider.isBot && { robots: { index: false, follow: true } }),
   }
 }
 

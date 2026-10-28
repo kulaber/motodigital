@@ -270,7 +270,8 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
     name,
     city:        (() => {
       const c = (row.city as string | null) ?? ''
-      if (c) return c.replace(/\b\w/g, (ch: string) => ch.toUpperCase())
+      // \b\w would treat umlauts as word boundaries ("MüNchen")
+      if (c) return c.replace(/(^|[\s-])(\S)/g, (_: string, sep: string, ch: string) => sep + ch.toUpperCase())
       // Fallback: aus Adresse city extrahieren (Mapbox: "Straße, PLZ Stadt, Land")
       const addr = (row.address as string | null) ?? ''
       if (!addr) return ''
@@ -335,7 +336,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const builder = await getBuilderBySlugFromDB(slug, locale)
   if (!builder) return {}
 
-  const title = `${builder.name} — Custom Werkstatt auf MotoDigital`
+  // People search "<workshop> <city>" — put city and styles into the title
+  const city = builder.city.replace(/^\d{4,5}\s+/, '')
+  const cityPart = city && !builder.name.toLowerCase().includes(city.toLowerCase()) ? ` in ${city}` : ''
+  const styles = (builder.specialty ?? '')
+    .split('·').map(s => s.trim().replace('Cafe-Racer', 'Café Racer')).filter(Boolean).slice(0, 2).join(' & ')
+  const title = `${builder.name}${cityPart} — ${styles ? `${styles} Custom Werkstatt` : 'Custom Motorrad Werkstatt'}`
   const rawBio = builder.bio
     || (builder.bioLong ? builder.bioLong.slice(0, 130).trimEnd() + (builder.bioLong.length > 130 ? '…' : '') : null)
   const topTags = builder.tags.slice(0, 3).join(', ')

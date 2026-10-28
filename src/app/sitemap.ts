@@ -68,7 +68,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (supabase.from('profiles') as any)
       .select('slug, created_at')
       .eq('role', 'rider')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
+      .not('slug', 'is', null)
+      .or('is_bot.is.null,is_bot.eq.false') as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
       .not('slug', 'is', null) as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
@@ -136,18 +137,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => {
-    const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/magazine/${a.slug}`])
-    )
-    return {
-      url: urls[routing.defaultLocale],
-      lastModified: new Date(a.publishedAt),
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-      alternates: { languages: urls },
-    }
-  })
+  // Article bodies are German-only, so the EN URLs are noindexed duplicates —
+  // no hreflang alternates, otherwise Google ranks /en/ for German queries.
+  const articlePages: MetadataRoute.Sitemap = ARTICLES.map((a) => ({
+    url: `${BASE}/magazine/${a.slug}`,
+    lastModified: new Date(a.updatedAt ?? a.publishedAt),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
 
   const builderPages: MetadataRoute.Sitemap = (builders ?? []).map((b) => {
     const urls = Object.fromEntries(

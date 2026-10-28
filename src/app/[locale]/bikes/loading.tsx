@@ -7,7 +7,8 @@ export default function BikesLoading() {
 
       {/* Mobile title */}
       <div className="pt-6 pb-4 px-4 sm:px-5 lg:hidden">
-        <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
+        {/* not an h1: the skeleton is streamed into the HTML before the real page heading */}
+        <p className="text-xl font-bold text-[#222222] text-center">Custom Bikes</p>
       </div>
 
       {/* ── Sticky filter bar ── */}

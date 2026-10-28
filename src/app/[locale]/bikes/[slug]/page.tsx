@@ -16,6 +16,7 @@ import type { Build } from '@/lib/data/builds'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { BIKE_STYLE_CONTENT } from '@/lib/data/bikeStyleContent'
+import { ARTICLES } from '@/lib/data/magazine'
 import BikesClient from '../BikesClient'
 
 type BikeRow = Database['public']['Tables']['bikes']['Row']
@@ -49,6 +50,17 @@ const STYLES: Record<string, { name: string; description: string; keywords: stri
   'basis-bike':    { name: 'Basis-Bike',   description: 'Basis-Bikes & Stock Motorcycles',       keywords: 'Basis bike motorcycle' },
 }
 
+// Style slug → value used in profiles.specialty (see UMBAUSTILE in ProfileEditForm)
+const STYLE_SPECIALTY_TOKEN: Record<string, string> = {
+  'cafe-racer': 'Cafe-Racer',
+  'bobber':     'Bobber',
+  'scrambler':  'Scrambler',
+  'tracker':    'Tracker',
+  'chopper':    'Chopper',
+  'enduro':     'Enduro',
+  'street':     'Street',
+}
+
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
   scrambler: 'Scrambler', tracker: 'Tracker', chopper: 'Chopper',
@@ -61,9 +73,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Style page
   const style = STYLES[slug]
   if (style) {
+    const content = BIKE_STYLE_CONTENT[slug]
     return {
-      title: `${style.name} Motorcycles for sale — MotoDigital`,
-      description: `${style.description}. Kaufe und verkaufe Custom ${style.name} Motorräder auf MotoDigital.`,
+      title: content?.heading ?? `${style.name} kaufen — Custom Bikes`,
+      description: content?.lead ?? `${style.description}. Kaufe und verkaufe Custom ${style.name} Motorräder auf MotoDigital.`,
       alternates: { canonical: `/bikes/${slug}` },
     }
   }
@@ -131,6 +144,21 @@ export default async function BikeSlugPage({ params }: Props) {
         viewCount:     r.view_count ?? 0,
       }
     })
+
+    // Internal links for SEO: workshops building this style + matching guides
+    const specialtyToken = STYLE_SPECIALTY_TOKEN[slug]
+    const { data: styleWorkshops } = specialtyToken
+      ? await (styleSupabase.from('profiles') as any)
+          .select('full_name, slug, city')
+          .eq('role', 'custom-werkstatt')
+          .not('slug', 'is', null)
+          .ilike('specialty', `%${specialtyToken}%`)
+          .order('created_at', { ascending: true })
+          .limit(12) as { data: { full_name: string; slug: string; city: string | null }[] | null }
+      : { data: null }
+    const styleGuides = ARTICLES
+      .filter(a => a.tags.some(t => t.toLowerCase() === styleInfo.name.toLowerCase()) || a.slug.includes(slug))
+      .slice(0, 6)
 
     const STYLE_BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
     const styleUrl = `${STYLE_BASE_URL}/bikes/${slug}`
@@ -226,6 +254,43 @@ export default async function BikeSlugPage({ params }: Props) {
                   <p key={i} className="text-[#444] leading-relaxed mb-4">{p}</p>
                 ))}
               </div>
+              {styleWorkshops && styleWorkshops.length > 0 && (
+                <div className="mt-10 max-w-3xl">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight mb-4">
+                    Werkstätten für {styleInfo.name} Umbauten
+                  </h2>
+                  <ul className="grid sm:grid-cols-2 gap-2">
+                    {styleWorkshops.map(w => (
+                      <li key={w.slug}>
+                        <Link
+                          href={`/custom-werkstatt/${w.slug}`}
+                          className="flex items-center gap-2 text-sm text-[#222222] hover:text-[#06a5a5] transition-colors"
+                        >
+                          <MapPin size={13} className="text-[#717171] flex-shrink-0" />
+                          <span className="font-semibold">{w.full_name}</span>
+                          {w.city && <span className="text-[#717171]">· {w.city}</span>}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {styleGuides.length > 0 && (
+                <div className="mt-10 max-w-3xl">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight mb-4">
+                    Ratgeber zum Thema {styleInfo.name}
+                  </h2>
+                  <ul className="flex flex-col gap-2">
+                    {styleGuides.map(a => (
+                      <li key={a.slug}>
+                        <Link href={`/magazine/${a.slug}`} className="text-sm text-[#222222] hover:text-[#06a5a5] transition-colors font-semibold">
+                          {a.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {content.faqs.length > 0 && (
                 <div className="mt-12 max-w-3xl">
                   <h2 className="text-xl sm:text-2xl font-bold text-[#222222] tracking-tight mb-6">
