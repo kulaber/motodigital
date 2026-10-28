@@ -30,6 +30,147 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'bmw-cafe-racer-umbau-werkstaetten',
+    title: 'BMW Café Racer Umbau: 10 Werkstätten in Deutschland, die es wirklich können',
+    metaTitle: 'BMW Café Racer Umbau — 10 Werkstätten in Deutschland 2026',
+    metaDescription:
+      'Wer baut den besten BMW Café Racer? 10 spezialisierte Werkstätten von Hamburg bis Garmisch — mit Schwerpunkten, Basis-Modellen und Tipps zu Kosten & TÜV.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom R80-Klassiker bis zur R nineT: Diese zehn Werkstätten haben sich auf BMW-Umbauten spezialisiert. Was sie unterscheidet, was ein Umbau kostet und worauf du achten solltest.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/7adfc0d3-8805-4877-9b74-dc0be4172107/cover-1793199586585-0.jpg',
+    publishedAt: '2026-10-28',
+    readTime: '9 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['BMW', 'Cafe Racer', 'Werkstatt', 'Umbau', 'Boxer', 'R80', 'R100', 'R nineT'],
+    relatedSlugs: ['cafe-racer-selber-bauen-basis-bikes', 'motorrad-umbau-werkstatt-finden', 'tuev-eintragung-custom-bike'],
+    faq: [
+      { q: 'Welche BMW eignet sich am besten für einen Café Racer Umbau?', a: 'Die Klassiker sind die Zweiventil-Boxer der Baureihen R65, R80 und R100 aus den 70er bis 90er Jahren: robust, gut verfügbar und mit riesigem Teileangebot. Beliebt sind außerdem die K-Modelle (K75, K100) und die moderne R nineT, die von Werk aus für Umbauten konzipiert wurde.' },
+      { q: 'Was kostet ein BMW Café Racer vom Profi?', a: 'Das hängt stark vom Umfang ab. Ein Teileumbau einer vorhandenen Maschine beginnt im niedrigen vierstelligen Bereich, ein kompletter Aufbau inklusive Basisbike, Motorüberholung und Eintragung liegt meist zwischen 15.000 und 30.000 Euro. High-End-Einzelstücke können deutlich darüber liegen.' },
+      { q: 'Ist ein BMW Café Racer TÜV-fähig?', a: 'Ja — wenn die verbauten Teile eine ABE, ein Teilegutachten oder eine Einzelabnahme nach §21 StVZO haben. Seriöse Werkstätten übergeben das Bike mit allen Eintragungen. Frag vor Auftragsvergabe explizit danach.' },
+      { q: 'Wie lange dauert ein Café Racer Umbau?', a: 'Bei Werkstätten mit Serienerfahrung sind es oft nur wenige Wochen, bielamoto nennt zum Beispiel vier bis sechs Wochen. Komplette Einzelstücke mit Sonderanfertigungen brauchen eher mehrere Monate.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Kaum eine Marke ist in der Custom-Szene so präsent wie BMW. Der Boxer-Motor mit seinen links und rechts herausstehenden Zylindern ist wie gemacht für den reduzierten Café-Racer-Look — und die Klassiker der 70er bis 90er Jahre sind robust, verfügbar und gut dokumentiert. Doch wer einen BMW Café Racer nicht selbst bauen, sondern bauen lassen will, steht vor der Frage: Welche Werkstatt kann das wirklich? Wir stellen zehn Betriebe vor, die sich auf BMW-Umbauten spezialisiert haben — von der Kleinserie bis zum High-End-Einzelstück.',
+      },
+      { type: 'h2', text: 'Warum ausgerechnet BMW?' },
+      {
+        type: 'p',
+        text: 'Die Zweiventil-Boxer der Baureihen R45 bis R100 gelten als nahezu unkaputtbar. Sie wurden in großen Stückzahlen gebaut, Ersatzteile sind bis heute erhältlich und die Technik ist überschaubar. Dazu kommt eine riesige Auswahl an Umbauteilen — von Höckern und Tanks über Fahrwerke bis zu kompletten Rahmenheck-Kits. Wer es moderner mag, greift zur R nineT, die BMW selbst als Custom-Basis entwickelt hat, oder zu den Vierzylinder-K-Modellen mit ihrem ganz eigenen Charakter.',
+      },
+      {
+        type: 'list',
+        items: [
+          'R65 / R80 / R100: der Klassiker — günstig, robust, riesiges Teileangebot',
+          'K75 / K100 / K1100: längs eingebauter Reihenmotor, eigenwilliger Look, oft unterschätzt',
+          'R nineT: moderne Technik mit ABS und Einspritzung, ab Werk modular aufgebaut',
+          'R18: großvolumiger Boxer für Bobber und Bagger, eher selten als Café Racer',
+        ],
+      },
+      { type: 'h2', text: '1. Sport-Evolution — Neuwied' },
+      {
+        type: 'p',
+        text: 'Sport-Evolution ist so etwas wie die Komplettlösung für Zweiventiler-Fans. Die Manufaktur baut Concept Bikes auf Basis von R-Boxern, K75/K100 und R nineT und entwickelt dafür eigene Umbauteile — vom Fahrwerk bis zur ABS-Nachrüstung für klassische Boxer. Motorenbau, Vergaserabstimmung und Leistungsmessung kommen aus dem eigenen Haus. Besonders praktisch: Mit dem 3D-Konfigurator lässt sich das Wunschbike schon vor der Fertigung zusammenstellen.',
+      },
+      { type: 'cta', text: 'Sport-Evolution auf MotoDigital', href: '/custom-werkstatt/sport-evolution', label: 'Profil ansehen' },
+      { type: 'h2', text: '2. WalzWerk Motorcycles — Hockenheim' },
+      {
+        type: 'p',
+        text: 'Marcus Walz und sein Team bauen seit über 35 Jahren Motorräder und haben WalzWerk zu einer der bekanntesten Custom-Marken der Welt gemacht. Rund 100 BMW-Umbauten pro Jahr verlassen die Werkstatt in Hockenheim — Café Racer, Scrambler und Roadster mit unverkennbarem Stil. Wer einen BMW-Umbau mit großem Markennamen sucht, landet früher oder später hier.',
+      },
+      { type: 'cta', text: 'WalzWerk Motorcycles auf MotoDigital', href: '/custom-werkstatt/walzwerk-motorcycles', label: 'Profil ansehen' },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/df83b336-dbc8-4276-862e-161056fb8083/1774818633891.jpg',
+        caption: 'BMW-Umbau von WalzWerk Motorcycles aus Hockenheim.',
+      },
+      { type: 'h2', text: '3. Diamond Atelier — München' },
+      {
+        type: 'p',
+        text: 'Seit 2013 steht Diamond Atelier für eine radikal reduzierte Designsprache. Die durchnummerierte DA-Serie und Kleinserien wie MK II EVO oder URBAN21 basieren überwiegend auf BMW R80, R100R und R nineT. Viele Komponenten entwickelt das Münchner Atelier selbst und kombiniert dabei klassisches Handwerk mit digitaler Fertigung. Die Bikes wurden international von Pipeburn, BikeEXIF und BMW Motorrad vorgestellt — High-End mit entsprechendem Preisschild.',
+      },
+      { type: 'cta', text: 'Diamond Atelier auf MotoDigital', href: '/custom-werkstatt/diamond-atelier', label: 'Profil ansehen' },
+      { type: 'h2', text: '4. Kingston Custom — Gelsenkirchen' },
+      {
+        type: 'p',
+        text: 'Dirk Oehlerking, Deutscher Motocross-Meister von 1985 und ehemals bei der Hamburger Styling Garage, zählt zu den bekanntesten Customizern des Landes. Unter dem Namen Kingston Custom baut er im Ruhrgebiet außergewöhnliche BMW-Umbauten, die mit eigenwilligen Formen und perfekter Metallarbeit auffallen. Kein Großbetrieb, sondern echte Handarbeit mit klarer Handschrift.',
+      },
+      { type: 'cta', text: 'Kingston Custom auf MotoDigital', href: '/custom-werkstatt/kingston-custom', label: 'Profil ansehen' },
+      { type: 'h2', text: '5. bielamoto — Neuss' },
+      {
+        type: 'p',
+        text: 'Der Familienbetrieb mit Rennsport-Hintergrund hat sich auf eine Sache konzentriert: BMW R 80 Café Racer zu fairen Preisen. Zu jedem Umbau gehört eine Motorinspektion mit neuer Kupplung, Dichtungssatz und Steuerkette, alle Teile werden eingetragen und der TÜV ist bei Übergabe inklusive. Mit vier bis sechs Wochen Lieferzeit ist bielamoto eine der schnellsten Adressen für einen fahrfertigen Boxer-Café-Racer.',
+      },
+      { type: 'cta', text: 'bielamoto auf MotoDigital', href: '/custom-werkstatt/bielamoto', label: 'Profil ansehen' },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/cd05b97e-6bf0-42b1-8977-621efb15d043/cover-1793199562872-0.jpg',
+        caption: 'BMW R 80 als Café Racer — das Kerngeschäft von bielamoto.',
+      },
+      { type: 'h2', text: '6. NAGEL Motors — Garmisch-Partenkirchen' },
+      {
+        type: 'p',
+        text: 'Nic Nagel baut am Fuß der Zugspitze komplette Motorräder statt bloßer Teileumbauten — über 50 nummerierte Einzelstücke sind es inzwischen. BMW R100, R75, K-Modelle und R nineT werden zu Scramblern, Café Racern und Restomods. Nebenbei ist die Werkstatt eine der gefragtesten Adressen für Custom-Vespas. Termine gibt es nach Vereinbarung.',
+      },
+      { type: 'cta', text: 'NAGEL Motors auf MotoDigital', href: '/custom-werkstatt/nagel-motors', label: 'Profil ansehen' },
+      { type: 'h2', text: '7. Brückner Manufaktur — Magdeburg' },
+      {
+        type: 'p',
+        text: 'Der Meisterbetrieb aus Sachsen-Anhalt baut Café Racer, Scrambler und Bobber auf einer breiten Basis — BMW-Boxer von R45 bis R100 und K-Modelle sind aber das Rückgrat. Builds wie der R100R-Scrambler „Nightfall“ oder die K100 „Black Bullet“ zeigen den Stil: klare Linien, kräftige Farben, saubere Details. Dazu gibt es einen eigenen Teile-Shop.',
+      },
+      { type: 'cta', text: 'Brückner Manufaktur auf MotoDigital', href: '/custom-werkstatt/brueckner-manufaktur', label: 'Profil ansehen' },
+      { type: 'h2', text: '8. Boddls Bikes & Cars — Göppingen' },
+      {
+        type: 'p',
+        text: 'Michael „Boddle“ Schellberg schraubt seit 1972 und spezialisiert sich heute auf BMW-Boxer der Baujahre 1965 bis 1995. In 200 bis 300 Arbeitsstunden entsteht bei ihm jeder Café Racer, Bobber oder Scrambler als Unikat — übergeben mit Zertifikat und Eintragung. Ein ISO-zertifizierter Schweißer im Team kümmert sich um saubere Rahmenarbeiten.',
+      },
+      { type: 'cta', text: 'Boddls Bikes auf MotoDigital', href: '/custom-werkstatt/boddls-bikes', label: 'Profil ansehen' },
+      { type: 'h2', text: '9. Hanse Qustom — Hamburg' },
+      {
+        type: 'p',
+        text: 'Hinter Hanse Qustom stehen ein BMW- und ein Triumph-Vertragshändler. Das Besondere: Umgebaut wird grundsätzlich auf Neu- oder Vorführmaschinen, bei BMW also vor allem auf der R nineT. Das Ergebnis sind preisgekrönte Custombikes mit moderner Technik, Garantie-Nähe und Service auf Werksniveau — ideal für alle, die ein Custombike im Alltag fahren wollen.',
+      },
+      { type: 'cta', text: 'Hanse Qustom auf MotoDigital', href: '/custom-werkstatt/hanse-qustom', label: 'Profil ansehen' },
+      { type: 'h2', text: '10. Bullock Custom Bikes — Altendiez' },
+      {
+        type: 'p',
+        text: 'Bei Bullock nahe Limburg stehen Harley-Umbauten und BMW-Café-Racer nebeneinander. Bekannt ist etwa eine R100 RS im GULF-Design. Lack, Pulverbeschichtung und Sattlerarbeiten kommen aus einer Hand, der TÜV kommt wöchentlich ins Haus. Wer noch kein Basisbike hat, bekommt auf Wunsch eines besorgt.',
+      },
+      { type: 'cta', text: 'Bullock Custom Bikes auf MotoDigital', href: '/custom-werkstatt/bullock-custom-bikes', label: 'Profil ansehen' },
+      { type: 'h2', text: 'Was kostet ein BMW Café Racer Umbau?' },
+      {
+        type: 'p',
+        text: 'Die Spanne ist groß. Ein Teileumbau einer vorhandenen Maschine — Sitzbank, Lenker, Beleuchtung, Auspuff — beginnt im niedrigen vierstelligen Bereich. Ein kompletter Aufbau mit Basisbike, Motorüberholung, Fahrwerk, Lack und Eintragung landet meist zwischen 15.000 und 30.000 Euro. High-End-Einzelstücke mit Sonderanfertigungen können deutlich darüber liegen. Wichtig: Ein günstiges Basisbike spart selten Geld, wenn Motor und Getriebe danach komplett überholt werden müssen.',
+      },
+      { type: 'h2', text: 'Worauf du bei der Werkstattwahl achten solltest' },
+      {
+        type: 'list',
+        items: [
+          'Eintragung: Lass dir schriftlich bestätigen, dass das Bike mit allen Eintragungen übergeben wird.',
+          'Technik vor Optik: Gute Werkstätten überholen Motor, Kupplung, Bremsen und Elektrik — nicht nur die Verkleidung.',
+          'Referenzen: Schau dir fertige Bikes der Werkstatt an, idealerweise live und mit Probefahrt.',
+          'Basisbike: Kläre, ob du ein eigenes Motorrad mitbringst oder die Werkstatt die Basis besorgt.',
+          'Zeitplan: Serienumbauten dauern Wochen, Einzelstücke Monate — frag nach einem realistischen Termin.',
+        ],
+      },
+      {
+        type: 'quote',
+        text: 'Ein guter Café Racer sieht nicht nur reduziert aus. Er fährt auch so — leicht, direkt und zuverlässig.',
+      },
+      {
+        type: 'cta',
+        text: 'Noch mehr Werkstätten in deiner Nähe finden',
+        href: '/custom-werkstatt',
+        label: 'Alle Werkstätten',
+      },
+    ],
+  },
+
+  {
     slug: 'warum-heisst-es-cafe-racer',
     title: 'Warum heißt es Cafe Racer? Die Geschichte hinter dem Mythos',
     metaTitle: 'Warum heißt es Cafe Racer? Herkunft, Geschichte & Mythos',
@@ -1382,6 +1523,15 @@ type ArticleOverlay = Partial<
 >
 
 const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'bmw-cafe-racer-umbau-werkstaetten': {
+    title: 'BMW Café Racer builds: 10 German workshops that really know how',
+    metaTitle: 'BMW Café Racer builders — 10 workshops in Germany 2026',
+    metaDescription:
+      'Who builds the best BMW Café Racer? 10 specialist workshops from Hamburg to Garmisch — focus, donor models and tips on cost and TÜV registration.',
+    excerpt:
+      'From the classic R80 to the R nineT: these ten workshops specialise in BMW conversions. What sets them apart, what a build costs and what to look out for.',
+    categoryLabel: 'Guide',
+  },
   'warum-heisst-es-cafe-racer': {
     title: 'Why is it called Café Racer? The story behind the myth',
     metaTitle: 'Why is it called Café Racer? Origin, history & myth',
