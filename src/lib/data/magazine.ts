@@ -171,6 +171,226 @@ export const ARTICLES: Article[] = [
   },
 
   {
+    slug: 'legaler-motorrad-auspuff-ece-zulassung',
+    title: 'Legaler Motorrad-Auspuff: E-Nummer, EG-ABE und ECE — so erkennst du die Zulassung',
+    metaTitle: 'Legaler Motorrad-Auspuff — E-Nummer, ECE & EG-ABE erklärt',
+    metaDescription:
+      'Ist dein Motorrad-Auspuff legal? So liest du E-Prüfzeichen, EG-Typgenehmigung, ABE und Teilegutachten richtig — plus dB-Killer, Euro 5 und Kauf-Checkliste.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Kleines Prüfzeichen, große Wirkung: Woran du einen legalen Motorrad-Auspuff erkennst, welche Papiere du brauchst und welche Fehler bei Kontrolle und HU teuer werden.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/97bd3225-b682-4bc8-8de3-6bf96105442a/cover-1793199580243-0.jpg',
+    publishedAt: '2026-10-28',
+    readTime: '8 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Auspuff', 'TÜV', 'Eintragung', 'ECE', 'Recht', 'Lärm'],
+    relatedSlugs: ['custom-auspuff-eintragung-kosten', 'tuev-eintragung-custom-bike', 'motorrad-umbau-kosten'],
+    faq: [
+      { q: 'Woran erkenne ich, ob ein Motorrad-Auspuff legal ist?', a: 'Am eingeschlagenen oder aufgenieteten Prüfzeichen: ein kleines „e“ mit Länderziffer im Rechteck (EG-Typgenehmigung) oder ein großes „E“ mit Ziffer im Kreis (ECE-Genehmigung). Dazu gehört eine Genehmigungsnummer. Alternativ liegt eine deutsche ABE oder ein Teilegutachten bei. Ohne eines davon ist die Anlage nicht straßenzugelassen.' },
+      { q: 'Muss ein Auspuff mit E-Nummer eingetragen werden?', a: 'Ein Auspuff mit gültiger EG- oder ECE-Genehmigung für genau dein Fahrzeugmodell muss in der Regel nicht eingetragen werden. Wichtig ist, dass dein Motorrad im Verwendungsbereich der Genehmigung aufgeführt ist. Bei einem Teilegutachten ist dagegen eine Änderungsabnahme beim Prüfer nötig.' },
+      { q: 'Darf ich den dB-Killer ausbauen?', a: 'Nein. Ist der dB-Killer Teil der Genehmigung, erlischt mit dem Ausbau die Zulassung der Anlage und damit in der Regel die Betriebserlaubnis des Motorrads. Das kann bei einer Kontrolle Bußgeld, das Verbot der Weiterfahrt und Ärger mit der Versicherung nach sich ziehen.' },
+      { q: 'Was bedeutet „nicht für den Straßenverkehr“ oder „Racing only“?', a: 'Solche Anlagen haben keine Straßenzulassung. Sie dürfen nur auf abgesperrten Strecken gefahren werden. Eine nachträgliche Legalisierung ist allenfalls über eine aufwendige Einzelabnahme nach §21 StVZO möglich — und scheitert häufig an Lärm- oder Abgaswerten.' },
+      { q: 'Gilt mein legaler Auspuff auch in Österreich?', a: 'EG- und ECE-Genehmigungen gelten EU-weit. Achtung aber bei regionalen Lärmregeln: In Tirol sind auf einigen beliebten Strecken Motorräder mit einem Standgeräusch über 95 dB(A) laut Fahrzeugpapieren gesperrt — unabhängig davon, ob der Auspuff zugelassen ist.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Ein neuer Auspuff verändert ein Motorrad wie kaum ein anderes Teil — Klang, Optik, manchmal auch Leistung. Doch bei keinem anderen Umbau ist die Frage „Ist das legal?“ so wichtig. Die gute Nachricht: Ob eine Anlage straßenzugelassen ist, lässt sich in den meisten Fällen in zwei Minuten herausfinden. Man muss nur wissen, wo man hinschaut. Dieser Ratgeber erklärt die Prüfzeichen, die verschiedenen Papiere und die typischen Fallen — von dB-Killer bis Euro 5.',
+      },
+      { type: 'h2', text: 'Die vier Wege zur Zulassung' },
+      {
+        type: 'p',
+        text: 'In Deutschland darf ein Motorrad-Auspuff nur gefahren werden, wenn er auf einem dieser vier Wege zugelassen ist. Sie unterscheiden sich vor allem darin, wie viel Aufwand nach dem Einbau noch auf dich zukommt:',
+      },
+      {
+        type: 'list',
+        items: [
+          'EG-Typgenehmigung (kleines „e“ im Rechteck): EU-weit gültig, keine Eintragung nötig, wenn dein Modell im Verwendungsbereich steht.',
+          'ECE-Genehmigung nach UN-Regelung 92 (großes „E“ im Kreis): die internationale Genehmigung für Ersatz-Schalldämpferanlagen von Krafträdern — ebenfalls ohne Eintragung, wenn das Modell passt.',
+          'ABE (Allgemeine Betriebserlaubnis) vom Kraftfahrt-Bundesamt: deutsche Zulassung, Dokument mitführen, keine Eintragung.',
+          'Teilegutachten: Der Auspuff ist geprüft, aber der Einbau muss von TÜV, Dekra, GTÜ oder KÜS abgenommen und in die Papiere eingetragen werden (Änderungsabnahme).',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Gibt es nichts davon — etwa bei einer handgefertigten Anlage aus der Custom-Werkstatt — bleibt nur die Einzelabnahme nach §21 StVZO. Dabei werden Geräusch und gegebenenfalls Abgas individuell gemessen. Das ist machbar, aber deutlich aufwendiger und teurer. Wie das konkret abläuft und was es kostet, steht in unserem Ratgeber zur Auspuff-Eintragung.',
+      },
+      { type: 'cta', text: 'Eintragung, Kosten und Hersteller im Detail', href: '/magazine/custom-auspuff-eintragung-kosten', label: 'Zum Auspuff-Ratgeber' },
+      { type: 'h2', text: 'So liest du das Prüfzeichen' },
+      {
+        type: 'p',
+        text: 'Das Prüfzeichen ist meist auf dem Endtopf eingeschlagen, eingeprägt oder als Metallplakette aufgenietet. Es besteht aus dem Kennbuchstaben, einer Ziffer für das Land, das die Genehmigung erteilt hat, und einer Genehmigungsnummer. Die Ziffer verrät nicht, wo der Auspuff gebaut wurde, sondern welche Behörde ihn geprüft hat — die „1“ steht zum Beispiel für Deutschland, die „3“ für Italien, die „4“ für die Niederlande.',
+      },
+      {
+        type: 'list',
+        items: [
+          'Kleines „e“ im Rechteck + Ziffer: EG-/EU-Typgenehmigung',
+          'Großes „E“ im Kreis + Ziffer: ECE-Genehmigung (UN-Regelung)',
+          'Die Genehmigungsnummer muss zu den mitgelieferten Papieren passen',
+          'Fehlt das Zeichen oder ist es unleserlich, gilt die Anlage im Zweifel als nicht genehmigt',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Das Prüfzeichen allein reicht aber nicht. Entscheidend ist der Verwendungsbereich in den Papieren: Dort steht, für welche Fahrzeugtypen die Genehmigung gilt — meist über die Typschlüsselnummer oder die Typgenehmigungsnummer deines Motorrads. Ein Endtopf mit E-Nummer für die Triumph Bonneville ist an einer BMW R nineT trotzdem illegal.',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/ac0c0c8f-38d1-45d1-be6a-bea888aeb51e/gallery-1793196555878-1.jpg',
+        caption: 'Gerade bei Harley-Umbauten ist die Abgasanlage oft das auffälligste Bauteil — und das am häufigsten kontrollierte.',
+      },
+      { type: 'h2', text: 'dB-Killer: Der häufigste Fehler' },
+      {
+        type: 'p',
+        text: 'Viele zugelassene Anlagen sind nur mit eingesetztem dB-Killer (Geräuscheinsatz) genehmigt. Wer ihn ausbaut, weil es „besser klingt“, fährt ohne gültige Genehmigung — und damit in der Regel ohne Betriebserlaubnis. Bei einer Kontrolle drohen Bußgeld und gegebenenfalls das Verbot der Weiterfahrt. Im Schadensfall kann es zudem Probleme mit der Versicherung geben. Seriöse Anlagen sichern den dB-Killer deshalb mit einer Schraube oder Niete; manche Prüfer kontrollieren genau das.',
+      },
+      { type: 'h2', text: 'Euro 5, Standgeräusch und Kontrollen' },
+      {
+        type: 'p',
+        text: 'Bei neueren Motorrädern spielt neben der Lautstärke auch das Abgas eine Rolle. Für Euro-4- und Euro-5-Modelle muss eine Zubehöranlage die Emissionsvorgaben ihres Fahrzeugtyps erfüllen — deshalb gibt es von vielen Herstellern eigene Versionen je Baujahr. Bei älteren Klassikern, die häufig als Custom-Basis dienen, ist vor allem die Geräuschmessung entscheidend.',
+      },
+      {
+        type: 'p',
+        text: 'Ein wichtiger Wert steht in deiner Zulassungsbescheinigung Teil I im Feld U.1: das Standgeräusch in dB(A) mit der zugehörigen Drehzahl in Feld U.2. Polizei und Prüfer messen bei Kontrollen nach diesem Verfahren nach. Liegt der gemessene Wert deutlich über dem eingetragenen, ist die Anlage — oder ihr Zustand — nicht in Ordnung, selbst wenn sie ein Prüfzeichen trägt.',
+      },
+      {
+        type: 'quote',
+        text: 'Ein Prüfzeichen schützt dich nur, wenn Anlage, Fahrzeug und Papiere zusammenpassen — und der dB-Killer drin ist.',
+      },
+      { type: 'h2', text: 'Kauf-Checkliste für einen legalen Auspuff' },
+      {
+        type: 'list',
+        items: [
+          'Steht dein Modell inklusive Baujahr im Verwendungsbereich der Genehmigung?',
+          'Ist das Prüfzeichen auf der Anlage vorhanden und lesbar?',
+          'Liegen die Papiere (EG-/ECE-Bescheinigung, ABE oder Teilegutachten) im Original oder als offizielle Kopie bei?',
+          'Ist ein dB-Killer Teil der Genehmigung — und ist er fest verbaut?',
+          'Bei Teilegutachten: Termin für die Änderungsabnahme einplanen und Kosten einkalkulieren.',
+          'Gebraucht gekauft? Ohne Papiere ist eine Anlage praktisch wertlos — die Ersatzbeschaffung beim Hersteller ist nicht immer möglich.',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Wer bei einem kompletten Umbau keine Lust auf Papierkram hat, ist bei einer erfahrenen Custom-Werkstatt gut aufgehoben: Gute Betriebe kennen die Anlagen mit passender Genehmigung, organisieren Änderungsabnahmen und übergeben das Bike mit allen Eintragungen.',
+      },
+      {
+        type: 'cta',
+        text: 'Werkstätten, die Umbauten inklusive Eintragung liefern',
+        href: '/custom-werkstatt',
+        label: 'Werkstatt finden',
+      },
+    ],
+  },
+
+  {
+    slug: 'harley-custom-werkstatt-finden',
+    title: 'Harley Custom Werkstatt finden: 6 Adressen für Bobber, Chopper und Clubstyle',
+    metaTitle: 'Harley Custom Werkstatt finden — 6 Spezialisten in Deutschland',
+    metaDescription:
+      'Harley-Davidson umbauen lassen? 6 Custom-Werkstätten von Berlin bis Stuttgart, die richtigen Fragen an den Builder und was bei Breitreifen, Airride & TÜV zählt.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom Weltmeister-Showbike bis zum soliden Sportster-Bobber: Sechs Werkstätten, die Harley-Davidson können — und worauf du bei der Wahl achten solltest.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/ac0c0c8f-38d1-45d1-be6a-bea888aeb51e/cover-1793196555542-0.jpg',
+    publishedAt: '2026-10-28',
+    readTime: '8 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Harley-Davidson', 'Bobber', 'Chopper', 'Werkstatt', 'Umbau', 'Clubstyle'],
+    relatedSlugs: ['bobber-kaufen-guide', 'motorrad-umbau-werkstatt-finden', 'legaler-motorrad-auspuff-ece-zulassung'],
+    relatedBuilderSlug: 'thunderbike',
+    faq: [
+      { q: 'Muss ich für einen Harley-Umbau zum Vertragshändler?', a: 'Nein. Viele der besten Harley-Umbauten entstehen in freien Custom-Werkstätten. Ein Vertragshändler wie Thunderbike bietet zusätzlich Neufahrzeuge, Garantiearbeiten und Service. Für reine Umbauten zählen vor allem Erfahrung mit dem Modell und saubere Eintragungen.' },
+      { q: 'Welche Harley eignet sich am besten als Umbau-Basis?', a: 'Sportster sind günstig und leicht und damit der Klassiker für Bobber. Softail- und Dyna-Modelle bieten mehr Hubraum und Komfort für Chopper und Cruiser. Die aktuellen Milwaukee-Eight-Modelle wie Low Rider ST oder Breakout sind die Basis für moderne Clubstyle- und Performance-Umbauten.' },
+      { q: 'Kann ein Breitreifen-Umbau eingetragen werden?', a: 'Ja, mit Teilegutachten oder Einzelabnahme. Entscheidend sind Freigängigkeit, Kettenlinie bzw. Riemenflucht, Kotflügelabdeckung und passende Felgen. Erfahrene Werkstätten planen die Eintragung von Anfang an mit.' },
+      { q: 'Was kostet ein Harley-Umbau?', a: 'Kleinere Umbauten wie Lenker, Sitzbank, Auspuff und Beleuchtung bewegen sich meist im niedrigen bis mittleren vierstelligen Bereich. Komplette Umbauten mit Fahrwerk, Breitreifen, Lack und Eintragung liegen schnell im fünfstelligen Bereich, Showbikes deutlich darüber.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Keine Marke wird so oft umgebaut wie Harley-Davidson. Ob puristischer Sportster-Bobber, gestreckter Chopper oder ein aggressiver Clubstyle-Low-Rider: Die Basis ist robust, die Teileauswahl riesig und die Szene groß. Umso wichtiger ist die Wahl der richtigen Werkstatt — denn zwischen solider Schrauberarbeit und echtem Customizing liegen Welten. Wir stellen sechs Werkstätten vor, die Harley können, und zeigen, worauf du achten solltest.',
+      },
+      { type: 'h2', text: 'Welche Harley für welchen Stil?' },
+      {
+        type: 'list',
+        items: [
+          'Sportster (Evo, 883/1200): leicht, günstig, der Klassiker für Bobber und Café-Umbauten',
+          'Softail: Hardtail-Optik mit verstecktem Federbein — ideal für Chopper, Bobber und Fat-Boy-Umbauten',
+          'Dyna: die Basis für Clubstyle-Bikes mit hohem T-Bar-Lenker und Halbschale',
+          'Touring (Road King, Road Glide): Bagger-Umbauten mit großen Vorderrädern und tiefem Heck',
+          'Milwaukee-Eight (Low Rider ST, Breakout): moderne Performance-Basis mit viel Drehmoment',
+        ],
+      },
+      { type: 'h2', text: '1. Thunderbike — Hamminkeln' },
+      {
+        type: 'p',
+        text: 'Wer über Harley-Customizing in Deutschland spricht, kommt an Thunderbike nicht vorbei. Der Vertragshändler am Niederrhein hat Showbikes gebaut, die Europameister- und 2012 sogar den Weltmeistertitel in der Freestyle-Klasse der AMD World Championship geholt haben. Konstruktion, Metallbau, CNC-Fräserei und Oberflächenveredelung sitzen im eigenen Haus, über 2.500 eigene Teile werden weltweit verkauft. Ideal für alle, die Topniveau und eine große Infrastruktur suchen.',
+      },
+      { type: 'cta', text: 'Thunderbike auf MotoDigital', href: '/custom-werkstatt/thunderbike', label: 'Profil ansehen' },
+      { type: 'h2', text: '2. Dr. Mechanik — Weinstadt bei Stuttgart' },
+      {
+        type: 'p',
+        text: 'Max Krpanic baut unter dem Namen Dr. Mechanik seit vielen Jahren High-End-Umbauten rund um amerikanische V-Twins: Dyna-Bobber, eine Road King mit 124-Kubikinch-Motor, V-Rod-Café-Racer, eine 77er Shovelhead und zahlreiche Breitreifen-Projekte. Sitzbänke, Elektrik und Metallarbeiten entstehen in der eigenen Werkstatt.',
+      },
+      { type: 'cta', text: 'Dr. Mechanik auf MotoDigital', href: '/custom-werkstatt/dr-mechanik', label: 'Profil ansehen' },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/97bd3225-b682-4bc8-8de3-6bf96105442a/cover-1793199580243-0.jpg',
+        caption: 'Road King „Elegance“ von Dr. Mechanik — Touring-Umbau mit großvolumigem Motor.',
+      },
+      { type: 'h2', text: '3. Raggarbilar Custom — Leipzig' },
+      {
+        type: 'p',
+        text: 'Inhaber Fabrice und sein Team mit eigenem Meister bauen handgemachte Custombikes, vor allem auf Harley-Basis. Markenzeichen sind individuelle Lackierungen mit Pinstriping und Airbrush. Daneben ist Raggarbilar Service- und TÜV-Anlaufstelle für Harley, Buell, Brixton und JAWA — praktisch, wenn Umbau und Wartung aus einer Hand kommen sollen.',
+      },
+      { type: 'cta', text: 'Raggarbilar Custom auf MotoDigital', href: '/custom-werkstatt/raggarbilar-custom', label: 'Profil ansehen' },
+      { type: 'h2', text: '4. Biker Schmiede Berlin' },
+      {
+        type: 'p',
+        text: 'Seit 1998 baut die Biker Schmiede im Osten Berlins Chopper, Bobber und Cruiser — häufig auf V-Rod-, Fat-Boy- oder Indian-Scout-Basis. Sättel, Griffe und lackierte Tanks fertigt das Team teilweise selbst. HU/AU gibt es donnerstags direkt vor Ort, dazu einen Hol- und Bringservice.',
+      },
+      { type: 'cta', text: 'Biker Schmiede Berlin auf MotoDigital', href: '/custom-werkstatt/biker-schmiede-berlin', label: 'Profil ansehen' },
+      { type: 'h2', text: '5. Bullock Custom Bikes — Altendiez' },
+      {
+        type: 'p',
+        text: 'Bei Bullock nahe Limburg dreht sich viel um Heck- und Breitreifenumbauten, Airride-Fahrwerke, Tanks und Auspuffanlagen — zu sehen etwa an einer Softail Slim oder einer V-Rod. Lack, Pulverbeschichtung und Sattlerarbeiten kommen aus einer Hand, der TÜV kommt wöchentlich ins Haus.',
+      },
+      { type: 'cta', text: 'Bullock Custom Bikes auf MotoDigital', href: '/custom-werkstatt/bullock-custom-bikes', label: 'Profil ansehen' },
+      { type: 'h2', text: '6. Brückner Manufaktur — Magdeburg' },
+      {
+        type: 'p',
+        text: 'Der Meisterbetrieb ist vor allem für BMW- und Yamaha-Umbauten bekannt, hat aber auch Harley-Projekte wie die „Black Star“ oder eine Softail in Mystic Blue im Portfolio. Eine gute Adresse für alle, die bei ihrer Harley einen eher europäisch-cleanen Stil suchen.',
+      },
+      { type: 'cta', text: 'Brückner Manufaktur auf MotoDigital', href: '/custom-werkstatt/brueckner-manufaktur', label: 'Profil ansehen' },
+      { type: 'h2', text: 'Fünf Fragen, die du jeder Werkstatt stellen solltest' },
+      {
+        type: 'list',
+        items: [
+          'Welche Harley-Projekte habt ihr schon gebaut — und kann ich eines davon sehen oder fahren?',
+          'Ist die Eintragung aller Teile im Preis enthalten, und mit welcher Prüforganisation arbeitet ihr?',
+          'Was passiert mit Motor, Bremsen und Elektrik — wird nur optisch umgebaut oder auch technisch überholt?',
+          'Wie läuft die Abrechnung: Festpreis, Kostenvoranschlag mit Obergrenze oder nach Aufwand?',
+          'Wie lange dauert das Projekt realistisch, und wie werde ich zwischendurch informiert?',
+        ],
+      },
+      { type: 'h2', text: 'Harley-typische Stolperfallen beim TÜV' },
+      {
+        type: 'p',
+        text: 'Bei Harley-Umbauten scheitern Eintragungen selten am großen Ganzen, sondern an Details: Breitreifen-Kits brauchen ausreichend Freigang und eine saubere Riemenflucht, gekürzte Kotflügel müssen den Reifen noch ausreichend abdecken, und offene Auspuffanlagen ohne Genehmigung sind der Klassiker unter den Mängeln. Beim Lenker zählen Spiegelsicht, freie Lenkbarkeit und richtig verlegte Züge. Eine gute Werkstatt plant das von Anfang an mit — und spart dir die zweite Runde beim Prüfer.',
+      },
+      {
+        type: 'cta',
+        text: 'Alles zu legalen Abgasanlagen und Prüfzeichen',
+        href: '/magazine/legaler-motorrad-auspuff-ece-zulassung',
+        label: 'Zum Auspuff-Ratgeber',
+      },
+    ],
+  },
+
+  {
     slug: 'warum-heisst-es-cafe-racer',
     title: 'Warum heißt es Cafe Racer? Die Geschichte hinter dem Mythos',
     metaTitle: 'Warum heißt es Cafe Racer? Herkunft, Geschichte & Mythos',
@@ -359,7 +579,7 @@ export const ARTICLES: Article[] = [
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Bobber', 'Kaufratgeber', 'Harley-Davidson', 'BMW', 'Custom'],
-    relatedSlugs: ['max-steiner-bobber-interview', 'was-kostet-ein-custom-bike', 'tuev-eintragung-custom-bike'],
+    relatedSlugs: ['harley-custom-werkstatt-finden', 'max-steiner-bobber-interview', 'tuev-eintragung-custom-bike'],
     faq: [
       { q: 'Was ist ein Bobber?', a: 'Ein Bobber ist ein radikal reduziertes Custom-Motorrad. Klassisch mit Hardtail-Rahmen, Monosattel und fettem Hinterreifen. Der Begriff kommt aus den USA der 1940er — Veteranen "bobbten" ihre Harleys, indem sie alles Überflüssige entfernten.' },
       { q: 'Was kostet ein Bobber?', a: 'Werks-Bobber wie Triumph Bonneville Bobber oder Indian Scout Bobber starten bei 10.500 €. Custom-Bobber-Builds beginnen bei ca. 8.000 € für einfache Umbauten und erreichen bei renommierten Buildern 20.000-30.000 €.' },
@@ -637,7 +857,7 @@ export const ARTICLES: Article[] = [
     readTime: '9 min',
     author: 'MotoDigital Redaktion',
     tags: ['TÜV', 'Eintragung', 'StVZO', 'Betriebserlaubnis', 'Deutschland', 'Recht'],
-    relatedSlugs: ['cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike', 'bobber-kaufen-guide'],
+    relatedSlugs: ['legaler-motorrad-auspuff-ece-zulassung', 'cafe-racer-selber-bauen-basis-bikes', 'bobber-kaufen-guide'],
     faq: [
       { q: 'Was ist beim Custom-Umbau eintragungspflichtig?', a: 'Eintragungspflichtig sind alle Modifikationen, die die Betriebserlaubnis betreffen: Lenker, Sitzbank (wenn sich die Sitzhöhe ändert), Auspuffanlage, Beleuchtung, Reifen anderer Dimension, Rahmenmodifikationen, Tank und Bremsen.' },
       { q: 'Wie viel kostet eine TÜV-Einzelabnahme?', a: 'Eine Einzelabnahme nach § 21 StVZO kostet je nach Prüfumfang 150-600 €. Teilegutachten sind oft kostenlos (in Teilen enthalten) oder 30-80 € beim Hersteller. Die Eintragung bei der Zulassungsstelle kostet 15-30 €.' },
@@ -1299,7 +1519,7 @@ export const ARTICLES: Article[] = [
     readTime: '9 min',
     author: 'MotoDigital Redaktion',
     tags: ['Custom Auspuff', 'TÜV Eintragung', 'Motorrad Auspuff', 'Slip-On', 'ABE', 'Custom Bike', 'Umbau'],
-    relatedSlugs: ['tuev-eintragung-custom-bike', 'motorrad-umbau-kosten', 'was-kostet-ein-custom-bike'],
+    relatedSlugs: ['legaler-motorrad-auspuff-ece-zulassung', 'tuev-eintragung-custom-bike', 'motorrad-umbau-kosten'],
     faq: [
       {
         q: 'Muss ein Custom-Auspuff eingetragen werden?',
@@ -1523,6 +1743,24 @@ type ArticleOverlay = Partial<
 >
 
 const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'legaler-motorrad-auspuff-ece-zulassung': {
+    title: 'Street-legal motorcycle exhaust: E-mark, EC approval and ECE explained',
+    metaTitle: 'Street-legal motorcycle exhaust — E-mark, ECE & EC approval',
+    metaDescription:
+      'Is your motorcycle exhaust legal? How to read E-marks, EC type approval, ABE and part certificates — plus dB killers, Euro 5 and a buying checklist.',
+    excerpt:
+      'A small stamp with big consequences: how to tell if a motorcycle exhaust is street-legal, which papers you need and which mistakes get expensive.',
+    categoryLabel: 'Guide',
+  },
+  'harley-custom-werkstatt-finden': {
+    title: 'Finding a Harley custom workshop: 6 builders for bobbers, choppers and clubstyle',
+    metaTitle: 'Harley custom workshops — 6 specialists in Germany',
+    metaDescription:
+      'Want your Harley-Davidson customised? 6 German custom workshops, the right questions to ask and what matters for wide tyres, air ride and TÜV.',
+    excerpt:
+      'From world-championship show bikes to solid Sportster bobbers: six workshops that know Harley-Davidson — and what to look for when choosing one.',
+    categoryLabel: 'Guide',
+  },
   'bmw-cafe-racer-umbau-werkstaetten': {
     title: 'BMW Café Racer builds: 10 German workshops that really know how',
     metaTitle: 'BMW Café Racer builders — 10 workshops in Germany 2026',
