@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Link, useRouter as useLocaleRouter } from '@/i18n/navigation'
 import { allAgents, getAgent } from '@/lib/agents/definitions'
 import type { PlatformStats } from '@/lib/agents/tools'
 import { createAgentScene, type AgentState, type SceneApi, type SceneState } from './agentScene'
@@ -30,6 +31,7 @@ const fmt = (n: number) => n.toLocaleString('de-DE')
 
 export default function AgentControl({ stats, briefing: initialBriefing, ablage: initialAblage }: AgentControlProps) {
   const router = useRouter()
+  const localeRouter = useLocaleRouter()
   const agents = useMemo(() => allAgents(), [])
   const [ui, setUi] = useState<Record<string, AgentUi>>(() =>
     Object.fromEntries(agents.map(a => [a.id, { state: 'bereit', task: 0, det: '', out: '', outId: null, inbox: null }])))
@@ -81,6 +83,16 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
     sceneRef.current = scene
     return () => { scene.destroy(); sceneRef.current = null }
   }, [])
+
+  // Esc closes Agent Control (unless typing in a field)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName
+      if (e.key === 'Escape' && tag !== 'TEXTAREA' && tag !== 'INPUT') localeRouter.push('/dashboard')
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [localeRouter])
 
   const patch = useCallback((id: string, p: Partial<AgentUi>) => {
     setUi(prev => ({ ...prev, [id]: { ...prev[id], ...p } }))
@@ -252,7 +264,12 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
           <h1>Moto<span>Digital</span> · Agent Control</h1>
           <div className="sub">Ziehen zum Drehen, Scrollen oder zwei Finger zum Zoomen. Mitarbeiter oder Café antippen.</div>
         </div>
-        <button className="ghost" onClick={() => sceneRef.current?.resetView()}>Iso-Ansicht</button>
+        <div className="hd-actions">
+          <button className="ghost" onClick={() => sceneRef.current?.resetView()}>Iso-Ansicht</button>
+          <Link href="/dashboard" className="close" aria-label="Agent Control schließen" title="Schließen (Esc)">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9m0-9l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+          </Link>
+        </div>
       </header>
       <div ref={panelRef} className="panel">
         <div><h2>{title}</h2><span className="ar">{sub}</span><span className="st">{status}</span></div>
@@ -266,13 +283,17 @@ export default function AgentControl({ stats, briefing: initialBriefing, ablage:
 
 // Styles from the prototype, scoped to .ac-root (positions relative to the container, not the viewport)
 const CSS = `
-.ac-root{--bg:#F0EDE4;--fg:#111;--teal:#2AABAB;--card:rgba(255,255,255,.92);--mut:#5d5a52;--line:rgba(17,17,17,.14);--tint:rgba(42,171,171,.1);position:relative;height:100%;min-height:560px;overflow:hidden;background:var(--bg);color:var(--fg);font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif}
+.ac-root{--bg:#F0EDE4;--fg:#111;--teal:#2AABAB;--card:rgba(255,255,255,.92);--mut:#5d5a52;--line:rgba(17,17,17,.14);--tint:rgba(42,171,171,.1);position:fixed;inset:0;z-index:100;overflow:hidden;background:var(--bg);color:var(--fg);font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif}
+.ac-root .hd-actions{display:flex;gap:8px;align-items:center;pointer-events:auto}
+.ac-root .close{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:var(--card);color:var(--fg);border:1px solid var(--line);backdrop-filter:blur(6px);text-decoration:none}
+.ac-root .close:hover{border-color:var(--fg)}
+.ac-root .close:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ac-root{--bg:#111;--fg:#F0EDE4;--card:rgba(30,30,30,.93);--mut:#a8a59c;--line:rgba(240,237,228,.16);--tint:rgba(42,171,171,.16);color-scheme:dark}}
 :root[data-theme="dark"] .ac-root{--bg:#111;--fg:#F0EDE4;--card:rgba(30,30,30,.93);--mut:#a8a59c;--line:rgba(240,237,228,.16);--tint:rgba(42,171,171,.16);color-scheme:dark}
 .ac-root canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
 .ac-root .ac-overlay{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .ac-root .ac-overlay>*{pointer-events:auto}
-.ac-root header{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:12px;z-index:5}
+.ac-root header{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:12px;z-index:5}
 .ac-root h1{font-size:15px;font-weight:800;margin:0;letter-spacing:.02em}
 .ac-root h1 span{color:var(--teal)}
 .ac-root .sub{font-size:12px;color:var(--mut);margin-top:2px;max-width:46ch}
@@ -302,7 +323,7 @@ const CSS = `
 .ac-root .cafe.mini .g{display:none}.ac-root .cafe.mini h3{margin:0}
 @keyframes ac-p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.ac-root .node.work i{animation:none}}
-.ac-root .panel{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;width:min(600px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;backdrop-filter:blur(10px);box-sizing:border-box;z-index:5}
+.ac-root .panel{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:min(600px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;backdrop-filter:blur(10px);box-sizing:border-box;z-index:5}
 .ac-root .panel h2{font-size:14px;margin:0;font-weight:800;display:inline}
 .ac-root .ar{font-size:11px;color:var(--mut);font-weight:600;margin-left:8px}
 .ac-root .st{font-size:11px;color:var(--teal);font-weight:600;margin-left:8px}
