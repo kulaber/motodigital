@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
       { source: '/franks-motorrad-center/index.html', destination: '/franks-motorrad-center', permanent: true },
       { source: '/websites/index.html', destination: '/websites', permanent: true },
       { source: '/tommys-garage/index.html', destination: '/tommys-garage', permanent: true },
+      // /custom-bike has only [slug] detail pages — the listing lives at /bikes
+      { source: '/custom-bike', destination: '/bikes', permanent: true },
+      { source: '/en/custom-bike', destination: '/en/bikes', permanent: true },
     ]
   },
   compress: true,

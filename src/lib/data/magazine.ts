@@ -557,7 +557,7 @@ export const ARTICLES: Article[] = [
       {
         type: 'cta',
         text: 'Alle Scrambler im Marketplace',
-        href: '/bikes?style=scrambler',
+        href: '/bikes/scrambler',
         label: 'Scrambler entdecken',
       },
     ],
@@ -644,7 +644,7 @@ export const ARTICLES: Article[] = [
       {
         type: 'cta',
         text: 'Bobber bei MotoDigital ansehen',
-        href: '/bikes?style=bobber',
+        href: '/bikes/bobber',
         label: 'Bobber durchstöbern',
       },
     ],
@@ -1653,7 +1653,7 @@ export const ARTICLES: Article[] = [
       {
         type: 'cta',
         text: 'Custom Bikes mit legalem Auspuff auf MotoDigital',
-        href: '/custom-bike',
+        href: '/bikes',
         label: 'Custom Bikes entdecken',
       },
     ],
