@@ -150,10 +150,22 @@ export default async function EventDetailPage({ params }: Props) {
         address: event.location,
       },
     }),
+    // MotoDigital only lists these events — the event itself is organizer/performer
     organizer: {
       '@type': 'Organization',
-      name: 'MotoDigital',
-      url: BASE_URL,
+      name: event.name,
+      url: event.url || eventUrl,
+    },
+    performer: {
+      '@type': 'PerformingGroup',
+      name: event.name,
+    },
+    // No ticket prices in our data — point to the official site instead of inventing one
+    offers: {
+      '@type': 'Offer',
+      url: event.url || eventUrl,
+      availability: isPast ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+      ...(event.date_start && { validFrom: event.date_start }),
     },
   }
 
