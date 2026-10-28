@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import {
   LayoutDashboard, LogOut, ChevronDown, Search,
-  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Pencil,
+  Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Pencil, Bot,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
@@ -246,6 +246,10 @@ export default function Header({ activePage }: Props) {
                         <Link href="/admin/events" onClick={() => setDashDropdown(false)}
                           className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
                           <CalendarDays size={14} /> Events
+                        </Link>
+                        <Link href="/admin/agents" onClick={() => setDashDropdown(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-[#222222]/60 hover:text-[#222222] hover:bg-[#222222]/5 transition-colors">
+                          <Bot size={14} /> Agent Control
                         </Link>
                       </>
                     )}
