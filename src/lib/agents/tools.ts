@@ -94,11 +94,16 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   }
 }
 
+// Strict tool schemas can't carry minimum/maximum for integers, so ranges are
+// clamped here instead of rejected
+const intIn = (min: number, max: number) =>
+  z.number().int().optional().transform(v => (v == null ? v : Math.min(max, Math.max(min, v))))
+
 // ── Workshops ─────────────────────────────────────────────────────────
 
 const GetWorkshopsInput = z.object({
   city: z.string().max(80).optional(),
-  limit: z.number().int().min(1).max(60).optional(),
+  limit: intIn(1, 60),
 })
 
 async function getWorkshops(input: z.infer<typeof GetWorkshopsInput>) {
@@ -200,7 +205,7 @@ async function getIncompleteProfiles(input: z.infer<typeof GetIncompleteInput>) 
 // ── Recent inquiries ──────────────────────────────────────────────────
 
 const GetInquiriesInput = z.object({
-  days: z.number().int().min(1).max(180).optional(),
+  days: intIn(1, 180),
 })
 
 async function getRecentInquiries(input: z.infer<typeof GetInquiriesInput>) {
@@ -247,7 +252,7 @@ async function getRecentInquiries(input: z.infer<typeof GetInquiriesInput>) {
 // ── Bikes ─────────────────────────────────────────────────────────────
 
 const GetBikesInput = z.object({
-  limit: z.number().int().min(1).max(60).optional(),
+  limit: intIn(1, 60),
 })
 
 async function getBikes(input: z.infer<typeof GetBikesInput>) {
@@ -290,7 +295,7 @@ const REGISTRY = {
         type: 'object',
         properties: {
           city: { type: 'string', description: 'Teil des Städtenamens, z. B. "Berlin"' },
-          limit: { type: 'integer', minimum: 1, maximum: 60, description: 'Maximale Anzahl (Standard 40)' },
+          limit: { type: 'integer', description: 'Maximale Anzahl, 1 bis 60 (Standard 40)' },
         },
         required: [],
         additionalProperties: false,
@@ -319,7 +324,7 @@ const REGISTRY = {
       description: 'Anfragen über das Kontaktformular (Betreff und Text, Kontaktdaten entfernt) und Metadaten zu Unterhaltungen auf der Plattform (Datum, Empfänger, Bike, Anzahl Nachrichten — keine Nachrichteninhalte).',
       input_schema: {
         type: 'object',
-        properties: { days: { type: 'integer', minimum: 1, maximum: 180, description: 'Zeitraum in Tagen (Standard 30)' } },
+        properties: { days: { type: 'integer', description: 'Zeitraum in Tagen, 1 bis 180 (Standard 30)' } },
         required: [],
         additionalProperties: false,
       },
@@ -333,7 +338,7 @@ const REGISTRY = {
       description: 'Zuletzt eingestellte Bikes mit Marke, Modell, Stil, Status, Ort, Aufrufen, Anzahl Bilder und Link.',
       input_schema: {
         type: 'object',
-        properties: { limit: { type: 'integer', minimum: 1, maximum: 60, description: 'Maximale Anzahl (Standard 30)' } },
+        properties: { limit: { type: 'integer', description: 'Maximale Anzahl, 1 bis 60 (Standard 30)' } },
         required: [],
         additionalProperties: false,
       },
