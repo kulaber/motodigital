@@ -57,17 +57,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [{ data: builders }, { data: bikes }, { data: riders }, { data: events }, { data: brands }] = await Promise.all([
     (supabase.from('profiles') as any)
-      .select('slug, created_at, updated_at')
+      // profiles has no updated_at column — selecting it makes the whole query fail
+      .select('slug, created_at')
       .eq('role', 'custom-werkstatt')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string; updated_at?: string }[] | null }>,
+      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     supabase
       .from('bikes')
       .select('id, slug, title, updated_at')
       .eq('status', 'active') as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
     (supabase.from('profiles') as any)
-      .select('slug, updated_at')
+      .select('slug, created_at')
       .eq('role', 'rider')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; updated_at?: string }[] | null }>,
+      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
       .not('slug', 'is', null) as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
@@ -157,7 +158,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
     return {
       url: urls[routing.defaultLocale],
-      lastModified: b.updated_at ? new Date(b.updated_at) : b.created_at ? new Date(b.created_at) : now,
+      lastModified: b.created_at ? new Date(b.created_at) : now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
       alternates: { languages: urls },
@@ -184,7 +185,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
     return {
       url: urls[routing.defaultLocale],
-      lastModified: r.updated_at ? new Date(r.updated_at) : now,
+      lastModified: r.created_at ? new Date(r.created_at) : now,
       changeFrequency: 'weekly' as const,
       priority: 0.5,
       alternates: { languages: urls },

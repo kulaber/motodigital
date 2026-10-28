@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Biker Schmiede Berlin",
+    "username": "biker-schmiede-berlin",
+    "bio": "Custom-Werkstatt in Berlin-Mahlsdorf für Chopper, Bobber und Cruiser – Umbauten aller Marken, Service und HU/AU seit 1998.",
+    "bio_long": "Seit 1998 schraubt die Biker Schmiede im Osten Berlins an Motorrädern, die nach ihrem Besitzer aussehen sollen und nicht nach Katalog. Unter der Leitung von Volker Löhning entstehen Chopper, Bobber und Cruiser – von dezent veredelten Serienmaschinen bis zum kompletten Neuaufbau. Besonders oft stehen Harley-Davidson V-Rods, Fat Boys und Indian Scouts auf der Bühne, umgebaut wird aber markenoffen.\n\nViele Teile fertigt das Team selbst an, darunter Sättel, Griffe und lackierte Tanks; dazu kommen Komponenten namhafter Zubehörhersteller. Für Lack und Airbrush arbeitet die Schmiede mit erfahrenen Partnern zusammen, Galvanik-Arbeiten wie Verchromen werden ebenfalls organisiert.\n\nNeben dem Customizing ist die Biker Schmiede eine vollwertige Werkstatt: Reparatur, Diagnose, Reifenservice und donnerstags HU/AU direkt vor Ort. Wer liegen bleibt, wird mit dem Hol- und Bringservice abgeholt. Ein Nischenthema mit Fans: Camper-Umbauten für Motorradreisende.",
+    "city": "Berlin",
+    "address": "Hamburger Straße 87, 12623 Berlin, Deutschland",
+    "specialty": "Chopper · Bobber",
+    "since_year": 1998,
+    "tags": ["Komplettumbau", "Teileumbau", "Lackierung", "Sattlerarbeiten", "TÜV-Untersuchung", "Motordiagnose"],
+    "bases": ["Harley-Davidson", "Indian"],
+    "website_url": "https://www.biker-schmiede.de",
+    "instagram_url": "https://www.instagram.com/biker_schmiede_berlin",
+    "opening_hours": [
+      { "day": "Mo", "hours": "15:00–20:00" },
+      { "day": "Di", "hours": "15:00–20:00" },
+      { "day": "Mi", "hours": "15:00–20:00" },
+      { "day": "Do", "hours": "15:00–20:00" },
+      { "day": "Fr", "hours": "15:00–20:00" },
+      { "day": "Sa", "hours": "Geschlossen" },
+      { "day": "So", "hours": "Geschlossen" }
+    ],
+    "logo_url": "https://www.biker-schmiede.de/images/social_branding.png",
+    "cover_url": "https://www.biker-schmiede.de/upload/galleries/gallery_681b3846d6956c6454dae9c3/large/vrod-orange-0032_large_LxBJHWbcd-.jpg",
+    "gallery_urls": [
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b38dfd6956c6454dae9ea/large/vrod-blau-biker-schmiede-0002_large_kMfPTgIcCN.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b3d30d6956c6454daeaaa/large/bobber-biker-schmiede-0022_872_large_T8g3vjgGre.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b3480d6956c6454dae956/large/biker-schmiede-scoutster-2_large_14NzZLueU_.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_69412d334af7f2b91db2673f/large/0-fatboy-25-2_large_6qP2JCoJTZ.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b2bc1d6956c6454dae8fd/large/boba0027_large_f25gUoj2UZ.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b3a05d6956c6454daea15/large/dsc-4852_large_qGlyG3kNnq.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b3553d6956c6454dae980/large/img-5656_large_Lvc6vtwxbj.jpg",
+      "https://www.biker-schmiede.de/upload/galleries/gallery_681b0091ca715c45d254b3cf/large/dsc-8019_large_LV0LuRWPpx.jpg"
+    ]
+  },
+  {
+    "name": "Thunderbike",
+    "username": "thunderbike",
+    "bio": "Harley-Davidson-Vertragshändler und mehrfach weltmeisterlich prämierte Custom-Schmiede am Niederrhein – mit eigener Teileproduktion seit 1985.",
+    "bio_long": "Was 1985 als kleiner Motorradschuppen für japanische Maschinen begann, ist heute eine der bekanntesten Custom-Adressen Europas. Gründer Andreas Bergerforth baute ab Mitte der Neunziger erste komplette Custombikes, seit 2003 konzentriert sich Thunderbike auf Harley-Davidson – seit 2006 auch als offizieller Vertragshändler in Hamminkeln.\n\nDie Showbikes aus der Custom-Werkstatt holten Titel auf höchster Ebene: Europameister mit „Open Mind“ und „Spectacula“ und 2012 der Weltmeistertitel in der Freestyle-Klasse der AMD World Championship in Sturgis mit „PainTTless“. Heute entstehen dort komplette Aufbauten auf Thunderbike-Rahmen, aufwendige Harley-Umbauten vom Low Rider ST bis zur CVO Road Glide und individuelle Kundenprojekte.\n\nDer große Vorteil: Konstruktion, Metallbau, CNC-Fräserei und Oberflächenveredelung sitzen im eigenen Haus. Über 2.500 selbst entwickelte Teile – von Rädern bis Fahrwerkskomponenten – gehen von hier in die ganze Welt. Dazu kommen Service-Werkstatt, Gebrauchtbikes, Vermietung und das benachbarte Roadhouse mit regelmäßigen Events.",
+    "city": "Hamminkeln",
+    "address": "Güterstraße 5, 46499 Hamminkeln, Deutschland",
+    "specialty": "Chopper · Street",
+    "since_year": 1985,
+    "tags": ["Komplettumbau", "Teileumbau", "Schweißen", "Fräsen"],
+    "bases": ["Harley-Davidson"],
+    "website_url": "https://www.thunderbike.de",
+    "instagram_url": "https://www.instagram.com/thunderbike_official",
+    "opening_hours": [
+      { "day": "Mo", "hours": "10:00–18:00" },
+      { "day": "Di", "hours": "10:00–18:00" },
+      { "day": "Mi", "hours": "10:00–18:00" },
+      { "day": "Do", "hours": "10:00–18:00" },
+      { "day": "Fr", "hours": "10:00–18:00" },
+      { "day": "Sa", "hours": "10:00–13:00" },
+      { "day": "So", "hours": "11:00–16:00 (Schautag, kein Verkauf)" }
+    ],
+    "logo_url": "https://www.thunderbike.de/wp-content/themes/thunderbike/favicon/apple-icon-180x180.png",
+    "cover_url": "https://www.thunderbike.de/wp-content/uploads/2026/10/4k_Big-Frank_Michael-Rauscher_Glatzzo_Thunderbike-01-1536x1024.jpg",
+    "gallery_urls": [
+      "https://www.thunderbike.de/wp-content/uploads/2026/10/4k_Dark-Reaper_Michael-Rauscher_Glatzzo_Thunderbike-01-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/09/4k_Red-Nexus_Michael-Rauscher_Glatzzo_Thunderbike-04-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/09/4k_Burning-Eleven_Michael-Rauscher_Glatzzo_Thunderbike-01-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/08/4k_Devils-Rush_Michael-Rauscher_Glatzzo_Thunderbike-01-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/08/4k_Thankful_Michael-Rauscher_Glatzzo_Thunderbike-21-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/07/4k_EightySix-Legacy_Michael-Rauscher_Glatzzo_Thunderbike-05-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/04/4k_Knuckledust_Thunderbike_Michael-Rauscher_Glatzzo_11-1536x1024.jpg",
+      "https://www.thunderbike.de/wp-content/uploads/2026/03/4k_Calavera_Thunderbike_Michael-Rauscher_Glatzzo_01-1536x1024.jpg"
+    ]
+  }
+]
