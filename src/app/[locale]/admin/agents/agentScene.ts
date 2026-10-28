@@ -254,7 +254,9 @@ export function createAgentScene(o: SceneOptions): SceneApi {
     const aw = w - 24, ah = Math.max(120, h - top - bot)
     sBase = Math.min(aw / (2 * Math.max(-x0, x1)), ah / (2 * Math.max(-y0, y1))); AX = w / 2; AY = top + ah / 2; frame()
   }
-  const ro = new ResizeObserver(fit); ro.observe(o.container); ro.observe(o.panel); fit()
+  // Refit only when the viewport changes — not when the panel collapses or its
+  // content grows, otherwise the zoom would jump on every toggle/selection
+  const ro = new ResizeObserver(fit); ro.observe(o.container); fit()
 
   // ── Interaction ──
   const cv = o.canvas
