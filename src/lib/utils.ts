@@ -48,7 +48,8 @@ export function cityFromAddress(address: string): string {
   const parts = address.split(',').map(p => p.trim()).filter(Boolean)
   if (parts.length >= 2) {
     const segment = parts[parts.length - 2]
-    const match = segment.match(/^\d+\s+(.+)$/)
+    // Strip the postcode: "03185 Peitz" or Dutch "2913 LP Nieuwerkerk"
+    const match = segment.match(/^(?:\d{4}\s?[A-Z]{2}|\d+)\s+(.+)$/)
     return match ? match[1] : segment
   }
   return address

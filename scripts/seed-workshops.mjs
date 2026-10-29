@@ -23,6 +23,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROD_REF = 'ikhgfynzghfhnviwvupo'
 const PLACEHOLDER_DOMAIN = '@motodigital.local'
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/124 Safari/537.36'
+const MAX_IMAGE_WIDTH = 2400
+
+// sharp ships with Next.js; without it images are uploaded unprocessed
+const sharp = await import('sharp').then(m => m.default).catch(() => null)
 
 // ── Args ─────────────────────────────────────────────────────────────
 const args = process.argv.slice(2)
@@ -75,6 +79,24 @@ async function downloadImage(url) {
   return { buffer: Buffer.from(await res.arrayBuffer()), contentType }
 }
 
+// Avatar is rendered as a cropped square → center the logo on a solid square
+async function squareLogo({ buffer }, background) {
+  const logo = await sharp(buffer, { density: 300 }).resize(400, 400, { fit: 'inside' }).png().toBuffer()
+  const out = await sharp({ create: { width: 512, height: 512, channels: 4, background } })
+    .composite([{ input: logo, gravity: 'center' }])
+    .png()
+    .toBuffer()
+  return { buffer: out, contentType: 'image/png' }
+}
+
+async function downscale(image) {
+  if (!sharp) return image
+  const { width } = await sharp(image.buffer).metadata()
+  if (!width || width <= MAX_IMAGE_WIDTH) return image
+  const buffer = await sharp(image.buffer).rotate().resize({ width: MAX_IMAGE_WIDTH }).jpeg({ quality: 85 }).toBuffer()
+  return { buffer, contentType: 'image/jpeg' }
+}
+
 function extFor(contentType) {
   if (contentType.includes('png')) return 'png'
   if (contentType.includes('webp')) return 'webp'
@@ -92,7 +114,7 @@ async function uploadToStorage(profileId, fileName, buffer, contentType) {
 
 async function geocode(address) {
   if (!MAPBOX_TOKEN) return null
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=de,at,ch&limit=1&access_token=${MAPBOX_TOKEN}`
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=de,at,ch,nl&limit=1&access_token=${MAPBOX_TOKEN}`
   const res = await fetch(url)
   if (!res.ok) return null
   const [lng, lat] = (await res.json()).features?.[0]?.center ?? []
@@ -167,10 +189,12 @@ async function seedWorkshop(w) {
 
   await admin.from('workshops').update({ name: w.name, city: w.city }).eq('owner_id', profileId)
 
-  // Logo
+  // Logo (logo_bg: pad onto a square of that color, needed for wide or white logos)
   if (w.logo_url) {
     try {
-      const { buffer, contentType } = await downloadImage(w.logo_url)
+      let logo = await downloadImage(w.logo_url)
+      if (w.logo_bg && sharp) logo = await squareLogo(logo, w.logo_bg)
+      const { buffer, contentType } = logo
       const avatarUrl = await uploadToStorage(profileId, `avatar.${extFor(contentType)}`, buffer, contentType)
       await admin.from('profiles').update({ avatar_url: avatarUrl }).eq('id', profileId)
       console.log('  logo ✓')
@@ -185,7 +209,7 @@ async function seedWorkshop(w) {
   let ok = 0
   for (let i = 0; i < images.length; i++) {
     try {
-      const { buffer, contentType } = await downloadImage(images[i])
+      const { buffer, contentType } = await downscale(await downloadImage(images[i]))
       const fileName = `${i === 0 ? 'cover' : 'gallery'}-${Date.now()}-${i}.${extFor(contentType)}`
       const url = await uploadToStorage(profileId, fileName, buffer, contentType)
       await admin.from('builder_media').insert({
