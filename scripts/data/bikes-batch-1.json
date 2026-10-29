@@ -1,0 +1,49 @@
+[
+  {
+    "workshop": "ose-motorworks",
+    "source_url": "https://osemotorworks.com/bmw-r9t-magnum/",
+    "title": "BMW R nineT Magnum",
+    "make": "BMW Motorrad",
+    "model": "R nineT",
+    "year": 2016,
+    "style": "cafe_racer",
+    "cc": 1170,
+    "description": "„Magnum“ entstand als Auftrag eines BMW-Motorrad-Händlers: Gewünscht war eine R nineT im Café-Racer-Stil – zu einer Zeit, als BMW selbst noch keinen Café Racer in der Heritage-Reihe hatte. OSE Kustom Motorworks aus Le Havre nahm dafür eine R nineT von 2016 als Basis und ließ sich von den Rennmaschinen vergangener Jahrzehnte leiten.\n\nDie ersten Arbeitsstunden gingen in die Suche nach der passenden Frontverkleidung und dem Höcker, beide aus GFK. Danach wurde das Motorrad komplett zerlegt, damit der Rahmen einen neuen Farbton bekommen konnte. Ein eigens gefertigter Stahladapter setzt den Höcker genau auf die Höhe, die zur Linie des restlichen Bikes passt, und schafft darunter Platz für die Auspuffanlage. Die Edelstahl-Endtöpfe sind schwarz keramikbeschichtet und verschwinden fast vollständig unter dem Heck; die Beschichtung hält zugleich die Hitze vom Fahrer fern.\n\nDie Idee zur Lampenmaske kam bei einem Tag auf der Rennstrecke. OSE hat sie aus einer gekürzten Mooneyes-Radkappe gebaut, sie lässt sich schnell abnehmen. Dazu passen die gelbe Ermax-Scheibe und ein gelber Scheinwerfer. Lackiert ist die Magnum in Mattschwarz und Candy Purple mit dreifarbigen Streifen in Sonnenuntergangstönen, die Signatur ist in Metalflake abgesetzt. Hinten sitzt eine perforierte Ledersitzbank im Stil eines Rennsattels, darunter ein LED-Rücklicht, das erst auffällt, wenn es leuchtet.\n\nIn dem Umbau stecken rund 230 Arbeitsstunden, das Budget lag bei 17.250 Euro ohne Basismotorrad. Herausgekommen ist ein Café Racer, der auf der Rennstrecke genauso zu Hause ist wie auf der Landstraße.",
+    "modifications": [
+      "Frontverkleidung aus GFK mit gelber Ermax-Scheibe",
+      "Lampenmaske aus gekürzter Mooneyes-Radkappe, schnell abnehmbar",
+      "Gelber Scheinwerfer (OSE)",
+      "GFK-Höcker auf maßgefertigtem Stahladapter",
+      "Heckrahmen modifiziert",
+      "Motorrad komplett zerlegt, Rahmen in neuem Farbton lackiert",
+      "Lack in Mattschwarz und Candy Purple mit dreifarbigen Sunset-Streifen",
+      "Signatur in Metalflake",
+      "Perforierte Ledersitzbank im Rennsattel-Stil",
+      "Edelstahl-Auspuffanlage (OSE), schwarz keramikbeschichtet, unter dem Höcker versteckt",
+      "Ansaugtrichter mit Schutzgitter",
+      "Gefräste Teile aus eigener Fertigung",
+      "Motogadget Tacho",
+      "Motogadget Blinker",
+      "LED-Rück- und Bremslicht (OSE)",
+      "Beringer Bremsen",
+      "Michelin Reifen"
+    ],
+    "image_urls": [
+      "https://osemotorworks.com/wp-content/uploads/2023/01/Sans-titre-1-4.jpg",
+      "https://osemotorworks.com/wp-content/uploads/2022/12/mh17_2016_p3.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/9-1.png",
+      "https://osemotorworks.com/wp-content/uploads/2022/12/BFU1_6691.jpg",
+      "https://osemotorworks.com/wp-content/uploads/2022/12/BFU1_7100.jpg",
+      "https://osemotorworks.com/wp-content/uploads/2022/12/BF1U_7254.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/4-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/3-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/1-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/6-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/7-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/8-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/2-4.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/10.png",
+      "https://osemotorworks.com/wp-content/uploads/2023/01/11.png"
+    ]
+  }
+]
