@@ -7,11 +7,14 @@ import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
+import { makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
 }
+
+const BASE_URL = 'https://motodigital.io'
 
 // Rendered on first request, then served from the ISR cache
 export function generateStaticParams() {
@@ -49,7 +52,7 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
   const supabase = createPublicClient()
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('name, description')
@@ -60,6 +63,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Custom ${brand.name} Motorrad Builds — MotoDigital`,
     description: brand.description || `Entdecke alle ${brand.name} Modelle als Custom-Basis auf MotoDigital.`,
+    alternates: { canonical: `${BASE_URL}/marken/${slug}` },
+    // Page text is German-only; keep the EN duplicate out of the index
+    robots: locale === 'de' ? { index: true, follow: true } : { index: false, follow: true },
   }
 }
 
@@ -77,15 +83,16 @@ export default async function MarkeDetailPage({ params }: Props) {
   if (!brand) notFound()
 
   // Models of this brand, custom builds on it, and the other brands for "Weitere Marken"
-  const [{ data: models }, { data: dbBikes }, { data: allBrands }] = await Promise.all([
+  const [{ data: models }, { data: brandBikes }, { data: allBrands }] = await Promise.all([
     (supabase.from('base_bikes') as any)
       .select('id, model, slug, year_from, year_to, engine_cc, engine_type, custom_styles')
       .eq('brand_id', brand.id)
       .order('year_from', { ascending: true })
       .throwOnError(),
+    // Makes are free text ("BMW Motorrad") — prefilter, then match exactly below
     (supabase.from('bikes') as any)
       .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
-      .ilike('make', brand.name)
+      .ilike('make', makePrefixPattern(brand.name))
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .throwOnError(),
@@ -96,7 +103,8 @@ export default async function MarkeDetailPage({ params }: Props) {
       .throwOnError(),
   ])
 
-  const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = (dbBikes ?? []).map((bike: any) => {
+  const dbBikes = (brandBikes ?? []).filter((bike: any) => makeMatchesBrand(bike.make, brand.name))
+  const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = dbBikes.map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const cover = sortBikeImages(images)[0]
     return {

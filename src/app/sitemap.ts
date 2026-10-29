@@ -4,6 +4,7 @@ import { getAllArticles } from '@/lib/magazine/articles'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand } from '@/lib/utils/baseBikeMatch'
 
 const BASE = 'https://motodigital.io'
 
@@ -57,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Rider profiles are login-gated (PROTECTED_ROUTES in middleware → 307 to
   // /auth/login), so they are deliberately not part of the sitemap.
-  const [{ data: builders }, { data: bikes }, { data: events }, { data: brands }] = await Promise.all([
+  const [{ data: builders }, { data: bikes }, { data: events }, { data: brands }, { data: baseBikes }] = await Promise.all([
     (supabase.from('profiles') as any)
       // profiles has no updated_at column — selecting it makes the whole query fail
       .select('slug, created_at')
@@ -66,17 +67,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .throwOnError() as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     supabase
       .from('bikes')
-      .select('id, slug, title, updated_at')
+      .select('id, slug, title, updated_at, make, model, year')
       .eq('status', 'active')
-      .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
+      .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string; make: string | null; model: string | null; year: number | null }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
       .not('slug', 'is', null)
       .throwOnError() as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
     (supabase.from('base_bike_brands') as any)
-      .select('slug')
+      .select('id, name, slug')
       .not('slug', 'is', null)
-      .throwOnError() as Promise<{ data: { slug: string }[] | null }>,
+      .throwOnError() as Promise<{ data: { id: string; name: string; slug: string }[] | null }>,
+    (supabase.from('base_bikes') as any)
+      .select('brand_id, slug, model, year_from, year_to, notes')
+      .not('slug', 'is', null)
+      .throwOnError() as Promise<{ data: { brand_id: string; slug: string; model: string; year_from: number | null; year_to: number | null; notes: string | null }[] | null }>,
   ])
 
   const now = new Date()
@@ -109,7 +114,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cityHubSlugs = ['muenchen', 'berlin', 'hamburg', 'frankfurt', 'koeln', 'stuttgart', 'wien', 'zuerich']
   const cityHubPages: MetadataRoute.Sitemap = cityHubSlugs.map((slug) => {
     const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/custom-werkstatt/${slug}`])
+      routing.locales.map((l) => [
+        l,
+        `${BASE}${getPathname({ href: { pathname: '/custom-werkstatt/[slug]', params: { slug } }, locale: l })}`,
+      ])
     )
     return {
       url: urls[routing.defaultLocale],
@@ -190,17 +198,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const brandPages: MetadataRoute.Sitemap = (brands ?? []).map((b) => {
-    const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/marken/${b.slug}`])
-    )
-    return {
-      url: urls[routing.defaultLocale],
+  // Brand and model pages are German-only (EN is noindexed), so no hreflang alternates
+  const brandPages: MetadataRoute.Sitemap = (brands ?? []).map((b) => ({
+    url: `${BASE}/marken/${b.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  // Only model pages with builds or editorial notes — the rest are noindexed
+  const brandById = new Map((brands ?? []).map((b) => [b.id, b]))
+  const modelPages: MetadataRoute.Sitemap = (baseBikes ?? []).flatMap((m) => {
+    const brand = brandById.get(m.brand_id)
+    if (!brand) return []
+    const buildCount = (bikes ?? []).filter(
+      (b) => makeMatchesBrand(b.make, brand.name) && bikeMatchesBaseModel(b, m)
+    ).length
+    if (!hasModelPageContent(buildCount, m.notes)) return []
+    return [{
+      url: `${BASE}/marken/${brand.slug}/${m.slug}`,
       lastModified: now,
       changeFrequency: 'monthly' as const,
-      priority: 0.6,
-      alternates: { languages: urls },
-    }
+      priority: 0.5,
+    }]
   })
 
   return [
@@ -212,5 +232,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bikePages,
     ...eventPages,
     ...brandPages,
+    ...modelPages,
   ]
 }

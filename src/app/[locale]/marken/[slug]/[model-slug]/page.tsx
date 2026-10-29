@@ -7,11 +7,14 @@ import { ArrowLeft, Wrench } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
+import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
 
 interface Props {
   params: Promise<{ locale: string; slug: string; 'model-slug': string }>
 }
+
+const BASE_URL = 'https://motodigital.io'
 
 // Rendered on first request, then served from the ISR cache
 export function generateStaticParams() {
@@ -46,59 +49,30 @@ const STYLE_LABELS: Record<string, string> = {
   custom: 'Custom',
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, 'model-slug': modelSlug } = await params
+// Shared by generateMetadata and the page; identical requests are deduplicated
+async function getModelPage(slug: string, modelSlug: string) {
   const supabase = createPublicClient()
 
-  const { data: brand } = await (supabase.from('base_bike_brands') as any)
-    .select('id, name')
-    .eq('slug', slug)
-    .maybeSingle()
-    .throwOnError()
-  if (!brand) return {}
-
-  const { data: bike } = await (supabase.from('base_bikes') as any)
-    .select('model, engine_cc, custom_styles')
-    .eq('brand_id', brand.id)
-    .eq('slug', modelSlug)
-    .maybeSingle()
-    .throwOnError()
-  if (!bike) return {}
-
-  const styles = (bike.custom_styles ?? []).map((s: string) => STYLE_LABELS[s] ?? s).join(', ')
-  return {
-    title: `${brand.name} ${bike.model} als Custom-Basis — MotoDigital`,
-    description: `${brand.name} ${bike.model} (${bike.engine_cc} cc) — beliebte Basis fuer ${styles}. Entdecke Builds auf MotoDigital.`,
-  }
-}
-
-export default async function ModelDetailPage({ params }: Props) {
-  const { locale, slug, 'model-slug': modelSlug } = await params
-  setRequestLocale(locale)
-  const supabase = createPublicClient()
-
-  // Fetch brand
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('id, name, slug, country')
     .eq('slug', slug)
     .maybeSingle()
     .throwOnError()
-  if (!brand) notFound()
+  if (!brand) return null
 
-  // Fetch model
   const { data: baseBike } = await (supabase.from('base_bikes') as any)
     .select('id, model, slug, year_from, year_to, engine_cc, engine_type, custom_styles, notes')
     .eq('brand_id', brand.id)
     .eq('slug', modelSlug)
     .maybeSingle()
     .throwOnError()
-  if (!baseBike) notFound()
+  if (!baseBike) return null
 
-  // Builds on this base bike (via base_bike_id) and other models of the brand
-  const [{ data: linkedBuilds }, { data: otherModels }] = await Promise.all([
+  // Builds store make/model as free text, so they are matched to the catalogue entry
+  const [{ data: brandBikes }, { data: otherModels }] = await Promise.all([
     (supabase.from('bikes') as any)
       .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
-      .eq('base_bike_id', baseBike.id)
+      .ilike('make', makePrefixPattern(brand.name))
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .throwOnError(),
@@ -111,7 +85,49 @@ export default async function ModelDetailPage({ params }: Props) {
       .throwOnError(),
   ])
 
-  const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = (linkedBuilds ?? []).map((bike: any) => {
+  const linkedBuilds = (brandBikes ?? []).filter(
+    (bike: any) => makeMatchesBrand(bike.make, brand.name) && bikeMatchesBaseModel(bike, baseBike),
+  )
+  return { brand, baseBike, linkedBuilds, otherModels }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug, 'model-slug': modelSlug } = await params
+  const data = await getModelPage(slug, modelSlug)
+  if (!data) return {}
+  const { brand, baseBike, linkedBuilds } = data
+
+  const name = `${brand.name} ${baseBike.model}`
+  const styles = (baseBike.custom_styles ?? []).slice(0, 2).map((s: string) => STYLE_LABELS[s] ?? s)
+  const buildCount = linkedBuilds.length
+  const description = [
+    `${name}${baseBike.engine_cc ? ` (${baseBike.engine_cc} cc)` : ''} als Custom-Basis${styles.length ? ` — beliebt als ${styles.join(' und ')}` : ''}.`,
+    buildCount > 0
+      ? `${buildCount} Custom ${buildCount === 1 ? 'Build' : 'Builds'} auf dieser Basis und Werkstätten für deinen Umbau auf MotoDigital.`
+      : 'Finde die passende Custom Werkstatt für deinen Umbau auf MotoDigital.',
+  ].join(' ')
+
+  return {
+    title: `${name} umbauen: ${styles.length ? styles.join(', ') : 'Custom-Basis'} & Builds — MotoDigital`,
+    description,
+    alternates: { canonical: `${BASE_URL}/marken/${brand.slug}/${baseBike.slug}` },
+    // Spec sheets without builds or editorial text are thin — keep them out of
+    // the index until they have content. Page text is German-only, so EN never.
+    robots: locale === 'de' && hasModelPageContent(buildCount, baseBike.notes)
+      ? { index: true, follow: true }
+      : { index: false, follow: true },
+  }
+}
+
+export default async function ModelDetailPage({ params }: Props) {
+  const { locale, slug, 'model-slug': modelSlug } = await params
+  setRequestLocale(locale)
+
+  const data = await getModelPage(slug, modelSlug)
+  if (!data) notFound()
+  const { brand, baseBike, linkedBuilds, otherModels } = data
+
+  const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = linkedBuilds.map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const cover = sortBikeImages(images)[0]
     return {

@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import { makeMatchesBrand } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
 
 export const metadata: Metadata = {
@@ -38,11 +39,9 @@ export default async function MarkenPage({ params }: { params: Promise<{ locale:
     }
   }
 
-  const buildCountByMake: Record<string, number> = {}
-  for (const bike of dbBikes ?? []) {
-    const make = (bike.make ?? '').toLowerCase()
-    if (make) buildCountByMake[make] = (buildCountByMake[make] ?? 0) + 1
-  }
+  // Makes are free text ("BMW Motorrad"), so count per brand rather than per exact make
+  const countBuilds = (brandName: string) =>
+    (dbBikes ?? []).filter((bike: any) => makeMatchesBrand(bike.make, brandName)).length
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
@@ -64,7 +63,7 @@ export default async function MarkenPage({ params }: { params: Promise<{ locale:
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(brands ?? []).map((brand: any) => {
             const modelCount = modelCountByBrand[brand.id] ?? 0
-            const buildCount = buildCountByMake[brand.name.toLowerCase()] ?? 0
+            const buildCount = countBuilds(brand.name)
 
             return (
               <Link
