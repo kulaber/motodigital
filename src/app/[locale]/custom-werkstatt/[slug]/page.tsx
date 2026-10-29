@@ -279,8 +279,9 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
     name,
     city:        (() => {
       const c = (row.city as string | null) ?? ''
+      // Only fix all-lowercase input, so "Frankfurt am Main" keeps its lowercase "am".
       // \b\w would treat umlauts as word boundaries ("MüNchen")
-      if (c) return c.replace(/(^|[\s-])(\S)/g, (_: string, sep: string, ch: string) => sep + ch.toUpperCase())
+      if (c) return c !== c.toLowerCase() ? c : c.replace(/(^|[\s-])(\S)/g, (_: string, sep: string, ch: string) => sep + ch.toUpperCase())
       // Fallback: aus Adresse city extrahieren (Mapbox: "Straße, PLZ Stadt, Land")
       const addr = (row.address as string | null) ?? ''
       if (!addr) return ''
