@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useReloadOnChunkError } from '@/hooks/useReloadOnChunkError'
 
 export default function GlobalError({
   error,
@@ -13,8 +14,20 @@ export default function GlobalError({
     console.error('Global error:', error)
   }, [error])
 
+  if (useReloadOnChunkError(error)) {
+    return (
+      <html lang="de">
+        <body />
+      </html>
+    )
+  }
+
   return (
     <html lang="de">
+      <head>
+        {/* Error screens must never become a search snippet */}
+        <meta name="robots" content="noindex" />
+      </head>
       <body
         style={{
           margin: 0,

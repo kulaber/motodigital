@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Header from '@/components/layout/Header'
+import { useReloadOnChunkError } from '@/hooks/useReloadOnChunkError'
 
 export default function BikeDetailError({
   error,
@@ -14,8 +15,11 @@ export default function BikeDetailError({
     console.error('Bike detail error:', error)
   }, [error])
 
+  if (useReloadOnChunkError(error)) return null
+
   return (
     <>
+      <meta name="robots" content="noindex" />
       <Header activePage="bikes" />
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
         <h2 className="text-xl font-bold text-[#222222] mb-2">Fehler beim Laden</h2>

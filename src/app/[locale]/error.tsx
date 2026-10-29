@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Header from '@/components/layout/Header'
+import { useReloadOnChunkError } from '@/hooks/useReloadOnChunkError'
 
 export default function GlobalError({
   error,
@@ -14,8 +15,12 @@ export default function GlobalError({
     console.error('Unhandled error:', error)
   }, [error])
 
+  if (useReloadOnChunkError(error)) return null
+
   return (
     <>
+      {/* Error screens must never become a search snippet */}
+      <meta name="robots" content="noindex" />
       <Header />
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
         <h2 className="text-2xl font-bold text-[#222222] mb-2">Etwas ist schiefgelaufen</h2>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useReloadOnChunkError } from '@/hooks/useReloadOnChunkError'
 
 export default function DashboardError({
   error,
@@ -12,6 +13,8 @@ export default function DashboardError({
   useEffect(() => {
     console.error('Dashboard error:', error)
   }, [error])
+
+  if (useReloadOnChunkError(error)) return null
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
