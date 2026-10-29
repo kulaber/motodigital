@@ -114,7 +114,7 @@ async function uploadToStorage(profileId, fileName, buffer, contentType) {
 
 async function geocode(address) {
   if (!MAPBOX_TOKEN) return null
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=de,at,ch,nl&limit=1&access_token=${MAPBOX_TOKEN}`
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=de,at,ch,nl,fr&limit=1&access_token=${MAPBOX_TOKEN}`
   const res = await fetch(url)
   if (!res.ok) return null
   const [lng, lat] = (await res.json()).features?.[0]?.center ?? []
