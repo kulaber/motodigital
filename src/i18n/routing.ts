@@ -60,9 +60,9 @@ export const routing = defineRouting({
       de: '/marken/[slug]',
       en: '/brands/[slug]',
     },
-    '/marken/[slug]/[model-slug]': {
-      de: '/marken/[slug]/[model-slug]',
-      en: '/brands/[slug]/[model-slug]',
+    '/marken/[slug]/[model]': {
+      de: '/marken/[slug]/[model]',
+      en: '/brands/[slug]/[model]',
     },
     '/sell': {
       de: '/sell',

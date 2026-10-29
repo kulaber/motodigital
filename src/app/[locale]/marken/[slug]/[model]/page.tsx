@@ -11,7 +11,7 @@ import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand, makePrefix
 import { createPublicClient } from '@/lib/supabase/public'
 
 interface Props {
-  params: Promise<{ locale: string; slug: string; 'model-slug': string }>
+  params: Promise<{ locale: string; slug: string; model: string }>
 }
 
 const BASE_URL = 'https://motodigital.io'
@@ -92,7 +92,7 @@ async function getModelPage(slug: string, modelSlug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, slug, 'model-slug': modelSlug } = await params
+  const { locale, slug, model: modelSlug } = await params
   const data = await getModelPage(slug, modelSlug)
   if (!data) return {}
   const { brand, baseBike, linkedBuilds } = data
@@ -120,7 +120,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ModelDetailPage({ params }: Props) {
-  const { locale, slug, 'model-slug': modelSlug } = await params
+  const { locale, slug, model: modelSlug } = await params
   setRequestLocale(locale)
 
   const data = await getModelPage(slug, modelSlug)
