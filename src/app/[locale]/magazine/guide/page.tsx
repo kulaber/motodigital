@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { getLocale, getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { getCategoryMetaForLocale } from '@/lib/data/magazine'
 import { getArticlesByCategoryAll } from '@/lib/magazine/articles'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale()
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
   const meta = getCategoryMetaForLocale(locale)['guide']
   return {
     title: meta.title,
@@ -19,9 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 
-export default async function GuidePage() {
+export default async function GuidePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('MagazinePage')
-  const locale = await getLocale()
   const articles = await getArticlesByCategoryAll('guide', locale)
   const meta = getCategoryMetaForLocale(locale)['guide']
 

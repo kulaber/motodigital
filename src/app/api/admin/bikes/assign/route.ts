@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { isPremium } from '@/lib/werkstatt-tier'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 /** Superadmin guard */
 async function requireSuperadmin() {
@@ -56,6 +57,7 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
+      revalidatePublicData('bikes')
       return NextResponse.json({ success: true, assigned: false })
     }
 
@@ -100,6 +102,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    revalidatePublicData('bikes')
     return NextResponse.json({ success: true, assigned: true })
   } catch (err) {
     console.error('[PATCH /api/admin/bikes/assign]', err)

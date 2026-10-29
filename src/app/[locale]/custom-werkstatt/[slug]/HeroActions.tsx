@@ -5,17 +5,19 @@ import { Star, Share2, Facebook, Twitter, Link2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { track } from '@/lib/track'
+import { useIsProfileOwner } from './ProfileOwner'
 
 interface Props {
   name: string
   builderId: string | null
   slug: string
   iconOnly?: boolean
-  hideSave?: boolean
   workshopId?: string | null
 }
 
-export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly, hideSave, workshopId }: Props) {
+export default function HeroActions({ name, builderId: initialBuilderId, slug, iconOnly, workshopId }: Props) {
+  // Owners can't save their own profile
+  const hideSave = useIsProfileOwner(slug)
   const [shareOpen, setShareOpen]     = useState(false)
   const [copied, setCopied]           = useState(false)
   const [saved, setSaved]             = useState(false)

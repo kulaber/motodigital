@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { CheckCircle, Camera, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
 import MapboxAddressInput from '@/components/ui/MapboxAddressInput'
 import { compressImage } from '@/lib/utils/compressImage'
@@ -138,6 +139,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
     setAvatarUploading(false)
     setAvatarSaved(true)
     broadcastAvatar(null)
+    void refreshPublicData(['profiles'])
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -176,6 +178,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
       setAvatarUrl(publicUrl)
       setAvatarSaved(true)
       broadcastAvatar(publicUrl)
+      void refreshPublicData(['profiles'])
     } catch (err: unknown) {
       setAvatarError(err instanceof Error ? err.message : 'Upload fehlgeschlagen')
     } finally {
@@ -226,6 +229,7 @@ export default function RiderProfileEditForm({ profile, coverImage: initialCover
     if (err) {
       toastError(err.message)
     } else {
+      void refreshPublicData(['profiles'])
       toastSuccess('Profil gespeichert')
       window.dispatchEvent(new CustomEvent('profile-updated', {
         detail: { fullName: fullName || null },

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 /** Helper: extract storage path from Supabase public URL */
 function extractStoragePath(url: string): string | null {
@@ -48,6 +49,7 @@ export async function deleteBike(id: string) {
   const { error } = await (supabase.from('bikes') as any).delete().eq('id', id)
 
   if (error) return { error: error.message }
+  revalidatePublicData('bikes')
   return { success: true }
 }
 
@@ -72,5 +74,6 @@ export async function deleteOwnBike(id: string) {
   const { error } = await (supabase.from('bikes') as any).delete().eq('id', id)
 
   if (error) return { error: error.message }
+  revalidatePublicData('bikes')
   return { success: true }
 }

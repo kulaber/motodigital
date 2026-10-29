@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/datenschutz' },
 }
 
-export default function DatenschutzPage() {
+export default async function DatenschutzPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   return (
     <>
       <Header />

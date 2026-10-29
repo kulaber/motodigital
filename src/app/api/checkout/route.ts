@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe'
+import { isFoundingPeriod } from '@/lib/werkstatt-tier'
 
 const FOUNDING_PARTNER_LIMIT = 10
 
@@ -33,12 +34,19 @@ export async function POST(req: Request) {
       )
     }
 
-    // Check founding partner slot availability
-    const { count } = await (supabase.from('workshops') as any)
-      .select('id', { count: 'exact', head: true })
-      .eq('subscription_tier', 'founding_partner')
+    // Founding membership is free until the end of the founding period — nothing to buy
+    if (isFoundingPeriod()) {
+      return NextResponse.json(
+        { error: 'Founding Member ist bis Ende 2026 kostenlos — du brauchst kein Abo.' },
+        { status: 400 },
+      )
+    }
 
-    if ((count ?? 0) >= FOUNDING_PARTNER_LIMIT) {
+    // Check founding partner slot availability. Counts claimed, confirmed
+    // accounts only — seeded workshop profiles carry the tier by default.
+    const { data: foundingMembers } = await (supabase as any).rpc('founding_member_count')
+
+    if ((foundingMembers ?? 0) >= FOUNDING_PARTNER_LIMIT) {
       return NextResponse.json(
         { error: 'Alle Founding Partner Plätze sind vergeben.' },
         { status: 400 },

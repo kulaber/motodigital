@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -8,8 +8,9 @@ import { CheckCircle, ArrowRight } from 'lucide-react'
 import HeroAnimatedIcons from './HeroAnimatedIcons'
 import CommunityCircle from './CommunityCircle'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('About')
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'About' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -17,7 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function WieEsFunktioniertPage() {
+export default async function WieEsFunktioniertPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('About')
 
   const sections = [

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 function extractStoragePath(url: string): string | null {
   const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/)
@@ -118,6 +119,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/account-deleted?status=error', baseUrl))
     }
 
+    revalidatePublicData('profiles', 'bikes', 'workshops')
     return NextResponse.redirect(new URL('/account-deleted?status=success', baseUrl))
   } catch (err) {
     console.error('[Account Deletion] Error:', err)

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getLocale, getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { MapPin, Calendar, ArrowLeft, ChevronLeft, Navigation } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import { localizedText } from '@/lib/i18n/localizedText'
@@ -15,7 +15,10 @@ import EventLocationMap from './EventLocationMap'
 import EventGallery from '@/components/events/EventGallery'
 import EventVideos from '@/components/events/EventVideos'
 
-export const revalidate = 3600 // ISR: event details change infrequently
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
+}
 
 async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -34,18 +37,18 @@ async function geocode(query: string): Promise<{ lat: number; lng: number } | nu
 }
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const locale = await getLocale()
-  const t = await getTranslations('EventsPage')
-  const supabase = await createClient()
+  const { locale, slug } = await params
+  const t = await getTranslations({ locale, namespace: 'EventsPage' })
+  const supabase = createPublicClient()
   const { data: event } = await (supabase.from('events') as any)
     .select('name, description, image, name_i18n, description_i18n')
     .eq('slug', slug)
-    .maybeSingle() as {
+    .maybeSingle()
+    .throwOnError() as {
       data: {
         name: string
         description: string
@@ -84,24 +87,16 @@ function getTodayLocal(): string {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { locale, slug } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('EventsPage')
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
-  // Try with new columns first; fall back if migrations haven't fully run yet
-  let { data, error } = await (supabase.from('events') as any)
+  const { data } = await (supabase.from('events') as any)
     .select('id, slug, name, date_start, date_end, location, description, tags, url, image, gallery_images, videos, name_i18n, description_i18n, location_i18n')
     .eq('slug', slug)
     .maybeSingle()
-
-  if (error) {
-    const fallback = await (supabase.from('events') as any)
-      .select('id, slug, name, date_start, date_end, location, description, tags, url, image')
-      .eq('slug', slug)
-      .maybeSingle()
-    data = fallback.data
-  }
+    .throwOnError()
 
   const rawEvent = data as Event | null
   if (!rawEvent) notFound()
@@ -112,7 +107,6 @@ export default async function EventDetailPage({ params }: Props) {
     location:    localizedText(rawEvent.location_i18n,    locale, rawEvent.location),
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
   const dateStr = formatEventDate(event)
   const coords = event.location ? await geocode(event.location) : null
 
@@ -260,7 +254,7 @@ export default async function EventDetailPage({ params }: Props) {
       {/* Mobile-only: Participants + Teilnehmen-Button directly under hero */}
       <section className="lg:hidden px-4 sm:px-5 pt-6">
         <div className="max-w-6xl mx-auto">
-          <EventInterestButton eventSlug={event.slug} eventName={event.name} userId={user?.id ?? null} sidebar />
+          <EventInterestButton eventSlug={event.slug} eventName={event.name} sidebar />
         </div>
       </section>
 
@@ -364,7 +358,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Right: Participants (sticky) — desktop only, mobile version is above the content */}
             <div className="hidden lg:block lg:sticky lg:top-24">
-              <EventInterestButton eventSlug={event.slug} eventName={event.name} userId={user?.id ?? null} sidebar />
+              <EventInterestButton eventSlug={event.slug} eventName={event.name} sidebar />
             </div>
           </div>
 

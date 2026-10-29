@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import NextImage from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { ArrowLeft, Save, Shield, BadgeCheck, User, Upload } from 'lucide-react'
 import { compressImage } from '@/lib/utils/compressImage'
 
@@ -134,6 +135,7 @@ export default function AdminEditRiderPage() {
     if (updateError) {
       setError(updateError.message)
     } else {
+      void refreshPublicData(['profiles'])
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     }

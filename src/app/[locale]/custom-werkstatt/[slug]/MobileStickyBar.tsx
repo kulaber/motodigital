@@ -3,13 +3,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { ChevronLeft } from 'lucide-react'
+import { useIsProfileOwner } from './ProfileOwner'
 
 interface Props {
   children: React.ReactNode
-  hideBack?: boolean
+  slug: string
 }
 
-export default function MobileStickyBar({ children, hideBack }: Props) {
+export default function MobileStickyBar({ children, slug }: Props) {
+  // Owners reach their profile from the dashboard — no back button
+  const hideBack = useIsProfileOwner(slug)
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const hasHistoryRef = useRef(false)

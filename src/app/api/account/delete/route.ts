@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { getStripe } from '@/lib/stripe'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 export async function POST() {
   const supabase = await createClient()
@@ -66,5 +67,6 @@ export async function POST() {
   // Sign out the user (don't hard-delete auth user — 30-day grace period)
   await supabase.auth.signOut()
 
+  revalidatePublicData('profiles', 'workshops')
   return NextResponse.json({ success: true })
 }

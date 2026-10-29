@@ -8,6 +8,7 @@ import { useRouter } from '@/i18n/navigation'
 import { Heart, Users, X, Calendar, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Participant {
   id: string
@@ -21,12 +22,13 @@ interface Participant {
 interface Props {
   eventSlug: string
   eventName: string
-  userId: string | null
   sidebar?: boolean
 }
 
-export default function EventInterestButton({ eventSlug, eventName, userId, sidebar }: Props) {
+export default function EventInterestButton({ eventSlug, eventName, sidebar }: Props) {
   const router = useRouter()
+  const { user } = useAuth()
+  const userId = user?.id ?? null
   const [interested, setInterested] = useState(false)
   const [count, setCount] = useState(0)
   const [participants, setParticipants] = useState<Participant[]>([])

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
@@ -6,13 +7,16 @@ import { ArrowLeft, Wrench } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 
 interface Props {
-  params: Promise<{ slug: string; 'model-slug': string }>
+  params: Promise<{ locale: string; slug: string; 'model-slug': string }>
 }
 
-export const revalidate = 3600
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
+}
 
 const ENGINE_LABELS: Record<string, string> = {
   single: 'Einzylinder',
@@ -44,12 +48,13 @@ const STYLE_LABELS: Record<string, string> = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, 'model-slug': modelSlug } = await params
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('id, name')
     .eq('slug', slug)
     .maybeSingle()
+    .throwOnError()
   if (!brand) return {}
 
   const { data: bike } = await (supabase.from('base_bikes') as any)
@@ -57,6 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq('brand_id', brand.id)
     .eq('slug', modelSlug)
     .maybeSingle()
+    .throwOnError()
   if (!bike) return {}
 
   const styles = (bike.custom_styles ?? []).map((s: string) => STYLE_LABELS[s] ?? s).join(', ')
@@ -67,14 +73,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ModelDetailPage({ params }: Props) {
-  const { slug, 'model-slug': modelSlug } = await params
-  const supabase = await createClient()
+  const { locale, slug, 'model-slug': modelSlug } = await params
+  setRequestLocale(locale)
+  const supabase = createPublicClient()
 
   // Fetch brand
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('id, name, slug, country')
     .eq('slug', slug)
     .maybeSingle()
+    .throwOnError()
   if (!brand) notFound()
 
   // Fetch model
@@ -83,14 +91,25 @@ export default async function ModelDetailPage({ params }: Props) {
     .eq('brand_id', brand.id)
     .eq('slug', modelSlug)
     .maybeSingle()
+    .throwOnError()
   if (!baseBike) notFound()
 
-  // Fetch builds that use this base bike (via base_bike_id)
-  const { data: linkedBuilds } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
-    .eq('base_bike_id', baseBike.id)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
+  // Builds on this base bike (via base_bike_id) and other models of the brand
+  const [{ data: linkedBuilds }, { data: otherModels }] = await Promise.all([
+    (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
+      .eq('base_bike_id', baseBike.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .throwOnError(),
+    (supabase.from('base_bikes') as any)
+      .select('model, slug')
+      .eq('brand_id', brand.id)
+      .neq('slug', modelSlug)
+      .order('year_from', { ascending: true })
+      .limit(12)
+      .throwOnError(),
+  ])
 
   const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = (linkedBuilds ?? []).map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
@@ -104,14 +123,6 @@ export default async function ModelDetailPage({ params }: Props) {
       coverImg: cover?.url ?? '',
     }
   })
-
-  // Fetch other models from same brand
-  const { data: otherModels } = await (supabase.from('base_bikes') as any)
-    .select('model, slug')
-    .eq('brand_id', brand.id)
-    .neq('slug', modelSlug)
-    .order('year_from', { ascending: true })
-    .limit(12)
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Globe, Shield, Zap } from 'lucide-react'
 import Header from '@/components/layout/Header'
@@ -28,7 +29,9 @@ const BENEFITS = [
   },
 ]
 
-export default function SellPage() {
+export default async function SellPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   return (
     <div className="min-h-screen bg-white text-[#222222]">
       <Header activePage="sell" />

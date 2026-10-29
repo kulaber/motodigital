@@ -3,6 +3,7 @@
 import NextImage from 'next/image'
 import { useState, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock, RefreshCw } from 'lucide-react'
 import { isPremium } from '@/lib/werkstatt-tier'
 import LockedFeature from '@/components/werkstatt/locked-feature'
@@ -244,6 +245,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
       // 4. Update all UI — URL is unique, no cache-bust needed
       setAvatarUrl(publicUrl)
       broadcastAvatar(publicUrl)
+      void refreshPublicData(['profiles'])
       toastSuccess('Logo gespeichert')
     } catch (e: unknown) {
       toastError(e instanceof Error ? e.message : 'Logo-Upload fehlgeschlagen')
@@ -270,6 +272,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
       // 3. Update all UI
       setAvatarUrl('')
       broadcastAvatar(null)
+      void refreshPublicData(['profiles'])
       toastSuccess('Logo entfernt')
     } catch (e: unknown) {
       toastError(e instanceof Error ? e.message : 'Logo konnte nicht entfernt werden')
@@ -303,6 +306,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
     if (err) {
       toastError(err.message)
     } else {
+      void refreshPublicData(['profiles'])
       toastSuccess('Profil gespeichert')
       window.dispatchEvent(new CustomEvent('profile-updated', {
         detail: { fullName: fullName || null },
@@ -352,6 +356,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
 
     if (insertErr) { toastError(insertErr.message); setUploading(false); return }
     setMedia(prev => [...prev.filter(m => m.title !== 'cover'), row as MediaItem])
+    void refreshPublicData(['profiles'])
     setUploading(false)
   }
 
@@ -388,6 +393,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
       setMedia(prev => [...prev, row as MediaItem])
     }
 
+    void refreshPublicData(['profiles'])
     setUploading(false)
   }
 
@@ -400,6 +406,7 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
     // Delete DB row
     await (supabase.from('builder_media') as any).delete().eq('id', item.id)
     setMedia(prev => prev.filter(m => m.id !== item.id))
+    void refreshPublicData(['profiles'])
   }
 
   return (

@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/navigation'
 import { useParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { ArrowLeft, Shield, BadgeCheck, ExternalLink } from 'lucide-react'
 import ProfileEditForm from '@/app/[locale]/dashboard/profile/ProfileEditForm'
 
@@ -94,7 +95,10 @@ export default function EditBuilderPage() {
     const { error } = await (supabase.from('profiles') as any)
       .update({ is_verified: newVal })
       .eq('id', dbProfile.id)
-    if (!error) setIsVerified(newVal)
+    if (!error) {
+      setIsVerified(newVal)
+      void refreshPublicData(['profiles'])
+    }
     setSavingVerified(false)
   }
 

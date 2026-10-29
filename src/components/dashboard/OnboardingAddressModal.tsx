@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { MapPin, Wrench, Check } from 'lucide-react'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
 
@@ -127,6 +128,7 @@ export default function OnboardingAddressModal({ userId }: { userId: string }) {
       return
     }
 
+    void refreshPublicData(['profiles'])
     setDone(true)
   }
 

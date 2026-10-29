@@ -1,18 +1,21 @@
 import type { Metadata } from 'next'
-import { getLocale, getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import type { Event } from '@/lib/data/events'
 import { localizedText } from '@/lib/i18n/localizedText'
 import EventsClient from './EventsClient'
 
-export const revalidate = 3600 // ISR: events change infrequently
+interface Props {
+  params: Promise<{ locale: string }>
+}
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('EventsPage')
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'EventsPage' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -20,14 +23,16 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function EventsPage() {
-  const locale = await getLocale()
+export default async function EventsPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('EventsPage')
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await (supabase.from('events') as any)
     .select('id, slug, name, date_start, date_end, location, description, tags, url, image, name_i18n, description_i18n, location_i18n')
     .order('date_start', { ascending: true })
     .limit(200)
+    .throwOnError()
 
   const rawEvents = (data ?? []) as Event[]
   // Resolve i18n JSONB fields server-side so client code stays locale-agnostic.

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
@@ -6,13 +7,16 @@ import { ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
-export const revalidate = 3600
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
+}
 
 // Map engine_type DB values to German display labels
 const ENGINE_LABELS: Record<string, string> = {
@@ -46,11 +50,12 @@ const STYLE_LABELS: Record<string, string> = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('name, description')
     .eq('slug', slug)
     .maybeSingle()
+    .throwOnError()
   if (!brand) return {}
   return {
     title: `Custom ${brand.name} Motorrad Builds — MotoDigital`,
@@ -59,28 +64,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function MarkeDetailPage({ params }: Props) {
-  const { slug } = await params
-  const supabase = await createClient()
+  const { locale, slug } = await params
+  setRequestLocale(locale)
+  const supabase = createPublicClient()
 
   // Fetch brand
   const { data: brand } = await (supabase.from('base_bike_brands') as any)
     .select('id, name, slug, country, founded, description')
     .eq('slug', slug)
     .maybeSingle()
+    .throwOnError()
   if (!brand) notFound()
 
-  // Fetch models for this brand
-  const { data: models } = await (supabase.from('base_bikes') as any)
-    .select('id, model, slug, year_from, year_to, engine_cc, engine_type, custom_styles')
-    .eq('brand_id', brand.id)
-    .order('year_from', { ascending: true })
-
-  // Fetch custom builds from bikes table matching this brand
-  const { data: dbBikes } = await (supabase.from('bikes') as any)
-    .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
-    .ilike('make', brand.name)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
+  // Models of this brand, custom builds on it, and the other brands for "Weitere Marken"
+  const [{ data: models }, { data: dbBikes }, { data: allBrands }] = await Promise.all([
+    (supabase.from('base_bikes') as any)
+      .select('id, model, slug, year_from, year_to, engine_cc, engine_type, custom_styles')
+      .eq('brand_id', brand.id)
+      .order('year_from', { ascending: true })
+      .throwOnError(),
+    (supabase.from('bikes') as any)
+      .select('id, title, make, model, year, style, city, slug, bike_images(url, is_cover, position)')
+      .ilike('make', brand.name)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .throwOnError(),
+    (supabase.from('base_bike_brands') as any)
+      .select('name, slug')
+      .neq('slug', slug)
+      .order('name')
+      .throwOnError(),
+  ])
 
   const builds: { slug: string; title: string; base: string; style: string; city: string; coverImg: string }[] = (dbBikes ?? []).map((bike: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
@@ -94,12 +108,6 @@ export default async function MarkeDetailPage({ params }: Props) {
       coverImg: cover?.url ?? '',
     }
   })
-
-  // Fetch other brands for "Weitere Marken" section
-  const { data: allBrands } = await (supabase.from('base_bike_brands') as any)
-    .select('name, slug')
-    .neq('slug', slug)
-    .order('name')
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">

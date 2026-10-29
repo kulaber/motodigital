@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type React from 'react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { localizedText } from '@/lib/i18n/localizedText'
 import Footer from '@/components/layout/Footer'
@@ -20,13 +20,17 @@ import WorkshopCTA from './WorkshopCTA'
 import OpeningHoursWidget from '@/components/builder/OpeningHoursWidget'
 import RoutePlanenButton from './RoutePlanenButton'
 import WorkshopTracker from './WorkshopTracker'
-import { createClient } from '@/lib/supabase/server'
+import { OwnerOnly, OwnerSwitch, VisitorOnly } from './ProfileOwner'
+import { createPublicClient } from '@/lib/supabase/public'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { isPremium } from '@/lib/werkstatt-tier'
 import BuilderPageClientLoader from '../BuilderPageClientLoader'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 
-export const dynamicParams = true
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
+}
 
 // ── City Hub Pages (/custom-werkstatt/muenchen etc.) ────────────────────────
 interface CityHub {
@@ -194,7 +198,7 @@ async function geocode(query: string): Promise<{ lat: number; lng: number } | nu
 }
 
 async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Builder | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const SELECT = 'id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours, bio_i18n, bio_long_i18n, specialty_i18n'
 
@@ -204,6 +208,7 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
     .eq('slug', slug)
     .eq('role', 'custom-werkstatt')
     .maybeSingle()
+    .throwOnError()
 
   if (!row) {
     const { data: fallback } = await (supabase.from('profiles') as any)
@@ -211,6 +216,7 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
       .eq('username', slug)
       .eq('role', 'custom-werkstatt')
       .maybeSingle()
+      .throwOnError()
     row = fallback
   }
 
@@ -220,16 +226,19 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
     (supabase.from('builder_media') as any)
       .select('url, type, title, position')
       .eq('builder_id', row.id)
-      .order('position', { ascending: true }),
+      .order('position', { ascending: true })
+      .throwOnError(),
     (supabase.from('bikes') as any)
       .select('id, slug, title, make, model, year, style, price, listing_type, bike_images(url, is_cover, position)')
       .eq('seller_id', row.id)
-      .in('status', ['active', 'draft'])
-      .order('created_at', { ascending: false }),
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .throwOnError(),
     (supabase.from('workshops') as any)
       .select('id, subscription_tier')
       .eq('owner_id', row.id)
-      .maybeSingle(),
+      .maybeSingle()
+      .throwOnError(),
   ])
 
   const name = (row.full_name as string | null) ?? 'Unbekannt'
@@ -311,13 +320,12 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
   }
 }
 
-type Props = { params: Promise<{ slug: string }> }
+type Props = { params: Promise<{ locale: string; slug: string }> }
 
 const BASE_URL = 'https://motodigital.io'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { locale, slug } = await params
 
   // City hub page
   const cityHub = CITY_HUBS[slug]
@@ -371,13 +379,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BuilderProfilePage({ params }: Props) {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { locale, slug } = await params
+  setRequestLocale(locale)
 
   // ── City hub page ──────────────────────────────────────────────────────────
   const cityHub = CITY_HUBS[slug]
   if (cityHub) {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const CITY_SELECT = 'id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, created_at, builder_media(url, type, title, position)'
     const { data: dbRows } = await (supabase.from('profiles') as any)
       .select(CITY_SELECT)
@@ -385,6 +393,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       .not('slug', 'is', null)
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false })
+      .throwOnError()
 
     const cityNameLc = cityHub.name.toLowerCase()
     const allBuilders: Builder[] = (dbRows ?? []).map((row: Record<string, unknown>) => {
@@ -528,18 +537,6 @@ export default async function BuilderProfilePage({ params }: Props) {
   const builder = await getBuilderBySlugFromDB(slug, locale)
   if (!builder) notFound()
 
-  // Ownership check (server-side)
-  const supabaseAuth = await createClient()
-  const { data: { user } } = await supabaseAuth.auth.getUser()
-  let isOwner = false
-  if (user) {
-    const { data: profile } = await (supabaseAuth.from('profiles') as any)
-      .select('role, slug')
-      .eq('id', user.id)
-      .maybeSingle()
-    isOwner = profile?.role === 'custom-werkstatt' && profile?.slug === slug
-  }
-
   const coverImage = builder.media.find(m => m.type === 'image')
 
   // German day abbreviations → schema.org format (ISO 8601 day names)
@@ -592,7 +589,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       )}
 
       {/* ── OWNER BANNER ── */}
-      {isOwner && (
+      <OwnerOnly slug={slug}>
         <div className="bg-[#06a5a5]/8 border-b border-[#06a5a5]/15 px-4 py-2.5 text-center">
           <p className="text-xs text-[#06a5a5] font-medium">
             Du siehst dein Profil wie Besucher es sehen —{' '}
@@ -601,13 +598,14 @@ export default async function BuilderProfilePage({ params }: Props) {
             </Link>
           </p>
         </div>
-      )}
+      </OwnerOnly>
 
       {/* ── MOBILE STICKY TOP BAR ── */}
-      <MobileStickyBar hideBack={isOwner}>
-        {isOwner ? (
-          <>
-            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly hideSave workshopId={builder.workshopId} />
+      <MobileStickyBar slug={slug}>
+        <OwnerSwitch
+          slug={slug}
+          owner={<>
+            <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly workshopId={builder.workshopId} />
             <Link
               href="/dashboard/profile"
               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md text-[#222] hover:bg-white transition-all"
@@ -622,13 +620,12 @@ export default async function BuilderProfilePage({ params }: Props) {
             >
               <Settings size={17} />
             </Link>
-          </>
-        ) : (
-          <>
+          </>}
+          visitor={<>
             <OwnerEditButton builderSlug={slug} iconOnly />
             <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} iconOnly workshopId={builder.workshopId} />
-          </>
-        )}
+          </>}
+        />
       </MobileStickyBar>
 
       {/* ── MOBILE HERO ── */}
@@ -677,7 +674,7 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="hidden sm:block relative w-full h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden">
         <Image src={coverImage?.url ?? '/images/workshop-default.png'} alt={`${builder.name} — Custom Motorrad Werkstatt${builder.city ? ` in ${builder.city}` : ''}`} fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-        {!isOwner && (
+        <VisitorOnly slug={slug}>
           <div className="absolute top-0 left-0 right-0 pt-4 px-4 sm:px-5 lg:px-8">
             <div className="max-w-7xl mx-auto">
               <Link href="/custom-werkstatt"
@@ -686,7 +683,7 @@ export default async function BuilderProfilePage({ params }: Props) {
               </Link>
             </div>
           </div>
-        )}
+        </VisitorOnly>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-5 lg:px-8 pb-6 sm:pb-8">
           <div className="max-w-7xl mx-auto flex items-end gap-4">
             <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#06a5a5] border-2 border-white/20 overflow-hidden flex items-center justify-center shadow-lg">
@@ -720,7 +717,7 @@ export default async function BuilderProfilePage({ params }: Props) {
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <OwnerEditButton builderSlug={slug} />
-              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} hideSave={isOwner} workshopId={builder.workshopId} />
+              <HeroActions name={builder.name} builderId={builder.id ?? null} slug={slug} workshopId={builder.workshopId} />
             </div>
           </div>
         </div>
@@ -729,72 +726,88 @@ export default async function BuilderProfilePage({ params }: Props) {
       <div className="h-8" />
 
       {/* ── FEATURED BUILDS — full width, prominent ── */}
-      {(builder.featuredBuilds.length > 0 || isOwner) && (
+      {builder.featuredBuilds.length > 0 ? (
         <section className="pb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
             <div className="flex items-end justify-between mb-5">
               <div>
                 <h2 className="text-base font-bold text-[#222222] tracking-tight">
-                  {isOwner ? 'Meine Custom Bikes' : `Custom Bike Projekte von ${builder.name}`}
+                  <OwnerSwitch slug={slug} owner="Meine Custom Bikes" visitor={`Custom Bike Projekte von ${builder.name}`} />
                 </h2>
               </div>
-              {isOwner && builder.featuredBuilds.length > 0 ? (
-                <Link href="/dashboard/meine-garage" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] border border-[#06a5a5]/20 bg-[#06a5a5]/5 px-4 py-2 rounded-full hover:bg-[#06a5a5]/10 transition-colors">
-                  <Pencil size={11} /> Bikes bearbeiten
-                </Link>
-              ) : builder.featuredBuilds.length > 0 ? (
-                <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
-              ) : null}
+              <OwnerSwitch
+                slug={slug}
+                owner={
+                  <Link href="/dashboard/meine-garage" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] border border-[#06a5a5]/20 bg-[#06a5a5]/5 px-4 py-2 rounded-full hover:bg-[#06a5a5]/10 transition-colors">
+                    <Pencil size={11} /> Bikes bearbeiten
+                  </Link>
+                }
+                visitor={
+                  <span className="text-sm text-[#B0B0B0]">{builder.featuredBuilds.length} {builder.featuredBuilds.length === 1 ? 'Custom Bike' : 'Custom Bikes'}</span>
+                }
+              />
             </div>
 
-            {builder.featuredBuilds.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {builder.featuredBuilds.map(build => {
-                  const card = (
-                    <div className="group">
-                      {/* Image */}
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
-                        {build.img ? (
-                          <Image
-                            src={build.img}
-                            alt={`${build.title} — Custom Bike von ${builder.name}`}
-                            fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-2xl font-bold text-[#DDDDDD]">{build.style.replace(/_/g, ' ') || 'Build'}</span>
-                          </div>
-                        )}
-                        {/* Style badge overlay */}
-                        <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
-                          {build.style.replace(/_/g, ' ')}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {builder.featuredBuilds.map(build => {
+                const card = (
+                  <div className="group">
+                    {/* Image */}
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 relative">
+                      {build.img ? (
+                        <Image
+                          src={build.img}
+                          alt={`${build.title} — Custom Bike von ${builder.name}`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-2xl font-bold text-[#DDDDDD]">{build.style.replace(/_/g, ' ') || 'Build'}</span>
+                        </div>
+                      )}
+                      {/* Style badge overlay */}
+                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#222222] px-2.5 py-1 rounded-full shadow-sm">
+                        {build.style.replace(/_/g, ' ')}
+                      </span>
+                      {build.listingType === 'for_sale' && (
+                        <span className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                          Zu verkaufen
                         </span>
-                        {build.listingType === 'for_sale' && (
-                          <span className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#06a5a5]/30 text-[#06a5a5] text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                            Zu verkaufen
-                          </span>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">
-                        {build.title}
-                      </p>
-                      <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
+                      )}
                     </div>
-                  )
-                  return build.slug ? (
-                    <Link key={build.title} href={`/custom-bike/${build.slug}`}>{card}</Link>
-                  ) : (
-                    <div key={build.title}>{card}</div>
-                  )
-                })}
-                {isOwner && !isPremium(builder.subscriptionTier) && (
+                    {/* Info */}
+                    <p className="text-sm font-semibold text-[#222222] leading-snug mb-0.5 group-hover:text-[#06a5a5] transition-colors">
+                      {build.title}
+                    </p>
+                    <p className="text-xs text-[#717171]">{build.base} · {build.year}</p>
+                  </div>
+                )
+                return build.slug ? (
+                  <Link key={build.title} href={`/custom-bike/${build.slug}`}>{card}</Link>
+                ) : (
+                  <div key={build.title}>{card}</div>
+                )
+              })}
+              {!isPremium(builder.subscriptionTier) && (
+                <OwnerOnly slug={slug}>
                   <AddBikeUpgradeCard />
-                )}
+                </OwnerOnly>
+              )}
+            </div>
+          </div>
+        </section>
+      ) : (
+        // No published bikes yet — only the owner sees the section, as a prompt to add one
+        <OwnerOnly slug={slug}>
+          <section className="pb-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+              <div className="flex items-end justify-between mb-5">
+                <div>
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight">Meine Custom Bikes</h2>
+                </div>
               </div>
-            ) : isOwner ? (
               <Link href="/bikes/new" className="block">
                 <div className="aspect-[4/3] max-w-sm rounded-2xl border-2 border-dashed border-[#2AABAB]/30 bg-[#2AABAB]/[0.03] flex flex-col items-center justify-center gap-3 transition-colors hover:border-[#2AABAB]/50 hover:bg-[#2AABAB]/[0.06]">
                   <div className="w-12 h-12 rounded-full bg-[#2AABAB]/10 flex items-center justify-center">
@@ -806,9 +819,9 @@ export default async function BuilderProfilePage({ params }: Props) {
                   </div>
                 </div>
               </Link>
-            ) : null}
-          </div>
-        </section>
+            </div>
+          </section>
+        </OwnerOnly>
       )}
 
       {/* ── CONTENT ── */}
@@ -987,20 +1000,22 @@ export default async function BuilderProfilePage({ params }: Props) {
             <div className="flex flex-col gap-4 lg:sticky lg:top-24">
 
               {/* Contact CTA (visitors only, premium workshops only) */}
-              {!isOwner && isPremium(builder.subscriptionTier) && (
-                <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
-                  <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
-                  <p className="text-xs text-[#717171] leading-relaxed mb-4">
-                    Schreib direkt an {builder.name}.
-                  </p>
-                  <BuilderContactButton
-                    builderId={builder.id ?? ''}
-                    builderFirstName={builder.name.split(' ')[0]}
-                    builderName={builder.name}
-                    builderAvatarUrl={builder.avatarUrl}
-                    workshopId={builder.workshopId}
-                  />
-                </div>
+              {isPremium(builder.subscriptionTier) && (
+                <VisitorOnly slug={slug}>
+                  <div className="bg-white border border-[#DDDDDD] rounded-2xl p-5">
+                    <p className="text-base font-bold text-[#222222] tracking-tight mb-1">{builder.name} kontaktieren</p>
+                    <p className="text-xs text-[#717171] leading-relaxed mb-4">
+                      Schreib direkt an {builder.name}.
+                    </p>
+                    <BuilderContactButton
+                      builderId={builder.id ?? ''}
+                      builderFirstName={builder.name.split(' ')[0]}
+                      builderName={builder.name}
+                      builderAvatarUrl={builder.avatarUrl}
+                      workshopId={builder.workshopId}
+                    />
+                  </div>
+                </VisitorOnly>
               )}
 
               {/* Opening hours */}

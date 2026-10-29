@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/nutzungsbedingungen' },
 }
 
-export default function NutzungsbedingungenPage() {
+export default async function NutzungsbedingungenPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   return (
     <>
       <Header />

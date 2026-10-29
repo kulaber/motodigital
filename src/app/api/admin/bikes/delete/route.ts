@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 async function requireSuperadmin() {
   const supabase = await createClient()
@@ -46,6 +47,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    revalidatePublicData('bikes')
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[DELETE /api/admin/bikes/delete]', err)

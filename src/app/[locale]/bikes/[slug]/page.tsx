@@ -1,20 +1,20 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { BadgeCheck, MapPin, ArrowLeft, Calendar, Euro } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { formatPrice, formatRelativeTime } from '@/lib/utils'
 import ContactButton from '@/components/messaging/ContactButton'
 import type { Database } from '@/types/database'
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BuildGallery from '@/components/build/BuildGallery'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import type { Build } from '@/lib/data/builds'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
-import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { generateBikeSlug, isBikeId } from '@/lib/utils/bikeSlug'
 import { BIKE_STYLE_CONTENT } from '@/lib/data/bikeStyleContent'
 import { getAllArticles } from '@/lib/magazine/articles'
 import BikesClient from '../BikesClient'
@@ -31,7 +31,12 @@ type BikeWithRelations = BikeRow & {
 }
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
+}
+
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
 }
 
 // Known style slugs → display name + description
@@ -83,12 +88,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Supabase bike — alte UUID-Route. Canonical zeigt auf die neue Pretty-URL
   // /custom-bike/[slug], damit Google die Duplicate-Route konsolidiert.
-  const supabase = await createClient()
+  if (!isBikeId(slug)) return { title: 'Bike nicht gefunden' }
+  const supabase = createPublicClient()
   const { data: bike } = await supabase
     .from('bikes')
     .select('title, make, model, year, price, slug')
     .eq('id', slug)
-    .maybeSingle() as { data: (Pick<BikeRow, 'title' | 'make' | 'model' | 'year' | 'price'> & { slug: string | null }) | null; error: unknown }
+    .maybeSingle()
+    .throwOnError() as { data: (Pick<BikeRow, 'title' | 'make' | 'model' | 'year' | 'price'> & { slug: string | null }) | null; error: unknown }
 
   if (!bike) return { title: 'Bike nicht gefunden' }
   const canonicalSlug = bike.slug ?? slug
@@ -100,18 +107,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BikeSlugPage({ params }: Props) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  setRequestLocale(locale)
 
   // ── Style category page ──────────────────────────────────────────────────
   const styleInfo = STYLES[slug]
   if (styleInfo) {
-    const styleSupabase = await createSupabaseClient()
+    const styleSupabase = createPublicClient()
 
     // Fetch ALL active bikes (same as /bikes page) so BikesClient filters work fully
     const { data: rows } = await (styleSupabase.from('bikes') as any)
       .select('id, title, make, model, year, style, city, price, created_at, seller_id, slug, view_count, bike_images(url, is_cover, position), profiles!seller_id(full_name, role)')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
+      .throwOnError()
 
     const allBuilds: Build[] = (rows ?? []).map((r: any) => {
       const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
@@ -154,7 +163,8 @@ export default async function BikeSlugPage({ params }: Props) {
           .not('slug', 'is', null)
           .ilike('specialty', `%${specialtyToken}%`)
           .order('created_at', { ascending: true })
-          .limit(12) as { data: { full_name: string; slug: string; city: string | null }[] | null }
+          .limit(12)
+          .throwOnError() as { data: { full_name: string; slug: string; city: string | null }[] | null }
       : { data: null }
     const styleGuides = (await getAllArticles('de'))
       .filter(a => a.tags.some(t => t.toLowerCase() === styleInfo.name.toLowerCase()) || a.slug.includes(slug))
@@ -324,7 +334,9 @@ export default async function BikeSlugPage({ params }: Props) {
   }
 
   // ── Supabase bike detail page ─────────────────────────────────────────────
-  const supabase = await createClient()
+  // Only UUIDs reach the DB — an id filter with any other value is a 400
+  if (!isBikeId(slug)) notFound()
+  const supabase = createPublicClient()
 
   const { data: bike } = await supabase
     .from('bikes')
@@ -337,7 +349,8 @@ export default async function BikeSlugPage({ params }: Props) {
     `)
     .eq('id', slug)
     .eq('status', 'active')
-    .maybeSingle() as { data: BikeWithRelations | null; error: unknown }
+    .maybeSingle()
+    .throwOnError() as { data: BikeWithRelations | null; error: unknown }
 
   if (!bike) notFound()
 
@@ -345,11 +358,6 @@ export default async function BikeSlugPage({ params }: Props) {
   // `permanentRedirect()` liefert HTTP 308; Google behandelt das wie ein 301.
   const prettySlug = bike.slug ?? generateBikeSlug(bike.title, bike.id)
   if (prettySlug) permanentRedirect(`/custom-bike/${prettySlug}`)
-
-  ;(supabase.from('bikes') as any)
-    .update({ view_count: (bike.view_count ?? 0) + 1 })
-    .eq('id', slug)
-    .then(() => {})
 
   const rawImages = sortBikeImages(bike.bike_images ?? [])
   const imageUrls = rawImages.map(i => i.url).filter(Boolean)
@@ -594,13 +602,14 @@ export default async function BikeSlugPage({ params }: Props) {
 }
 
 async function RelatedBikesSection({ excludeId }: { excludeId: string }) {
-  const supabase = await createSupabaseClient()
+  const supabase = createPublicClient()
   const { data: rows } = await (supabase.from('bikes') as any)
     .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(id, url, is_cover, position), profiles!seller_id(full_name, role)')
     .eq('status', 'active')
     .neq('id', excludeId)
     .order('created_at', { ascending: false })
     .limit(3)
+    .throwOnError()
 
   const related = (rows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []

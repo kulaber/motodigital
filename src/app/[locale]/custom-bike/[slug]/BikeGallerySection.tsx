@@ -5,6 +5,7 @@ import { MessageCircle, Pencil } from 'lucide-react'
 import BuildGallery from '@/components/build/BuildGallery'
 import ContactModal from './ContactModal'
 import { track } from '@/lib/track'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Props {
   images: string[]
@@ -16,15 +17,20 @@ interface Props {
   sellerRole: string | null
   coverImage: string | null
   listingType?: string | null
-  editHref?: string
   workshopId?: string | null
 }
 
 export default function BikeGallerySection({
   images, title, bikeId,
   sellerId, sellerName, sellerAvatarUrl, sellerRole, coverImage, listingType,
-  editHref, workshopId,
+  workshopId,
 }: Props) {
+  // Owner or superadmin may edit — checked here so the page stays cacheable
+  const { user, role } = useAuth()
+  const editHref = user && (user.id === sellerId || role === 'superadmin')
+    ? `/bikes/${bikeId}/edit`
+    : undefined
+
   return (
     <BuildGallery
       images={images}

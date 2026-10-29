@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 
 export const runtime = 'nodejs'
 export const alt = 'MotoDigital Custom Werkstatt'
@@ -12,7 +12,7 @@ interface Params {
 
 export default async function WerkstattOgImage({ params }: Params) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: row } = await (supabase.from('profiles') as any)
     .select('id, full_name, city, specialty, avatar_url, address')

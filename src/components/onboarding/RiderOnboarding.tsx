@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { ChevronRight, ImagePlus, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { saveOnboardingStep, completeOnboarding } from '@/lib/onboarding'
 import { OnboardingProgressBar } from './OnboardingProgressBar'
 
@@ -93,7 +94,11 @@ export function RiderOnboarding({
   async function next(saveData?: () => Promise<void>) {
     setSaving(true)
     try {
-      await saveData?.()
+      if (saveData) {
+        await saveData()
+        // Profile data is public — refresh the cached pages in the background
+        void refreshPublicData(['profiles'])
+      }
       const nextStep = step + 1
       await saveOnboardingStep(nextStep)
       setStep(nextStep)
@@ -114,6 +119,7 @@ export function RiderOnboarding({
     const finalUsername = username.trim() || profile.username
     const slug = finalUsername.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     await (supabase.from('profiles') as any).update({ slug }).eq('id', profile.id)
+    await refreshPublicData(['profiles'])
     await completeOnboarding()
     // Notify AuthContext about the updated slug so profile links work
     window.dispatchEvent(new CustomEvent('profile-updated', { detail: { slug } }))

@@ -3,6 +3,7 @@
 import { Link } from '@/i18n/navigation'
 import { Pencil } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useIsProfileOwner } from './ProfileOwner'
 
 interface Props {
   builderSlug: string
@@ -10,9 +11,9 @@ interface Props {
 }
 
 export default function OwnerEditButton({ builderSlug, iconOnly }: Props) {
-  const { user, role, slug } = useAuth()
+  const { user, role } = useAuth()
 
-  const isOwner = user && role === 'custom-werkstatt' && slug === builderSlug
+  const isOwner = useIsProfileOwner(builderSlug)
   const isAdmin = user && role === 'superadmin'
 
   if (!isOwner && !isAdmin) return null

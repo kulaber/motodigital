@@ -4,16 +4,15 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { Crown } from 'lucide-react'
 import { useAuthContext } from '@/contexts/AuthContext'
+import { FOUNDING_MEMBER_LIMIT } from '@/lib/werkstatt-tier'
 
-const FOUNDING_MEMBER_LIMIT = 100
-
-export default function FoundingPartnerCTA({ slotsLeft }: { slotsLeft: number }) {
+export default function FoundingPartnerCTA({ slotsUsed }: { slotsUsed: number }) {
   const t = useTranslations('Partner')
   const { user } = useAuthContext()
   const router = useRouter()
 
-  const soldOut = slotsLeft <= 0
-  const slotsUsed = FOUNDING_MEMBER_LIMIT - slotsLeft
+  const slotsLeft = Math.max(0, FOUNDING_MEMBER_LIMIT - slotsUsed)
+  const soldOut = slotsLeft === 0
 
   const handleStart = () => {
     if (!user) {
@@ -43,7 +42,7 @@ export default function FoundingPartnerCTA({ slotsLeft }: { slotsLeft: number })
         <p className={`text-sm font-semibold mb-6 ${soldOut ? 'text-red-400' : 'text-[#06a5a5]'}`}>
           {soldOut
             ? t('foundingPartnerSoldOut')
-            : t('slotsRemaining', { slots: slotsUsed })
+            : t('slotsRemaining', { slots: slotsLeft })
           }
         </p>
 

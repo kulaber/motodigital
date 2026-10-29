@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { getStripe } from '@/lib/stripe'
+import { unpaidTier } from '@/lib/werkstatt-tier'
 import type Stripe from 'stripe'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 // Disable body parsing — Stripe needs the raw body for signature verification
 export const dynamic = 'force-dynamic'
@@ -108,11 +110,12 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
 
-        // Subscription fully ended — downgrade to free
+        // Subscription fully ended — back to the unpaid tier (founding_partner
+        // during the founding period, like every other workshop)
         const { error } = await admin
           .from('workshops')
           .update({
-            subscription_tier: 'free',
+            subscription_tier: unpaidTier(),
             stripe_subscription_id: null,
             subscription_cancel_at: null,
           })
@@ -134,5 +137,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 
+  // Tiers and featured bikes show up on public pages
+  revalidatePublicData('workshops', 'bikes')
   return NextResponse.json({ received: true })
 }

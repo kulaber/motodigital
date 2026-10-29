@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ContactForm from './ContactForm'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('Support')
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'Support' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -13,7 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function SupportPage() {
+export default async function SupportPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('Support')
 
   const formLabels = {

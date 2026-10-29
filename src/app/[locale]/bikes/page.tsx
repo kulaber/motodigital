@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import type { Build } from '@/lib/data/builds'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikesClient from './BikesClient'
 import BikeCTA from '../custom-bike/[slug]/BikeCTA'
-import { createClient } from '@/lib/supabase/server'
-
-export const revalidate = 1800 // ISR: revalidate every 30 minutes
+import { createPublicClient } from '@/lib/supabase/public'
 
 export const metadata: Metadata = {
   title: 'Custom Bikes kaufen — MotoDigital',
@@ -21,10 +20,10 @@ const STYLE_LABELS: Record<string, string> = {
   street: 'Street', enduro: 'Enduro', other: 'Basis-Bike',
 }
 
-export default async function BikesPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const isLoggedIn = !!user
+export default async function BikesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  const supabase = createPublicClient()
 
   // Fetch all active bikes with seller profile via JOIN (single query instead of two)
   const { data: rows } = await (supabase.from('bikes') as any)
@@ -32,6 +31,7 @@ export default async function BikesPage() {
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(100)
+    .throwOnError()
 
   const dbBuilds: Build[] = (rows ?? []).map((r: any) => {
     const images: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
@@ -124,7 +124,7 @@ export default async function BikesPage() {
         <h1 className="text-xl font-bold text-[#222222] text-center">Custom Bikes</h1>
       </div>
 
-      <BikesClient builds={allBuilds} isLoggedIn={isLoggedIn} />
+      <BikesClient builds={allBuilds} />
 
       <BikeCTA />
 

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
-
-export const revalidate = 3600
+import { createPublicClient } from '@/lib/supabase/public'
 
 export const metadata: Metadata = {
   title: 'Custom Motorrad Marken — Honda, BMW, Triumph & mehr — MotoDigital',
@@ -12,17 +11,25 @@ export const metadata: Metadata = {
   alternates: { canonical: '/marken' },
 }
 
-export default async function MarkenPage() {
-  const supabase = await createClient()
+export default async function MarkenPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  const supabase = createPublicClient()
 
-  // Fetch all brands alphabetically
-  const { data: brands } = await (supabase.from('base_bike_brands') as any)
-    .select('id, name, slug, country, founded, description')
-    .order('name')
-
-  // Fetch model counts per brand
-  const { data: baseBikes } = await (supabase.from('base_bikes') as any)
-    .select('brand_id')
+  // Brands alphabetically, plus the rows needed for model and build counts
+  const [{ data: brands }, { data: baseBikes }, { data: dbBikes }] = await Promise.all([
+    (supabase.from('base_bike_brands') as any)
+      .select('id, name, slug, country, founded, description')
+      .order('name')
+      .throwOnError(),
+    (supabase.from('base_bikes') as any)
+      .select('brand_id')
+      .throwOnError(),
+    (supabase.from('bikes') as any)
+      .select('make')
+      .eq('status', 'active')
+      .throwOnError(),
+  ])
 
   const modelCountByBrand: Record<string, number> = {}
   for (const bike of baseBikes ?? []) {
@@ -30,11 +37,6 @@ export default async function MarkenPage() {
       modelCountByBrand[bike.brand_id] = (modelCountByBrand[bike.brand_id] ?? 0) + 1
     }
   }
-
-  // Fetch active bike counts per make (for build counts)
-  const { data: dbBikes } = await (supabase.from('bikes') as any)
-    .select('make')
-    .eq('status', 'active')
 
   const buildCountByMake: Record<string, number> = {}
   for (const bike of dbBikes ?? []) {

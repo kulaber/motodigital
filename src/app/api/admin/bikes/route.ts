@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 /** Superadmin guard — returns user or error response */
 async function requireSuperadmin() {
@@ -89,6 +90,7 @@ export async function POST(request: Request) {
     const slug = generateBikeSlug(title.trim(), bike.id)
     await admin.from('bikes').update({ slug }).eq('id', bike.id)
 
+    revalidatePublicData('bikes')
     return NextResponse.json({ success: true, id: bike.id, slug })
   } catch (err) {
     console.error('[POST /api/admin/bikes]', err)

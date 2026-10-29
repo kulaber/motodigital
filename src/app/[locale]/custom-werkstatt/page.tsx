@@ -1,18 +1,21 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import type { Builder } from '@/lib/data/builders'
 import BuilderPageClientLoader from './BuilderPageClientLoader'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
-
-export const revalidate = 3600 // ISR: revalidate every hour
 
 const BASE_URL = 'https://motodigital.io'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('WerkstattPage')
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'WerkstattPage' })
   const seoTitle = t('metaTitle')
   const seoDescription = t('metaDescription')
   return {
@@ -87,7 +90,7 @@ async function geocode(query: string, token: string): Promise<{ lat: number; lng
 /* ── Skeleton shown inline while data streams ── */
 /* ── Async component that fetches data (streamed via Suspense) ── */
 async function BuilderContent() {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: dbRows } = await (supabase.from('profiles') as any)
     .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, created_at, builder_media(url, type, title, position)')
@@ -95,6 +98,7 @@ async function BuilderContent() {
     .not('slug', 'is', null)
     .order('created_at', { ascending: false })
     .limit(500)
+    .throwOnError()
 
   const dbBuilders: Builder[] = (dbRows ?? []).map(dbRowToBuilder)
 
@@ -104,7 +108,8 @@ async function BuilderContent() {
     const { data: bikeCounts } = await (supabase.from('bikes') as any)
       .select('seller_id')
       .in('seller_id', builderIds)
-      .in('status', ['active', 'draft'])
+      .eq('status', 'active')
+      .throwOnError()
     if (bikeCounts) {
       const countMap = new Map<string, number>()
       for (const row of bikeCounts) {
@@ -116,8 +121,8 @@ async function BuilderContent() {
     }
   }
 
-  // Geocode builders that have a city/address but no coordinates
-  // Results are persisted to DB so each builder is only geocoded once
+  // Coordinates are geocoded when an address is saved; this only covers rows
+  // that still lack them (Mapbox responses are cached for 24h)
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
   if (token) {
     const needsGeocode = dbBuilders.filter(b => !b.lat && !b.lng && (b.address || b.city))
@@ -130,8 +135,6 @@ async function BuilderContent() {
           if (coords) {
             b.lat = coords.lat
             b.lng = coords.lng
-            // Persist coordinates so future loads skip geocoding (fire-and-forget)
-            ;(supabase.from('profiles') as any).update({ lat: coords.lat, lng: coords.lng }).eq('id', b.id)
           }
         })
       )
@@ -168,7 +171,9 @@ async function BuilderContent() {
 }
 
 /* ── Page component — Header renders instantly, data streams in ── */
-export default async function BuilderPage() {
+export default async function BuilderPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('WerkstattPage')
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',

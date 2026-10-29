@@ -1,13 +1,18 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Megaphone, Handshake } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
+import { getFoundingMemberCount } from '@/lib/data/foundingMembers'
 import FoundingPartnerCTA from './FoundingPartnerCTA'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('Partner')
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'Partner' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -15,7 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function PartnerPage() {
+export default async function PartnerPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('Partner')
 
   const SECONDARY_CARDS = [
@@ -35,14 +42,7 @@ export default async function PartnerPage() {
     },
   ]
 
-  const supabase = await createClient()
-
-  // Count current founding partners
-  const { count } = await (supabase.from('workshops') as any)
-    .select('id', { count: 'exact', head: true })
-    .eq('subscription_tier', 'founding_partner')
-
-  const slotsLeft = 10 - (count ?? 0)
+  const foundingMembers = await getFoundingMemberCount()
 
   return (
     <>
@@ -72,7 +72,7 @@ export default async function PartnerPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {/* Main CTA — Founding Partner */}
-            <FoundingPartnerCTA slotsLeft={slotsLeft} />
+            <FoundingPartnerCTA slotsUsed={foundingMembers} />
 
             {/* Secondary cards */}
             {SECONDARY_CARDS.map((card) => (

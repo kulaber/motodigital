@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { ChevronRight, ImagePlus, Loader2, MapPin, Check, Trash2, Wrench } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { saveOnboardingStep, completeOnboarding } from '@/lib/onboarding'
 import { OnboardingProgressBar } from './OnboardingProgressBar'
 
@@ -159,7 +160,11 @@ export function WerkstattOnboarding({
   async function next(saveData?: () => Promise<void>) {
     setSaving(true)
     try {
-      await saveData?.()
+      if (saveData) {
+        await saveData()
+        // Profile data is public — refresh the cached pages in the background
+        void refreshPublicData(['profiles', 'workshops'])
+      }
       const nextStep = step + 1
       await saveOnboardingStep(nextStep)
       setStep(nextStep)
@@ -498,36 +503,15 @@ export function WerkstattOnboarding({
             </p>
           </div>
 
-          {/* Founding Partner Upsell */}
+          {/* Founding Member — every workshop gets it for free during the founding period */}
           <div className="w-full max-w-[320px] border border-[#2AABAB]/25 rounded-2xl p-5
                           bg-[#2AABAB]/5 text-left">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#2AABAB] mb-2">
-              Founding Partner
+              Founding Member
             </p>
-            <p className="text-sm text-white/50 leading-relaxed mb-4">
-              Logo, Galerie, Top-Platzierung und exklusives Founding Partner Badge — nur 10 Plätze, €39/Mo.
+            <p className="text-sm text-white/50 leading-relaxed">
+              Logo, Galerie, Top-Platzierung und exklusives Founding Member Badge sind für dich freigeschaltet — kostenlos bis Ende 2026.
             </p>
-            <button
-              onClick={async () => {
-                setSaving(true)
-                try {
-                  const res = await fetch('/api/checkout', { method: 'POST' })
-                  const data = await res.json()
-                  if (res.ok && data.url) {
-                    await completeOnboarding()
-                    window.location.href = data.url
-                    return
-                  }
-                } catch { /* ignore — user can upgrade later */ }
-                setSaving(false)
-              }}
-              disabled={saving}
-              className="w-full h-10 rounded-xl bg-[#2AABAB] text-white
-                         font-semibold text-sm flex items-center justify-center gap-2
-                         disabled:opacity-50 active:scale-[0.97] transition-all"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Jetzt Founding Partner werden'}
-            </button>
           </div>
 
           <button

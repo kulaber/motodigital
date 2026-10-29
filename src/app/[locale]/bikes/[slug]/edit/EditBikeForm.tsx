@@ -3,6 +3,7 @@
 import { useState, useRef, useMemo } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { Upload, X, ChevronRight, ChevronDown, Plus, Play } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
@@ -257,6 +258,8 @@ export default function EditBikeForm({ bike }: { bike: BikeData }) {
       }
     }
 
+    // Refresh the cached public pages before showing the bike
+    await refreshPublicData(['bikes'])
     toastSuccess('Änderungen gespeichert')
     const slug = bike.slug ?? generateBikeSlug(title.trim(), bike.id)
     router.push(`/custom-bike/${slug}`)

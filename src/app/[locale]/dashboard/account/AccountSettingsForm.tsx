@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { compressImage } from '@/lib/utils/compressImage'
 import { CheckCircle, Eye, EyeOff, Camera, User, Trash2, ChevronDown } from 'lucide-react'
 import { requestAccountDeletion } from '@/lib/actions/account-deletion'
@@ -69,6 +70,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       await supabase.storage.from('avatars').remove(files.map(f => `${userId}/${f.name}`))
     }
     await (supabase.from('profiles') as any).update({ avatar_url: null }).eq('id', userId)
+    void refreshPublicData(['profiles'])
     setAvatarUrl('')
     setAvatarDeleting(false)
     setAvatarSaved(true)
@@ -96,6 +98,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
     await (supabase.from('profiles') as any).update({ avatar_url: publicUrl }).eq('id', userId)
+    void refreshPublicData(['profiles'])
     setAvatarUrl(`${publicUrl}?t=${Date.now()}`)
     setAvatarSaved(true)
     setAvatarUploading(false)
@@ -114,7 +117,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       .update({ bio: bio.trim() || null })
       .eq('id', userId)
     if (error) setBioError(error.message)
-    else setBioSaved(true)
+    else { setBioSaved(true); void refreshPublicData(['profiles']) }
     setBioSaving(false)
   }
 
@@ -131,7 +134,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       .update({ full_name: fullName.trim() || null })
       .eq('id', userId)
     if (error) setNameError(error.message)
-    else setNameSaved(true)
+    else { setNameSaved(true); void refreshPublicData(['profiles']) }
     setNameSaving(false)
   }
 
@@ -148,7 +151,7 @@ export default function AccountSettingsForm({ userId, currentEmail, currentUsern
       .update({ username: username.trim() || null })
       .eq('id', userId)
     if (error) setUsernameError(error.message)
-    else setUsernameSaved(true)
+    else { setUsernameSaved(true); void refreshPublicData(['profiles']) }
     setUsernameSaving(false)
   }
 

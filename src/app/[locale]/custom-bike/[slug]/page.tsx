@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
@@ -7,11 +8,11 @@ import { MapPin, ArrowLeft } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BikeGallerySection from './BikeGallerySection'
-import { createClient } from '@/lib/supabase/server'
-import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { createPublicClient } from '@/lib/supabase/public'
+import { generateBikeSlug, isBikeId } from '@/lib/utils/bikeSlug'
 import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 import ContactModal from './ContactModal'
-import PriceLoginButton from './PriceLoginButton'
+import BikePrice, { BikeCardPrice } from './BikePrice'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import BikeCTA from './BikeCTA'
@@ -25,55 +26,60 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
-// ISR: bike detail pages are public content, revalidate periodically
-export const revalidate = 1800 // 30 minutes
+// Rendered on first request, then served from the ISR cache
+export function generateStaticParams() {
+  return []
+}
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  try {
-    const supabase = await createClient()
-    let { data } = await (supabase.from('bikes') as any)
+  const supabase = createPublicClient()
+  let { data } = await (supabase.from('bikes') as any)
+    .select('title, style, slug')
+    .eq('slug', slug)
+    .eq('status', 'active')
+    .maybeSingle()
+    .throwOnError()
+  if (!data && isBikeId(slug)) {
+    const { data: byId } = await (supabase.from('bikes') as any)
       .select('title, style, slug')
-      .eq('slug', slug)
+      .eq('id', slug)
+      .eq('status', 'active')
       .maybeSingle()
-    if (!data) {
-      const { data: byId } = await (supabase.from('bikes') as any)
-        .select('title, style, slug')
-        .eq('id', slug)
-        .maybeSingle()
-      data = byId
-    }
-    if (!data) return {}
-    const canonicalSlug = (data.slug as string | null) ?? slug
-    const styleLabel = STYLE_LABELS[data.style as string] ?? (data.style as string)?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
-    return {
-      title: `${data.title} — ${styleLabel} Custom Build · MotoDigital`,
-      alternates: { canonical: `/custom-bike/${canonicalSlug}` },
-    }
-  } catch {
-    return {}
+      .throwOnError()
+    data = byId
+  }
+  if (!data) return {}
+  const canonicalSlug = (data.slug as string | null) ?? slug
+  const styleLabel = STYLE_LABELS[data.style as string] ?? (data.style as string)?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+  return {
+    title: `${data.title} — ${styleLabel} Custom Build · MotoDigital`,
+    alternates: { canonical: `/custom-bike/${canonicalSlug}` },
   }
 }
 
 export default async function CustomBikePage({ params }: Props) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  setRequestLocale(locale)
 
   {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const fullSelect = 'id, title, make, model, year, style, city, price, description, seller_id, workshop_id, bike_images(id, url, is_cover, position, media_type, thumbnail_url), modifications, slug, listing_type, price_amount, price_on_request'
 
     let bike: any = null
 
-    // Try slug and UUID lookups in parallel (2 queries instead of up to 5 sequential)
+    // Slug lookup, plus the UUID lookup for old links (an id filter with a non-UUID value is a 400)
     {
       const [{ data: bySlug }, { data: byId }] = await Promise.all([
-        (supabase.from('bikes') as any).select(fullSelect).eq('slug', slug).maybeSingle(),
-        (supabase.from('bikes') as any).select(fullSelect).eq('id', slug).maybeSingle(),
+        (supabase.from('bikes') as any).select(fullSelect).eq('slug', slug).eq('status', 'active').maybeSingle().throwOnError(),
+        isBikeId(slug)
+          ? (supabase.from('bikes') as any).select(fullSelect).eq('id', slug).eq('status', 'active').maybeSingle().throwOnError()
+          : Promise.resolve({ data: null }),
       ])
       bike = bySlug ?? byId
     }
@@ -83,6 +89,8 @@ export default async function CustomBikePage({ params }: Props) {
       const { data: nullSlugBikes } = await (supabase.from('bikes') as any)
         .select(fullSelect)
         .is('slug', null)
+        .eq('status', 'active')
+        .throwOnError()
       const match = (nullSlugBikes ?? []).find(
         (b: any) => generateBikeSlug(b.title) === slug
       )
@@ -91,42 +99,32 @@ export default async function CustomBikePage({ params }: Props) {
 
     if (!bike) notFound()
 
-    // Check if user is logged in (for price visibility + ownership)
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
-    const isLoggedIn = !!currentUser
-
-    // Fetch seller profile + workshop (if linked) + current user role (if logged in) + seller's workshop
-    const [{ data: sellerProfile }, { data: workshop }, { data: currentUserProfile }, { data: sellerWorkshop }] = await Promise.all([
+    // Seller profile + workshop (if linked) + seller's workshop. Viewer-specific bits
+    // (price visibility, edit button) are resolved client-side so the page stays cacheable.
+    const [{ data: sellerProfile }, { data: workshop }, { data: sellerWorkshop }] = await Promise.all([
       (supabase.from('profiles') as any)
         .select('full_name, city, slug, role, avatar_url')
         .eq('id', bike.seller_id)
-        .maybeSingle() as Promise<{ data: { full_name: string | null; city: string | null; slug: string | null; role: string; avatar_url: string | null } | null }>,
+        .maybeSingle()
+        .throwOnError() as Promise<{ data: { full_name: string | null; city: string | null; slug: string | null; role: string; avatar_url: string | null } | null }>,
       bike.workshop_id
         ? (supabase.from('workshops') as any)
             .select('logo_url')
             .eq('id', bike.workshop_id)
-            .maybeSingle() as Promise<{ data: { logo_url: string | null } | null }>
-        : Promise.resolve({ data: null }),
-      currentUser
-        ? (supabase.from('profiles') as any)
-            .select('role')
-            .eq('id', currentUser.id)
-            .maybeSingle() as Promise<{ data: { role: string } | null }>
+            .maybeSingle()
+            .throwOnError() as Promise<{ data: { logo_url: string | null } | null }>
         : Promise.resolve({ data: null }),
       // Resolve workshop for analytics tracking
       !bike.workshop_id
         ? (supabase.from('workshops') as any)
             .select('id')
             .eq('owner_id', bike.seller_id)
-            .maybeSingle() as Promise<{ data: { id: string } | null }>
+            .maybeSingle()
+            .throwOnError() as Promise<{ data: { id: string } | null }>
         : Promise.resolve({ data: null }),
     ])
 
     const resolvedWorkshopId: string | null = bike.workshop_id ?? sellerWorkshop?.id ?? null
-
-    const isOwner = currentUser?.id === bike.seller_id
-    const isSuperadmin = currentUserProfile?.role === 'superadmin'
-    const canEdit = isOwner || isSuperadmin
 
     const rawImages: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
     const imageUrls = sortedBikeImageUrls(rawImages)
@@ -209,7 +207,6 @@ export default async function CustomBikePage({ params }: Props) {
               sellerRole={sellerProfile?.role ?? null}
               coverImage={imageUrls[0] ?? null}
               listingType={bike.listing_type}
-              editHref={canEdit ? `/bikes/${bike.id}/edit` : undefined}
               workshopId={resolvedWorkshopId}
             />
           ) : (
@@ -240,14 +237,8 @@ export default async function CustomBikePage({ params }: Props) {
               <div className="sm:text-right flex-shrink-0">
                 {bike.price_on_request ? (
                   <p className="text-lg font-semibold text-[#222222]">Preis auf Anfrage</p>
-                ) : isLoggedIn ? (
-                  bike.price_amount ? (
-                    <p className="text-2xl sm:text-3xl font-bold text-[#222222]">
-                      {Number(bike.price_amount).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-semibold text-[#222222]/50">€</span>
-                    </p>
-                  ) : null
                 ) : bike.price_amount ? (
-                  <PriceLoginButton />
+                  <BikePrice amount={bike.price_amount} />
                 ) : null}
               </div>
             )}
@@ -392,7 +383,7 @@ export default async function CustomBikePage({ params }: Props) {
           </div>
 
           <Suspense fallback={null}>
-            <RelatedBikes excludeId={bike.id} isLoggedIn={isLoggedIn} />
+            <RelatedBikes excludeId={bike.id} />
           </Suspense>
 
         </div>
@@ -405,8 +396,8 @@ export default async function CustomBikePage({ params }: Props) {
   }
 }
 
-async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: string; isLoggedIn?: boolean }) {
-  const supabase = await createClient()
+async function RelatedBikes({ excludeId }: { excludeId?: string }) {
+  const supabase = createPublicClient()
 
   // Single query with JOIN — fetch bikes + seller profiles together
   let query = (supabase.from('bikes') as any)
@@ -417,7 +408,7 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
 
   if (excludeId) query = query.neq('id', excludeId)
 
-  const { data: rows } = await query
+  const { data: rows } = await query.throwOnError()
 
   const related = (rows ?? []).map((r: any) => {
     const imgs: { url: string; is_cover: boolean; position: number }[] = r.bike_images ?? []
@@ -502,10 +493,8 @@ async function RelatedBikes({ excludeId, isLoggedIn = false }: { excludeId?: str
                 {b.listingType === 'for_sale' && b.priceOnRequest && (
                   <span className="text-[10px] font-semibold text-[#222222]/40 flex-shrink-0">Auf Anfrage</span>
                 )}
-                {isLoggedIn && b.listingType === 'for_sale' && b.priceAmount && !b.priceOnRequest && (
-                  <span className="text-xs sm:text-sm font-bold text-[#222222] flex-shrink-0">
-                    {Number(b.priceAmount).toLocaleString('de-DE')} <span className="text-[10px] font-semibold text-[#222222]/40">€</span>
-                  </span>
+                {b.listingType === 'for_sale' && b.priceAmount && !b.priceOnRequest && (
+                  <BikeCardPrice amount={b.priceAmount} />
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-[#222222]/35 line-clamp-1">{b.base} · {b.year}</p>

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { ChevronLeft, ChevronRight, X, Search, SlidersHorizontal } from 'lucide-react'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
+import { useAuth } from '@/hooks/useAuth'
 
 function isNew(publishedAt?: string): boolean {
   if (!publishedAt) return false
@@ -20,10 +21,12 @@ function getModel(base: string) { return base.split(' ').slice(1).join(' ') }
 interface Props {
   builds: Build[]
   initialStyle?: string
-  isLoggedIn?: boolean
 }
 
-export default function BikesClient({ builds, initialStyle = 'Alle', isLoggedIn = false }: Props) {
+export default function BikesClient({ builds, initialStyle = 'Alle' }: Props) {
+  // Prices are shown to signed-in users only; resolved client-side so the page stays cacheable
+  const { user } = useAuth()
+  const isLoggedIn = !!user
   const [activeStyle,   setActiveStyle]   = useState(initialStyle)
   const [activeCountry, setActiveCountry] = useState('Alle')
   const [activeMake,    setActiveMake]    = useState('Alle')

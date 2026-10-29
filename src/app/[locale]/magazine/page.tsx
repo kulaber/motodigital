@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getLocale, getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import Header from '@/components/layout/Header'
@@ -7,8 +7,9 @@ import Footer from '@/components/layout/Footer'
 import { ARTICLES } from '@/lib/data/magazine'
 import { getAllArticles } from '@/lib/magazine/articles'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('MagazinePage')
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'MagazinePage' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -36,9 +37,10 @@ function formatDateLocalized(iso: string, locale: string): string {
   })
 }
 
-export default async function MagazinePage() {
+export default async function MagazinePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('MagazinePage')
-  const locale = await getLocale()
   const localizedArticles = await getAllArticles(locale)
   const [heroArticle, ...restArticles] = localizedArticles
 

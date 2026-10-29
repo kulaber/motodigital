@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 async function requireSuperadmin() {
   const supabase = await createClient()
@@ -90,6 +91,7 @@ export async function saveEvent(formData: FormData) {
     if (error) return { error: error.message }
   }
 
+  revalidatePublicData('events')
   redirect('/admin/events')
 }
 
@@ -126,5 +128,6 @@ export async function deleteEvent(id: string) {
     .eq('id', id)
 
   if (error) return { error: error.message }
+  revalidatePublicData('events')
   redirect('/admin/events')
 }

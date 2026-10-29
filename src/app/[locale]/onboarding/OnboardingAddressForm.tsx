@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { MapPin, Wrench, Check } from 'lucide-react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
@@ -123,6 +124,8 @@ export default function OnboardingAddressForm({ userId }: { userId: string }) {
       setSaving(false)
       return
     }
+
+    await refreshPublicData(['profiles'])
 
     // Full page reload to bypass Next.js Router Cache —
     // ohne das liest das Dashboard-Layout gecachte Profildaten (address=null)

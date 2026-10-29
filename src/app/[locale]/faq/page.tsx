@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import FaqAccordion, { type FaqItem } from '../support/FaqAccordion'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('FAQ')
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'FAQ' })
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
@@ -35,7 +36,9 @@ function FaqJsonLd({ items }: { items: FaqItem[] }) {
   )
 }
 
-export default async function FaqPage() {
+export default async function FaqPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations('FAQ')
   const tFaq = await getTranslations('FAQContent')
 

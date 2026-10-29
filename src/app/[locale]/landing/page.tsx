@@ -20,8 +20,7 @@ import MagazineCarousel from '@/components/landing/MagazineCarousel'
 import HeroVideo from '@/components/landing/HeroVideo'
 import { getAllArticles } from '@/lib/magazine/articles'
 import { getLocale } from 'next-intl/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { unstable_cache } from 'next/cache'
+import { createPublicClient } from '@/lib/supabase/public'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import BikePlaceholder from '@/components/bike/BikePlaceholder'
@@ -86,56 +85,52 @@ function dbRowToBuilder(row: Record<string, unknown>): Builder {
   }
 }
 
-// ── Cached data fetching (revalidates every 2 minutes) ──
-const getLandingData = unstable_cache(
-  async () => {
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    )
+// ── Data fetching — cached and tag-revalidated via createPublicClient ──
+async function getLandingData() {
+  const supabase = createPublicClient()
 
-    const [{ data: bikeRows }, { data: dbRows }, { data: eventRows }] = await Promise.all([
-      supabase.from('bikes')
-        .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(url, is_cover, position)')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(6),
-      supabase.from('profiles')
-        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
-        .eq('role', 'custom-werkstatt')
-        .not('slug', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(10),
-      supabase.from('events')
-        .select('id, slug, name, date_start, date_end, location, tags, image')
-        .gte('date_start', new Date().toISOString().split('T')[0])
-        .order('date_start', { ascending: true })
-        .limit(7),
-    ])
+  const [{ data: bikeRows }, { data: dbRows }, { data: eventRows }] = await Promise.all([
+    supabase.from('bikes')
+      .select('id, title, make, model, style, year, city, slug, seller_id, listing_type, price_amount, price_on_request, created_at, bike_images(url, is_cover, position)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(6)
+      .throwOnError(),
+    supabase.from('profiles')
+      .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, instagram_url, website_url, builder_media(url, type, title, position)')
+      .eq('role', 'custom-werkstatt')
+      .not('slug', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .throwOnError(),
+    supabase.from('events')
+      .select('id, slug, name, date_start, date_end, location, tags, image')
+      .gte('date_start', new Date().toISOString().split('T')[0])
+      .order('date_start', { ascending: true })
+      .limit(7)
+      .throwOnError(),
+  ])
 
-    const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: any) => r.seller_id))]
-    const workshopIds = (dbRows ?? []).map((r: any) => r.id as string)
+  const sellerIds: string[] = [...new Set<string>((bikeRows ?? []).map((r: any) => r.seller_id))]
+  const workshopIds = (dbRows ?? []).map((r: any) => r.id as string)
 
-    const [{ data: sellerProfiles }, { data: bikeCounts }] = await Promise.all([
-      sellerIds.length > 0
-        ? supabase.from('profiles').select('id, full_name, role').in('id', sellerIds)
-        : Promise.resolve({ data: [] as any[] }),
-      workshopIds.length > 0
-        ? supabase.from('bikes').select('seller_id').in('seller_id', workshopIds).eq('status', 'active')
-        : Promise.resolve({ data: [] as any[] }),
-    ])
+  const [{ data: sellerProfiles }, { data: bikeCounts }] = await Promise.all([
+    sellerIds.length > 0
+      ? supabase.from('profiles').select('id, full_name, role').in('id', sellerIds).throwOnError()
+      : Promise.resolve({ data: [] as any[] }),
+    workshopIds.length > 0
+      ? supabase.from('bikes').select('seller_id').in('seller_id', workshopIds).eq('status', 'active').throwOnError()
+      : Promise.resolve({ data: [] as any[] }),
+  ])
 
-    return {
-      bikeRows: bikeRows ?? [],
-      dbRows: dbRows ?? [],
-      sellerProfiles: sellerProfiles ?? [],
-      bikeCounts: bikeCounts ?? [],
-      eventRows: eventRows ?? [],
-    }
-  },
-  ['landing-page-data'],
-  { revalidate: 120 }
-)
+  return {
+    bikeRows: bikeRows ?? [],
+    dbRows: dbRows ?? [],
+    sellerProfiles: sellerProfiles ?? [],
+    bikeCounts: bikeCounts ?? [],
+    eventRows: eventRows ?? [],
+  }
+}
 
 export default async function LandingPage() {
   const t = await getTranslations('Landing2')

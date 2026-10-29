@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
-import { createClient } from '@/lib/supabase/server'
-import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { createPublicClient } from '@/lib/supabase/public'
+import { generateBikeSlug, isBikeId } from '@/lib/utils/bikeSlug'
 import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
 
 export const runtime = 'nodejs'
@@ -14,14 +14,16 @@ interface Params {
 
 export default async function BikeOgImage({ params }: Params) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const select = 'title, slug, bike_images(url, is_cover, position)'
 
   let bike: Record<string, unknown> | null = null
   {
     const [bySlugRes, byIdRes] = await Promise.all([
-      (supabase.from('bikes') as any).select(select).eq('slug', slug).maybeSingle(),
-      (supabase.from('bikes') as any).select(select).eq('id', slug).maybeSingle(),
+      (supabase.from('bikes') as any).select(select).eq('slug', slug).eq('status', 'active').maybeSingle(),
+      isBikeId(slug)
+        ? (supabase.from('bikes') as any).select(select).eq('id', slug).eq('status', 'active').maybeSingle()
+        : Promise.resolve({ data: null }),
     ])
     bike = (bySlugRes as { data: Record<string, unknown> | null }).data
       ?? (byIdRes as { data: Record<string, unknown> | null }).data
@@ -30,6 +32,7 @@ export default async function BikeOgImage({ params }: Params) {
     const { data: nullSlugBikes } = await (supabase.from('bikes') as any)
       .select(select)
       .is('slug', null)
+      .eq('status', 'active')
     bike = (nullSlugBikes ?? []).find(
       (b: Record<string, unknown>) => generateBikeSlug(b.title as string) === slug,
     ) ?? null

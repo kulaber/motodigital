@@ -81,7 +81,9 @@ export const getPublishedDbArticles = unstable_cache(
       .eq('status', 'published')
       .order('published_at', { ascending: false })
       .limit(500)
-    if (error) return []
+    // Throw instead of returning [] — unstable_cache would keep an empty list
+    // for 10 minutes, while a throw leaves the last good result in place
+    if (error) throw new Error(`magazine_articles: ${error.message}`)
     return ((data ?? []) as DbArticleRow[]).map(rowToArticle)
   },
   ['magazine-db-articles'],

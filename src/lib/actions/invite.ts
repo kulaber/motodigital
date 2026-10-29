@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { verifyInviteToken, sendInvitationEmail } from '@/lib/invite'
+import { revalidatePublicData } from '@/lib/cache/revalidate'
 
 function getAdmin() {
   return createAdmin(
@@ -64,6 +65,8 @@ export async function acceptInvite(data: {
   })
   if (signInError) return { error: signInError.message }
 
+  // The workshop is claimed now — counts as founding member, address may have changed
+  revalidatePublicData('profiles', 'workshops')
   return { success: true }
 }
 

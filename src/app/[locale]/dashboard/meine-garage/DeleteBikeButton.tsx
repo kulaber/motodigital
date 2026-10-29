@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Trash2, Pencil, Eye } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal'
 import { deleteOwnBike } from '@/lib/actions/bikes'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 
 // ── Publish toggle ────────────────────────────────────────────────────────────
 export function PublishToggle({ bikeId, initialStatus }: { bikeId: string; initialStatus: string }) {
@@ -18,6 +19,7 @@ export function PublishToggle({ bikeId, initialStatus }: { bikeId: string; initi
     setToggling(true)
     const newStatus = published ? 'draft' : 'active'
     await (supabase.from('bikes') as any).update({ status: newStatus }).eq('id', bikeId)
+    await refreshPublicData(['bikes'])
     setPublished(!published)
     setToggling(false)
   }

@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { notFound, redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { ARTICLES, type ArticleSection } from '@/lib/data/magazine'
 import { getAllArticles, getArticleBySlugAll } from '@/lib/magazine/articles'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 
 const CATEGORY_SLUGS = ['build-story', 'interview', 'guide'] as const
 
@@ -18,10 +18,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { locale, slug } = await params
   const article = await getArticleBySlugAll(slug, locale)
   if (!article) return { title: locale === 'en' ? 'Article not found' : 'Artikel nicht gefunden' }
 
@@ -168,21 +167,21 @@ function RenderSection({ section }: { section: ArticleSection }) {
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  setRequestLocale(locale)
 
   if ((CATEGORY_SLUGS as readonly string[]).includes(slug)) {
     redirect(`/magazine/${slug}`)
   }
 
-  const locale = await getLocale()
   const allArticles = await getAllArticles(locale)
   const article = allArticles.find(a => a.slug === slug)
   if (!article) notFound()
 
   // Fetch related builder from DB
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   let relatedBuilder: { slug: string; name: string; initials: string; city: string; specialty: string } | undefined
   if (article.relatedBuilderSlug) {
     const { data: bp } = await (supabase.from('profiles') as any)
@@ -190,6 +189,7 @@ export default async function ArticlePage({
       .eq('slug', article.relatedBuilderSlug)
       .eq('role', 'custom-werkstatt')
       .maybeSingle()
+      .throwOnError()
     if (bp) {
       const name = bp.full_name ?? bp.slug
       relatedBuilder = {
@@ -208,7 +208,9 @@ export default async function ArticlePage({
     const { data: bike } = await (supabase.from('bikes') as any)
       .select('id, title, make, model, style, slug, bike_images(url, is_cover, position)')
       .eq('slug', article.relatedBuildSlug)
+      .eq('status', 'active')
       .maybeSingle()
+      .throwOnError()
     if (bike) {
       const imgs: { url: string; is_cover: boolean; position: number }[] = bike.bike_images ?? []
       const cover = imgs.find((i: { is_cover: boolean }) => i.is_cover)?.url ?? imgs[0]?.url ?? ''

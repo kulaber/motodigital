@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { getAllArticles } from '@/lib/magazine/articles'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
@@ -53,7 +53,7 @@ function localizedEntry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   // Rider profiles are login-gated (PROTECTED_ROUTES in middleware → 307 to
   // /auth/login), so they are deliberately not part of the sitemap.
@@ -62,17 +62,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // profiles has no updated_at column — selecting it makes the whole query fail
       .select('slug, created_at')
       .eq('role', 'custom-werkstatt')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
+      .not('slug', 'is', null)
+      .throwOnError() as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     supabase
       .from('bikes')
       .select('id, slug, title, updated_at')
-      .eq('status', 'active') as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
+      .eq('status', 'active')
+      .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
+      .not('slug', 'is', null)
+      .throwOnError() as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
     (supabase.from('base_bike_brands') as any)
       .select('slug')
-      .not('slug', 'is', null) as Promise<{ data: { slug: string }[] | null }>,
+      .not('slug', 'is', null)
+      .throwOnError() as Promise<{ data: { slug: string }[] | null }>,
   ])
 
   const now = new Date()

@@ -4,6 +4,7 @@ import { useState, useMemo, useRef } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { refreshPublicData } from '@/lib/actions/revalidate'
 import { Upload, X, ChevronRight, ChevronDown, Plus, Play, Loader2, CheckCircle } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
 import { MAKES, getModelsByMake, getYearsForModel, type MotorcycleModel } from '@/lib/data/motorcycles'
@@ -260,6 +261,8 @@ export default function NewBikeForm() {
     }
     setUploadProgress({})
 
+    // Refresh the cached public pages before showing the bike
+    await refreshPublicData(['bikes'])
     toastSuccess('Bike erfolgreich gespeichert')
     if (isOnboarding) {
       router.push('/willkommen?step=4')

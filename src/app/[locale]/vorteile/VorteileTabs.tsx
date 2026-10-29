@@ -6,12 +6,11 @@ import { useRouter } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { CheckCircle, Crown, Bike, Map, ShoppingBag, Wrench, BookOpen, CalendarDays, MessageCircle } from 'lucide-react'
+import { FOUNDING_MEMBER_LIMIT } from '@/lib/werkstatt-tier'
 
 type Tab = 'werkstatt' | 'rider'
 
 const RIDER_FEATURE_ICONS = [Bike, Map, ShoppingBag, Wrench, BookOpen, CalendarDays, MessageCircle]
-
-const FOUNDING_MEMBER_LIMIT = 100
 
 function TabsInner({ initialTab, slotsUsed }: { initialTab: Tab; slotsUsed: number }) {
   const t = useTranslations('Benefits')
