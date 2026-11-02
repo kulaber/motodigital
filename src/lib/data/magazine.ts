@@ -40,7 +40,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Vom Serienmotorrad zum Cafe Racer: Wie ein Umbau in acht Schritten abläuft, was er kostet, welche Teile eingetragen werden müssen — und wann sich Kit oder Werkstatt lohnen.',
     coverImage:
-      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/31c44afa-eafc-418e-b91e-1359bccf69d8/1775409431150-q3wpw8dl82.jpg',
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/cafe-racer-umbau-cover.jpg',
     publishedAt: '2026-11-02',
     readTime: '10 min',
     author: 'MotoDigital Redaktion',
