@@ -11,6 +11,7 @@ import { eventDatePhrase, formatEventDate, isAwaitingNextDate } from '@/lib/data
 import type { Event } from '@/lib/data/events'
 import { localizedText } from '@/lib/i18n/localizedText'
 import { fitTitle, truncateAtWord } from '@/lib/seo'
+import { EVENT_CONTENT } from '@/lib/data/eventContent'
 import EventInterestButton from './EventInterestButton'
 import EventLocationMap from './EventLocationMap'
 import EventGallery from '@/components/events/EventGallery'
@@ -133,15 +134,24 @@ export default async function EventDetailPage({ params }: Props) {
   const galleryImages = event.gallery_images ?? []
   const videos = event.videos ?? []
 
+  // Researched long-form content (German only); edition-bound facts drop out once the date moves on
+  const content = locale === 'de' ? EVENT_CONTENT[event.slug] : undefined
+  const forThisEdition = (x: { edition?: string }) => !x.edition || x.edition === event.date_start
+  const facts = content?.facts && forThisEdition(content.facts) ? content.facts.items : []
+  // "die Custombike-Show" in questions, "Die Custombike-Show" at the start of answers
+  const nameInText = content?.nameInText ?? event.name
+  const nameAtStart = nameInText.charAt(0).toUpperCase() + nameInText.slice(1)
+
   // Answers searches like "<event> datum" — visible on the page and as FAQPage data
   const faq: { q: string; a: string; link?: { href: string; host: string } }[] = [
     awaiting
       ? {
-          q: t('faqWhenTbaQ', { name: event.name }),
+          q: t('faqWhenTbaQ', { name: nameInText }),
           a: [t('faqWhenTbaA'), isPast && datePhrase ? t('faqLastEdition', { date: datePhrase }) : ''].filter(Boolean).join(' '),
         }
-      : { q: t('faqWhenQ', { name: event.name, year: event.date_start!.slice(0, 4) }), a: t('faqWhenA', { name: event.name, date: datePhrase }) },
-    ...(event.location ? [{ q: t('faqWhereQ', { name: event.name }), a: t('faqWhereA', { location: event.location }) }] : []),
+      : { q: t('faqWhenQ', { name: nameInText, year: event.date_start!.slice(0, 4) }), a: t('faqWhenA', { name: nameAtStart, date: datePhrase }) },
+    ...(event.location ? [{ q: t('faqWhereQ', { name: nameInText }), a: t('faqWhereA', { location: event.location }) }] : []),
+    ...(content?.faq ?? []).filter(forThisEdition).map(({ q, a }) => ({ q, a })),
     ...(event.url
       ? [{ q: t('faqInfoQ'), a: t('faqInfoA', { site: hostOf(event.url) }), link: { href: event.url, host: hostOf(event.url) } }]
       : []),
@@ -358,6 +368,60 @@ export default async function EventDetailPage({ params }: Props) {
                   {event.description}
                 </p>
               </div>
+
+              {/* At a glance — only facts that belong to the edition on record */}
+              {facts.length > 0 && (
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-[#F7F7F7] border border-[#222222]/6 rounded-2xl p-5 sm:p-6 max-w-[68ch]">
+                  <div>
+                    <dt className="text-[11px] font-semibold uppercase tracking-widest text-[#222222]/40 mb-1">Termin</dt>
+                    <dd className="text-sm font-semibold text-[#222222]">{dateLabel}</dd>
+                  </div>
+                  {facts.map(f => (
+                    <div key={f.label}>
+                      <dt className="text-[11px] font-semibold uppercase tracking-widest text-[#222222]/40 mb-1">{f.label}</dt>
+                      <dd className="text-sm font-semibold text-[#222222]">{f.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+
+              {/* Long-form content */}
+              {content?.sections.map(s => (
+                <div key={s.heading}>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#222222] mb-4" style={{ letterSpacing: '-0.02em' }}>
+                    {s.heading}
+                  </h2>
+                  <div className="space-y-4 max-w-[68ch]">
+                    {s.paragraphs.map(p => (
+                      <p key={p.slice(0, 40)} className="text-base text-[#222222]/70 leading-relaxed">{p}</p>
+                    ))}
+                    {s.list && (
+                      <ul className="space-y-2">
+                        {s.list.map(item => (
+                          <li key={item} className="flex items-start gap-3 text-base text-[#222222]/70 leading-relaxed">
+                            <span className="mt-2.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#06a5a5]" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {content?.links && (
+                <div className="flex flex-wrap gap-2">
+                  {content.links.map(l => (
+                    <Link
+                      key={l.href}
+                      href={l.href as any}
+                      className="inline-flex items-center gap-1.5 border border-[#222222]/10 hover:border-[#06a5a5] text-sm font-medium text-[#222222] px-4 py-2 rounded-full transition-colors"
+                    >
+                      <span className="text-[#06a5a5]">→</span> {l.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
 
               {/* FAQ */}
               <div>
