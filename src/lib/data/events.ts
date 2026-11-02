@@ -33,6 +33,31 @@ export function youtubeId(url: string): string | null {
   return null
 }
 
+/** True when there is no upcoming edition on record: the last one is over, or there is no date */
+export function isAwaitingNextDate(event: Pick<Event, 'date_start' | 'date_end'>, today: string): boolean {
+  const end = event.date_end ?? event.date_start
+  return !end || end < today
+}
+
+/**
+ * Date range as running text: "vom 3. bis 5. September 2027" / "from 3 to 5 September 2027",
+ * or "am 3. September 2027" / "on 3 September 2027" for a single day. Empty without a date.
+ */
+export function eventDatePhrase(event: Pick<Event, 'date_start' | 'date_end'>, locale: string): string {
+  if (!event.date_start) return ''
+  const de = locale !== 'en'
+  const lang = de ? 'de-DE' : 'en-GB'
+  const start = new Date(event.date_start + 'T00:00:00')
+  const end = event.date_end && event.date_end !== event.date_start ? new Date(event.date_end + 'T00:00:00') : null
+  const full = (d: Date) => d.toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+  if (!end) return `${de ? 'am' : 'on'} ${full(start)}`
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()
+  const from = sameMonth
+    ? `${start.getDate()}${de ? '.' : ''}`
+    : start.toLocaleDateString(lang, { day: 'numeric', month: 'long', ...(start.getFullYear() !== end.getFullYear() && { year: 'numeric' }) })
+  return de ? `vom ${from} bis ${full(end)}` : `from ${from} to ${full(end)}`
+}
+
 /** Format date range for display (e.g. "01.–03.09.2026") */
 export function formatEventDate(event: Pick<Event, 'date_start' | 'date_end'>): string {
   if (!event.date_start) return ''

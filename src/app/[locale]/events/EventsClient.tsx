@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { MapPin, Calendar, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import DatePicker from '@/components/ui/DatePicker'
@@ -157,6 +158,7 @@ function EventCard({
   event: Event
   isPast?: boolean
 }) {
+  const t = useTranslations('EventsPage')
   return (
     <Link
       href={`/events/${event.slug}`}
@@ -202,7 +204,7 @@ function EventCard({
           <div className="absolute bottom-3 left-3">
             <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm">
               <Calendar size={11} className={isPast ? 'text-[#222222]/50' : 'text-[#06a5a5]'} />
-              {formatEventDate(event)}
+              {formatEventDate(event) || t('nextDateTba')}
             </span>
           </div>
         </div>

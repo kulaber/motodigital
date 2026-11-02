@@ -176,9 +176,9 @@
     "defaultDescription": "The first platform for custom motorcycle culture. Find builders, buy builds, start your project."
   },
   "EventsPage": {
-    "metaTitle": "Custom Motorcycle Events 2026 — MotoDigital",
-    "metaDescription": "The biggest custom motorcycle events across Europe in 2026 — Glemseck 101, Wheels & Waves, Cafe Racer Festival and more.",
-    "kicker": "Events 2026",
+    "metaTitle": "Custom Motorcycle Events & Shows 2026/27: Dates",
+    "metaDescription": "The biggest custom motorcycle events and shows in Europe: Custombike-Show, INTERMOT, Glemseck 101, Wheels & Waves and more — with dates and details.",
+    "kicker": "Events 2026/27",
     "heading": "Custom Motorcycle Events",
     "subheading": "The best custom motorcycle events in Europe — festivals, shows and races for the community.",
     "back": "Back",
@@ -194,7 +194,23 @@
     "filterTo": "To",
     "filterLocation": "Location",
     "clearFilter": "Clear filters",
-    "noResults": "No events found"
+    "noResults": "No events found",
+    "nextDateTba": "Next date to be announced",
+    "eventMetaTitle": "{name} {year}: dates, programme & travel",
+    "eventMetaTitleShort": "{name} {year}: dates & info",
+    "eventMetaTitleTba": "{name}: next dates & info",
+    "eventMetaDescription": "{name} {date} — {teaser}",
+    "eventMetaDescriptionTba": "{name}, {location}: next dates, programme and info. {teaser}",
+    "faqTitle": "Frequently asked questions",
+    "faqWhenQ": "When is {name} {year}?",
+    "faqWhenA": "{name} takes place {date}.",
+    "faqWhenTbaQ": "When is the next {name}?",
+    "faqWhenTbaA": "The dates of the next edition have not been announced yet.",
+    "faqLastEdition": "The last edition took place {date}.",
+    "faqWhereQ": "Where does {name} take place?",
+    "faqWhereA": "Venue: {location}.",
+    "faqInfoQ": "Where can I get tickets and the latest info?",
+    "faqInfoA": "The organiser publishes tickets, the programme and any short-notice changes at {site}."
   },
   "WerkstattPage": {
     "metaTitle": "Find a custom workshop: {count} motorcycle customisers",

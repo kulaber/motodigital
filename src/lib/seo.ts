@@ -20,6 +20,13 @@ export function fitTitle(candidates: string[], max = 60): string {
   return candidates.find((c) => c.length <= max) ?? candidates.reduce((a, b) => (b.length < a.length ? b : a))
 }
 
+/** Shortens text to `max` characters at a word boundary, ending with "…" */
+export function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max - 1)
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–—-]+$/, '')}…`
+}
+
 /** "2026-11-02" → "2026-11-02T08:00:00+01:00" (Europe/Berlin, DST-aware). Full timestamps pass through. */
 export function toBerlinIso(date: string): string {
   if (date.includes('T')) return date

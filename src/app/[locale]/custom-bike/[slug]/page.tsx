@@ -18,7 +18,7 @@ import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import BikeCTA from './BikeCTA'
 import BikeTracker from './BikeTracker'
 import ExpandableContent from './ExpandableContent'
-import { fitTitle } from '@/lib/seo'
+import { fitTitle, truncateAtWord } from '@/lib/seo'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -36,12 +36,6 @@ export function generateStaticParams() {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
-
-function truncateAtWord(text: string, max: number): string {
-  if (text.length <= max) return text
-  const cut = text.slice(0, max - 1)
-  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–—-]+$/, '')}…`
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params

@@ -176,9 +176,9 @@
     "defaultDescription": "Die erste Plattform für Custom Motorrad Kultur. Finde Builder, kaufe Builds, starte dein Projekt."
   },
   "EventsPage": {
-    "metaTitle": "Custom Motorcycle Events 2026 — MotoDigital",
-    "metaDescription": "Die wichtigsten Custom-Motorcycle-Events in Europa 2026 — Glemseck 101, Wheels & Waves, Cafe Racer Festival und mehr.",
-    "kicker": "Events 2026",
+    "metaTitle": "Custom Motorrad Events & Messen 2026/27: Termine",
+    "metaDescription": "Die wichtigsten Custom-Motorrad-Events und Messen in Europa: Custombike-Show, INTERMOT, Glemseck 101, Wheels & Waves und mehr — mit Terminen und Infos.",
+    "kicker": "Events 2026/27",
     "heading": "Custom Motorcycle Events",
     "subheading": "Die besten Custom-Moto-Events in Europa — Festivals, Shows und Races für die Community.",
     "back": "Zurück",
@@ -194,7 +194,23 @@
     "filterTo": "Bis",
     "filterLocation": "Location",
     "clearFilter": "Filter zurücksetzen",
-    "noResults": "Keine Events gefunden"
+    "noResults": "Keine Events gefunden",
+    "nextDateTba": "Nächster Termin folgt",
+    "eventMetaTitle": "{name} {year}: Termin, Programm & Anfahrt",
+    "eventMetaTitleShort": "{name} {year}: Termin & Infos",
+    "eventMetaTitleTba": "{name}: nächster Termin & Infos",
+    "eventMetaDescription": "{name} {date} — {teaser}",
+    "eventMetaDescriptionTba": "{name}, {location}: nächster Termin, Programm und Infos. {teaser}",
+    "faqTitle": "Häufige Fragen",
+    "faqWhenQ": "Wann findet {name} {year} statt?",
+    "faqWhenA": "{name} findet {date} statt.",
+    "faqWhenTbaQ": "Wann findet {name} das nächste Mal statt?",
+    "faqWhenTbaA": "Der Termin für die nächste Ausgabe steht noch nicht fest.",
+    "faqLastEdition": "Die letzte Ausgabe fand {date} statt.",
+    "faqWhereQ": "Wo findet {name} statt?",
+    "faqWhereA": "Veranstaltungsort: {location}.",
+    "faqInfoQ": "Wo gibt es Tickets und aktuelle Infos?",
+    "faqInfoA": "Tickets, Programm und kurzfristige Änderungen veröffentlicht der Veranstalter auf {site}."
   },
   "WerkstattPage": {
     "metaTitle": "Custom Werkstatt finden: {count} Werkstätten für Motorrad-Umbau",

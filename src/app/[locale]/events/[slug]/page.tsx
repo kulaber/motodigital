@@ -7,9 +7,10 @@ import { MapPin, Calendar, ArrowLeft, ChevronLeft, Navigation } from 'lucide-rea
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createPublicClient } from '@/lib/supabase/public'
-import { formatEventDate } from '@/lib/data/events'
+import { eventDatePhrase, formatEventDate, isAwaitingNextDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
 import { localizedText } from '@/lib/i18n/localizedText'
+import { fitTitle, truncateAtWord } from '@/lib/seo'
 import EventInterestButton from './EventInterestButton'
 import EventLocationMap from './EventLocationMap'
 import EventGallery from '@/components/events/EventGallery'
@@ -45,40 +46,51 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'EventsPage' })
   const supabase = createPublicClient()
   const { data: event } = await (supabase.from('events') as any)
-    .select('name, description, image, name_i18n, description_i18n')
+    .select('name, description, image, date_start, date_end, location, name_i18n, description_i18n, location_i18n')
     .eq('slug', slug)
     .maybeSingle()
     .throwOnError() as {
-      data: {
-        name: string
-        description: string
-        image?: string | null
-        name_i18n?: Record<string, string> | null
-        description_i18n?: Record<string, string> | null
-      } | null
+      data: Pick<Event, 'name' | 'description' | 'image' | 'date_start' | 'date_end' | 'location' | 'name_i18n' | 'description_i18n' | 'location_i18n'> | null
     }
 
   if (!event) return { title: `${t('notFound')} — MotoDigital` }
   const name = localizedText(event.name_i18n, locale, event.name)
-  const description = localizedText(event.description_i18n, locale, event.description)
+  const teaser = localizedText(event.description_i18n, locale, event.description)
+  const location = localizedText(event.location_i18n, locale, event.location)
+  // People search "<event> <year>" and "<event> datum" — lead with name, year and dates
+  const awaiting = isAwaitingNextDate(event, getTodayLocal())
+  const year = event.date_start?.slice(0, 4) ?? ''
+  const title = awaiting
+    ? t('eventMetaTitleTba', { name })
+    : fitTitle([t('eventMetaTitle', { name, year }), t('eventMetaTitleShort', { name, year }), `${name} ${year}`])
+  const description = truncateAtWord(
+    awaiting
+      ? t('eventMetaDescriptionTba', { name, location, teaser })
+      : t('eventMetaDescription', { name, date: eventDatePhrase(event, locale), teaser }),
+    155,
+  )
   const ogImage = event.image ?? '/og-image.jpg'
   return {
-    title: `${name} — MotoDigital`,
+    title,
     description,
     alternates: { canonical: `/events/${slug}` },
     openGraph: {
-      title: `${name} — MotoDigital`,
+      title,
       description,
       url: `https://motodigital.io/events/${slug}`,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: name }],
+      images: [{ url: ogImage, alt: name }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${name} — MotoDigital`,
+      title,
       description,
       images: [ogImage],
     },
   }
+}
+
+function hostOf(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, '') } catch { return url }
 }
 
 function getTodayLocal(): string {
@@ -113,13 +125,32 @@ export default async function EventDetailPage({ params }: Props) {
   const today = getTodayLocal()
   const endDate = event.date_end ?? event.date_start ?? ''
   const isPast = !!endDate && endDate < today
+  // Past or undated: show "next date to be announced" instead of a stale date
+  const awaiting = isAwaitingNextDate(event, today)
+  const dateLabel = awaiting ? t('nextDateTba') : dateStr
+  const datePhrase = eventDatePhrase(event, locale)
 
   const galleryImages = event.gallery_images ?? []
   const videos = event.videos ?? []
 
+  // Answers searches like "<event> datum" — visible on the page and as FAQPage data
+  const faq: { q: string; a: string; link?: { href: string; host: string } }[] = [
+    awaiting
+      ? {
+          q: t('faqWhenTbaQ', { name: event.name }),
+          a: [t('faqWhenTbaA'), isPast && datePhrase ? t('faqLastEdition', { date: datePhrase }) : ''].filter(Boolean).join(' '),
+        }
+      : { q: t('faqWhenQ', { name: event.name, year: event.date_start!.slice(0, 4) }), a: t('faqWhenA', { name: event.name, date: datePhrase }) },
+    ...(event.location ? [{ q: t('faqWhereQ', { name: event.name }), a: t('faqWhereA', { location: event.location }) }] : []),
+    ...(event.url
+      ? [{ q: t('faqInfoQ'), a: t('faqInfoA', { site: hostOf(event.url) }), link: { href: event.url, host: hostOf(event.url) } }]
+      : []),
+  ]
+
   const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
   const eventUrl = `${BASE_URL}/events/${event.slug}`
-  const eventLd: Record<string, unknown> = {
+  // Only for an upcoming edition: Event data without a future startDate gets flagged in Search Console
+  const eventLd: Record<string, unknown> | null = awaiting ? null : {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: event.name,
@@ -128,7 +159,7 @@ export default async function EventDetailPage({ params }: Props) {
     ...(event.date_start && { startDate: event.date_start }),
     ...(event.date_end && { endDate: event.date_end }),
     ...(event.image && { image: [event.image] }),
-    eventStatus: isPast ? 'https://schema.org/EventScheduled' : 'https://schema.org/EventScheduled',
+    eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     ...(event.location && {
       location: {
@@ -158,9 +189,15 @@ export default async function EventDetailPage({ params }: Props) {
     offers: {
       '@type': 'Offer',
       url: event.url || eventUrl,
-      availability: isPast ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+      availability: 'https://schema.org/InStock',
       ...(event.date_start && { validFrom: event.date_start }),
     },
+  }
+
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
   }
 
   const breadcrumbLd = {
@@ -175,13 +212,19 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white text-[#222222]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }}
-      />
+      {eventLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
       <Header activePage="events" />
 
@@ -238,7 +281,7 @@ export default async function EventDetailPage({ params }: Props) {
               </h1>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white font-semibold text-sm px-4 py-2 rounded-full">
-                  <Calendar size={14} /> {dateStr}
+                  <Calendar size={14} /> {dateLabel}
                 </span>
                 <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white font-semibold text-sm px-4 py-2 rounded-full">
                   <MapPin size={14} /> {event.location}
@@ -291,7 +334,7 @@ export default async function EventDetailPage({ params }: Props) {
               </h1>
               <div className="flex flex-wrap items-center gap-4 mb-8">
                 <span className="inline-flex items-center gap-2 bg-[#06a5a5]/8 border border-[#06a5a5]/15 text-[#06a5a5] font-semibold text-sm px-4 py-2 rounded-full">
-                  <Calendar size={14} /> {dateStr}
+                  <Calendar size={14} /> {dateLabel}
                 </span>
                 <span className="flex items-center gap-2 text-sm text-[#717171]">
                   <MapPin size={15} /> {event.location}
@@ -314,6 +357,31 @@ export default async function EventDetailPage({ params }: Props) {
                 <p className="text-base text-[#222222]/70 leading-relaxed max-w-[68ch]">
                   {event.description}
                 </p>
+              </div>
+
+              {/* FAQ */}
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-[#222222] mb-5" style={{ letterSpacing: '-0.02em' }}>
+                  {t('faqTitle')}
+                </h2>
+                <dl className="space-y-5 max-w-[68ch]">
+                  {faq.map(f => (
+                    <div key={f.q} className="border-b border-[#222222]/6 pb-5 last:border-0 last:pb-0">
+                      <dt className="text-base font-semibold text-[#222222] mb-1.5">{f.q}</dt>
+                      <dd className="text-[15px] text-[#222222]/65 leading-relaxed">
+                        {f.link ? (
+                          <>
+                            {f.a.slice(0, f.a.indexOf(f.link.host))}
+                            <a href={f.link.href} target="_blank" rel="noopener noreferrer" className="text-[#06a5a5] hover:text-[#058f8f] font-medium">
+                              {f.link.host}
+                            </a>
+                            {f.a.slice(f.a.indexOf(f.link.host) + f.link.host.length)}
+                          </>
+                        ) : f.a}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
 
               {/* Gallery */}
