@@ -9,7 +9,7 @@ import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
-import { INDEXABLE_ROBOTS, fitTitle } from '@/lib/seo'
+import { INDEXABLE_ROBOTS, fitTitle, truncateAtWord } from '@/lib/seo'
 
 interface Props {
   params: Promise<{ locale: string; slug: string; model: string }>
@@ -101,12 +101,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = `${brand.name} ${baseBike.model}`
   const styles = (baseBike.custom_styles ?? []).slice(0, 2).map((s: string) => STYLE_LABELS[s] ?? s)
   const buildCount = linkedBuilds.length
-  const description = [
-    `${name}${baseBike.engine_cc ? ` (${baseBike.engine_cc} cc)` : ''} als Custom-Basis${styles.length ? ` — beliebt als ${styles.join(' und ')}` : ''}.`,
+  const lead = `${name}${baseBike.engine_cc ? ` (${baseBike.engine_cc} cc)` : ''} als Custom-Basis${styles.length ? ` — beliebt als ${styles.join(' und ')}` : ''}.`
+  const builds = `${buildCount} Custom ${buildCount === 1 ? 'Build' : 'Builds'}`
+  // Same fitting as the title: long model names get the shorter second sentence
+  const description = truncateAtWord(fitTitle([
     buildCount > 0
-      ? `${buildCount} Custom ${buildCount === 1 ? 'Build' : 'Builds'} auf dieser Basis und Werkstätten für deinen Umbau auf MotoDigital.`
-      : 'Finde die passende Custom Werkstatt für deinen Umbau auf MotoDigital.',
-  ].join(' ')
+      ? `${lead} ${builds} auf dieser Basis und Werkstätten für deinen Umbau auf MotoDigital.`
+      : `${lead} Finde die passende Custom Werkstatt für deinen Umbau auf MotoDigital.`,
+    buildCount > 0 ? `${lead} ${builds} und Werkstätten für deinen Umbau.` : `${lead} Finde die passende Werkstatt für deinen Umbau.`,
+    lead,
+  ], 158), 158)
 
   return {
     // Model names like "Ducati Monster 400/600/…/1100" are long — shed styles before the model

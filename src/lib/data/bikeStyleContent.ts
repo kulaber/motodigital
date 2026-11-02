@@ -130,7 +130,7 @@ export const BIKE_STYLE_CONTENT: Record<string, StyleContent> = {
     heading: 'Brat Style Bikes — japanischer Custom-Minimalismus',
     lead: 'Flache Sitzbank, niedriger Lenker, schlichte Linie: Brat-Style-Builds in der Tradition von Go Takamine und Brat Style Tokyo.',
     intro: [
-      'Brat Style entstand in den 2000er Jahren in Tokio rund um Go Takamine und seine Werkstatt „Brat Style". Die Idee: ein zurückgenommener, fast schon „roher" Look, der Cafe Racer, Bobber und Tracker zu einer eigenen Schule verbindet. Wichtig sind eine durchgehende, flache Sitzlinie, ein niedriger Lenker und eine möglichst unaufgeregte Lackierung.',
+      'Brat Style geht auf Go Takamine zurück, der seine Werkstatt „Brat Style" 1998 in Tokio eröffnete. Die Idee: ein zurückgenommener, fast schon „roher" Look, der Cafe Racer, Bobber und Tracker zu einer eigenen Schule verbindet. Wichtig sind eine durchgehende, flache Sitzlinie, ein niedriger Lenker und eine möglichst unaufgeregte Lackierung.',
       'Typische Basen: Yamaha SR400, Honda CB-Modelle, Kawasaki W650, Triumph Bonneville. Die Builds sind oft mit Vintage-Komponenten kombiniert und bleiben technisch eher konservativ.',
     ],
     faqs: [
