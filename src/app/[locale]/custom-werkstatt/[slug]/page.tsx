@@ -24,7 +24,7 @@ import { OwnerOnly, OwnerSwitch, VisitorOnly } from './ProfileOwner'
 import { createPublicClient } from '@/lib/supabase/public'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { isPremium } from '@/lib/werkstatt-tier'
-import BuilderPageClientLoader from '../BuilderPageClientLoader'
+import BuilderPageClient from '../BuilderPageClient'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 
 // Rendered on first request, then served from the ISR cache
@@ -490,7 +490,7 @@ export default async function BuilderProfilePage({ params }: Props) {
 
         {/* Workshop grid or empty state */}
         {cityBuilders.length > 0 ? (
-          <BuilderPageClientLoader builders={cityBuilders} />
+          <BuilderPageClient builders={cityBuilders} />
         ) : (
           <section className="max-w-5xl mx-auto px-4 sm:px-5 lg:px-8 py-12">
             <p className="text-[#717171] text-sm">

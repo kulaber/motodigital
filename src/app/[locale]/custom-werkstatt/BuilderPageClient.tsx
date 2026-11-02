@@ -14,7 +14,9 @@ import { isOpenNow } from '@/lib/utils/openingHours'
 import { createClient } from '@/lib/supabase/client'
 import { LoginModal } from '@/components/ui/LoginModal'
 import { useHideNavOnModal } from '@/hooks/useHideNavOnModal'
-import mapboxgl from 'mapbox-gl'
+// Types only — the library itself is imported when the map initialises, so
+// this component can render on the server (mapbox-gl needs a browser)
+import type mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 const LEISTUNGEN = [
@@ -76,6 +78,21 @@ function applyMapStyle(map: mapboxgl.Map) {
       }
     } catch { /* layer may not support property */ }
   })
+}
+
+const MAP_FIT_PADDING = 60
+
+/** Starting view that already frames every workshop, so the map doesn't jump after load */
+function initialMapView(list: Builder[]) {
+  const pts = list.filter(b => b.lat && b.lng)
+  if (pts.length === 1) return { center: [pts[0].lng!, pts[0].lat!] as [number, number], zoom: 12 }
+  if (pts.length === 0) return { center: [10.5, 51.2] as [number, number], zoom: 5 }
+  const lngs = pts.map(b => b.lng!)
+  const lats = pts.map(b => b.lat!)
+  return {
+    bounds: [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]] as [[number, number], [number, number]],
+    fitBoundsOptions: { padding: MAP_FIT_PADDING, maxZoom: 14 },
+  }
 }
 
 interface Props { builders: Builder[] }
@@ -340,13 +357,15 @@ export default function BuilderPageClient({ builders }: Props) {
   const [isFullscreen,       setIsFullscreen]       = useState(false)
   const [mapPortalEl,        setMapPortalEl]        = useState<HTMLDivElement | null>(null)
   const [showLogin, setShowLogin]                   = useState(false)
-  const supabase = createClient()
 
   const listRef          = useRef<HTMLDivElement>(null)
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const desktopMapSlot   = useRef<HTMLDivElement>(null)
   const mobileMapSlot    = useRef<HTMLDivElement>(null)
   const mapRef           = useRef<mapboxgl.Map | null>(null)
+  const mapboxRef        = useRef<typeof mapboxgl | null>(null)
+  const initialViewRef   = useRef(initialMapView(builders))
+  const pendingFitRef    = useRef(false)
   const markersRef       = useRef<mapboxgl.Marker[]>([])
   const addMarkersRef    = useRef<() => void>(() => {})
   const isMobileRef      = useRef(false)
@@ -381,6 +400,7 @@ export default function BuilderPageClient({ builders }: Props) {
   // Load current user + saved builders
   useEffect(() => {
     async function loadSaved() {
+      const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setAuthReady(true); return }
       setUserId(user.id)
@@ -391,11 +411,12 @@ export default function BuilderPageClient({ builders }: Props) {
       setAuthReady(true)
     }
     loadSaved()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   async function toggleSave(builderId: string | null) {
     if (!userId) { setShowLogin(true); return }
     if (!builderId) return
+    const supabase = createClient()
     const isSaved = savedIds.has(builderId)
     setSavedIds(prev => {
       const next = new Set(prev)
@@ -445,17 +466,20 @@ export default function BuilderPageClient({ builders }: Props) {
   const effectiveLeistung  = availableLeistungen.includes(activeLeistung)   ? activeLeistung   : 'Alle'
   const effectiveSpecialty = availableSpecialties.includes(activeSpecialty) ? activeSpecialty : 'Alle'
 
+  // The clock only matters while "open now" is on — otherwise every minute's
+  // tick would rebuild the list and redraw all map markers
+  const openAt = onlyOpen ? now : null
   const filtered = useMemo(() => {
     const results = searchFiltered.filter(b => {
       const specOk     = effectiveSpecialty === 'Alle' ||
         b.specialty.split('·').map(s => s.trim()).includes(effectiveSpecialty)
       const leistungOk = effectiveLeistung === 'Alle' || b.tags.includes(effectiveLeistung)
       const verifiedOk = !onlyVerified || b.verified
-      const openOk     = !onlyOpen || !now || isOpenNow(b.openingHours, now)
+      const openOk     = !openAt || isOpenNow(b.openingHours, openAt)
       return specOk && leistungOk && verifiedOk && openOk
     })
     return [...results.filter(b => b.featured), ...results.filter(b => !b.featured)]
-  }, [searchFiltered, effectiveSpecialty, effectiveLeistung, onlyVerified, onlyOpen, now])
+  }, [searchFiltered, effectiveSpecialty, effectiveLeistung, onlyVerified, openAt])
 
   const filterKey = `${searchQuery}|${effectiveSpecialty}|${effectiveLeistung}|${onlyVerified}|${onlyOpen}`
 
@@ -481,7 +505,8 @@ export default function BuilderPageClient({ builders }: Props) {
   useEffect(() => {
     addMarkersRef.current = () => {
       const map = mapRef.current
-      if (!map) return
+      const mapbox = mapboxRef.current
+      if (!map || !mapbox) return
       markersRef.current.forEach(m => m.remove())
       markersRef.current = []
 
@@ -565,7 +590,7 @@ export default function BuilderPageClient({ builders }: Props) {
           })
           el.addEventListener('click', (e) => {
             e.stopPropagation()
-            const bounds = new mapboxgl.LngLatBounds()
+            const bounds = new mapbox.LngLatBounds()
             cluster.members.forEach(b => bounds.extend([b.lng!, b.lat!]))
             map.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 600 })
           })
@@ -608,7 +633,7 @@ export default function BuilderPageClient({ builders }: Props) {
           })
         }
 
-        const m = new mapboxgl.Marker({ element: el })
+        const m = new mapbox.Marker({ element: el })
           .setLngLat([cluster.centerLng, cluster.centerLat])
           .addTo(map)
         markersRef.current.push(m)
@@ -646,36 +671,45 @@ export default function BuilderPageClient({ builders }: Props) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     if (!token) return
 
-    mapboxgl.accessToken = token.trim()
-    const map = new mapboxgl.Map({
-      container: mapEl,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [10.5, 51.2],
-      zoom: 5,
-      minZoom: 4,
-      attributionControl: false,
-    })
-    mapRef.current = map
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
-    map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
-    map.once('load', () => {
-      applyMapStyle(map)
-      setMapLanguage(map)
-      addMarkersRef.current()
-      setMapBounds(map.getBounds())
-      setMapReady(true)
-      // Initial fitBounds is handled by the filter-change effect
-    })
-    map.on('move',    () => setMapBounds(map.getBounds() ?? null))
-    map.on('moveend', () => { setMapBounds(map.getBounds() ?? null); setMarkerEpoch(e => e + 1) })
-    map.on('click', () => { setSelectedBuilder(null); setMobileSheetBuilder(null) })
+    let cancelled = false
+    let ro: ResizeObserver | null = null
+    import('mapbox-gl').then(({ default: mapbox }) => {
+      if (cancelled) return
+      mapboxRef.current = mapbox
+      mapbox.accessToken = token.trim()
+      const map = new mapbox.Map({
+        container: mapEl,
+        style: 'mapbox://styles/mapbox/light-v11',
+        // Open on the final view instead of animating there after load
+        ...initialViewRef.current,
+        // 3, not 4: a portrait phone needs it to show France to Austria at once
+        minZoom: 3,
+        attributionControl: false,
+      })
+      mapRef.current = map
+      // Created inside a hidden slot (phone list view): the start view couldn't be framed
+      if (!mapEl.clientWidth) pendingFitRef.current = true
+      map.addControl(new mapbox.NavigationControl({ showCompass: false }), 'top-right')
+      map.addControl(new mapbox.FullscreenControl(), 'top-right')
+      map.once('load', () => {
+        applyMapStyle(map)
+        setMapLanguage(map)
+        addMarkersRef.current()
+        setMapBounds(map.getBounds())
+        setMapReady(true)
+      })
+      map.on('move',    () => setMapBounds(map.getBounds() ?? null))
+      map.on('moveend', () => { setMapBounds(map.getBounds() ?? null); setMarkerEpoch(e => e + 1) })
+      map.on('click', () => { setSelectedBuilder(null); setMobileSheetBuilder(null) })
 
-    const ro = new ResizeObserver(() => map.resize())
-    ro.observe(mapEl)
+      ro = new ResizeObserver(() => map.resize())
+      ro.observe(mapEl)
+    })
 
     return () => {
-      ro.disconnect()
-      map.remove()
+      cancelled = true
+      ro?.disconnect()
+      mapRef.current?.remove()
       mapRef.current = null
       markersRef.current = []
       mapEl.remove()
@@ -705,24 +739,34 @@ export default function BuilderPageClient({ builders }: Props) {
     if (map?.loaded()) addMarkersRef.current()
   }, [filtered, selectedBuilder, hoveredBuilder, markerEpoch])
 
-  /* ── fit map bounds when filter criteria change ── */
-  const prevFilterKeyRef = useRef(filterKey)
-  const initialFitDone = useRef(false)
-  useEffect(() => {
+  /* ── frame a set of workshops ── */
+  // A hidden map (phones start in list view) has no size to fit into, so the
+  // fit is remembered (pendingFitRef) and done instantly once the map is shown
+  function fitMapTo(list: Builder[], duration: number) {
     const map = mapRef.current
-    if (!map?.loaded() || !mapReady) return
-    // Skip if filter criteria haven't actually changed (ignores `now` timer ticks)
-    if (initialFitDone.current && prevFilterKeyRef.current === filterKey) return
-    prevFilterKeyRef.current = filterKey
-    initialFitDone.current = true
-    const withCoords = filtered.filter(b => b.lat && b.lng)
+    const mapbox = mapboxRef.current
+    if (!map || !mapbox) return
+    if (!map.getContainer().clientWidth) { pendingFitRef.current = true; return }
+    pendingFitRef.current = false
+    const withCoords = list.filter(b => b.lat && b.lng)
     if (withCoords.length > 1) {
-      const bounds = new mapboxgl.LngLatBounds()
+      const bounds = new mapbox.LngLatBounds()
       withCoords.forEach(b => bounds.extend([b.lng!, b.lat!]))
-      map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 400 })
+      map.fitBounds(bounds, { padding: MAP_FIT_PADDING, maxZoom: 14, duration })
     } else if (withCoords.length === 1) {
-      map.flyTo({ center: [withCoords[0].lng!, withCoords[0].lat!], zoom: 12, duration: 400 })
+      map.flyTo({ center: [withCoords[0].lng!, withCoords[0].lat!], zoom: 12, duration })
     }
+  }
+
+  /* ── fit map bounds when filter criteria change ── */
+  // The map opens on all workshops (initialMapView), so only a real filter
+  // change moves it — not the initial load and not the clock ticking
+  const prevFilterKeyRef = useRef(filterKey)
+  useEffect(() => {
+    if (!mapRef.current?.loaded() || !mapReady) return
+    if (prevFilterKeyRef.current === filterKey) return
+    prevFilterKeyRef.current = filterKey
+    fitMapTo(filtered, 400)
   }, [filterKey, filtered, mapReady])
 
   /* ── Resize map + adjust inset when mobile view changes ── */
@@ -735,8 +779,11 @@ export default function BuilderPageClient({ builders }: Props) {
     } else {
       mapEl.style.cssText = 'position:absolute;inset:12px;border-radius:16px;overflow:hidden;'
     }
-    setTimeout(() => mapRef.current?.resize(), 50)
-  }, [mobileView])
+    setTimeout(() => {
+      mapRef.current?.resize()
+      if (pendingFitRef.current) fitMapTo(filtered, 0)
+    }, 50)
+  }, [mobileView]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const mapHeight = `calc(100dvh - ${STICKY_OFFSET}px)`
 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import Header from '@/components/layout/Header'
 import type { Builder } from '@/lib/data/builders'
-import BuilderPageClientLoader from './BuilderPageClientLoader'
+import BuilderPageClient from './BuilderPageClient'
 import { createPublicClient } from '@/lib/supabase/public'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 
@@ -165,7 +165,7 @@ async function BuilderContent() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
       />
-      <BuilderPageClientLoader builders={sorted} />
+      <BuilderPageClient builders={sorted} />
     </>
   )
 }
