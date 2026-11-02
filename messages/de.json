@@ -197,8 +197,8 @@
     "noResults": "Keine Events gefunden"
   },
   "WerkstattPage": {
-    "metaTitle": "Custom Werkstatt finden — Verzeichnis",
-    "metaDescription": "Entdecke verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz. Mit Galerie, Builds und Direktkontakt auf MotoDigital.",
+    "metaTitle": "Custom Werkstatt finden: {count} Werkstätten für Motorrad-Umbau",
+    "metaDescription": "{count} Custom-Werkstätten für Motorrad-Umbau und Customizing in Deutschland, Österreich, den Niederlanden und Frankreich — mit Fotos, Builds und Direktkontakt.",
     "heading": "Custom Werkstatt",
     "subheading": "Finde die besten Custom-Builder in Europa — mit Portfolio, Spezialgebieten und Kontaktmöglichkeit.",
     "searchPlaceholder": "Suchen…",

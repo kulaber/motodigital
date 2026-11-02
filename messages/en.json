@@ -197,8 +197,8 @@
     "noResults": "No events found"
   },
   "WerkstattPage": {
-    "metaTitle": "Find a custom workshop — Directory",
-    "metaDescription": "Discover verified custom workshops in Germany, Austria and Switzerland. With gallery, builds and direct contact on MotoDigital.",
+    "metaTitle": "Find a custom workshop: {count} motorcycle customisers",
+    "metaDescription": "{count} custom workshops for motorcycle conversions and customising in Germany, Austria, the Netherlands and France — with photos, builds and direct contact.",
     "heading": "Custom Workshops",
     "subheading": "Find the best custom builders in Europe — with portfolio, specialties and direct contact.",
     "searchPlaceholder": "Search…",

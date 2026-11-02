@@ -16,8 +16,16 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'WerkstattPage' })
-  const seoTitle = t('metaTitle')
-  const seoDescription = t('metaDescription')
+  // The workshop count goes into title and description, so they stay accurate as the directory grows
+  const { data: rows } = await (createPublicClient().from('profiles') as any)
+    .select('id')
+    .eq('role', 'custom-werkstatt')
+    .not('slug', 'is', null)
+    .throwOnError()
+  const count = (rows as unknown[] | null)?.length ?? 0
+  const seoTitle = t('metaTitle', { count })
+  const seoDescription = t('metaDescription', { count })
+  const image = { url: '/og/custom-werkstatt.jpg', width: 1200, height: 630, alt: seoTitle }
   return {
     title: seoTitle,
     description: seoDescription,
@@ -26,12 +34,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: seoTitle,
       description: seoDescription,
       url: `${BASE_URL}/custom-werkstatt`,
+      siteName: 'MotoDigital',
+      locale: locale === 'de' ? 'de_DE' : 'en_US',
       type: 'website',
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
       title: seoTitle,
       description: seoDescription,
+      images: [image],
     },
   }
 }
@@ -151,7 +163,7 @@ async function BuilderContent() {
     '@type': 'ItemList',
     name: 'Custom Werkstätten auf MotoDigital',
     numberOfItems: sorted.length,
-    itemListElement: sorted.slice(0, 30).map((b, idx) => ({
+    itemListElement: sorted.map((b, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       url: `${BASE_URL}/custom-werkstatt/${b.slug}`,
