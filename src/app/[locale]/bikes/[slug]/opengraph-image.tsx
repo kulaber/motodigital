@@ -50,7 +50,8 @@ export default async function StyleHubOgImage({ params }: Params) {
           style={{
             position: 'absolute',
             inset: 0,
-            background:
+            // Satori drops gradients in the `background` shorthand
+            backgroundImage:
               'radial-gradient(ellipse at 75% 30%, rgba(42,171,171,0.20) 0%, transparent 55%)',
           }}
         />

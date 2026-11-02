@@ -15,12 +15,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: t('metaDescription'),
     alternates: {
       canonical: 'https://motodigital.io/magazine',
+      types: { 'application/rss+xml': [{ url: '/feed.xml', title: 'MotoDigital Magazin' }] },
     },
     openGraph: {
       title: t('metaTitle'),
       description: t('metaDescription'),
       type: 'website',
-      images: [{ url: ARTICLES[0]?.coverImage ?? '', width: 1200, height: 630 }],
+      images: [{ url: ARTICLES[0]?.coverImage ?? '' }],
     },
   }
 }

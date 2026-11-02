@@ -8,8 +8,10 @@ import Footer from '@/components/layout/Footer'
 import { ARTICLES, type ArticleSection } from '@/lib/data/magazine'
 import { getAllArticles, getArticleBySlugAll } from '@/lib/magazine/articles'
 import { createPublicClient } from '@/lib/supabase/public'
+import { INDEXABLE_ROBOTS, toBerlinIso } from '@/lib/seo'
 
 const CATEGORY_SLUGS = ['build-story', 'interview', 'guide'] as const
+const EDITORIAL_AUTHOR = 'MotoDigital Redaktion'
 
 export async function generateStaticParams() {
   return ARTICLES.map(a => ({ slug: a.slug }))
@@ -24,22 +26,31 @@ export async function generateMetadata({
   const article = await getArticleBySlugAll(slug, locale)
   if (!article) return { title: locale === 'en' ? 'Article not found' : 'Artikel nicht gefunden' }
 
+  // Branded card (opengraph-image.tsx) for X; the plain cover photo for
+  // og:image, because Discover picks its thumbnail from og:image/schema and
+  // Google advises against text-heavy images there. The card path is set
+  // explicitly — the auto-generated one carries /de/, which 308-redirects.
+  const cardUrl = `${locale === 'de' ? '' : `/${locale}`}/magazine/${article.slug}/opengraph-image`
+
   return {
     title: article.metaTitle,
     description: article.metaDescription,
-    alternates: { canonical: `https://motodigital.io/magazine/${article.slug}` },
+    alternates: {
+      canonical: `https://motodigital.io/magazine/${article.slug}`,
+      types: { 'application/rss+xml': [{ url: '/feed.xml', title: 'MotoDigital Magazin' }] },
+    },
     // Body content is German-only; keep the EN duplicate out of the index
-    robots: locale === 'de' ? { index: true, follow: true } : { index: false, follow: true },
+    robots: locale === 'de' ? INDEXABLE_ROBOTS : { index: false, follow: true },
     openGraph: {
       title: article.metaTitle,
       description: article.metaDescription,
       url: `https://motodigital.io/magazine/${article.slug}`,
       siteName: 'MotoDigital',
       locale: 'de_DE',
-      images: [{ url: article.coverImage, width: 1200, height: 630, alt: article.title }],
+      images: [{ url: article.coverImage, alt: article.title }],
       type: 'article',
-      publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt ?? article.publishedAt,
+      publishedTime: toBerlinIso(article.publishedAt),
+      modifiedTime: toBerlinIso(article.updatedAt ?? article.publishedAt),
       tags: article.tags,
       authors: [article.author],
     },
@@ -47,7 +58,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: article.metaTitle,
       description: article.metaDescription,
-      images: [article.coverImage],
+      images: [{ url: cardUrl, width: 1200, height: 630, alt: article.title }],
     },
   }
 }
@@ -238,10 +249,14 @@ export default async function ArticlePage({
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
     headline: article.title,
     description: article.metaDescription,
+    url: canonicalUrl,
     image: [article.coverImage],
-    datePublished: article.publishedAt,
-    dateModified: article.updatedAt ?? article.publishedAt,
-    author: { '@type': 'Person', name: article.author },
+    datePublished: toBerlinIso(article.publishedAt),
+    dateModified: toBerlinIso(article.updatedAt ?? article.publishedAt),
+    // Editorial pieces are bylined by the newsroom, not a person
+    author: article.author === EDITORIAL_AUTHOR
+      ? { '@type': 'Organization', name: article.author, url: 'https://motodigital.io/ueber-motodigital' }
+      : { '@type': 'Person', name: article.author },
     publisher: {
       '@type': 'Organization',
       name: 'MotoDigital',

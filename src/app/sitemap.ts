@@ -4,6 +4,8 @@ import { getAllArticles } from '@/lib/magazine/articles'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
+import { sortedBikeImageUrls } from '@/lib/utils/bikeImages'
+import { escapeXml } from '@/lib/seo'
 import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand } from '@/lib/utils/baseBikeMatch'
 
 const BASE = 'https://motodigital.io'
@@ -67,9 +69,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .throwOnError() as Promise<{ data: { slug: string; created_at?: string }[] | null }>,
     supabase
       .from('bikes')
-      .select('id, slug, title, updated_at, make, model, year')
+      .select('id, slug, title, updated_at, make, model, year, bike_images(url, is_cover, position, media_type)')
       .eq('status', 'active')
-      .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string; make: string | null; model: string | null; year: number | null }[] | null }>,
+      .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string; make: string | null; model: string | null; year: number | null; bike_images: { url: string; is_cover: boolean; position: number; media_type: string | null }[] | null }[] | null }>,
     (supabase.from('events') as any)
       .select('slug, date_start')
       .not('slug', 'is', null)
@@ -148,11 +150,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Article bodies are German-only, so the EN URLs are noindexed duplicates —
   // no hreflang alternates, otherwise Google ranks /en/ for German queries.
+  // Image entries help Google Images; Next writes them unescaped, so escape here
   const articlePages: MetadataRoute.Sitemap = (await getAllArticles('de')).map((a) => ({
     url: `${BASE}/magazine/${a.slug}`,
     lastModified: new Date(a.updatedAt ?? a.publishedAt),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
+    images: a.coverImage ? [escapeXml(a.coverImage)] : undefined,
   }))
 
   const builderPages: MetadataRoute.Sitemap = (builders ?? []).map((b) => {
@@ -176,12 +180,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const urls = Object.fromEntries(
       routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/custom-bike/${bikeSlug}`])
     )
+    const imageUrls = sortedBikeImageUrls((b.bike_images ?? []).filter((i) => i.media_type !== 'video'))
+      .slice(0, 10)
+      .map(escapeXml)
     return {
       url: urls[routing.defaultLocale],
       lastModified: new Date(b.updated_at),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
       alternates: { languages: urls },
+      images: imageUrls.length ? imageUrls : undefined,
     }
   })
 

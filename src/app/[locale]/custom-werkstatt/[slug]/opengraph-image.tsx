@@ -68,7 +68,8 @@ export default async function WerkstattOgImage({ params }: Params) {
           style={{
             position: 'absolute',
             inset: 0,
-            background:
+            // Satori drops gradients in the `background` shorthand
+            backgroundImage:
               'linear-gradient(180deg, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.88) 100%)',
           }}
         />

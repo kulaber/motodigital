@@ -73,16 +73,31 @@ const STYLE_LABELS: Record<string, string> = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
 
   // Style page
   const style = STYLES[slug]
   if (style) {
     const content = BIKE_STYLE_CONTENT[slug]
+    const title = content?.heading ?? `${style.name} kaufen — Custom Bikes`
+    const description = content?.lead ?? `${style.description}. Kaufe und verkaufe Custom ${style.name} Motorräder auf MotoDigital.`
+    // Explicit card path: the auto-generated one carries /de/, which 308-redirects
+    const prefix = locale === 'de' ? '' : `/${locale}`
+    const card = { url: `${prefix}/bikes/${slug}/opengraph-image`, width: 1200, height: 630, alt: title }
     return {
-      title: content?.heading ?? `${style.name} kaufen — Custom Bikes`,
-      description: content?.lead ?? `${style.description}. Kaufe und verkaufe Custom ${style.name} Motorräder auf MotoDigital.`,
+      title,
+      description,
       alternates: { canonical: `/bikes/${slug}` },
+      openGraph: {
+        title,
+        description,
+        url: `${prefix}/bikes/${slug}`,
+        siteName: 'MotoDigital',
+        locale: locale === 'de' ? 'de_DE' : 'en_US',
+        type: 'website',
+        images: [card],
+      },
+      twitter: { card: 'summary_large_image', title, description, images: [card] },
     }
   }
 

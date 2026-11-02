@@ -14,6 +14,7 @@ import ConfirmationToast from '@/components/auth/ConfirmationToast'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
 import { SearchShortcut } from '@/components/search/SearchShortcut'
 import { routing } from '@/i18n/routing'
+import { INDEXABLE_ROBOTS } from '@/lib/seo'
 import '../globals.css'
 
 const bodoniModa = Bodoni_Moda({
@@ -50,6 +51,7 @@ export async function generateMetadata({
     },
     description: t('defaultDescription'),
     metadataBase: new URL(baseUrl),
+    robots: INDEXABLE_ROBOTS,
     alternates: {
       canonical: locale === 'de' ? '/' : `/${locale}`,
       languages: {

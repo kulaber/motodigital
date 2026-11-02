@@ -28,6 +28,7 @@ export default function robots(): MetadataRoute.Robots {
         '/*?SD=*',
       ],
     },
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    // Google accepts RSS feeds as sitemaps; the feed carries new magazine articles first
+    sitemap: [`${BASE_URL}/sitemap.xml`, `${BASE_URL}/feed.xml`],
   }
 }

@@ -9,6 +9,7 @@ import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
+import { INDEXABLE_ROBOTS } from '@/lib/seo'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: brand.description || `Entdecke alle ${brand.name} Modelle als Custom-Basis auf MotoDigital.`,
     alternates: { canonical: `${BASE_URL}/marken/${slug}` },
     // Page text is German-only; keep the EN duplicate out of the index
-    robots: locale === 'de' ? { index: true, follow: true } : { index: false, follow: true },
+    robots: locale === 'de' ? INDEXABLE_ROBOTS : { index: false, follow: true },
   }
 }
 

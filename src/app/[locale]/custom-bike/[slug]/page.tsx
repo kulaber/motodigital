@@ -36,18 +36,25 @@ export function generateStaticParams() {
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://motodigital.io'
 
+function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max - 1)
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–—-]+$/, '')}…`
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
   const supabase = createPublicClient()
+  const select = 'title, style, slug, make, model, year, description'
   let { data } = await (supabase.from('bikes') as any)
-    .select('title, style, slug')
+    .select(select)
     .eq('slug', slug)
     .eq('status', 'active')
     .maybeSingle()
     .throwOnError()
   if (!data && isBikeId(slug)) {
     const { data: byId } = await (supabase.from('bikes') as any)
-      .select('title, style, slug')
+      .select(select)
       .eq('id', slug)
       .eq('status', 'active')
       .maybeSingle()
@@ -57,9 +64,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return {}
   const canonicalSlug = (data.slug as string | null) ?? slug
   const styleLabel = STYLE_LABELS[data.style as string] ?? (data.style as string)?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+  const title = `${data.title} — ${styleLabel} Custom Build · MotoDigital`
+
+  // Every bike used to inherit the generic site description — build a unique one
+  const base = [(data.make as string | null)?.replace(/ Motorrad$/, ''), data.model].filter(Boolean).join(' ')
+  const lead = `${styleLabel}${base ? ` auf Basis einer ${base}` : ''}${data.year ? ` (${data.year})` : ''}`
+  const body = ((data.description as string | null) ?? '').replace(/\s+/g, ' ').trim()
+  const description = truncateAtWord(
+    body ? `${lead}: ${body}` : `${lead} — Custom Build mit Fotos, Details und direktem Kontakt zum Builder auf MotoDigital.`,
+    158,
+  )
+
+  // Explicit card paths: the auto-generated ones carry /de/, which 308-redirects
+  const prefix = locale === 'de' ? '' : `/${locale}`
+  const cardBase = `${prefix}/custom-bike/${canonicalSlug}`
   return {
-    title: `${data.title} — ${styleLabel} Custom Build · MotoDigital`,
+    title,
+    description,
     alternates: { canonical: `/custom-bike/${canonicalSlug}` },
+    openGraph: {
+      title,
+      description,
+      url: `${prefix}/custom-bike/${canonicalSlug}`,
+      siteName: 'MotoDigital',
+      locale: locale === 'de' ? 'de_DE' : 'en_US',
+      type: 'website',
+      images: [{ url: `${cardBase}/opengraph-image`, width: 1200, height: 630, alt: data.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [{ url: `${cardBase}/twitter-image`, width: 1200, height: 630, alt: data.title }],
+    },
   }
 }
 

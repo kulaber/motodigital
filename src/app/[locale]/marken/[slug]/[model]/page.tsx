@@ -9,6 +9,7 @@ import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
+import { INDEXABLE_ROBOTS } from '@/lib/seo'
 
 interface Props {
   params: Promise<{ locale: string; slug: string; model: string }>
@@ -114,7 +115,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Spec sheets without builds or editorial text are thin — keep them out of
     // the index until they have content. Page text is German-only, so EN never.
     robots: locale === 'de' && hasModelPageContent(buildCount, baseBike.notes)
-      ? { index: true, follow: true }
+      ? INDEXABLE_ROBOTS
       : { index: false, follow: true },
   }
 }
