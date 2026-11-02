@@ -9,7 +9,7 @@ import Footer from '@/components/layout/Footer'
 import { sortBikeImages } from '@/lib/utils/bikeImages'
 import { bikeMatchesBaseModel, hasModelPageContent, makeMatchesBrand, makePrefixPattern } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
-import { INDEXABLE_ROBOTS } from '@/lib/seo'
+import { INDEXABLE_ROBOTS, fitTitle } from '@/lib/seo'
 
 interface Props {
   params: Promise<{ locale: string; slug: string; model: string }>
@@ -109,7 +109,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ].join(' ')
 
   return {
-    title: `${name} umbauen: ${styles.length ? styles.join(', ') : 'Custom-Basis'} & Builds — MotoDigital`,
+    // Model names like "Ducati Monster 400/600/…/1100" are long — shed styles before the model
+    title: fitTitle([
+      `${name} umbauen: ${styles.length ? styles.join(', ') : 'Custom-Basis'} & Builds — MotoDigital`,
+      `${name} umbauen: ${styles.length ? styles.join(', ') : 'Custom-Basis'} & Builds`,
+      ...(styles.length > 1 ? [`${name} umbauen: ${styles[0]} & Builds`] : []),
+      `${name} umbauen — MotoDigital`,
+      `${name} umbauen`,
+    ]),
     description,
     alternates: { canonical: `${BASE_URL}/marken/${brand.slug}/${baseBike.slug}` },
     // Spec sheets without builds or editorial text are thin — keep them out of

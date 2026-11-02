@@ -10,11 +10,13 @@ import { getArticlesByCategoryAll } from '@/lib/magazine/articles'
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const meta = getCategoryMetaForLocale(locale)['build-story']
+  // Cover of the newest article in this category as the share image
+  const newest = [...(await getArticlesByCategoryAll('build-story', locale))].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0]
   return {
     title: meta.title,
     description: meta.description,
     alternates: { canonical: 'https://motodigital.io/magazine/build-story' },
-    openGraph: { title: meta.title, description: meta.description, type: 'website' },
+    openGraph: { title: meta.title, description: meta.description, type: 'website', images: newest ? [{ url: newest.coverImage }] : undefined },
   }
 }
 

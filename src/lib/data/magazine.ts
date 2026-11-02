@@ -1396,7 +1396,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'scrambler-vs-tracker-vergleich',
     title: 'Scrambler vs. Tracker: Was ist der Unterschied und welcher passt zu dir?',
-    metaTitle: 'Scrambler vs. Tracker — Unterschied & Kaufentscheidung 2025',
+    metaTitle: 'Scrambler vs. Tracker — Unterschied & Kaufentscheidung 2026',
     metaDescription:
       'Scrambler oder Tracker? Wir erklären den Unterschied, zeigen die besten Modelle und helfen dir bei der Entscheidung.',
     category: 'guide',
@@ -1968,7 +1968,7 @@ export const CATEGORY_META = {
   },
   guide: {
     label: 'Guide',
-    title: 'Custom Motorcycle Guides & Ratgeber 2025 | MotoDigital',
+    title: 'Custom Motorcycle Guides & Ratgeber 2026 | MotoDigital',
     description:
       'Kaufratgeber, Vergleiche und Leitfäden rund um Custom Motorcycles. Alles was du wissen musst, bevor du kaufst.',
   },
@@ -2109,7 +2109,7 @@ const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
   },
   'scrambler-vs-tracker-vergleich': {
     title: 'Scrambler vs. Tracker: what\'s the difference and which one suits you?',
-    metaTitle: 'Scrambler vs. Tracker — differences & which to buy in 2025',
+    metaTitle: 'Scrambler vs. Tracker — differences & which to buy in 2026',
     metaDescription:
       'Scrambler or Tracker? Geometry, tyres, use cases and which bike matches which rider. With concrete examples from the used market.',
     excerpt:
@@ -2160,7 +2160,7 @@ const CATEGORY_META_EN = {
   },
   guide: {
     label: 'Guide',
-    title: 'Custom motorcycle guides & buying advice 2025 | MotoDigital',
+    title: 'Custom motorcycle guides & buying advice 2026 | MotoDigital',
     description:
       "Buying guides, comparisons and how-tos around custom motorcycles. Everything you need to know before you buy.",
   },

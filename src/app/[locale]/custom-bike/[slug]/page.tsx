@@ -18,6 +18,7 @@ import BikePlaceholder from '@/components/bike/BikePlaceholder'
 import BikeCTA from './BikeCTA'
 import BikeTracker from './BikeTracker'
 import ExpandableContent from './ExpandableContent'
+import { fitTitle } from '@/lib/seo'
 
 const STYLE_LABELS: Record<string, string> = {
   naked: 'Naked', cafe_racer: 'Cafe Racer', bobber: 'Bobber',
@@ -64,7 +65,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return {}
   const canonicalSlug = (data.slug as string | null) ?? slug
   const styleLabel = STYLE_LABELS[data.style as string] ?? (data.style as string)?.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
-  const title = `${data.title} — ${styleLabel} Custom Build · MotoDigital`
+  // Drop the style when the bike title already names it ("… Café Racer — …")
+  const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  const build = fold(data.title).includes(fold(styleLabel)) ? 'Custom Build' : `${styleLabel} Custom Build`
+  const title = fitTitle([
+    `${data.title} — ${build} · MotoDigital`,
+    `${data.title} — ${build}`,
+    `${data.title} · MotoDigital`,
+    data.title,
+  ])
 
   // Every bike used to inherit the generic site description — build a unique one
   const base = [(data.make as string | null)?.replace(/ Motorrad$/, ''), data.model].filter(Boolean).join(' ')

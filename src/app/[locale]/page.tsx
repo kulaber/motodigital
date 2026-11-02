@@ -6,12 +6,12 @@ const HOMEPAGE_META: Record<string, { title: string; description: string }> = {
   de: {
     title: 'Custom Bikes kaufen & Werkstätten finden — MotoDigital',
     description:
-      'Der Marktplatz für handgefertigte Custom Motorräder. Kaufe und verkaufe Cafe Racer, Bobber, Scrambler und Chopper. Finde verifizierte Custom-Werkstätten in Deutschland, Österreich und der Schweiz.',
+      'Der Marktplatz für handgefertigte Custom Motorräder: Cafe Racer, Bobber, Scrambler und Chopper kaufen und verkaufen — und die passende Werkstatt finden.',
   },
   en: {
     title: 'Custom Motorcycles for Sale & Workshops — MotoDigital',
     description:
-      'The marketplace for handcrafted custom motorcycles. Buy and sell cafe racers, bobbers, scramblers and choppers. Find verified custom workshops across Europe.',
+      'The marketplace for handcrafted custom motorcycles: buy and sell cafe racers, bobbers, scramblers and choppers — and find the right custom workshop.',
   },
 }
 
@@ -23,6 +23,8 @@ export async function generateMetadata({
   const { locale } = await params
   const canonicalUrl = locale === 'de' ? 'https://motodigital.io/' : `https://motodigital.io/${locale}`
   const meta = HOMEPAGE_META[locale] ?? HOMEPAGE_META.de
+  // A custom build by Classicbike Raisch (from their MotoDigital profile), not the logo card
+  const image = { url: '/og/home.jpg', width: 1200, height: 630, alt: meta.title }
   return {
     title: meta.title,
     description: meta.description,
@@ -38,12 +40,16 @@ export async function generateMetadata({
       title: meta.title,
       description: meta.description,
       url: canonicalUrl,
+      siteName: 'MotoDigital',
+      locale: locale === 'de' ? 'de_DE' : 'en_US',
       type: 'website',
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
       title: meta.title,
       description: meta.description,
+      images: [image],
     },
   }
 }

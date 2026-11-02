@@ -7,7 +7,7 @@ import { makeMatchesBrand } from '@/lib/utils/baseBikeMatch'
 import { createPublicClient } from '@/lib/supabase/public'
 
 export const metadata: Metadata = {
-  title: 'Custom Motorrad Marken — Honda, BMW, Triumph & mehr — MotoDigital',
+  title: 'Custom Motorrad Marken: Honda, BMW, Triumph & mehr',
   description: 'Entdecke Custom Builds nach Marke — Honda CB750, BMW R nineT, Triumph Bonneville, Harley-Davidson Sportster und viele mehr. Jetzt auf MotoDigital.',
   alternates: { canonical: '/marken' },
 }

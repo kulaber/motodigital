@@ -30,7 +30,8 @@ export default function ExploreLoading() {
           <main className="flex-1 min-w-0 pt-6 pb-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-[560px] mx-auto lg:mx-0">
               {/* Mobile heading */}
-              <h1 className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</h1>
+              {/* Not an h1: this placeholder stays in the streamed HTML next to the page's real h1 */}
+              <p className="lg:hidden text-xl font-bold text-[#222222] text-center mb-4">Explore</p>
 
               {/* Filter pills */}
               <div className="flex items-center gap-2 mb-6 justify-center lg:justify-start">

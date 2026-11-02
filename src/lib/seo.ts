@@ -12,6 +12,14 @@ export const INDEXABLE_ROBOTS: Metadata['robots'] = {
   'max-video-preview': -1,
 }
 
+/**
+ * First candidate that fits the ~60 characters Google shows of a title, else
+ * the shortest. Pass candidates from most to least descriptive.
+ */
+export function fitTitle(candidates: string[], max = 60): string {
+  return candidates.find((c) => c.length <= max) ?? candidates.reduce((a, b) => (b.length < a.length ? b : a))
+}
+
 /** "2026-11-02" → "2026-11-02T08:00:00+01:00" (Europe/Berlin, DST-aware). Full timestamps pass through. */
 export function toBerlinIso(date: string): string {
   if (date.includes('T')) return date

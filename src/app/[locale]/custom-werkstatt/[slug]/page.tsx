@@ -26,6 +26,7 @@ import { generateBikeSlug } from '@/lib/utils/bikeSlug'
 import { isPremium } from '@/lib/werkstatt-tier'
 import BuilderPageClient from '../BuilderPageClient'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
+import { fitTitle } from '@/lib/seo'
 
 // Rendered on first request, then served from the ISR cache
 export function generateStaticParams() {
@@ -348,9 +349,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // People search "<workshop> <city>" — put city and styles into the title
   const city = builder.city.replace(/^\d{4,5}\s+/, '')
   const cityPart = city && !builder.name.toLowerCase().includes(city.toLowerCase()) ? ` in ${city}` : ''
-  const styles = (builder.specialty ?? '')
-    .split('·').map(s => s.trim().replace('Cafe-Racer', 'Café Racer')).filter(Boolean).slice(0, 2).join(' & ')
-  const title = `${builder.name}${cityPart} — ${styles ? `${styles} Custom Werkstatt` : 'Custom Motorrad Werkstatt'}`
+  const styleList = (builder.specialty ?? '')
+    .split('·').map(s => s.trim().replace('Cafe-Racer', 'Café Racer')).filter(Boolean)
+  // Name and city come first; styles go when the title would get cut off
+  const title = fitTitle([
+    ...(styleList.length > 1 ? [`${builder.name}${cityPart} — ${styleList.slice(0, 2).join(' & ')} Custom Werkstatt`] : []),
+    ...(styleList.length ? [`${builder.name}${cityPart} — ${styleList[0]} Custom Werkstatt`] : []),
+    `${builder.name}${cityPart} — Custom Motorrad Werkstatt`,
+    `${builder.name}${cityPart} — Custom Werkstatt`,
+    `${builder.name}${cityPart}`,
+  ])
   const rawBio = builder.bio
     || (builder.bioLong ? builder.bioLong.slice(0, 130).trimEnd() + (builder.bioLong.length > 130 ? '…' : '') : null)
   const topTags = builder.tags.slice(0, 3).join(', ')
@@ -696,9 +704,10 @@ export default async function BuilderProfilePage({ params }: Props) {
             </div>
             <div className="flex-1 min-w-0 pb-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
+                {/* The mobile hero carries the page's single h1 (Google indexes the mobile view) */}
+                <p className="text-xl sm:text-3xl font-bold text-white tracking-tight">
                   {builder.name}
-                </h1>
+                </p>
                 {builder.verified && (
                   <span className="inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
                     <BadgeCheck size={10} /> Verifiziert

@@ -14,12 +14,17 @@ export const metadata: Metadata = {
     description:
       'Motorrad Umbau in Deutschland: Stile, Kosten, Basis-Bikes, TÜV-Eintragung und die besten Custom-Werkstätten.',
     url: 'https://motodigital.io/motorrad-umbau',
+    siteName: 'MotoDigital',
+    locale: 'de_DE',
     type: 'website',
+    // BMW R nineT build by Classicbike Raisch, from their MotoDigital profile
+    images: [{ url: '/og/motorrad-umbau.jpg', width: 1200, height: 630, alt: 'Motorrad Umbau: BMW R nineT als Custom Bike' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Motorrad Umbau — Alles was du wissen musst | MotoDigital',
     description: 'Stile, Kosten, TÜV und die besten Custom-Werkstätten in Deutschland.',
+    images: ['/og/motorrad-umbau.jpg'],
   },
 }
 
