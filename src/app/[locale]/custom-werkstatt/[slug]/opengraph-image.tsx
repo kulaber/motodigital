@@ -67,8 +67,11 @@ export default async function WerkstattOgImage({ params }: Params) {
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            // Satori drops gradients in the `background` shorthand
+            // Satori ignores `inset` and gradients in the `background` shorthand
+            top: 0,
+            left: 0,
+            width: size.width,
+            height: size.height,
             backgroundImage:
               'linear-gradient(180deg, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.88) 100%)',
           }}

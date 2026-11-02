@@ -49,8 +49,11 @@ export default async function StyleHubOgImage({ params }: Params) {
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            // Satori drops gradients in the `background` shorthand
+            // Satori ignores `inset` and gradients in the `background` shorthand
+            top: 0,
+            left: 0,
+            width: size.width,
+            height: size.height,
             backgroundImage:
               'radial-gradient(ellipse at 75% 30%, rgba(42,171,171,0.20) 0%, transparent 55%)',
           }}
@@ -111,7 +114,8 @@ export default async function StyleHubOgImage({ params }: Params) {
             marginBottom: 24,
           }}
         >
-          Custom · {name}
+          {/* One string: Satori rejects a non-flex div with several child nodes */}
+          {`Custom · ${name}`}
         </div>
 
         {/* Headline */}
@@ -132,7 +136,7 @@ export default async function StyleHubOgImage({ params }: Params) {
             marginBottom: 24,
           }}
         >
-          {name} Custom Bikes
+          {`${name} Custom Bikes`}
         </div>
 
         {/* Lead */}
