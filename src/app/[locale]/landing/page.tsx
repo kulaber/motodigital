@@ -222,9 +222,6 @@ export default async function LandingPage() {
 
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-5 sm:p-8 lg:p-12 text-center">
               <div className="max-w-2xl">
-                <span className="inline-block bg-white/12 text-white/80 border border-white/20 text-xs font-medium px-3 py-1 rounded-full mb-5 sm:mb-4">
-                  {t('tagline')}
-                </span>
                 <h1
                   className="font-bold text-white leading-[1.1] mb-5 sm:mb-4"
                   style={{ fontSize: 'clamp(1.8rem, 4vw, 3.2rem)' }}
