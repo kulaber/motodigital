@@ -214,6 +214,7 @@ export default async function MotorradUmbauPage({ params }: { params: Promise<{ 
         <h2 className="text-2xl font-bold text-[#222222] tracking-tight mb-6">Weiterführende Guides</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
+            { href: '/magazine/cafe-racer-umbau',            label: 'Cafe Racer Umbau — Anleitung in 8 Schritten' },
             { href: '/magazine/cafe-racer-kaufen-guide',     label: 'Café Racer kaufen — Der vollständige Leitfaden' },
             { href: '/magazine/bobber-kaufen-guide',          label: 'Bobber kaufen — Kaufratgeber für echte Low-Rider' },
             { href: '/magazine/scrambler-kaufen-guide',       label: 'Scrambler kaufen — Der vollständige Kaufratgeber' },

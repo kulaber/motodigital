@@ -30,6 +30,253 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'cafe-racer-umbau',
+    title: 'Cafe Racer Umbau: Anleitung in 8 Schritten — mit Kosten und TÜV-Checkliste',
+    metaTitle: 'Cafe Racer Umbau — Anleitung, Kosten & TÜV in 8 Schritten',
+    metaDescription:
+      'Cafe Racer Umbau Schritt für Schritt: Basis, Heck, Stummellenker, Elektrik, Auspuff und TÜV-Eintragung — mit Kosten, Checkliste und typischen Fehlern.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom Serienmotorrad zum Cafe Racer: Wie ein Umbau in acht Schritten abläuft, was er kostet, welche Teile eingetragen werden müssen — und wann sich Kit oder Werkstatt lohnen.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/31c44afa-eafc-418e-b91e-1359bccf69d8/1775409431150-q3wpw8dl82.jpg',
+    publishedAt: '2026-11-02',
+    readTime: '10 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Cafe Racer', 'Umbau', 'Motorrad Umbau', 'DIY', 'TÜV', 'Eintragung', 'Stummellenker', 'Höcker'],
+    relatedSlugs: ['cafe-racer-selber-bauen-basis-bikes', 'tuev-eintragung-custom-bike', 'motorrad-umbau-kosten'],
+    relatedBuilderSlug: 'kaffeemaschine',
+    relatedBuildSlug: 'thruxton-rs-darth-vader',
+    faq: [
+      { q: 'Was kostet ein Cafe Racer Umbau?', a: 'Ein Teilumbau am eigenen Motorrad mit Lenker, Sitzbank, Beleuchtung und Auspuff kostet etwa 1.500 bis 4.000 Euro. Ein kompletter Selbstbau inklusive Basis-Bike liegt realistisch bei 5.000 bis 12.000 Euro. Lässt du komplett von einer Werkstatt bauen, sind meist 15.000 bis 30.000 Euro fällig. Für die Eintragung inklusive Gutachten solltest du zusätzlich 500 bis 1.500 Euro einplanen.' },
+      { q: 'Muss ein Cafe Racer Umbau beim TÜV eingetragen werden?', a: 'Teile mit EG-Genehmigung oder ABE für dein Modell darfst du ohne Abnahme verbauen, wenn du die Auflagen einhältst. Teile mit Teilegutachten brauchen eine Änderungsabnahme. Rahmenänderungen wie ein gekürztes Heck und Teile ohne Papiere erfordern eine Einzelabnahme nach §21 StVZO. Wird aus dem Zweisitzer ein Einsitzer, muss außerdem die Sitzplatzzahl in den Fahrzeugpapieren geändert werden.' },
+      { q: 'Wie lange dauert ein Cafe Racer Umbau?', a: 'Ein reiner Teileumbau ist an einigen Wochenenden machbar. Für einen kompletten Selbstbau neben dem Job sind 12 bis 24 Monate realistisch, inklusive Teilebeschaffung und Abnahme. Werkstätten mit Serienerfahrung schaffen einen Umbau oft in wenigen Wochen, Einzelstücke dauern mehrere Monate.' },
+      { q: 'Lohnt sich ein Cafe Racer Umbau-Kit?', a: 'Für Einsteiger oft ja. Kits mit Heckrahmen, Höcker, Sitzbank und Haltern sind auf ein Modell abgestimmt, sparen Schweißarbeit und bringen im besten Fall ein Teilegutachten mit. Prüfe vor dem Kauf, ob dein Modell und Baujahr im Gutachten aufgeführt sind. Sonst wird die Abnahme deutlich aufwendiger.' },
+      { q: 'Welches Motorrad eignet sich für einen Cafe Racer Umbau?', a: 'Bewährt sind luftgekühlte Klassiker mit Stahlrohrrahmen und guter Teileversorgung: Honda CB750 und CB500, Yamaha SR500 und XS650, BMW R80 und R100 oder Kawasaki Z650. Wer moderne Technik mit ABS und Einspritzung will, startet mit Triumph Bonneville, BMW R nineT oder Royal Enfield Continental GT.' },
+      { q: 'Bekommt ein Cafe Racer ein H-Kennzeichen?', a: 'Das ist möglich, aber nicht garantiert. Das Motorrad muss mindestens 30 Jahre alt sein, und Änderungen müssen zeitgenössisch sein, also in den ersten Jahren nach der Erstzulassung so üblich gewesen sein. Moderne Teile wie LED-Rückleuchten oder Digitalinstrumente sprechen meist dagegen. Die Entscheidung trifft der Prüfer, deshalb solltest du das vor dem Umbau klären.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Stummellenker, Höcker, kurzes Heck — kaum ein Umbau ist so beliebt wie der Cafe Racer. Und kaum einer wird so oft unterschätzt. Wer einfach drauflos flext, steht am Ende mit einem Motorrad da, das gut aussieht, aber nicht durch den TÜV kommt. Dieser Leitfaden zeigt dir, wie ein Cafe Racer Umbau in acht Schritten abläuft: von der Planung über Rahmen, Cockpit und Elektrik bis zur Eintragung. Dazu gibt es realistische Kosten, eine TÜV-Checkliste und die Fehler, die bei Umbauten immer wieder passieren.',
+      },
+      { type: 'h2', text: 'Was macht einen Cafe Racer aus?' },
+      {
+        type: 'p',
+        text: 'Der Stil entstand im London der 1950er-Jahre: Junge Rocker bauten ihre Serienmaschinen für die Sprints zwischen den Cafés um und warfen alles ab, was nicht schnell machte. Daraus ist eine klare Formensprache geworden, an der man einen Cafe Racer bis heute erkennt:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Tiefe, gestreckte Linie: Tank und Sitzbank bilden eine waagerechte Achse',
+          'Stummellenker (Clip-ons) oder ein flacher Lenker für die sportliche Sitzposition',
+          'Einzelsitzbank mit Höcker statt Doppelsitzbank',
+          'Kurzes, aufgeräumtes Heck ohne ausladenden Kotflügel',
+          'Zurückverlegte Fußrasten',
+          'Runder Scheinwerfer, optional mit kleiner Halbschale',
+          'Reduzierte Technik: Was nicht zum Fahren nötig ist, fliegt raus',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Wichtig: Ein Cafe Racer ist kein Optik-Paket. Mit dem tiefen Lenker verlagert sich das Gewicht nach vorn, die Sitzposition wird sportlich und auf langen Strecken anstrengender. Fahrwerk und Ergonomie müssen dazu passen, sonst fährt sich das Ergebnis schlechter als das Original.',
+      },
+      { type: 'h2', text: 'Selbst bauen, Umbau-Kit oder Werkstatt?' },
+      {
+        type: 'p',
+        text: 'Bevor du das erste Teil bestellst, solltest du entscheiden, wie viel du selbst machen willst. Es gibt grob drei Wege:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Selbstbau mit Einzelteilen: maximale Freiheit und maximaler Aufwand. Du brauchst Werkzeug, Platz, Zeit und für Rahmenarbeiten jemanden, der sauber schweißt.',
+          'Umbau-Kit: Heckrahmen, Höcker, Sitzbank und Halter passend für dein Modell. Das spart Schweißarbeit und bringt im besten Fall ein Teilegutachten mit. Für gängige Basen wie BMW-Boxer, Yamaha XS650 oder Triumph Bonneville ist die Auswahl groß.',
+          'Werkstatt: Du lieferst die Idee und eventuell die Basis, die Werkstatt baut inklusive Eintragung. Das ist am teuersten, aber am besten planbar.',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Viele Projekte landen in der Mitte: Die optischen Arbeiten erledigst du selbst, Rahmen, Bremsen und Abnahme übernimmt ein Profi. Diese Aufteilung spart Geld, ohne bei der Sicherheit zu sparen.',
+      },
+      { type: 'h2', text: 'Schritt 1: Planung und das richtige Basis-Bike' },
+      {
+        type: 'p',
+        text: 'Die Basis entscheidet über Budget, Aufwand und Ergebnis. Bewährt haben sich luftgekühlte Motorräder mit Stahlrohrrahmen und guter Teileversorgung: Honda CB750 und CB500, Yamaha SR500 und XS650, BMW R80 und R100, Kawasaki Z650. Wer ABS und Einspritzung will, startet mit einer Triumph Bonneville, einer BMW R nineT oder einer Royal Enfield Continental GT.',
+      },
+      {
+        type: 'p',
+        text: 'Mach vor dem Kauf eine Skizze oder Fotomontage der Seitenansicht. Leg fest, welche Linie Tank und Sitzbank bilden sollen, und kläre früh, ob es ein Einsitzer werden soll, denn das hat Folgen für die Papiere. Plane außerdem 20 bis 30 Prozent Puffer über deiner Kostenschätzung ein. Kaum ein Umbau bleibt im Budget.',
+      },
+      { type: 'cta', text: 'Die 10 besten Basis-Bikes mit Preisen und Schwierigkeitsgrad', href: '/magazine/cafe-racer-selber-bauen-basis-bikes', label: 'Zum Basis-Bike-Guide' },
+      { type: 'h2', text: 'Schritt 2: Zerlegen und Bestandsaufnahme' },
+      {
+        type: 'p',
+        text: 'Bevor du etwas veränderst, baust du zurück: Sitzbank, Seitendeckel, Kotflügel, Beleuchtung, Luftfilterkasten. Fotografiere jeden Schritt und beschrifte Kabel und Schrauben, das spart später Stunden. Jetzt zeigt sich auch der tatsächliche Zustand: Rost im Rahmen, ausgeschlagene Lenkkopflager, poröse Bremsleitungen, ein müder Motor. Eine Kompressionsmessung kostet jetzt wenig. Nach dem Lackieren wird jede Motorüberraschung teuer.',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/31c44afa-eafc-418e-b91e-1359bccf69d8/1775409434637-cdvj590zo.jpg',
+        caption: 'Bestandsaufnahme beim Cafe Racer Umbau: Jedes Teil wird geprüft, bevor neu aufgebaut wird. Werkbank bei KAFFEEMASCHINE in Hamburg.',
+      },
+      {
+        type: 'p',
+        text: 'Faustregel: Technik vor Optik. Ein frisch lackierter Tank auf einem Motor mit schlechter Kompression ist rausgeworfenes Geld.',
+      },
+      { type: 'h2', text: 'Schritt 3: Rahmen und Heck umbauen' },
+      {
+        type: 'p',
+        text: 'Das Heck macht den Cafe Racer. Meist wird der hintere Rahmenteil gekürzt und mit einer Rahmenschleife (Loop) sauber abgeschlossen, damit Sitzbank und Höcker waagerecht aufliegen. Bei Rahmen mit verschraubtem Heck geht das teilweise ohne Schweißen, bei den meisten Klassikern nicht.',
+      },
+      {
+        type: 'p',
+        text: 'Achtung: Eingriffe am Rahmen sind immer abnahmepflichtig. Sprich vorher mit deinem Prüfer, was er sehen will: oft Schweißnähte, Materialangaben und die Aufnahme der Federbeine. Halter für Kennzeichen, Rückleuchte und Blinker solltest du gleich mit einplanen. Wer sie vergisst, improvisiert am Ende mit Bastellösungen.',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/bike-images/df83b336-dbc8-4276-862e-161056fb8083/81f3151b-7da6-4477-8d68-790e78910caa/0.webp',
+        caption: 'Gekürztes Heck, flache Sitzbank, freigelegter Boxer: die BMW SCHIZZO GT1 von WalzWerk Motorcycles.',
+      },
+      { type: 'h2', text: 'Schritt 4: Stummellenker, Fußrasten und Cockpit' },
+      {
+        type: 'p',
+        text: 'Stummellenker werden direkt an die Gabelrohre geklemmt, über oder unter der oberen Gabelbrücke. Je tiefer, desto sportlicher und desto unbequemer. Prüf nach der Montage den vollen Lenkeinschlag: Die Hände dürfen nicht am Tank klemmen, und Gaszug, Kupplungszug und Bremsleitung müssen in jeder Stellung frei laufen. Oft sind kürzere Züge und Leitungen nötig.',
+      },
+      {
+        type: 'p',
+        text: 'Zum tieferen Lenker gehören zurückverlegte Fußrasten. Fußrastenanlagen mit Teilegutachten gibt es für viele Modelle, selbst gebaute Halter brauchen eine Einzelabnahme. Im Cockpit reichen meist ein kleiner Tacho und wenige Kontrollleuchten. Tacho, Blinker- und Fernlichtkontrolle müssen aber bleiben.',
+      },
+      { type: 'h2', text: 'Schritt 5: Tank, Sitzbank und Elektrik' },
+      {
+        type: 'p',
+        text: 'Der Tank bestimmt die Silhouette. Viele Builder behalten den Originaltank und ändern nur Kniekissen und Befestigung, andere setzen auf Alutanks oder Tanks anderer Modelle. Passend dazu entsteht die Sitzbank: Höcker aus GFK oder Aluminium, Polster vom Sattler. Ein schmaler Einsitzer ist stilecht, muss aber in die Papiere (siehe Checkliste unten).',
+      },
+      {
+        type: 'p',
+        text: 'Die Elektrik ist der unterschätzte Teil jedes Umbaus. Wo vorher Seitendeckel und Batteriekasten saßen, ist jetzt Luft, und Batterie, Relais und Sicherungen brauchen einen neuen Platz. Häufig wird der Kabelbaum komplett neu aufgebaut, mit kompakter Lithium-Batterie und zentralem Steuermodul. Das ist sauber und zuverlässig, verlangt aber Sorgfalt. Viele Pannen nach einem Umbau haben ihre Ursache in der Elektrik.',
+      },
+      { type: 'h2', text: 'Schritt 6: Fahrwerk, Bremsen und Reifen' },
+      {
+        type: 'p',
+        text: 'Durch die neue Sitzposition liegt mehr Gewicht auf dem Vorderrad. Überhol die Gabel mit frischem Öl und gegebenenfalls progressiven Federn und tausch müde Federbeine. Bremsen bekommen neue Beläge und Leitungen, Stahlflexleitungen mit ABE sind die übliche Wahl. Beim Cafe Racer passen sportliche Straßenreifen. Weichen Reifengrößen von den Papieren ab, brauchst du eine Freigabe oder Eintragung.',
+      },
+      { type: 'h2', text: 'Schritt 7: Auspuff, Luftfilter und Abstimmung' },
+      {
+        type: 'p',
+        text: 'Ein kurzer Auspuff und Sportluftfilter statt Luftfilterkasten gehören zum Look. Beides verändert das Gemisch: Die Vergaser müssen neu abgestimmt werden, sonst läuft der Motor zu mager und wird heiß, im schlimmsten Fall mit Motorschaden. Offene Ansaugtrichter ohne Filter sehen gut aus, sind aber laut und lassen Schmutz in den Motor. Für die Straße sind Filter mit Gutachten die sichere Wahl.',
+      },
+      {
+        type: 'p',
+        text: 'Beim Auspuff gilt: nur mit E-Prüfzeichen, ABE oder Teilegutachten, und der dB-Killer bleibt drin. Ohne gültige Papiere erlischt in der Regel die Betriebserlaubnis.',
+      },
+      { type: 'cta', text: 'Legaler Auspuff: Prüfzeichen, Papiere und typische Fallen', href: '/magazine/legaler-motorrad-auspuff-ece-zulassung', label: 'Zum Auspuff-Ratgeber' },
+      { type: 'h2', text: 'Schritt 8: Lack, Finish und Abnahme' },
+      {
+        type: 'p',
+        text: 'Lackiert wird erst, wenn alles passt und das Motorrad probegefahren ist. Wer früher lackiert, lackiert oft zweimal. Pulverbeschichtung für Rahmen und Kleinteile ist robust und bezahlbar. Danach geht es zur Abnahme: alle Gutachten, ABEs und Belege in eine Mappe, das Motorrad sauber und vollständig. Teile mit Teilegutachten werden bei der Änderungsabnahme geprüft, alles ohne Papiere bei einer Einzelabnahme nach §21 StVZO. Ändern sich Angaben in den Fahrzeugpapieren, etwa die Zahl der Sitzplätze, lässt du sie anschließend bei der Zulassungsstelle berichtigen.',
+      },
+      {
+        type: 'quote',
+        text: 'Ein Cafe Racer entsteht nicht durch Weglassen allein. Er entsteht, wenn alles, was bleibt, einen Grund hat.',
+      },
+      { type: 'h2', text: 'TÜV-Checkliste: Was beim Cafe Racer eingetragen werden muss' },
+      {
+        type: 'p',
+        text: 'Nicht jedes Teil muss eingetragen werden. Teile mit EG-Genehmigung oder ABE für dein Modell darfst du ohne Abnahme verbauen, solange du die Auflagen einhältst und die ABE mitführst. Teile mit Teilegutachten brauchen eine Änderungsabnahme, ohne Papiere hilft nur die Einzelabnahme. Diese Punkte fallen beim Cafe Racer typischerweise an:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Rahmen und Heck: gekürzt oder geschweißt, also immer abnahmepflichtig',
+          'Sitzbank: Beim Umbau auf Einsitzer wird die Sitzplatzzahl in den Papieren geändert, Soziusrasten entfallen',
+          'Stummellenker und Fußrastenanlage: mit Teilegutachten eintragen, Freigängigkeit und Leitungen werden geprüft',
+          'Blinker: mit E-Prüfzeichen und Mindestabstand, bei EG-zugelassenen Motorrädern in der Regel 240 mm vorn und 180 mm hinten (Innenkante zu Innenkante)',
+          'Rückleuchte, Kennzeichenbeleuchtung und roter Rückstrahler: alle mit Prüfzeichen, der Rückstrahler wird beim kurzen Heck gern vergessen',
+          'Spiegel: nur mit Prüfzeichen, auch Lenkerendenspiegel',
+          'Auspuff und Luftfilter: Prüfzeichen, ABE oder Teilegutachten, der dB-Killer bleibt drin',
+          'Reifen: abweichende Größen nur mit Freigabe oder Eintragung',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Unser Tipp: Geh mit deinen Plänen zum Prüfer, bevor du anfängst. Ein Gespräch von zehn Minuten erspart oft eine zweite Vorführung.',
+      },
+      { type: 'cta', text: 'Alles zur Eintragung von Umbauten', href: '/magazine/tuev-eintragung-custom-bike', label: 'Zum TÜV-Ratgeber' },
+      { type: 'h2', text: 'Cafe Racer mit H-Kennzeichen?' },
+      {
+        type: 'p',
+        text: 'Viele beliebte Basis-Bikes sind über 30 Jahre alt, da liegt das H-Kennzeichen nahe. Ein Umbau macht es allerdings schwieriger, denn Änderungen müssen zeitgenössisch sein. Vereinfacht heißt das: Sie müssen in den ersten Jahren nach der Erstzulassung so üblich gewesen sein. Stummellenker und Höcker an einer Maschine aus den 70ern lassen sich oft begründen, LED-Rückleuchten, moderne Upside-down-Gabeln oder Digitalinstrumente meist nicht. Die Auslegung liegt beim Prüfer. Ist dir das H-Kennzeichen wichtig, klär es vor dem Umbau.',
+      },
+      { type: 'h2', text: 'Was kostet ein Cafe Racer Umbau?' },
+      {
+        type: 'p',
+        text: 'Die Spanne ist riesig. Sie hängt davon ab, wie viel du selbst machst und in welchem Zustand die Basis ist. Als Richtwerte für Deutschland:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Teilumbau am eigenen Motorrad (Lenker, Sitzbank, Beleuchtung, Auspuff): ca. 1.500 bis 4.000 €',
+          'Kompletter Selbstbau inklusive Basis-Bike: realistisch 5.000 bis 12.000 €',
+          'Komplettumbau durch eine Werkstatt: meist 15.000 bis 30.000 €, Einzelstücke auch deutlich mehr',
+          'Eintragung inklusive Gutachten und Vorbereitung: 500 bis 1.500 €',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Die größten Kostentreiber sind selten die sichtbaren Teile, sondern Motorüberholung, Elektrik und Lack. Eine ausführliche Kalkulation mit Einzelpreisen für jeden Arbeitsschritt findest du in unserem Kosten-Guide.',
+      },
+      { type: 'cta', text: 'Motorrad Umbau Kosten im Detail', href: '/magazine/motorrad-umbau-kosten', label: 'Zum Kosten-Guide' },
+      { type: 'h2', text: 'Die 5 häufigsten Fehler beim Cafe Racer Umbau' },
+      {
+        type: 'list',
+        items: [
+          'Erst Optik, dann Technik: Lack und Anbauteile kaufen, bevor Motor, Bremsen und Rahmen geprüft sind.',
+          'Heck gekürzt, Halter vergessen: Kennzeichen, Rückleuchte und Blinker werden zur Bastellösung.',
+          'Luftfilter getauscht, Vergaser nicht abgestimmt: Der Motor läuft mager und wird heiß.',
+          'Lenker montiert, Lenkeinschlag nicht geprüft: Züge spannen, Leitungen scheuern.',
+          'Ohne Prüfer geplant: Am Ende fehlt ein Gutachten, und Teile müssen wieder runter.',
+        ],
+      },
+      { type: 'h2', text: 'Cafe Racer umbauen lassen: Werkstätten mit Erfahrung' },
+      {
+        type: 'p',
+        text: 'Wenn dir Zeit, Werkzeug oder die Lust auf Papierkram fehlen, bau mit einem Profi. Diese Werkstätten haben sich unter anderem auf Cafe Racer spezialisiert:',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/31c44afa-eafc-418e-b91e-1359bccf69d8/1775409435366-0kz7ho5ioc7p.jpg',
+        caption: 'Moto-Guzzi-Cafe-Racer in der Werkstatt von KAFFEEMASCHINE in Hamburg.',
+      },
+      {
+        type: 'p',
+        text: 'KAFFEEMASCHINE (Hamburg) baut Cafe Racer auf Basis von Moto Guzzi, mit klassischer Linie und viel Liebe zum Detail. Auch das Titelbild dieses Artikels zeigt einen ihrer Umbauten.',
+      },
+      { type: 'cta', text: 'KAFFEEMASCHINE auf MotoDigital', href: '/custom-werkstatt/kaffeemaschine', label: 'Profil ansehen' },
+      {
+        type: 'p',
+        text: 'hombrese bikes (Bergisch Gladbach) ist Ideenschmiede und Werkstatt in einem. Hier entstehen Cafe Racer, Scrambler und Tracker auf Basis von Serienmotorrädern.',
+      },
+      { type: 'cta', text: 'hombrese bikes auf MotoDigital', href: '/custom-werkstatt/hombrese-bikes', label: 'Profil ansehen' },
+      {
+        type: 'p',
+        text: 'KASPEED Custom Motorcycles (Glauchau) ist ein Familienbetrieb für bezahlbare Klassiker-Umbauten: Cafe Racer, Brat, Scrambler und Tracker auf japanischer und europäischer Basis.',
+      },
+      { type: 'cta', text: 'KASPEED auf MotoDigital', href: '/custom-werkstatt/kaspeed', label: 'Profil ansehen' },
+      {
+        type: 'p',
+        text: 'Super-Bike-Box (Kalbach in der Rhön) schraubt seit 1984 und kümmert sich neben Customizing und Tuning auch um die §21-Eintragung vor Ort. Das ist praktisch, wenn der Papierkram der größte Brocken ist.',
+      },
+      { type: 'cta', text: 'Super-Bike-Box auf MotoDigital', href: '/custom-werkstatt/super-bike-box', label: 'Profil ansehen' },
+      {
+        type: 'cta',
+        text: 'Fertige Cafe Racer von Werkstätten und Privatbuildern ansehen',
+        href: '/bikes/cafe-racer',
+        label: 'Cafe Racer entdecken',
+      },
+    ],
+  },
+
+  {
     slug: 'bmw-cafe-racer-umbau-werkstaetten',
     title: 'BMW Café Racer Umbau: 10 Werkstätten in Deutschland, die es wirklich können',
     metaTitle: 'BMW Café Racer Umbau — 10 Werkstätten in Deutschland 2026',
@@ -666,7 +913,7 @@ export const ARTICLES: Article[] = [
     readTime: '14 min',
     author: 'MotoDigital Redaktion',
     tags: ['Cafe Racer', 'DIY', 'Umbau', 'Basis-Bike', 'Honda', 'Yamaha', 'BMW'],
-    relatedSlugs: ['cafe-racer-kaufen-guide', 'warum-heisst-es-cafe-racer', 'tuev-eintragung-custom-bike'],
+    relatedSlugs: ['cafe-racer-umbau', 'cafe-racer-kaufen-guide', 'warum-heisst-es-cafe-racer', 'tuev-eintragung-custom-bike'],
     faq: [
       { q: 'Was ist die beste Basis für einen Cafe Racer?', a: 'Die Klassiker sind Honda CB750, Yamaha SR500, BMW R80/R100 und Kawasaki Z650. Alle bieten luftgekühlte Motoren, einfache Wartung und gute Teileverfügbarkeit. Die richtige Basis hängt von Budget, Erfahrung und gewünschtem Charakter ab.' },
       { q: 'Wie lange dauert ein Cafe-Racer-Umbau?', a: 'Ein professioneller Umbau umfasst 200 bis 600 Arbeitsstunden. Selbst mit guter Werkstatt-Infrastruktur solltest du für einen kompletten Selbstbau 12-24 Monate einplanen, inklusive Beschaffung und TÜV-Abnahme.' },
@@ -1743,6 +1990,15 @@ type ArticleOverlay = Partial<
 >
 
 const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'cafe-racer-umbau': {
+    title: 'Café Racer conversion: an 8-step guide with costs and a TÜV checklist',
+    metaTitle: 'Café Racer conversion — guide, costs & TÜV in 8 steps',
+    metaDescription:
+      'Café Racer conversion step by step: donor bike, rear frame, clip-ons, wiring, exhaust and TÜV registration — with costs, a checklist and common mistakes.',
+    excerpt:
+      'From stock motorcycle to Café Racer: how a conversion works in eight steps, what it costs, which parts need registering — and when a kit or a workshop makes sense.',
+    categoryLabel: 'Guide',
+  },
   'legaler-motorrad-auspuff-ece-zulassung': {
     title: 'Street-legal motorcycle exhaust: E-mark, EC approval and ECE explained',
     metaTitle: 'Street-legal motorcycle exhaust — E-mark, ECE & EC approval',
