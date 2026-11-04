@@ -6,6 +6,9 @@
 // Sources, checked 2026-11-02: glemseck101.de (Die Veranstaltung, Anreise,
 // 1/8 Meile), custombike-show.de (Start, Tickets, Location),
 // motorradundreisen.de (Custombike-Show 2026).
+// Checked 2026-11-04: intermot.de (Termin, Tickets, Anreise, Eventcluster),
+// 1000ps.de (INTERMOT 2027 Aussteller, 27.10.2026; Absage 2026, 12.02.2026).
+// Ticket prices were not published yet — fill them in once the shop opens.
 
 export type EventContent = {
   /** Name with article for running text, e.g. "die Custombike-Show" */
@@ -173,6 +176,94 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/custom-werkstatt', label: 'Custom Werkstätten finden' },
       { href: '/magazine/was-kostet-ein-custom-bike', label: 'Was kostet ein Custom Bike?' },
       { href: '/bikes/bobber', label: 'Bobber Custom Bikes entdecken' },
+    ],
+  },
+
+  intermot: {
+    nameInText: 'die INTERMOT',
+    sections: [
+      {
+        heading: 'Was ist die INTERMOT?',
+        paragraphs: [
+          'Die INTERMOT in Köln ist die große deutsche Motorradmesse. Veranstalter ist die Koelnmesse, ideeller Träger der Industrie-Verband Motorrad Deutschland (IVM). Hersteller zeigen hier ihre Neuheiten für die Saison, dazu kommen Bekleidung, Helme, Reifen, Zubehör und Technik.',
+          '2026 gab es keine INTERMOT. Im Februar 2026 beschloss der IVM, die Messe vom Herbst auf den Saisonstart zu verlegen. Die erste Ausgabe im neuen Rhythmus läuft vom 19. bis 21. Februar 2027, mit drei Messetagen und vier statt zwei Hallen. Mitte Oktober 2026 lag die angemeldete Ausstellungsfläche laut Veranstalter rund 20 Prozent über dem Gesamtergebnis von 2025.',
+        ],
+      },
+      {
+        heading: 'Welche Marken sind dabei?',
+        paragraphs: [
+          'Mehr als 50 Marken haben ihre Teilnahme angekündigt. Bei den Motorradherstellern sind das unter anderem:',
+        ],
+        list: [
+          'BMW Motorrad, Ducati, Honda, Kawasaki, KTM, Husqvarna und Yamaha',
+          'Royal Enfield, Brixton, BSA, Horex und Moto Morini',
+          'Benda, CFMOTO, Hero, Kove, QJMotor, Voge und Segway Powersports',
+          'Zero Motorcycles als Elektro-Hersteller',
+        ],
+      },
+      {
+        heading: 'Probefahrten und Programm',
+        paragraphs: [
+          'Das Highlight für Besucher ist der Indoor-Testparcours in Halle 11.3: rund 500 Meter Strecke auf lackiertem Quarzsand, mehr als 1.000 Probefahrten pro Messetag. Helm, Jacke und Handschuhe werden gestellt. Die Aktionsflächen sind gegenüber 2025 doppelt so groß. Auf dem PLAYGROUND, einer 20 mal 45 Meter großen Fläche, zeigen Hersteller Aktionen und Shows.',
+          'Dazu kommen Themenbereiche:',
+        ],
+        list: [
+          'Adventure Travel: Reiseenduros, Reiseberichte und eine kleine Bühne',
+          'Innovation Walk: neue Antriebe und Sicherheitstechnik, etwa die Honda V3R 900 mit elektrischem Kompressor',
+          '100 Jahre Nürburgring-Nordschleife: historische Rennmaschinen aus den 1920er- bis 1990er-Jahren, dazu Motorradmuseen aus ganz Deutschland',
+          'Rennsport-Area mit Boxengasse, Superbikes und Motorrädern der Rallye Dakar',
+          'Urban Mobility rund um Zweiräder in der Stadt',
+          '#motorradazubi: Wettbewerb für angehende Zweiradmechatroniker und Berufsberatung',
+          'Creator-Meet-and-Greet mit bekannten Motorrad-Creatorn und die INTERMOT Stage für Talks und Musik',
+        ],
+      },
+      {
+        heading: 'Custom Bikes auf der INTERMOT',
+        paragraphs: [
+          'Einen eigenen Custom-Bereich hat die INTERMOT für 2027 bislang nicht angekündigt. Interessant für Fans von Classics und Cafe Racern sind die Retro-Marken unter den Ausstellern wie Royal Enfield, Brixton und BSA. Viele Neuheiten der EICMA in Mailand dürften in Köln ihren ersten großen Auftritt in Deutschland haben. Wer vor allem Umbauten und Builder sucht, ist auf der Custombike-Show in Bad Salzuflen Ende November richtig.',
+        ],
+      },
+      {
+        heading: 'Anreise',
+        paragraphs: [
+          'Die Messe findet auf dem Gelände der Koelnmesse statt, Messeplatz 1, 50679 Köln, direkt gegenüber der Altstadt auf der rechten Rheinseite. Am bequemsten kommst du mit der Bahn: Der Bahnhof Köln Messe/Deutz liegt am Eingang Süd und wird von ICE-Zügen und den S-Bahn-Linien S6, S11, S12 und S19 angefahren. Die Stadtbahnlinien 1 und 9 halten ebenfalls dort, die Linien 3 und 4 an der Haltestelle Koelnmesse für die Eingänge Ost, West und Nord.',
+        ],
+      },
+    ],
+    facts: {
+      edition: '2027-02-19',
+      items: [
+        { label: 'Ort', value: 'Koelnmesse, Messeplatz 1, 50679 Köln' },
+        { label: 'Öffnungszeiten', value: 'Fr–So 9–18 Uhr' },
+        { label: 'Tickets', value: 'Preise noch nicht veröffentlicht' },
+        { label: 'Probefahrten', value: 'Indoor-Parcours in Halle 11.3, Ausrüstung wird gestellt' },
+        { label: 'Bahn', value: 'Köln Messe/Deutz, ICE und S-Bahn' },
+      ],
+    },
+    faq: [
+      {
+        q: 'Warum findet die INTERMOT jetzt im Februar statt?',
+        a: 'Der Industrie-Verband Motorrad (IVM) hat im Februar 2026 beschlossen, die Messe vom Herbst auf den Saisonstart zu verlegen. 2026 fiel die INTERMOT deshalb aus. Die erste Ausgabe im neuen Rhythmus läuft vom 19. bis 21. Februar 2027 und belegt vier statt zwei Hallen.',
+      },
+      {
+        q: 'Kann man auf der INTERMOT Motorräder probefahren?',
+        a: 'Ja. In Halle 11.3 gibt es einen rund 500 Meter langen Indoor-Testparcours mit mehr als 1.000 Probefahrten pro Messetag. Helm, Jacke und Handschuhe werden gestellt.',
+        edition: '2027-02-19',
+      },
+      {
+        q: 'Was kostet der Eintritt zur INTERMOT 2027?',
+        a: 'Die Ticketpreise hat die Koelnmesse noch nicht veröffentlicht (Stand November 2026). Laut Veranstalter haben Kinder und Jugendliche bis einschließlich 16 Jahre im Rahmen der IVM-Aktion #motorradazubi freien Eintritt. Mit dem Ticket fährst du außerdem kostenlos mit Bus und Bahn im Verkehrsverbund Rhein-Sieg zur Messe.',
+        edition: '2027-02-19',
+      },
+      {
+        q: 'Gibt es auf der INTERMOT Custom Bikes?',
+        a: 'Einen eigenen Custom-Bereich hat die INTERMOT 2027 bislang nicht angekündigt. Retro-Marken wie Royal Enfield, Brixton und BSA haben ihre Teilnahme zugesagt. Für Umbauten und Builder ist die Custombike-Show in Bad Salzuflen die bessere Adresse.',
+      },
+    ],
+    links: [
+      { href: '/magazine/eicma-2026-retro-neuheiten', label: 'EICMA 2026: Die Retro-Neuheiten für 2027' },
+      { href: '/magazine/cafe-racer-kaufen-guide', label: 'Cafe Racer kaufen: der Leitfaden' },
+      { href: '/custom-werkstatt/koeln', label: 'Custom Werkstätten in Köln' },
     ],
   },
 }
