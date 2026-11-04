@@ -26,16 +26,19 @@ export type EventContent = {
   faq?: { q: string; a: string; edition?: string }[]
   links?: { href: string; label: string }[]
   /**
-   * Attribution for a freely licensed hero photo (Wikimedia Commons). Only shown
+   * Credit for the hero photo: a Wikimedia Commons photo (with licence) or an
+   * organiser's press photo (credit line as the organiser asks for it). Only shown
    * while `image` matches the event's image, so a new photo never keeps an old credit.
-   * Rendered in every locale: the licences require it.
+   * Rendered in every locale: licences and press terms require it.
    */
-  imageCredit?: { image: string; author: string; license: string; licenseUrl: string; source: string }
+  imageCredit?: { image: string; author: string; source: string; license?: string; licenseUrl?: string }
   /** No single venue (e.g. a worldwide ride): skip geocoding and the map */
   hideMap?: boolean
 }
 
 const STORAGE = 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/event-images/commons'
+// Organisers' press photos (2026-11-04), used for coverage under their press terms with credit
+const PRESS = 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/event-images/press'
 
 export const EVENT_CONTENT: Record<string, EventContent> = {
   'glemseck-101': {
@@ -358,6 +361,11 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/bikes/chopper', label: 'Chopper Custom Bikes entdecken' },
       { href: '/magazine/was-kostet-ein-custom-bike', label: 'Was kostet ein Custom Bike?' },
     ],
+    imageCredit: {
+      image: `${PRESS}/motor-bike-expo.jpg`,
+      author: 'Motor Bike Expo / Pietro Rizzato',
+      source: 'https://www.motorbikeexpo.it/notizie/motor-bike-expo-2027-mbe-award-premium-selection/',
+    },
   },
 
   'motorradwelt-bodensee': {
@@ -425,6 +433,11 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/custom-werkstatt/zuerich', label: 'Custom Werkstätten in Zürich' },
       { href: '/magazine/tuev-eintragung-custom-bike', label: 'TÜV-Eintragung für Custom Bikes' },
     ],
+    imageCredit: {
+      image: `${PRESS}/motorradwelt-bodensee.jpg`,
+      author: 'MOTORRADWELT BODENSEE, Messe Friedrichshafen',
+      source: 'https://www.motorradwelt-bodensee.de/medien-presse/pressebilder',
+    },
   },
 
   imot: {
@@ -485,6 +498,11 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/magazine/bmw-cafe-racer-umbau-werkstaetten', label: 'BMW Cafe Racer: Umbau-Werkstätten' },
       { href: '/marken/bmw', label: 'BMW Custom Bikes' },
     ],
+    imageCredit: {
+      image: `${PRESS}/imot.jpg`,
+      author: 'IMOT',
+      source: 'https://www.imot.de/',
+    },
   },
 
   'hamburger-motorradtage': {
@@ -546,7 +564,7 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
     ],
     imageCredit: {
       image: `${STORAGE}/hamburger-motorradtage.jpg`,
-      author: 'San Andreas',
+      author: 'San Andreas / Wikimedia Commons',
       license: 'CC BY-SA 3.0',
       licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
       source: 'https://commons.wikimedia.org/wiki/File:BMW_R_nineT_-_Hamburger_Motorradtage_2014.jpg',
@@ -620,6 +638,11 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/magazine/motorrad-umbau-werkstatt-finden', label: 'Die richtige Umbau-Werkstatt finden' },
       { href: '/magazine/motorrad-umbau-kosten', label: 'Was kostet ein Motorrad-Umbau?' },
     ],
+    imageCredit: {
+      image: `${PRESS}/motorraeder-dortmund.jpg`,
+      author: 'Messe Dortmund',
+      source: 'https://www.motorraeder-dortmund.de/highlights/',
+    },
   },
 
   'custom-nationals': {
@@ -689,6 +712,11 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/magazine/harley-custom-werkstatt-finden', label: 'Harley Custom Werkstatt finden' },
       { href: '/marken/harley-davidson', label: 'Harley-Davidson Custom Bikes' },
     ],
+    imageCredit: {
+      image: `${PRESS}/custom-nationals.jpg`,
+      author: 'Custom Nationals',
+      source: 'https://custom-nationals.de/',
+    },
   },
 
   'european-bike-week': {
@@ -761,7 +789,7 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
     ],
     imageCredit: {
       image: `${STORAGE}/european-bike-week.jpg`,
-      author: 'Greta Ceresini',
+      author: 'Greta Ceresini / Wikimedia Commons',
       license: 'CC BY 2.0',
       licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
       source: 'https://commons.wikimedia.org/wiki/File:European_Bike_Week_2014,_Faaker_See_(15266519751).jpg',
@@ -838,7 +866,7 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
     ],
     imageCredit: {
       image: `${STORAGE}/veterama-mannheim.jpg`,
-      author: 'Rolf Kickuth',
+      author: 'Rolf Kickuth / Wikimedia Commons',
       license: 'CC BY-SA 4.0',
       licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
       source: 'https://commons.wikimedia.org/wiki/File:MannheimMaimarktVeterama2018-10-12-12-25-21.jpg',
@@ -904,7 +932,7 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
     ],
     imageCredit: {
       image: `${STORAGE}/distinguished-gentlemans-ride.jpg`,
-      author: 'Miomir Magdevski',
+      author: 'Miomir Magdevski / Wikimedia Commons',
       license: 'CC BY-SA 4.0',
       licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
       source: 'https://commons.wikimedia.org/wiki/File:Distinguished_Gentleman%27s_Ride_in_Belgrade_2024_15.jpg',

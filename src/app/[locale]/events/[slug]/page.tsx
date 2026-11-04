@@ -307,12 +307,16 @@ export default async function EventDetailPage({ params }: Props) {
             <p className="absolute bottom-2 right-3 sm:right-5 z-10 text-[10px] text-white/60">
               Foto:{' '}
               <a href={imageCredit.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">
-                {imageCredit.author} / Wikimedia Commons
+                {imageCredit.author}
               </a>
-              ,{' '}
-              <a href={imageCredit.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline hover:text-white">
-                {imageCredit.license}
-              </a>
+              {imageCredit.license && imageCredit.licenseUrl && (
+                <>
+                  ,{' '}
+                  <a href={imageCredit.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline hover:text-white">
+                    {imageCredit.license}
+                  </a>
+                </>
+              )}
             </p>
           )}
         </div>
