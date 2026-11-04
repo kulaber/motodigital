@@ -32,6 +32,154 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'beste-cafe-racer-modelle',
+    title: 'Die besten Cafe Racer 2026: Alle Modelle ab Werk mit Preisen',
+    metaTitle: 'Die besten Cafe Racer 2026 — Modelle ab Werk mit Preisen',
+    metaDescription:
+      'Cafe Racer ab Werk: Continental GT 650, XSR900 GP, Speed Twin Cafe Racer Edition, R 12 S und mehr im Vergleich — mit Preisen, PS und A2-Tipps.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Vom A2-tauglichen Einstieg unter 8.000 Euro bis zum limitierten Sondermodell: alle Cafe Racer, die du 2026 neu kaufen kannst, mit Preisen, Leistung und Gebraucht-Alternativen.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/cafe-racer-continental-gt-650.jpg',
+    coverCredit: {
+      author: 'Cjp24 / Wikimedia Commons',
+      href: 'https://commons.wikimedia.org/wiki/File:Royal_Enfield_Continental_GT_650_(1).jpg',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    },
+    publishedAt: '2026-11-04',
+    readTime: '9 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['Cafe Racer', 'Kaufratgeber', 'Modelle', 'Royal Enfield', 'Triumph', 'Yamaha', 'BMW', 'A2'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-umbau', 'eicma-2026-retro-neuheiten'],
+    relatedBuilderSlug: 'kaffeemaschine',
+    relatedBuildSlug: 'maschine-50',
+    faq: [
+      { q: 'Welcher Cafe Racer ist der beste?', a: 'Den einen besten Cafe Racer gibt es nicht. Für Einsteiger und kleines Budget ist die Royal Enfield Continental GT 650 ab 7.720 Euro die beste Wahl, sie ist auch A2-tauglich. Wer Leistung und ein sportliches Fahrwerk sucht, nimmt die Yamaha XSR900 GP mit 119 PS. Klassischen Cafe-Racer-Stil in Kleinserie bieten die Triumph Speed Twin 1200 Cafe Racer Edition und die Ducati Formula 73.' },
+      { q: 'Was ist der günstigste Cafe Racer ab Werk?', a: 'Die Royal Enfield Continental GT 650. Sie kostet in Deutschland ab 7.720 Euro inklusive Überführung und hat Stummellenker und einen 648-cm³-Zweizylinder mit 47 PS.' },
+      { q: 'Welcher Cafe Racer ist für den A2-Führerschein geeignet?', a: 'Neu in Deutschland vor allem die Royal Enfield Continental GT 650: Ihre 47 PS liegen genau an der A2-Grenze von 35 kW, eine Drossel ist nicht nötig. Die A2-taugliche Triumph Thruxton 400 bietet Triumph in Deutschland nicht an.' },
+      { q: 'Gibt es die Triumph Thruxton noch?', a: 'Die Thruxton 1200 hat Triumph nach dem Modelljahr 2024 eingestellt, die letzte Version war die Thruxton RS Final Edition. Neu gibt es den klassischen Triumph-Cafe-Racer nur noch als limitierte Speed Twin 1200 Cafe Racer Edition. Die neue Thruxton 400 bietet Triumph in Deutschland nicht an.' },
+      { q: 'Cafe Racer kaufen oder umbauen?', a: 'Ab Werk bekommst du Garantie, moderne Technik und keine Fragen beim TÜV, neu ab rund 7.700 Euro. Ein Umbau ist individueller: Ein Teilumbau am eigenen Motorrad kostet etwa 1.500 bis 4.000 Euro, ein kompletter Selbstbau inklusive Basis 5.000 bis 12.000 Euro, ein Build von einer Werkstatt meist 15.000 bis 30.000 Euro.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Stummellenker, langer Tank, sportliche Sitzposition: Den Cafe-Racer-Look musst du dir nicht mehr selbst bauen. Mehrere Hersteller bieten ihn ab Werk an, vom A2-tauglichen Einstieg unter 8.000 Euro bis zum limitierten Sondermodell. Wir zeigen dir alle Cafe Racer, die du 2026 in Deutschland neu kaufen kannst, dazu Retro-Sportler mit Cafe-Racer-Genen, gute Gebraucht-Alternativen und einen Ausblick auf 2027. Alle Preise sind unverbindliche Preisempfehlungen für Deutschland, Stand November 2026.',
+      },
+      { type: 'h2', text: 'Alle Modelle im Preisvergleich' },
+      {
+        type: 'p',
+        text: 'Sortiert nach Preis. Viele Händler geben Rabatte, für den Vergleich sind die Listenpreise trotzdem die beste Grundlage:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Royal Enfield Continental GT 650: ab 7.720 € inkl. Überführung, 47 PS, A2-tauglich',
+          'Moto Guzzi V7 Sport: rund 11.100 € inkl. Nebenkosten, 67 PS',
+          'Yamaha XSR900 GP: 14.149 € inkl. Nebenkosten, 119 PS',
+          'Ducati Formula 73: knapp 16.000 €, 73 PS, limitiert auf 873 Stück',
+          'Triumph Speed Twin 1200 Cafe Racer Edition: 17.995 € zzgl. Nebenkosten, 105 PS, limitiert auf 800 Stück',
+          'BMW R 12 S: 22.000 € zzgl. Nebenkosten, 109 PS',
+        ],
+      },
+      { type: 'h2', text: 'Welcher Cafe Racer passt zu dir?' },
+      {
+        type: 'list',
+        items: [
+          'Einsteiger, A2-Führerschein, kleines Budget: Royal Enfield Continental GT 650',
+          'Sportlich fahren, viel Leistung: Yamaha XSR900 GP',
+          'Sammler und Liebhaber: Triumph Speed Twin 1200 Cafe Racer Edition oder Ducati Formula 73',
+          'Komfort und Boxer-Charakter: BMW R 12 S',
+          'Italienischer Klassiker mit Kardanantrieb: Moto Guzzi V7 Sport',
+          'Ein Einzelstück, das es nur einmal gibt: ein Umbau von einer Custom-Werkstatt',
+        ],
+      },
+      { type: 'h2', text: 'Royal Enfield Continental GT 650: der Preis-Leistungs-Tipp' },
+      {
+        type: 'p',
+        text: 'Die Continental GT 650 ist der klassischste Cafe Racer, den du neu kaufen kannst, und mit Abstand der günstigste. Stummellenker, zwei Rundinstrumente, langer Tank und je nach Lackierung Speichen- oder Alufelgen erinnern an die britischen Cafe Racer der 1960er-Jahre. Der luft- und ölgekühlte 648-cm³-Zweizylinder leistet 47 PS bei 7.150/min und 52 Nm bei 5.250/min. Das ist nichts für die Rennstrecke, aber genug für Landstraßen mit Charakter.',
+      },
+      {
+        type: 'p',
+        text: 'Mit 47 PS liegt sie genau an der A2-Grenze von 35 kW, Fahranfänger brauchen also keine Drossel. In Deutschland kostet sie 7.720 Euro in Rocker Red und 8.120 Euro in Mr Clean mit verchromtem Tank, jeweils inklusive Überführung. Für Umbauten gehört sie zu den beliebtesten Basen überhaupt, das Angebot an Zubehör ist groß.',
+      },
+      { type: 'cta', text: 'Continental GT 535 und 650: Umbauten und Infos zur Basis', href: '/marken/royal-enfield/continental-gt-535-650', label: 'Zur Modellseite' },
+      { type: 'h2', text: 'Yamaha XSR900 GP: der sportlichste Cafe Racer' },
+      {
+        type: 'p',
+        text: 'Die XSR900 GP ist eher Racer als Cafe Racer: Halbschale und Lackierungen zitieren die Grand-Prix-Maschinen der 1980er-Jahre. Darunter steckt moderne Technik: der 890-cm³-Dreizylinder aus der MT-09 mit 119 PS und 93 Nm, ein voll einstellbares KYB-Fahrwerk und Stummellenker. Fahrfertig wiegt sie 200 kg. Mit 119 PS ist sie das stärkste Modell in diesem Vergleich.',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/cafe-racer-yamaha-xsr900-gp.jpg',
+        caption: 'Die Yamaha XSR900 GP in Legend Yellow auf der EICMA 2025. Foto: MotorideSA / Wikimedia Commons, CC BY-SA 4.0',
+      },
+      {
+        type: 'p',
+        text: 'Die unverbindliche Preisempfehlung liegt bei 14.149 Euro inklusive Nebenkosten. Für 2026 gibt es sie in Legend Red, Power Grey und Legend Yellow, einer Hommage an Kenny Roberts.',
+      },
+      { type: 'h2', text: 'Limitierte Sondermodelle: Speed Twin 1200 Cafe Racer Edition und Ducati Formula 73' },
+      {
+        type: 'p',
+        text: 'Seit dem Aus der Thruxton gibt es den klassischen Triumph-Cafe-Racer nur noch als Sondermodell. Die Speed Twin 1200 Cafe Racer Edition basiert auf der Speed Twin 1200 RS und bekommt Stummellenker, gefräste Lenkerendspiegel aus Aluminium, eine braune Sitzbank mit Höckerabdeckung und eine Lackierung in Competition Green und Aluminium Silver mit handgezogenen goldenen Zierlinien. Der 1.200-cm³-Twin leistet unverändert 105 PS und 112 Nm. Triumph baut 800 Stück, 60 davon für Deutschland, zum Preis von 17.995 Euro zuzüglich Nebenkosten. Ausgeliefert wird seit März 2026. Ob noch Exemplare frei sind, erfährst du beim Händler.',
+      },
+      {
+        type: 'p',
+        text: 'Ducati baut mit der Formula 73 einen Cafe Racer auf Basis der Scrambler-Baureihe: 803-cm³-V2 mit 73 PS, Stummellenker mit Lenkerendspiegeln, eine kurze Frontverkleidung mit Rundscheinwerfer und ein Heck in Einsitzer-Optik. Weltweit sind 873 Exemplare geplant, in Deutschland kostet sie knapp 16.000 Euro.',
+      },
+      { type: 'h2', text: 'Retro-Sportler mit Cafe-Racer-Genen: BMW R 12 S und Moto Guzzi V7 Sport' },
+      {
+        type: 'p',
+        text: 'Die BMW R 12 S ist eine Hommage an die R 90 S aus den frühen 1970er-Jahren. Typisch sind die kleine Cockpitverkleidung, die beim Lenken mitschwenkt, die Lackierung in Lavaorange und Details aus gebürstetem Aluminium. Statt Stummellenkern hat sie einen breiten, nach hinten gekröpften Lenker. Das macht sie komfortabler als einen klassischen Cafe Racer. Der 1.170-cm³-Boxer leistet 109 PS und 115 Nm, sie wiegt 220 kg, die Sitzhöhe beträgt 795 mm. Der Listenpreis lag zum Marktstart bei 22.000 Euro zuzüglich Nebenkosten.',
+      },
+      {
+        type: 'p',
+        text: 'Die Moto Guzzi V7 Sport ist die sportlichste V7. Als einzige Version der Baureihe hat sie eine 41-mm-Upside-down-Gabel und eine Doppelscheibenbremse vorn, dazu Kurven-ABS, Traktionskontrolle, Tempomat und Lenkerendspiegel. Der längs eingebaute 853-cm³-V2 leistet 67 PS und 79 Nm und treibt wie bei allen V7 über eine Kardanwelle an. Fahrfertig wiegt sie 220 kg, die Sitzhöhe beträgt 780 mm. Der Preis liegt bei rund 11.100 Euro inklusive Nebenkosten.',
+      },
+      { type: 'h2', text: 'Cafe Racer für den A2-Führerschein' },
+      {
+        type: 'p',
+        text: 'Die Auswahl ist klein. Neu in Deutschland bleibt vor allem die Continental GT 650. Die Triumph Thruxton 400 mit 398-cm³-Einzylinder, 42 PS und Stummellenkern wäre der ideale Einstieg, Triumph bietet sie in Deutschland aber nicht an. Für Österreich und die Schweiz widersprechen sich die Angaben, frag dort direkt beim Händler. Im Frühjahr 2027 kommt außerdem die Triumph Bonneville T40 mit 32 PS. Sie ist kein Cafe Racer, aber eine gute Basis für einen kleinen Umbau.',
+      },
+      { type: 'cta', text: 'Lieber selbst bauen? Die 10 besten Basis-Bikes für einen Cafe Racer', href: '/magazine/cafe-racer-selber-bauen-basis-bikes', label: 'Zum Basis-Bike-Guide' },
+      { type: 'h2', text: 'Nur noch gebraucht: Thruxton, Z900RS Cafe und R nineT Racer' },
+      {
+        type: 'p',
+        text: 'Einige der bekanntesten Cafe Racer ab Werk gibt es nicht mehr neu. Gebraucht sind sie gute Alternativen:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Triumph Thruxton 1200 und Thruxton RS: Triumph hat die Baureihe nach dem Modelljahr 2024 eingestellt, die letzte Version war die Thruxton RS Final Edition. Der 1.200-cm³-Twin der RS leistet rund 105 PS.',
+          'Kawasaki Z900RS Cafe: Für 2026 bietet Kawasaki in Deutschland nur die Z900RS, die Black Ball Edition und die SE an. Die Cafe-Version mit Halbschale gibt es nur noch gebraucht.',
+          'BMW R nineT Racer: Die Racer-Version der R nineT mit Halbschale ist nicht mehr im Programm. Die Retro-Familie von BMW heißt heute R 12.',
+          'Royal Enfield Continental GT 535: der Einzylinder-Vorgänger der GT 650, günstig und beliebt als Umbau-Basis.',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Achte beim Gebrauchtkauf vor allem auf Umbauten ohne Eintragung. Was du vor dem Kauf prüfen solltest, steht in unserem Kaufratgeber.',
+      },
+      { type: 'cta', text: 'Cafe Racer kaufen: Prüfpunkte, Papiere und Preise', href: '/magazine/cafe-racer-kaufen-guide', label: 'Zum Kaufratgeber' },
+      { type: 'h2', text: 'Ab Werk oder Umbau?' },
+      {
+        type: 'p',
+        text: 'Ein Cafe Racer ab Werk bringt Garantie, moderne Technik wie ABS und Traktionskontrolle und keine Fragen beim TÜV. Dafür fährst du ein Serienmotorrad, das viele andere auch haben. Ein Umbau ist individueller und kann günstiger sein: Ein Teilumbau am eigenen Motorrad kostet etwa 1.500 bis 4.000 Euro, ein kompletter Selbstbau inklusive Basis 5.000 bis 12.000 Euro. Ein Build von einer Werkstatt kostet meist 15.000 bis 30.000 Euro. Das ist der Preisbereich der limitierten Sondermodelle, nur dass du ein Einzelstück bekommst.',
+      },
+      { type: 'cta', text: 'Cafe Racer Umbau: Anleitung in 8 Schritten mit Kosten und TÜV-Checkliste', href: '/magazine/cafe-racer-umbau', label: 'Zum Umbau-Guide' },
+      { type: 'h2', text: 'Ausblick 2027: Continental GT 750' },
+      {
+        type: 'p',
+        text: 'Der nächste große Cafe Racer ab Werk kommt von Royal Enfield. Auf der EICMA 2026 hat die Marke die Continental GT 750 gezeigt, mit stärkerem 743-cm³-Zweizylinder, Doppelscheibenbremse vorn und optionaler Halbschale. Preis und Marktstart stehen noch nicht fest.',
+      },
+      { type: 'cta', text: 'Alle Retro-Neuheiten der EICMA 2026', href: '/magazine/eicma-2026-retro-neuheiten', label: 'Zum EICMA-Überblick' },
+      { type: 'cta', text: 'Custom Cafe Racer von Werkstätten und Privatleuten', href: '/bikes/cafe-racer', label: 'Cafe Racer entdecken' },
+    ],
+  },
+
+  {
     slug: 'eicma-2026-retro-neuheiten',
     title: 'EICMA 2026: Die Retro-Neuheiten für 2027 — Cafe Racer, Classics und Factory Customs',
     metaTitle: 'EICMA 2026: Retro-Neuheiten 2027 — Cafe Racer & Classics',
@@ -53,7 +201,7 @@ export const ARTICLES: Article[] = [
     readTime: '8 min',
     author: 'MotoDigital Redaktion',
     tags: ['EICMA', 'EICMA 2026', 'Neuheiten 2027', 'Cafe Racer', 'Retro', 'Royal Enfield', 'Triumph', 'A2'],
-    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-umbau', 'cafe-racer-selber-bauen-basis-bikes'],
+    relatedSlugs: ['beste-cafe-racer-modelle', 'cafe-racer-kaufen-guide', 'cafe-racer-umbau'],
     relatedBuilderSlug: 'classicbike-raisch',
     relatedBuildSlug: 'thruxton-rs-darth-vader',
     faq: [
@@ -95,6 +243,7 @@ export const ARTICLES: Article[] = [
         type: 'p',
         text: 'Preis und Marktstart sind noch offen. Zur Einordnung: Die Himalayan 750 mit demselben Grundmotor kostet in Italien ab 7.390 Euro.',
       },
+      { type: 'cta', text: 'Welche Cafe Racer du heute schon neu kaufen kannst, mit Preisen', href: '/magazine/beste-cafe-racer-modelle', label: 'Zum Modellvergleich' },
       {
         type: 'p',
         text: 'Custom-Potenzial: hoch. Die Continental GT 650 gehört zu den beliebtesten Umbau-Basen der letzten Jahre, der Zubehörmarkt für sie ist groß. Ob 650er-Teile an die 750 passen, hat Royal Enfield nicht gesagt. Rechne damit, dass Zubehör mit Teilegutachten für das neue Modell erst einige Monate nach dem Marktstart verfügbar ist.',
@@ -1100,6 +1249,7 @@ export const ARTICLES: Article[] = [
           'Eingetragene Leistung zwischen 30 und 80 PS: für den Alltag ausreichend, nicht überdimensioniert',
         ],
       },
+      { type: 'cta', text: 'Lieber neu als umbauen? Alle Cafe Racer ab Werk mit Preisen', href: '/magazine/beste-cafe-racer-modelle', label: 'Zum Modellvergleich' },
       { type: 'h2', text: '1. Honda CB750 (1969-1978) — der Klassiker' },
       {
         type: 'p',
@@ -1369,7 +1519,7 @@ export const ARTICLES: Article[] = [
     readTime: '15 min',
     author: 'MotoDigital Redaktion',
     tags: ['Cafe Racer', 'Kaufratgeber', 'Custom Motorcycle', 'TÜV', 'Deutschland'],
-    relatedSlugs: ['warum-heisst-es-cafe-racer', 'cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike'],
+    relatedSlugs: ['beste-cafe-racer-modelle', 'cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike'],
     content: [
       {
         type: 'intro',
@@ -1907,6 +2057,15 @@ type ArticleOverlay = Partial<
 >
 
 const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'beste-cafe-racer-modelle': {
+    title: 'The best Café Racers of 2026: every factory model with prices',
+    metaTitle: 'The best Café Racers 2026 — factory models with prices',
+    metaDescription:
+      'Factory Café Racers compared: Continental GT 650, XSR900 GP, Speed Twin Cafe Racer Edition, R 12 S and more — with German prices, power and A2 tips.',
+    excerpt:
+      'From an A2-friendly entry under €8,000 to limited editions: every Café Racer you can buy new in 2026, with prices, power and used alternatives.',
+    categoryLabel: 'Guide',
+  },
   'eicma-2026-retro-neuheiten': {
     title: 'EICMA 2026: the retro highlights for 2027 — Café Racers, classics and factory customs',
     metaTitle: 'EICMA 2026: retro highlights 2027 — Café Racers & classics',
