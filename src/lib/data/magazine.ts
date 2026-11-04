@@ -16,6 +16,8 @@ export type Article = {
   categoryLabel: string
   excerpt: string
   coverImage: string
+  /** Shown on the hero — required for licensed photos, e.g. CC BY-SA from Wikimedia Commons */
+  coverCredit?: { author: string; href?: string; license?: string; licenseUrl?: string }
   publishedAt: string
   updatedAt?: string
   readTime: string
@@ -40,7 +42,13 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Ein neuer großer Cafe Racer von Royal Enfield, eine 400er-Bonneville für den A2-Schein und Factory Customs in Kleinserie: Das sind die Retro-Neuheiten der EICMA 2026.',
     coverImage:
-      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/eicma-2026-retro-neuheiten-cover.jpg',
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/eicma-2026-continental-gt-750.jpg',
+    coverCredit: {
+      author: '802xr / Wikimedia Commons',
+      href: 'https://commons.wikimedia.org/wiki/File:Royal_Enfield_Continental_GT_750.jpg',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    },
     publishedAt: '2026-11-04',
     readTime: '8 min',
     author: 'MotoDigital Redaktion',
@@ -136,7 +144,16 @@ export const ARTICLES: Article[] = [
       },
       {
         type: 'p',
-        text: 'Ducati zeigt keine neue Scrambler, verpasst aber der Scrambler Full Throttle für das Modelljahr 2027 eine Heritage-Lackierung. Grün und Bronze, auch auf den Felgen, zitieren die Rennmotorräder und Rennwagen der 1970er-Jahre. Vom chinesischen Hersteller Benda kommt die Vinster 700: ein Vintage-Roadster mit 692-cm³-V2, 73 PS und 68 Nm, Einarmschwinge, 17-Zoll-Rädern und 190 kg. Die Scrambler-Variante Vinster X 700 rollt vorn auf einem 19-Zoll-Rad. Preise gibt es für beide noch nicht.',
+        text: 'Ducati zeigt keine neue Scrambler, verpasst aber der Scrambler Full Throttle für das Modelljahr 2027 eine Heritage-Lackierung. Grün und Bronze, auch auf den Felgen, zitieren die Rennmotorräder und Rennwagen der 1970er-Jahre.',
+      },
+      {
+        type: 'image',
+        src: 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/eicma-2026-benda-vinster-x-700.jpg',
+        caption: 'Die Benda Vinster X 700 auf der EICMA 2026. Foto: 802xr / Wikimedia Commons, CC BY-SA 4.0',
+      },
+      {
+        type: 'p',
+        text: 'Vom chinesischen Hersteller Benda kommt die Vinster 700: ein Vintage-Roadster mit 692-cm³-V2, 73 PS und 68 Nm, Einarmschwinge, 17-Zoll-Rädern und 190 kg. Die Scrambler-Variante Vinster X 700 rollt vorn auf einem 19-Zoll-Rad. Preise gibt es für beide noch nicht.',
       },
       {
         type: 'p',

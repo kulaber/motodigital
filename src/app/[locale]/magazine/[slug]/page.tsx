@@ -352,6 +352,28 @@ export default async function ArticlePage({
             </div>
           </div>
         </div>
+
+        {/* Photo credit — after the content layer so the links stay clickable */}
+        {article.coverCredit && (
+          <p className="absolute bottom-3 right-4 text-[10px] text-white/45">
+            {locale === 'en' ? 'Photo' : 'Foto'}:{' '}
+            {article.coverCredit.href ? (
+              <a href={article.coverCredit.href} target="_blank" rel="noopener nofollow" className="underline hover:text-white/80 transition-colors">
+                {article.coverCredit.author}
+              </a>
+            ) : article.coverCredit.author}
+            {article.coverCredit.license && (
+              <>
+                {', '}
+                {article.coverCredit.licenseUrl ? (
+                  <a href={article.coverCredit.licenseUrl} target="_blank" rel="noopener nofollow" className="underline hover:text-white/80 transition-colors">
+                    {article.coverCredit.license}
+                  </a>
+                ) : article.coverCredit.license}
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       {/* ── Main layout ── */}
