@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { MapPin, Calendar, X } from 'lucide-react'
+import { MapPin, Calendar, CalendarDays, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { formatEventDate } from '@/lib/data/events'
 import type { Event } from '@/lib/data/events'
@@ -164,51 +164,58 @@ function EventCard({
       href={`/events/${event.slug}`}
       className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-[#222222]/6 hover:border-[#222222]/15 hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)] transition-all duration-300"
     >
-      {event.image && (
-        <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#F0F0F0]">
-          <Image
-            src={event.image}
-            alt={event.name}
-            fill
-            className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${
-              isPast ? 'grayscale opacity-70' : ''
-            }`}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
+      {/* Image area is always there, so every card shows tags and the date */}
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#F0F0F0]">
+        {event.image ? (
+          <>
+            <Image
+              src={event.image}
+              alt={event.name}
+              fill
+              className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${
+                isPast ? 'grayscale opacity-70' : ''
+              }`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
 
-          {/* Top + bottom gradients for legibility of overlays */}
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
-
-          {/* Top-left: tags or "Vergangen" */}
-          {isPast ? (
-            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-black/75 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full">
-              Vergangen
-            </div>
-          ) : (
-            event.tags.length > 0 && (
-              <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
-                {event.tags.slice(0, 2).map(tag => (
-                  <span
-                    key={tag}
-                    className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-[#222222]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* Bottom-left: date pill (always on image for consistent card body) */}
-          <div className="absolute bottom-3 left-3">
-            <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm">
-              <Calendar size={11} className={isPast ? 'text-[#222222]/50' : 'text-[#06a5a5]'} />
-              {formatEventDate(event) || t('nextDateTba')}
-            </span>
+            {/* Top + bottom gradients for legibility of overlays */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
+          </>
+        ) : (
+          <div className={`absolute inset-0 flex items-center justify-center bg-[#F0EDE4] ${isPast ? 'opacity-70' : ''}`}>
+            <CalendarDays size={56} strokeWidth={1.25} className="text-[#2AABAB]/40 transition-transform duration-500 group-hover:scale-110" />
           </div>
+        )}
+
+        {/* Top-left: tags or "Vergangen" */}
+        {isPast ? (
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-black/75 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full">
+            Vergangen
+          </div>
+        ) : (
+          event.tags.length > 0 && (
+            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
+              {event.tags.slice(0, 2).map(tag => (
+                <span
+                  key={tag}
+                  className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-[#222222]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )
+        )}
+
+        {/* Bottom-left: date pill (always on image for consistent card body) */}
+        <div className="absolute bottom-3 left-3">
+          <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-[#222222] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm">
+            <Calendar size={11} className={isPast ? 'text-[#222222]/50' : 'text-[#06a5a5]'} />
+            {formatEventDate(event) || t('nextDateTba')}
+          </span>
         </div>
-      )}
+      </div>
 
       <div className="flex flex-col flex-1 p-5">
         <h3

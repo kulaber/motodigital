@@ -121,7 +121,10 @@ export default async function EventDetailPage({ params }: Props) {
   }
 
   const dateStr = formatEventDate(event)
-  const coords = event.location ? await geocode(event.location) : null
+  // Locale-independent parts of the researched content: map switch and photo licence credit
+  const meta = EVENT_CONTENT[event.slug]
+  const coords = event.location && !meta?.hideMap ? await geocode(event.location) : null
+  const imageCredit = meta?.imageCredit && meta.imageCredit.image === event.image ? meta.imageCredit : null
 
   const today = getTodayLocal()
   const endDate = event.date_end ?? event.date_start ?? ''
@@ -299,6 +302,19 @@ export default async function EventDetailPage({ params }: Props) {
               </div>
             </div>
           </div>
+
+          {imageCredit && (
+            <p className="absolute bottom-2 right-3 sm:right-5 z-10 text-[10px] text-white/60">
+              Foto:{' '}
+              <a href={imageCredit.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">
+                {imageCredit.author} / Wikimedia Commons
+              </a>
+              ,{' '}
+              <a href={imageCredit.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline hover:text-white">
+                {imageCredit.license}
+              </a>
+            </p>
+          )}
         </div>
       ) : (
         <div className="pt-28" />
