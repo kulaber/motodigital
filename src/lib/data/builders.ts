@@ -47,6 +47,8 @@ export type Builder = {
   galleryImages?: BuilderMedia[]
   team?: TeamMember[]
   openingHours?: OpeningHours[]
+  /** Workshop-authored FAQ (profiles.faqs) */
+  faqs?: { q: string; a: string }[]
   paymentMethods?: string[]
   featuredBuilds: {
     title: string

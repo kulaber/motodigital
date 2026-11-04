@@ -4,8 +4,9 @@ import NextImage from 'next/image'
 import { useState, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { refreshPublicData } from '@/lib/actions/revalidate'
-import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock, RefreshCw } from 'lucide-react'
+import { Upload, Image as ImageIcon, Trash2, MapPin, Plus, Clock, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react'
 import { isPremium } from '@/lib/werkstatt-tier'
+import { FAQ_LIMITS, profileFaqsSchema } from '@/lib/werkstatt/profileContent'
 import LockedFeature from '@/components/werkstatt/locked-feature'
 import { compressImage } from '@/lib/utils/compressImage'
 import { useToast, ToastContainer } from '@/components/ui/Toast'
@@ -102,6 +103,16 @@ const LEISTUNGEN = [
   'Motorrevision', 'Motordiagnose', 'Sattlerarbeiten',
 ]
 
+// Questions customers ask before a build — one click adds them, the workshop writes the answer
+const FAQ_SUGGESTIONS = [
+  'Wie lange dauert ein Umbau bei euch?',
+  'Was kostet ein Umbau ungefähr?',
+  'Kann ich mein eigenes Motorrad mitbringen?',
+  'Übernehmt ihr auch angefangene Projekte?',
+  'Kümmert ihr euch um die TÜV-Eintragung?',
+  'Brauche ich einen Termin für eine Beratung?',
+]
+
 type Profile = {
   id: string
   full_name: string | null
@@ -122,6 +133,7 @@ type Profile = {
   youtube_url: string | null
   avatar_url: string | null
   opening_hours?: { day: string; hours: string }[] | null
+  faqs?: { q: string; a: string }[] | null
 }
 
 function slugify(name: string) {
@@ -168,6 +180,21 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
   const [openingHours, setOpeningHours] = useState<{ day: string; hours: string }[]>(
     profile.opening_hours ?? []
   )
+  const [faqs, setFaqs] = useState<{ q: string; a: string }[]>(profile.faqs ?? [])
+
+  function updateFaq(idx: number, patch: Partial<{ q: string; a: string }>) {
+    setFaqs(prev => prev.map((f, i) => (i === idx ? { ...f, ...patch } : f)))
+  }
+
+  function moveFaq(idx: number, dir: -1 | 1) {
+    setFaqs(prev => {
+      const next = [...prev]
+      const target = idx + dir
+      if (target < 0 || target >= next.length) return prev
+      ;[next[idx], next[target]] = [next[target], next[idx]]
+      return next
+    })
+  }
 
   const computedSlug = profile.slug ?? slugify(fullName)
 
@@ -283,6 +310,19 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
+
+    // Untouched rows are dropped; a question without an answer (or the reverse) is an error
+    const filledFaqs = faqs.filter(f => f.q.trim() || f.a.trim())
+    if (filledFaqs.some(f => !f.q.trim() || !f.a.trim())) {
+      toastError('Bitte gib zu jeder Frage eine Antwort ein oder entferne den Eintrag.')
+      return
+    }
+    const parsedFaqs = profileFaqsSchema.safeParse(filledFaqs)
+    if (!parsedFaqs.success) {
+      toastError(`FAQ: höchstens ${FAQ_LIMITS.max} Fragen, Fragen bis ${FAQ_LIMITS.question} und Antworten bis ${FAQ_LIMITS.answer} Zeichen.`)
+      return
+    }
+
     setSaving(true)
 
     const slug  = profile.slug ?? (fullName ? slugify(fullName) : null)
@@ -301,11 +341,13 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
       website_url:   website || null,
       youtube_url:   youtube || null,
       opening_hours: openingHours.length ? openingHours : null,
+      faqs:          parsedFaqs.data.length ? parsedFaqs.data : null,
     }).eq('id', profile.id)
 
     if (err) {
       toastError(err.message)
     } else {
+      setFaqs(parsedFaqs.data)
       void refreshPublicData(['profiles'])
       toastSuccess('Profil gespeichert')
       window.dispatchEvent(new CustomEvent('profile-updated', {
@@ -751,6 +793,89 @@ export default function ProfileEditForm({ profile, media: initialMedia, subscrip
             <Clock size={9} /> Format: 09:00 – 17:00 (mit Bindestrich oder Gedankenstrich)
           </p>
         </Field>
+
+        {/* FAQ — shown on the public profile under "Häufige Fragen" */}
+        <div id="faq" className="scroll-mt-24">
+          <Field label="Häufige Fragen (FAQ)">
+            <p className="text-xs text-[#222222]/40 mb-3 leading-relaxed">
+              Beantworte die Fragen, die Kunden dir vor einem Umbau stellen. Sie erscheinen auf deinem Profil und helfen, bei Google gefunden zu werden.
+            </p>
+            <div className="space-y-3">
+              {faqs.map((faq, idx) => (
+                <div key={idx} className="rounded-xl border border-[#222222]/8 p-3 sm:p-4">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <input
+                        value={faq.q}
+                        onChange={e => updateFaq(idx, { q: e.target.value })}
+                        maxLength={FAQ_LIMITS.question}
+                        placeholder="Frage, z. B. Wie lange dauert ein Umbau bei euch?"
+                        aria-label={`Frage ${idx + 1}`}
+                        className={`${input} font-medium`}
+                      />
+                      <textarea
+                        value={faq.a}
+                        onChange={e => updateFaq(idx, { a: e.target.value })}
+                        maxLength={FAQ_LIMITS.answer}
+                        rows={3}
+                        placeholder="Deine Antwort"
+                        aria-label={`Antwort ${idx + 1}`}
+                        className={`${input} resize-y`}
+                      />
+                      <p className="text-[10px] text-[#222222]/25 text-right">{faq.a.length} / {FAQ_LIMITS.answer}</p>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <button type="button" onClick={() => moveFaq(idx, -1)} disabled={idx === 0} aria-label="Nach oben"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-[#222222]/30 hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors disabled:opacity-30 disabled:hover:bg-transparent">
+                        <ChevronUp size={14} />
+                      </button>
+                      <button type="button" onClick={() => moveFaq(idx, 1)} disabled={idx === faqs.length - 1} aria-label="Nach unten"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-[#222222]/30 hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors disabled:opacity-30 disabled:hover:bg-transparent">
+                        <ChevronDown size={14} />
+                      </button>
+                      <button type="button" onClick={() => setFaqs(prev => prev.filter((_, i) => i !== idx))} aria-label="Frage entfernen"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-[#222222]/25 hover:text-red-500 hover:bg-red-50 transition-colors">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {faqs.length < FAQ_LIMITS.max && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setFaqs(prev => [...prev, { q: '', a: '' }])}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#06a5a5] hover:text-[#058f8f] transition-colors"
+                  >
+                    <Plus size={12} /> Frage hinzufügen
+                  </button>
+                  {FAQ_SUGGESTIONS.some(s => !faqs.some(f => f.q === s)) && (
+                    <div>
+                      <p className="text-[10px] text-[#222222]/30 mb-1.5">Vorschläge — antippen, dann beantworten:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {FAQ_SUGGESTIONS.filter(s => !faqs.some(f => f.q === s)).map(s => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setFaqs(prev => [...prev, { q: s, a: '' }])}
+                            className="text-[11px] text-[#222222]/50 bg-white border border-[#222222]/10 px-2.5 py-1 rounded-full hover:border-[#06a5a5]/40 hover:text-[#06a5a5] transition-colors"
+                          >
+                            + {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            <p className="text-[10px] text-[#222222]/25 mt-2">
+              {faqs.length} / {FAQ_LIMITS.max} Fragen · Deine Fragen stehen oben. Darunter ergänzt MotoDigital Antworten aus deinem Profil, etwa zu Leistungen, Adresse und Öffnungszeiten.
+            </p>
+          </Field>
+        </div>
 
       </form>
 

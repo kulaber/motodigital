@@ -31,6 +31,7 @@ type ProfileData = {
   youtube_url: string | null
   avatar_url: string | null
   opening_hours: { day: string; hours: string }[] | null
+  faqs: { q: string; a: string }[] | null
   is_verified: boolean
 }
 
@@ -66,7 +67,7 @@ export default function EditBuilderPage() {
       if (me?.role !== 'superadmin') { router.push('/dashboard'); return }
 
       const { data } = await (supabase.from('profiles') as any)
-        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, opening_hours, is_verified')
+        .select('id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, opening_hours, faqs, is_verified')
         .or(`username.eq.${slug},slug.eq.${slug}`)
         .maybeSingle() as { data: ProfileData | null }
 

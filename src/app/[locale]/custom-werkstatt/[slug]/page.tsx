@@ -27,6 +27,7 @@ import { isPremium } from '@/lib/werkstatt-tier'
 import BuilderPageClient from '../BuilderPageClient'
 import { cityFromAddress, countryFromAddress } from '@/lib/utils'
 import { fitTitle } from '@/lib/seo'
+import { parseProfileFaqs, profileFaqs, profileLinks, profileSummary } from '@/lib/werkstatt/profileContent'
 
 // Rendered on first request, then served from the ISR cache
 export function generateStaticParams() {
@@ -201,7 +202,7 @@ async function geocode(query: string): Promise<{ lat: number; lng: number } | nu
 async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Builder | null> {
   const supabase = createPublicClient()
 
-  const SELECT = 'id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours, bio_i18n, bio_long_i18n, specialty_i18n'
+  const SELECT = 'id, full_name, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, rating, featured, is_verified, instagram_url, website_url, tiktok_url, youtube_url, avatar_url, opening_hours, faqs, bio_i18n, bio_long_i18n, specialty_i18n'
 
   // Try slug first, then fall back to username
   let { data: row } = await (supabase.from('profiles') as any)
@@ -314,6 +315,7 @@ async function getBuilderBySlugFromDB(slug: string, locale: string): Promise<Bui
     youtube:     (row.youtube_url as string | null) ?? undefined,
     avatarUrl:   (row.avatar_url as string | null) ?? undefined,
     openingHours: (row.opening_hours as { day: string; hours: string }[] | null) ?? undefined,
+    faqs:        parseProfileFaqs(row.faqs),
     media,
     galleryImages,
     featuredBuilds,
@@ -553,9 +555,24 @@ export default async function BuilderProfilePage({ params }: Props) {
   function mapDayToSchema(day: string) {
     return day.replace(/\b(Mo|Di|Mi|Do|Fr|Sa|So)\b/g, m => DE_DAY[m] ?? m)
   }
+  // Only real time ranges — "Geschlossen" or "nach Vereinbarung" aren't valid openingHours values
   const openingHoursSchema = builder.openingHours
-    ?.filter(h => h.hours && h.hours !== 'Geschlossen' && h.hours !== 'Nur nach Vereinbarung')
+    ?.filter(h => /\d/.test(h.hours ?? ''))
     .map(h => `${mapDayToSchema(h.day)} ${h.hours.replace(/\s*[–-]\s*/, '-')}`)
+
+  // Long-form text and FAQ from the workshop's own fields, plus links into the site
+  const summary = profileSummary(builder)
+  const faqs = profileFaqs(builder)
+  const cityHubEntry = Object.entries(CITY_HUBS).find(([, hub]) =>
+    builder.city.toLowerCase().includes(hub.name.toLowerCase()) ||
+    (builder.address ?? '').toLowerCase().includes(hub.name.toLowerCase())
+  )
+  const relatedLinks = profileLinks(builder, cityHubEntry ? { slug: cityHubEntry[0], name: cityHubEntry[1].name } : undefined)
+  const faqJsonLd = faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  } : null
 
   // JSON-LD: LocalBusiness
   const localBusinessJsonLd = {
@@ -590,7 +607,7 @@ export default async function BuilderProfilePage({ params }: Props) {
     <div className="min-h-screen bg-white text-[#222222]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([localBusinessJsonLd, breadcrumbJsonLd]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([localBusinessJsonLd, breadcrumbJsonLd, ...(faqJsonLd ? [faqJsonLd] : [])]) }}
       />
       <Header activePage="custom-werkstatt" />
       {builder.workshopId && builder.id && (
@@ -928,6 +945,16 @@ export default async function BuilderProfilePage({ params }: Props) {
                 )
               })()}
 
+              {/* At a glance — prose from the profile fields */}
+              {summary.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-3">{builder.name} auf einen Blick</h2>
+                  {summary.map((p, i) => (
+                    <p key={i} className="text-sm text-[#717171] leading-relaxed">{p}</p>
+                  ))}
+                </div>
+              )}
+
               {/* Team */}
               {builder.team && builder.team.length > 0 && (
                 <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
@@ -1001,6 +1028,45 @@ export default async function BuilderProfilePage({ params }: Props) {
                       </p>
                     </div>
                     <RoutePlanenButton adresse={builder.address ?? builder.city ?? ''} workshopId={builder.workshopId} builderId={builder.id} />
+                  </div>
+                </div>
+              )}
+
+              {/* FAQ — the workshop's own questions first, then answers from its profile */}
+              {faqs.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h2 className="text-base font-bold text-[#222222] tracking-tight">Häufige Fragen zu {builder.name}</h2>
+                    <OwnerOnly slug={slug}>
+                      <Link href="/dashboard/profile#faq" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#06a5a5] hover:text-[#058f8f] transition-colors flex-shrink-0">
+                        <Pencil size={11} /> Fragen bearbeiten
+                      </Link>
+                    </OwnerOnly>
+                  </div>
+                  <div className="divide-y divide-[#EBEBEB]">
+                    {faqs.map(f => (
+                      <details key={f.q} className="group py-3.5">
+                        <summary className="cursor-pointer list-none flex items-start justify-between gap-3 text-sm font-semibold text-[#222222] hover:text-[#06a5a5] transition-colors">
+                          <span>{f.q}</span>
+                          <span className="text-[#717171] group-open:rotate-45 transition-transform text-lg leading-none flex-shrink-0">+</span>
+                        </summary>
+                        <p className="mt-2.5 text-sm text-[#717171] leading-relaxed whitespace-pre-line">{f.a}</p>
+                      </details>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Related pages — style hubs, city hub, matching guides */}
+              {relatedLinks.length > 0 && (
+                <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 sm:p-6 mb-4">
+                  <h2 className="text-base font-bold text-[#222222] tracking-tight mb-4">Mehr entdecken</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {relatedLinks.map(l => (
+                      <Link key={l.href} href={l.href} className="text-xs font-medium text-[#717171] bg-[#F7F7F7] border border-[#EBEBEB] px-3 py-1.5 rounded-full hover:text-[#06a5a5] hover:border-[#06a5a5]/30 transition-colors">
+                        {l.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}

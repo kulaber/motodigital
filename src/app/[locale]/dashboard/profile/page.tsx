@@ -16,7 +16,8 @@ export default async function ProfileEditPage() {
   // Fetch profile + media + workshop in parallel
   const [{ data: profile }, { data: media }, { data: workshop }] = await Promise.all([
     (supabase.from('profiles') as any)
-      .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, riding_style, visited_cities')
+      // opening_hours must be loaded: the form saves the whole list, so a missing value would clear it
+      .select('id, role, full_name, username, slug, bio, bio_long, city, specialty, since_year, tags, bases, address, lat, lng, instagram_url, tiktok_url, website_url, youtube_url, avatar_url, opening_hours, faqs, riding_style, visited_cities')
       .eq('id', user.id)
       .maybeSingle(),
     (supabase.from('builder_media') as any)
