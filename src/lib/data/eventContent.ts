@@ -32,6 +32,8 @@ export type EventContent = {
    * Rendered in every locale: licences and press terms require it.
    */
   imageCredit?: { image: string; author: string; source: string; license?: string; licenseUrl?: string }
+  /** Credit line under the gallery ("Fotos: …"), for the self-hosted press photos in gallery_images */
+  galleryCredit?: string
   /** No single venue (e.g. a worldwide ride): skip geocoding and the map */
   hideMap?: boolean
 }
@@ -127,6 +129,12 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/bikes/cafe-racer', label: 'Cafe Racer Custom Bikes entdecken' },
       { href: '/custom-werkstatt/stuttgart', label: 'Custom Werkstätten in Stuttgart' },
     ],
+    imageCredit: {
+      image: `${PRESS}/glemseck-101.jpg`,
+      author: 'Glemseck 101 / Sascha Feuster Photography',
+      source: 'https://www.glemseck101.de/101-1-8-meile-gewinner-2026/',
+    },
+    galleryCredit: 'Glemseck 101 / Sascha Feuster Photography',
   },
 
   'custombike-show': {
@@ -198,6 +206,12 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/magazine/was-kostet-ein-custom-bike', label: 'Was kostet ein Custom Bike?' },
       { href: '/bikes/bobber', label: 'Bobber Custom Bikes entdecken' },
     ],
+    imageCredit: {
+      image: `${PRESS}/custombike-show.jpg`,
+      author: 'Custombike-Show / Dirk Behlau',
+      source: 'https://www.custombike-show.de/',
+    },
+    galleryCredit: 'Custombike-Show, u. a. Dirk Behlau und Fabian Friese',
   },
 
   intermot: {
@@ -286,6 +300,35 @@ export const EVENT_CONTENT: Record<string, EventContent> = {
       { href: '/magazine/cafe-racer-kaufen-guide', label: 'Cafe Racer kaufen: der Leitfaden' },
       { href: '/custom-werkstatt/koeln', label: 'Custom Werkstätten in Köln' },
     ],
+    imageCredit: {
+      image: `${PRESS}/intermot.jpg`,
+      author: 'Koelnmesse GmbH, Oliver Wachenfeld',
+      source: 'https://www.intermot.de/',
+    },
+    galleryCredit: 'Koelnmesse GmbH, Oliver Wachenfeld',
+  },
+
+  // No researched long-form text yet (see SEO to-dos); entries carry the article
+  // for the FAQ and the photo credits
+  'wheels-and-waves': {
+    nameInText: 'Wheels & Waves',
+    sections: [],
+    imageCredit: {
+      image: `${PRESS}/wheels-and-waves.jpg`,
+      author: 'Wheels & Waves',
+      source: 'https://wheels-and-waves.com/',
+    },
+    galleryCredit: 'Wheels & Waves',
+  },
+
+  'eindhoven-motor-show': {
+    nameInText: 'die Matchlight Motorcycle Show',
+    sections: [],
+    imageCredit: {
+      image: `${PRESS}/eindhoven-motor-show.jpg`,
+      author: 'Matchlight Motorcycle Show',
+      source: 'https://matchlightmotorcycleshow.nl/',
+    },
   },
 
   'motor-bike-expo': {

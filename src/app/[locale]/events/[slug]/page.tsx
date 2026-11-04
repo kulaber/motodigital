@@ -472,6 +472,9 @@ export default async function EventDetailPage({ params }: Props) {
               {galleryImages.length > 0 && (
                 <div>
                   <EventGallery images={galleryImages} title={event.name} />
+                  {meta?.galleryCredit && (
+                    <p className="text-xs text-[#222222]/45 mt-3">Fotos: {meta.galleryCredit}</p>
+                  )}
                 </div>
               )}
 
