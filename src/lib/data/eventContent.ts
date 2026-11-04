@@ -36,6 +36,34 @@ export type EventContent = {
   galleryCredit?: string
   /** No single venue (e.g. a worldwide ride): skip geocoding and the map */
   hideMap?: boolean
+  /**
+   * Venue with checked coordinates (OpenStreetMap, 2026-11-04). Wins over geocoding
+   * the free-text location, which put several fairs hundreds of km off. Feeds the
+   * map and the Event PostalAddress. `country` is ISO 3166-1 alpha-2.
+   */
+  venue?: { street?: string; postalCode?: string; locality: string; country: string; lat: number; lng: number }
+}
+
+/** Venues for every event with a fixed location (keyed by slug, merged in below) */
+const VENUES: Record<string, NonNullable<EventContent['venue']>> = {
+  'glemseck-101': { street: 'Glemseck 1', postalCode: '71229', locality: 'Leonberg', country: 'DE', lat: 48.76757, lng: 9.04123 },
+  'custombike-show': { street: 'Benzstraße 23', postalCode: '32108', locality: 'Bad Salzuflen', country: 'DE', lat: 52.05282, lng: 8.7568 },
+  intermot: { street: 'Messeplatz 1', postalCode: '50679', locality: 'Köln', country: 'DE', lat: 50.94827, lng: 6.98394 },
+  'wheels-and-waves': { postalCode: '64200', locality: 'Biarritz', country: 'FR', lat: 43.48325, lng: -1.55928 },
+  'eindhoven-motor-show': { street: 'Ketelhuisplein 10', postalCode: '5617 AE', locality: 'Eindhoven', country: 'NL', lat: 51.44849, lng: 5.45652 },
+  'motor-bike-expo': { street: 'Viale del Lavoro 8', postalCode: '37135', locality: 'Verona', country: 'IT', lat: 45.41767, lng: 10.98017 },
+  'motorradwelt-bodensee': { street: 'Neue Messe 1', postalCode: '88046', locality: 'Friedrichshafen', country: 'DE', lat: 47.67825, lng: 9.50629 },
+  imot: { street: 'Am Messesee', postalCode: '81829', locality: 'München', country: 'DE', lat: 48.13642, lng: 11.69762 },
+  'hamburger-motorradtage': { street: 'Messeplatz 1', postalCode: '20357', locality: 'Hamburg', country: 'DE', lat: 53.56317, lng: 9.97549 },
+  'motorraeder-dortmund': { street: 'Rheinlanddamm 200', postalCode: '44139', locality: 'Dortmund', country: 'DE', lat: 51.49651, lng: 7.45693 },
+  'custom-nationals': { street: 'Scheinfelder Straße 23', postalCode: '96160', locality: 'Geiselwind', country: 'DE', lat: 49.7661, lng: 10.47024 },
+  'european-bike-week': { postalCode: '9583', locality: 'Faak am See', country: 'AT', lat: 46.56831, lng: 13.90671 },
+  'veterama-mannheim': { street: 'Xaver-Fuhr-Straße', postalCode: '68163', locality: 'Mannheim', country: 'DE', lat: 49.46812, lng: 8.52601 },
+}
+
+/** Venue for an event, also for slugs without researched content */
+export function eventVenue(slug: string): EventContent['venue'] {
+  return VENUES[slug]
 }
 
 const STORAGE = 'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/event-images/commons'

@@ -73,9 +73,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq('status', 'active')
       .throwOnError() as unknown as Promise<{ data: { id: string; slug: string | null; title: string; updated_at: string; make: string | null; model: string | null; year: number | null; bike_images: { url: string; is_cover: boolean; position: number; media_type: string | null }[] | null }[] | null }>,
     (supabase.from('events') as any)
-      .select('slug, date_start')
+      .select('slug, updated_at, image')
       .not('slug', 'is', null)
-      .throwOnError() as Promise<{ data: { slug: string; date_start?: string }[] | null }>,
+      .throwOnError() as Promise<{ data: { slug: string; updated_at?: string; image?: string | null }[] | null }>,
     (supabase.from('base_bike_brands') as any)
       .select('id, name, slug')
       .not('slug', 'is', null)
@@ -195,18 +195,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((e) => {
-    const urls = Object.fromEntries(
-      routing.locales.map((l) => [l, `${BASE}${l === routing.defaultLocale ? '' : `/${l}`}/events/${e.slug}`])
-    )
-    return {
-      url: urls[routing.defaultLocale],
-      lastModified: e.date_start ? new Date(e.date_start) : now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-      alternates: { languages: urls },
-    }
-  })
+  // Event texts are German (EN pages canonicalise to the German URL), so no hreflang
+  // alternates. lastModified is the row's last edit — the event date lies in the
+  // future and is not a modification date
+  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((e) => ({
+    url: `${BASE}/events/${e.slug}`,
+    lastModified: e.updated_at ? new Date(e.updated_at) : now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+    images: e.image ? [escapeXml(e.image)] : undefined,
+  }))
 
   // Brand and model pages are German-only (EN is noindexed), so no hreflang alternates
   const brandPages: MetadataRoute.Sitemap = (brands ?? []).map((b) => ({

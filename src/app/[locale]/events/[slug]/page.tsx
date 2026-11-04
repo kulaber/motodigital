@@ -11,7 +11,7 @@ import { eventDatePhrase, formatEventDate, isAwaitingNextDate } from '@/lib/data
 import type { Event } from '@/lib/data/events'
 import { localizedText } from '@/lib/i18n/localizedText'
 import { fitTitle, truncateAtWord } from '@/lib/seo'
-import { EVENT_CONTENT } from '@/lib/data/eventContent'
+import { EVENT_CONTENT, eventVenue } from '@/lib/data/eventContent'
 import EventInterestButton from './EventInterestButton'
 import EventLocationMap from './EventLocationMap'
 import EventGallery from '@/components/events/EventGallery'
@@ -123,7 +123,10 @@ export default async function EventDetailPage({ params }: Props) {
   const dateStr = formatEventDate(event)
   // Locale-independent parts of the researched content: map switch and photo licence credit
   const meta = EVENT_CONTENT[event.slug]
-  const coords = event.location && !meta?.hideMap ? await geocode(event.location) : null
+  const venue = eventVenue(event.slug)
+  const coords = venue
+    ? { lat: venue.lat, lng: venue.lng }
+    : event.location && !meta?.hideMap ? await geocode(event.location) : null
   const imageCredit = meta?.imageCredit && meta.imageCredit.image === event.image ? meta.imageCredit : null
 
   const today = getTodayLocal()
@@ -185,7 +188,15 @@ export default async function EventDetailPage({ params }: Props) {
             longitude: coords.lng,
           },
         }),
-        address: event.location,
+        address: venue
+          ? {
+              '@type': 'PostalAddress',
+              ...(venue.street && { streetAddress: venue.street }),
+              ...(venue.postalCode && { postalCode: venue.postalCode }),
+              addressLocality: venue.locality,
+              addressCountry: venue.country,
+            }
+          : event.location,
       },
     }),
     // MotoDigital only lists these events — the event itself is organizer/performer
