@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import {
-  LayoutDashboard, LogOut, ChevronDown, Search,
+  LayoutDashboard, LogOut, ChevronDown,
   Users, Shield, BookOpen, CalendarDays, Settings, User, Bike, ExternalLink, MessageCircle, Star, Pencil, Bot,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
@@ -104,10 +104,13 @@ export default function Header({ activePage }: Props) {
             }`}>
             {t('workshops')}
           </Link>
-          <Link href="/search"
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5 transition-all ml-1">
-            <Search size={18} />
-            <kbd className="text-[10px] text-[#222222]/20 font-mono px-1.5 py-0.5 rounded border border-[#222222]/8">⌘K</kbd>
+          <Link href="/events"
+            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
+              activePage === 'events'
+                ? 'text-[#222222] font-semibold bg-[#222222]/8'
+                : 'text-[#717171] hover:text-[#222222] hover:bg-[#222222]/5'
+            }`}>
+            {t('events')}
           </Link>
         </nav>
 

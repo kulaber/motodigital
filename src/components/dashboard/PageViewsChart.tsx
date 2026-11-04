@@ -13,7 +13,7 @@ function formatPath(path: string): string {
     const labels: Record<string, string> = {
       bikes: 'Custom Bikes Übersicht',
       'custom-werkstatt': 'Werkstattsuche',
-      explore: 'Explore',
+      explore: 'Community',
       magazine: 'Magazin',
       rider: 'Rider Übersicht',
       events: 'Events',

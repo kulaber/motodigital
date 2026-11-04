@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: "explore",
-    label: "Explore",
+    label: "Community",
     href: "/explore",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

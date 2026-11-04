@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import {
   LogOut, ChevronRight, BookOpen, CalendarDays, Tag, Info, Search,
-  Users, Settings, UserPen, MessageCircle, Bike, Grid3X3,
+  Users, Settings, UserPen, MessageCircle, Bike, Grid3X3, Wrench,
 } from 'lucide-react'
 
 type UserRole = 'rider' | 'custom-werkstatt' | 'superadmin' | null
@@ -129,6 +129,7 @@ export default function MobileNav({
             </p>
             {navItem('/explore', <Users size={20} />, t('explore'), isActive('explore'))}
             {navItem('/bikes', <Bike size={20} />, t('bikes'), isActive('bikes'))}
+            {navItem('/custom-werkstatt', <Wrench size={20} />, t('workshops'), isActive('custom-werkstatt'))}
             {navItem('/search', <Search size={20} />, t('search'), pathname === '/search')}
             {navItem('/rider', <Users size={20} />, t('rider'), isActive('rider'))}
           </div>

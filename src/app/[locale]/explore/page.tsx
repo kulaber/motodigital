@@ -11,7 +11,7 @@ function isOnline(lastSeen: string | null | undefined): boolean {
 }
 
 export const metadata: Metadata = {
-  title: 'Explore — MotoDigital',
+  title: 'Community — MotoDigital',
   description: 'Entdecke Custom Bikes, Werkstätten, Events und Rider in deiner Nähe.',
   alternates: { canonical: '/explore' },
 }

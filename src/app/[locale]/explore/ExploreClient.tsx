@@ -27,7 +27,7 @@ import LazyRideMap from '@/components/map/LazyRideMap'
 type Category = 'alle' | 'allgemein' | 'projekte' | 'events' | 'hilfe' | 'biete-suche' | 'in-der-naehe' | 'freunde'
 
 const CATEGORIES: { value: Category; label: string }[] = [
-  { value: 'alle', label: 'Explore' },
+  { value: 'alle', label: 'Community' },
   { value: 'freunde', label: 'Freunde' },
   { value: 'in-der-naehe', label: 'Fahrt in der Nähe' },
   { value: 'events', label: 'Events' },
@@ -1147,7 +1147,7 @@ export default function ExploreClient({ userId, isAuthenticated = !!userId, isSu
       <main className="flex-1 min-w-0 pt-0 pb-16 px-0 sm:px-6 lg:px-8 bg-white lg:bg-transparent overflow-x-hidden">
         {/* Mobile heading */}
         <div className="lg:hidden relative flex items-center justify-center mb-1 pt-6 px-4 sm:px-0">
-          <h1 className="text-xl font-bold text-[#222222]">Explore</h1>
+          <h1 className="text-xl font-bold text-[#222222]">Community</h1>
           {userId && (
             <Link
               href="/dashboard/notifications"
