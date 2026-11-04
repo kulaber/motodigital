@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
       // /custom-bike has only [slug] detail pages — the listing lives at /bikes
       { source: '/custom-bike', destination: '/bikes', permanent: true },
       { source: '/en/custom-bike', destination: '/en/bikes', permanent: true },
+      // Invented interviews and build stories, removed 2026-11-04 — closest real guide instead
+      ...[
+        ['jakob-kraft-berlin-interview', 'cafe-racer-umbau'],
+        ['max-steiner-bobber-interview', 'bobber-kaufen-guide'],
+        ['shovelhead-revival-kai-fuchs', 'harley-custom-werkstatt-finden'],
+        ['berlin-ghost-build-story', 'street-fighter-motorrad-umbau'],
+      ].flatMap(([from, to]) => [
+        { source: `/magazine/${from}`, destination: `/magazine/${to}`, permanent: true },
+        { source: `/en/magazine/${from}`, destination: `/en/magazine/${to}`, permanent: true },
+      ]),
     ]
   },
   compress: true,

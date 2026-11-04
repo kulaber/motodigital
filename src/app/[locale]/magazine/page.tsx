@@ -45,12 +45,13 @@ export default async function MagazinePage({ params }: { params: Promise<{ local
   const localizedArticles = await getAllArticles(locale)
   const [heroArticle, ...restArticles] = localizedArticles
 
+  const activeCategories = new Set<string>(localizedArticles.map(a => a.category))
   const CATEGORY_TABS = [
     { label: t('tabAll'),          href: '/magazine' as const },
-    { label: t('tabBuildStories'), href: '/magazine/build-story' as const },
-    { label: t('tabInterviews'),   href: '/magazine/interview' as const },
-    { label: t('tabGuides'),       href: '/magazine/guide' as const },
-  ]
+    { label: t('tabBuildStories'), href: '/magazine/build-story' as const, category: 'build-story' },
+    { label: t('tabInterviews'),   href: '/magazine/interview' as const,   category: 'interview' },
+    { label: t('tabGuides'),       href: '/magazine/guide' as const,       category: 'guide' },
+  ].filter(tab => !tab.category || activeCategories.has(tab.category))
 
   const jsonLd = {
     '@context': 'https://schema.org',

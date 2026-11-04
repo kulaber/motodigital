@@ -106,6 +106,11 @@ export async function getArticlesByCategoryAll(category: Article['category'], lo
   return (await getAllArticles(locale)).filter(a => a.category === category)
 }
 
+/** Categories with at least one article — empty hubs drop out of the tabs and the sitemap, and are noindexed */
+export async function getActiveCategories(locale: string): Promise<Set<string>> {
+  return new Set((await getAllArticles(locale)).map(a => a.category))
+}
+
 /** Slugs already taken (static + any DB row incl. drafts) — used when agents save drafts */
 export function staticArticleSlugs(): string[] {
   return ARTICLES.map(a => a.slug)

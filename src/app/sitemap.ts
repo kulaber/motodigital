@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getAllArticles } from '@/lib/magazine/articles'
+import { getActiveCategories, getAllArticles } from '@/lib/magazine/articles'
 import { routing } from '@/i18n/routing'
 import { getPathname } from '@/i18n/navigation'
 import { generateBikeSlug } from '@/lib/utils/bikeSlug'
@@ -87,6 +87,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const now = new Date()
+  // Empty magazine hubs are noindexed — keep them out of the sitemap too
+  const activeCategories = await getActiveCategories('de')
 
   const staticPages: MetadataRoute.Sitemap = [
     localizedEntry('/',                          now, 'daily',   1.0),
@@ -96,8 +98,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     localizedEntry('/marken',                    now, 'weekly',  0.7),
     localizedEntry('/explore',                   now, 'weekly',  0.7),
     localizedEntry('/magazine',                  now, 'weekly',  0.8),
-    localizedEntry('/magazine/build-story',      now, 'weekly',  0.6),
-    localizedEntry('/magazine/interview',        now, 'weekly',  0.6),
+    ...(activeCategories.has('build-story') ? [localizedEntry('/magazine/build-story', now, 'weekly', 0.6)] : []),
+    ...(activeCategories.has('interview')   ? [localizedEntry('/magazine/interview',   now, 'weekly', 0.6)] : []),
     localizedEntry('/magazine/guide',            now, 'weekly',  0.6),
     localizedEntry('/events',                    now, 'weekly',  0.7),
     localizedEntry('/ueber-motodigital',         now, 'monthly', 0.6),

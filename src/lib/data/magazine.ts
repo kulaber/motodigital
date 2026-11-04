@@ -30,6 +30,157 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'eicma-2026-retro-neuheiten',
+    title: 'EICMA 2026: Die Retro-Neuheiten für 2027 — Cafe Racer, Classics und Factory Customs',
+    metaTitle: 'EICMA 2026: Retro-Neuheiten 2027 — Cafe Racer & Classics',
+    metaDescription:
+      'Continental GT 750, Bonneville T40, Speed Twin 1200 TFC: alle Retro-Neuheiten der EICMA 2026 mit Daten, Preisen, Marktstart und Custom-Potenzial.',
+    category: 'guide',
+    categoryLabel: 'Guide',
+    excerpt:
+      'Ein neuer großer Cafe Racer von Royal Enfield, eine 400er-Bonneville für den A2-Schein und Factory Customs in Kleinserie: Das sind die Retro-Neuheiten der EICMA 2026.',
+    coverImage:
+      'https://ikhgfynzghfhnviwvupo.supabase.co/storage/v1/object/public/builder-media/magazine/eicma-2026-retro-neuheiten-cover.jpg',
+    publishedAt: '2026-11-04',
+    readTime: '8 min',
+    author: 'MotoDigital Redaktion',
+    tags: ['EICMA', 'EICMA 2026', 'Neuheiten 2027', 'Cafe Racer', 'Retro', 'Royal Enfield', 'Triumph', 'A2'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-umbau', 'cafe-racer-selber-bauen-basis-bikes'],
+    relatedBuilderSlug: 'classicbike-raisch',
+    relatedBuildSlug: 'thruxton-rs-darth-vader',
+    faq: [
+      { q: 'Wann findet die EICMA 2026 statt?', a: 'Die EICMA 2026 läuft auf dem Messegelände Fiera Milano Rho bei Mailand. Der 3. und 4. November sind Presse- und Fachbesuchertage, für das Publikum ist die Messe vom 5. bis 8. November 2026 geöffnet, jeweils von 9:30 bis 18:30 Uhr.' },
+      { q: 'Welche Cafe Racer wurden auf der EICMA 2026 vorgestellt?', a: 'Der wichtigste neue Cafe Racer ist die Royal Enfield Continental GT 750 mit 743-cm³-Zweizylinder, die es mit und ohne Halbverkleidung geben wird. Dazu zeigt Triumph die Speed Twin 1200 TFC, eine auf 750 Exemplare limitierte Factory-Custom-Version mit Öhlins-Fahrwerk und Carbon-Teilen.' },
+      { q: 'Was kostet die Royal Enfield Continental GT 750?', a: 'Einen Preis und den Marktstart hat Royal Enfield noch nicht genannt. Zur Einordnung: Die Himalayan 750 mit demselben Grundmotor kostet in Italien ab 7.390 Euro.' },
+      { q: 'Welche Retro-Motorräder für den A2-Führerschein kommen 2027?', a: 'Neu sind die Triumph Bonneville T40 mit 400-cm³-Einzylinder und 32 PS sowie die Harley-Davidson Sprint 440 mit 27 PS, die in Deutschland ab 5.700 Euro kostet. Beide bleiben deutlich unter der A2-Grenze von 35 kW.' },
+      { q: 'Wann kommt die Triumph Bonneville T40?', a: 'Laut Triumph steht die Bonneville T40 im Frühjahr 2027 bei den Händlern. Die Preise für T40 und T40 Black will Triumph Anfang 2027 bekannt geben.' },
+    ],
+    content: [
+      {
+        type: 'intro',
+        text: 'Die EICMA in Mailand ist die wichtigste Motorradmesse des Jahres. Hier zeigen die Hersteller, was 2027 bei den Händlern steht. Für Fans von Cafe Racern, Classics und Custom Bikes hat die Ausgabe 2026 einiges zu bieten: einen neuen großen Cafe Racer von Royal Enfield, eine 400er-Bonneville für den A2-Führerschein und gleich mehrere Factory Customs in Kleinserie. Wir haben alle Retro-Neuheiten zusammengefasst, mit Technik, Preisen, Marktstart und der Frage, welches Modell als Umbau-Basis taugt. Stand: 4. November 2026, dem zweiten Pressetag.',
+      },
+      { type: 'h2', text: 'Die Retro-Neuheiten der EICMA 2026 auf einen Blick' },
+      {
+        type: 'list',
+        items: [
+          'Royal Enfield Continental GT 750: Cafe Racer mit 743-cm³-Twin, mit und ohne Verkleidung. Preis und Marktstart offen.',
+          'Triumph Bonneville T40 und T40 Black: 400er-Classic für den A2-Führerschein, 32 PS, ab Frühjahr 2027.',
+          'Triumph Speed Twin 1200 TFC: Factory Custom mit Öhlins, Brembo und Akrapovič, limitiert auf 750 Stück.',
+          'Royal Enfield Shotgun 650 „Son of a Gun“: Sonderserie mit Deus Ex Machina, 100 Stück weltweit.',
+          'Harley-Davidson Sprint 440: Cruiser im Classic-Look für A2, ab 5.700 Euro.',
+          'Royal Enfield Flying Flea S6: elektrischer Scrambler im Retro-Look, Marktstart Sommer 2027.',
+          'Ducati Scrambler Full Throttle: neue Heritage-Lackierung in Grün und Bronze für das Modelljahr 2027.',
+          'Benda Vinster 700 und Vinster X 700: Vintage-Roadster und Scrambler mit V2-Motor.',
+        ],
+      },
+      { type: 'h2', text: 'Royal Enfield Continental GT 750: der neue große Cafe Racer' },
+      {
+        type: 'p',
+        text: 'Die Continental GT 750 ist die wichtigste Retro-Neuheit der Messe. Royal Enfield feiert in Mailand seinen 125. Geburtstag und stellt den neuen Cafe Racer über die bekannte Continental GT 650. Sie soll das stärkste Serienmotorrad der Marke werden. Der Motor ist eine stärkere Version des neuen 743-cm³-Parallel-Twins aus der Himalayan 750, die dort 63 Nm bei 5.000/min leistet. Leistung und Drehmoment der GT 750 hat Royal Enfield noch nicht genannt.',
+      },
+      {
+        type: 'p',
+        text: 'Es wird zwei Versionen geben. Die unverkleidete behält die klassische Continental-Silhouette mit rundem Scheinwerfer und Doppelauspuff. Die verkleidete bekommt eine Halbschale und einen tieferen Lenker für eine sportlichere Sitzposition. Beide rollen auf 18-Zoll-Rädern, vorn bremsen jetzt zwei Scheiben. Dazu kommen eine Telegabel, zwei Federbeine mit einstellbarer Vorspannung, eine Einzelsitzbank mit abnehmbarer Höckerabdeckung und ein Cockpit im Doppelrundinstrument-Look mit integriertem TFT. Die Farben heißen Red Line, TT Blue und Master Clean.',
+      },
+      {
+        type: 'p',
+        text: 'Preis und Marktstart sind noch offen. Zur Einordnung: Die Himalayan 750 mit demselben Grundmotor kostet in Italien ab 7.390 Euro.',
+      },
+      {
+        type: 'p',
+        text: 'Custom-Potenzial: hoch. Die Continental GT 650 gehört zu den beliebtesten Umbau-Basen der letzten Jahre, der Zubehörmarkt für sie ist groß. Ob 650er-Teile an die 750 passen, hat Royal Enfield nicht gesagt. Rechne damit, dass Zubehör mit Teilegutachten für das neue Modell erst einige Monate nach dem Marktstart verfügbar ist.',
+      },
+      { type: 'cta', text: 'Schon jetzt einen Cafe Racer umbauen? Anleitung, Kosten und TÜV-Checkliste', href: '/magazine/cafe-racer-umbau', label: 'Zum Umbau-Guide' },
+      { type: 'h2', text: 'Triumph Bonneville T40: Bonneville-Look für den A2-Führerschein' },
+      {
+        type: 'p',
+        text: 'Mit der Bonneville T40 holt Triumph seinen bekanntesten Klassiker in die 400er-Klasse. Der Einzylinder stammt aus der TR-Serie, die Triumph mit Bajaj entwickelt, und wurde für die T40 überarbeitet: 32 PS bei 7.000/min und 36 Nm bei 5.000/min. Das liegt deutlich unter der A2-Grenze. Fahrbereit wiegt sie 191 kg, die Sitzhöhe beträgt 790 mm, optional 770 mm.',
+      },
+      {
+        type: 'p',
+        text: 'Optisch orientiert sich die T40 an den Bonnevilles der 1960er-Jahre: Tropfentank mit handgezogenen Zierlinien, Speichenräder, runder LED-Scheinwerfer und Peashooter-Schalldämpfer. Die Technik ist modern: Kurven-ABS, abschaltbare Traktionskontrolle, Tempomat, fünf Fahrmodi und ein rundes 4-Zoll-TFT mit Navigation. Einen Hauptständer gibt es serienmäßig, das Serviceintervall beträgt 16.000 km. Die T40 Black kommt mit schwarz glänzenden Alufelgen, Mattlack und komplett schwarzen Details.',
+      },
+      {
+        type: 'p',
+        text: 'Marktstart ist im Frühjahr 2027, die Preise nennt Triumph Anfang 2027. Achtung, Verwechslungsgefahr: In Indien gibt es eine T40 mit 349 cm³ und anderen Daten. Die Zahlen hier gelten für die europäische Version.',
+      },
+      { type: 'h2', text: 'Factory Customs: Speed Twin 1200 TFC und Shotgun 650 „Son of a Gun“' },
+      {
+        type: 'p',
+        text: 'Die Speed Twin 1200 TFC ist das fünfte Modell der Triumph-Factory-Custom-Reihe. Triumph hat sie im Juli vorgestellt, die ersten Auslieferungen sind für Oktober 2026 angekündigt. Es gibt 750 einzeln nummerierte Exemplare. Der 1.200-cm³-Bonneville-Twin leistet 105 PS und 112 Nm. Dazu kommen ein voll einstellbares Öhlins-Fahrwerk, Brembo-Stylema-Bremssättel, Carbon-Teile, Akrapovič-Titanschalldämpfer und eine Lackierung in Obsidian Gold. In die geschmiedete obere Gabelbrücke ist die Seriennummer gelasert.',
+      },
+      {
+        type: 'p',
+        text: 'Royal Enfield geht einen anderen Weg und hat sich mit Deus Ex Machina zusammengetan, einem der bekanntesten Namen der Custom-Szene. Die Shotgun 650 „Son of a Gun“ entsteht 2027 in 100 Exemplaren. Sie bekommt eine Lackierung in Dunkelrot, Creme und Gold, kontrastgedrehte Alufelgen, schwarz glänzende Motordeckel, eine braune Ledersitzbank und passende Griffe. Zu jedem Motorrad gehört eine Jacke aus der Kooperation. Einen Preis gibt es noch nicht.',
+      },
+      {
+        type: 'p',
+        text: 'Beide Modelle zeigen einen Trend: Die Hersteller holen sich den Custom-Look direkt ins Werk, mit Garantie und ohne Eintragungsfragen. Ein echtes Einzelstück sind sie trotzdem nicht. Wer ein Motorrad will, das es nur einmal gibt, kommt an einer Custom-Werkstatt nicht vorbei.',
+      },
+      { type: 'cta', text: 'Custom-Werkstätten für Cafe Racer, Bobber und Scrambler in deiner Nähe', href: '/custom-werkstatt', label: 'Werkstatt finden' },
+      { type: 'h2', text: 'Harley-Davidson Sprint 440: Einstieg unter 6.000 Euro' },
+      {
+        type: 'p',
+        text: 'Die Sprint 440 ist das neue Einstiegsmodell von Harley-Davidson. Sie basiert auf der X440-Plattform, die Harley mit Hero MotoCorp in Indien entwickelt hat. Der luft- und ölgekühlte Einzylinder mit 440 cm³ leistet 27 PS und 38 Nm bei 4.000/min. Das Design zitiert klassische Cruiser: Tropfentank, Fastback-Sitzbank und LED-Scheinwerfer mit H-D-Logo. Die Sitzhöhe ist mit 671 mm sehr niedrig, fahrbereit wiegt sie 189 kg. Dazu kommen eine 43-mm-Upside-down-Gabel, Federbeine mit Ausgleichsbehälter, eine leichtgängige Assist-Kupplung und ein 3,5-Zoll-TFT. In Deutschland kostet sie ab 5.700 Euro.',
+      },
+      {
+        type: 'p',
+        text: 'Custom-Potenzial: interessant. Ein einfacher luft- und ölgekühlter Einzylinder, ein niedriger Preis und eine tiefe Sitzposition sind gute Voraussetzungen für kleine Bobber-Umbauten.',
+      },
+      { type: 'cta', text: 'Was einen guten Bobber ausmacht und was er kosten darf', href: '/magazine/bobber-kaufen-guide', label: 'Zum Bobber-Guide' },
+      { type: 'h2', text: 'Scrambler und Vintage: Flying Flea S6, Ducati Heritage und Benda Vinster' },
+      {
+        type: 'p',
+        text: 'Die Flying Flea S6 ist ein elektrischer Scrambler von Royal Enfields Elektromarke. Sie nutzt das leichte Fahrwerk der Flying Flea C6 und setzt auf Retro-Details: Speichenräder aus Aluminium, Enduro-Sitzbank und ein Akkugehäuse aus Magnesium mit Kühlrippen. Dazu kommen Dual-Purpose-Reifen, mehr Federweg, sechs Fahrmodi, abschaltbares ABS und ein rundes 3,5-Zoll-Touchdisplay. Der Marktstart ist für Sommer 2027 geplant, die Farben heißen Dart Yellow und Lightning Grey. Akkukapazität, Leistung, Reichweite und Preis sind noch nicht bekannt.',
+      },
+      {
+        type: 'p',
+        text: 'Ducati zeigt keine neue Scrambler, verpasst aber der Scrambler Full Throttle für das Modelljahr 2027 eine Heritage-Lackierung. Grün und Bronze, auch auf den Felgen, zitieren die Rennmotorräder und Rennwagen der 1970er-Jahre. Vom chinesischen Hersteller Benda kommt die Vinster 700: ein Vintage-Roadster mit 692-cm³-V2, 73 PS und 68 Nm, Einarmschwinge, 17-Zoll-Rädern und 190 kg. Die Scrambler-Variante Vinster X 700 rollt vorn auf einem 19-Zoll-Rad. Preise gibt es für beide noch nicht.',
+      },
+      {
+        type: 'p',
+        text: 'Kleinere Updates gibt es bei Yamaha, die die XSR900 in neuen Retro-Farben zeigt, und bei Fantic, die ihre Caballero-Familie um eine 500er-Supermoto erweitert.',
+      },
+      { type: 'cta', text: 'Scrambler kaufen: Modelle, Preise und Prüfpunkte', href: '/magazine/scrambler-kaufen-guide', label: 'Zum Scrambler-Guide' },
+      { type: 'h2', text: 'Was fehlt: kein BMW R 20' },
+      {
+        type: 'p',
+        text: 'Viele BMW-Fans hatten auf eine Serienversion des R 20 gehofft, des 2024 gezeigten Konzepts mit 2-Liter-Boxer. In Mailand fehlte sie. BMW zeigte stattdessen die limitierte M 1000 RS und die neue A2-Familie F 450 R und F 450 RR. Wer einen klassischen Boxer will, findet ihn bei den Modellen der R-12-Familie. Auf MotoDigital gibt es außerdem Umbauten auf Basis der R nineT und älterer R-Modelle wie R60, R65 und R100.',
+      },
+      { type: 'h2', text: 'Was die Neuheiten für Custom-Fans bedeuten' },
+      {
+        type: 'list',
+        items: [
+          'Die A2-Retro-Klasse wächst: Mit Bonneville T40 und Sprint 440 gibt es zwei weitere günstige Classics unter 35 kW. Für Einsteiger und für kleine Umbauten sind das spannende Basen.',
+          'Der Cafe Racer ab Werk wird größer: Mit der Continental GT 750 bringt Royal Enfield erstmals einen Cafe Racer über 650 cm³.',
+          'Factory Customs sind gefragt: Hersteller übernehmen Ideen aus der Custom-Szene, aber in Kleinserie. Ein Einzelstück nach eigenen Vorstellungen baut weiterhin nur eine Werkstatt.',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Wer ein neues Retro-Modell kauft und es später individualisieren will, sollte früh auf Teile mit ABE oder Teilegutachten achten. Gerade bei ganz neuen Modellen dauert es oft Monate, bis Zubehör mit Papieren verfügbar ist. Was ohne Eintragung geht und was nicht, steht in unserem TÜV-Guide.',
+      },
+      { type: 'cta', text: 'TÜV-Eintragung beim Custom Bike: Was in Deutschland legal ist', href: '/magazine/tuev-eintragung-custom-bike', label: 'Zum TÜV-Guide' },
+      { type: 'h2', text: 'EICMA 2026: Termine und Anreise' },
+      {
+        type: 'list',
+        items: [
+          'Ort: Fiera Milano Rho, am nordwestlichen Stadtrand von Mailand',
+          'Presse- und Fachbesuchertage: 3. und 4. November 2026',
+          'Publikumstage: 5. bis 8. November 2026, täglich 9:30 bis 18:30 Uhr',
+          'Anreise: Metro-Linie M1 bis zur Station Rho Fiera',
+        ],
+      },
+      {
+        type: 'p',
+        text: 'Wer es nicht nach Mailand schafft: Die nächsten großen Termine im deutschsprachigen Raum sind die Custombike-Show in Bad Salzuflen vom 27. bis 29. November 2026 und die INTERMOT in Köln vom 19. bis 21. Februar 2027.',
+      },
+      { type: 'cta', text: 'Motorradmessen und Custom-Events 2026 und 2027', href: '/events', label: 'Alle Events' },
+    ],
+  },
+
+  {
     slug: 'cafe-racer-umbau',
     title: 'Cafe Racer Umbau: Anleitung in 8 Schritten — mit Kosten und TÜV-Checkliste',
     metaTitle: 'Cafe Racer Umbau — Anleitung, Kosten & TÜV in 8 Schritten',
@@ -653,7 +804,7 @@ export const ARTICLES: Article[] = [
     readTime: '8 min',
     author: 'MotoDigital Redaktion',
     tags: ['Cafe Racer', 'Geschichte', 'Ace Cafe', 'Rocker', 'UK', 'Kultur'],
-    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'jakob-kraft-berlin-interview'],
+    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'cafe-racer-umbau'],
     faq: [
       { q: 'Woher kommt der Name Cafe Racer?', a: 'Der Begriff entstand in den 1950er Jahren in London, rund um das Ace Cafe an der North Circular Road. Junge Rocker — die "Ton-up Boys" — bauten ihre Motorräder für das Rennen zwischen Cafés um. Diese optimierten Maschinen hießen "Cafe Racers".' },
       { q: 'Was ist ein "Ton-up Boy"?', a: 'Ein "Ton-up Boy" war ein britischer Motorradfahrer, der 100 mph ("Ton") auf öffentlichen Straßen erreichte. Der Begriff stammt aus dem Ace-Cafe-Umfeld der 50er und 60er Jahre.' },
@@ -826,7 +977,7 @@ export const ARTICLES: Article[] = [
     readTime: '12 min',
     author: 'MotoDigital Redaktion',
     tags: ['Bobber', 'Kaufratgeber', 'Harley-Davidson', 'BMW', 'Custom'],
-    relatedSlugs: ['harley-custom-werkstatt-finden', 'max-steiner-bobber-interview', 'tuev-eintragung-custom-bike'],
+    relatedSlugs: ['harley-custom-werkstatt-finden', 'was-kostet-ein-custom-bike', 'tuev-eintragung-custom-bike'],
     faq: [
       { q: 'Was ist ein Bobber?', a: 'Ein Bobber ist ein radikal reduziertes Custom-Motorrad. Klassisch mit Hardtail-Rahmen, Monosattel und fettem Hinterreifen. Der Begriff kommt aus den USA der 1940er — Veteranen "bobbten" ihre Harleys, indem sie alles Überflüssige entfernten.' },
       { q: 'Was kostet ein Bobber?', a: 'Werks-Bobber wie Triumph Bonneville Bobber oder Indian Scout Bobber starten bei 10.500 €. Custom-Bobber-Builds beginnen bei ca. 8.000 € für einfache Umbauten und erreichen bei renommierten Buildern 20.000-30.000 €.' },
@@ -882,11 +1033,6 @@ export const ARTICLES: Article[] = [
       {
         type: 'p',
         text: 'Werks-Bobber beginnen bei 10.500 € (Indian Scout Bobber Sixty) und gehen bis 18.000 € (Triumph Bonneville Bobber Black). Gebrauchte Werksmodelle mit 10-30.000 km sind häufig 30-40% günstiger als Neupreise. Custom-Bobber-Builds starten bei 8.000 € für einfache Umbauten und erreichen bei renommierten Buildern schnell 20.000-30.000 €. Ein Hardtail-Custom mit handgefertigtem Rahmen beginnt nie unter 15.000 € — alles darunter solltest du skeptisch prüfen.',
-      },
-      {
-        type: 'quote',
-        text: 'Ein Bobber ist das ehrlichste Motorrad, das du fahren kannst. Er verbirgt nichts — weder seine Herkunft noch seine Kompromisse.',
-        author: 'Max Steiner, München',
       },
       {
         type: 'cta',
@@ -1248,147 +1394,10 @@ export const ARTICLES: Article[] = [
         ],
       },
       {
-        type: 'quote',
-        text: 'Ein Custom Bike ist kein Serienprodukt — du kaufst die Arbeit und das Können des Builders.',
-        author: 'Jakob Kraft, Berlin',
-      },
-      {
         type: 'cta',
         text: 'Alle Cafe Racer ansehen',
         href: '/bikes/cafe-racer',
         label: 'Jetzt durchstöbern',
-      },
-    ],
-  },
-
-  {
-    slug: 'jakob-kraft-berlin-interview',
-    title: '"Ein Bike ohne Geschichte ist nur ein Fahrzeug" — Jakob Kraft im Interview',
-    metaTitle: 'Jakob Kraft Interview — Cafe Racer Builder aus Berlin',
-    metaDescription:
-      'Jakob Kraft über seine Philosophie als Cafe Racer Builder, seinen berühmtesten Build und warum Berlin die beste Stadt für Custom Bikes ist.',
-    category: 'interview',
-    categoryLabel: 'Interview',
-    excerpt:
-      'Der Berliner Builder über luftgekühlte Japaner, handgefertigte Einzelstücke und warum er jeden Build als Zusammenarbeit versteht.',
-    coverImage:
-      'https://images.unsplash.com/photo-1522850003946-16cb11d41a86?w=1200&q=85',
-    publishedAt: '2026-02-20',
-    readTime: '12 min',
-    author: 'MotoDigital Redaktion',
-    tags: ['Interview', 'Cafe Racer', 'Builder', 'Berlin', 'Honda CB750'],
-    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'warum-heisst-es-cafe-racer'],
-    relatedBuilderSlug: 'jakob-kraft',
-    content: [
-      {
-        type: 'intro',
-        text: 'Jakob Kraft baut in einer Berliner Hinterhofgarage Bikes, die man nicht vergisst. Seine Spezialität: luftgekühlte Japaner der 70er, verwandelt in straffe, charaktervolle Cafe Racer. Wir haben ihn in seiner Werkstatt besucht.',
-      },
-      {
-        type: 'h2',
-        text: 'Jakob, wie bist du zum Bikebau gekommen?',
-      },
-      {
-        type: 'p',
-        text: 'Ich habe mit 19 eine kaputte CB500 aus einer Garage gezogen — 80 Euro, kein TÜV, keine Hoffnung. Mein Vater hat mir beigebracht, wie man schweißt. Der Rest ist passiert. Ich war nie der Typ, der etwas kauft und fährt. Ich musste immer verstehen, wie etwas funktioniert — und dann fragen: Kann ich das besser machen? Schöner? Ehrlicher?',
-      },
-      {
-        type: 'h2',
-        text: 'Was bedeutet "ehrlich" bei einem Custom Bike?',
-      },
-      {
-        type: 'p',
-        text: 'Ein ehrliches Bike versteckt nichts. Die Schweißnähte sind sichtbar — und gut. Das Kabel verläuft, wo es Sinn ergibt, nicht wo es versteckt werden kann. Wenn ich ein Teil modifiziere, dann sieht man die Entscheidung, aber man merkt auch, dass sie durchdacht war. Ich baue keine Showbikes für Messen. Ich baue Bikes, die gefahren werden.',
-      },
-      {
-        type: 'quote',
-        text: 'Ein Bike ohne Geschichte ist nur ein Fahrzeug. Mich interessiert die Geschichte — wo kommt die Maschine her, was hat der Kunde erlebt, was soll das Bike verkörpern.',
-        author: 'Jakob Kraft',
-      },
-      {
-        type: 'h2',
-        text: 'Erzähl uns vom Berlin Cafe No. 7 — deinem bislang bekanntesten Build.',
-      },
-      {
-        type: 'p',
-        text: 'Die Basis war eine Honda CB750 von 1972. Komplett eingerostet, mit einem gebrochenen Rahmen und einer Elektrik, die niemand mehr verstand. Achim, der Kunde, hatte das Bike von seinem Onkel geerbt. Es war nicht fahrbereit, aber es war geliebt. Das konnte ich spüren. Wir haben acht Monate daran gearbeitet — Rahmensanierung, komplett neuer Kabelbaum mit Motogadget, handgefertigter Aluminiumtank, Metzeler-Bereifung. Das Ergebnis ist ein Bike, das fährt, wie es aussieht: entschlossen.',
-      },
-      {
-        type: 'h2',
-        text: 'Warum Berlin?',
-      },
-      {
-        type: 'p',
-        text: 'Berlin vergibt dir Fehler. Hier kannst du eine Werkstatt aufmachen, Risiken eingehen, eine eigene Handschrift entwickeln — ohne dass sofort jemand fragt, was das kostet und wann du Gewinn machst. Die Stadt hat eine Toleranz für Ernsthaftigkeit, auch wenn sie nicht sofort ökonomisch ist. Und es gibt eine Community, die echte Bikes schätzt. Nicht Instagram-Bikes. Echte Bikes.',
-      },
-    ],
-  },
-
-  {
-    slug: 'shovelhead-revival-kai-fuchs',
-    title: 'Shovelhead Revival: 16 Monate, ein 76er Motor und ein klares Bekenntnis',
-    metaTitle: 'Shovel Devil Build Story — Kai Fuchs Custom Stuttgart',
-    metaDescription:
-      'Wie Kai Fuchs einen 1976er Harley-Davidson Shovelhead in 16 Monaten zum Shovel Devil verwandelt hat. Die komplette Build Story.',
-    category: 'build-story',
-    categoryLabel: 'Build Story',
-    excerpt:
-      'Ein 1976er Shovelhead, 16 Monate Arbeit und eine klare Haltung: Old School ist keine Nostalgie.',
-    coverImage:
-      'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
-    publishedAt: '2026-02-13',
-    readTime: '10 min',
-    author: 'MotoDigital Redaktion',
-    tags: ['Build Story', 'Chopper', 'Harley-Davidson', 'Shovelhead', 'Stuttgart'],
-    relatedSlugs: ['bobber-kaufen-guide', 'max-steiner-bobber-interview', 'was-kostet-ein-custom-bike'],
-    relatedBuilderSlug: 'kai-fuchs-custom',
-    relatedBuildSlug: 'shovel-devil',
-    content: [
-      {
-        type: 'intro',
-        text: 'Der Shovel Devil entstand nicht aus einem Trend heraus. Er entstand aus einer Überzeugung: dass ein Shovelhead-Motor aus dem Jahr 1976 alles mitbringt, was ein Motorrad braucht — wenn man ihm die Chance gibt, das zu zeigen.',
-      },
-      {
-        type: 'h2',
-        text: 'Die Basis: Ein Motor, der schon alles erlebt hat',
-      },
-      {
-        type: 'p',
-        text: 'Kai Fuchs fand den 76er Shovelhead-Block bei einer Haushaltsauflösung in der Nähe von Stuttgart. Der Motor war seit Jahren nicht mehr gelaufen, die Elektrik fehlte komplett, und der ursprüngliche Rahmen war längst verschrottet. Was blieb, war ein 74 Kubikzoll großes Versprechen aus Gusseisen. Für Kai war das genug.',
-      },
-      {
-        type: 'h2',
-        text: 'Der Aufbau: Nichts Unnötiges',
-      },
-      {
-        type: 'p',
-        text: 'Das Konzept des Shovel Devil ist radikale Reduktion. Kai fertigte einen neuen Stahlrohrrahmen nach eigenen Maßen, der die charakteristische Silhouette eines Hardtail-Choppers definiert, ohne ins Klischee zu verfallen. Der Tank stammt von einem frühen Harley-Davidson Sportster, modifiziert und manuell lackiert in einem tiefen Oxblood-Rot. Die Gabel wurde um 2 Zoll über Standart verlängert, um die Geometrie zu betonen, ohne die Lenkbarkeit zu kompromittieren.',
-      },
-      {
-        type: 'image',
-        src: 'https://images.unsplash.com/photo-1561811565-6ed172b54cbe?w=1200&q=85',
-        caption: 'Der fertige Shovel Devil — 16 Monate Arbeit, eine klare Vision.',
-      },
-      {
-        type: 'h2',
-        text: 'Motorrevision: Respekt vor dem Original',
-      },
-      {
-        type: 'p',
-        text: 'Die Motorrevision dauerte allein drei Monate. Kai arbeitet prinzipiell mit Originalteilen, wo möglich, und setzt auf moderne Komponenten nur dort, wo es die Zuverlässigkeit erfordert. Neue Kolben, überarbeitete Köpfe, eine moderne Lichtmaschine — alles andere blieb soweit wie möglich original. Das Ergebnis ist ein Motor, der anders klingt als alles, was aktuell gefertigt wird: rau, rhythmisch, unverkennbar.',
-      },
-      {
-        type: 'quote',
-        text: 'Old School ist keine Nostalgie. Es ist eine Entscheidung, das Wesentliche über das Dekorative zu stellen.',
-        author: 'Kai Fuchs',
-      },
-      {
-        type: 'h2',
-        text: 'Das Ergebnis: Ein Bike, das polarisiert',
-      },
-      {
-        type: 'p',
-        text: 'Der Shovel Devil ist kein Bike für alle. Die Sitzposition ist kompromisslos, die Vibrationen sind spürbar, und wer einen Kofferraum sucht, ist falsch. Aber wer einmal gefahren ist — wer den Rhythmus des alten Motors gespürt hat — versteht, warum Kai 16 Monate seines Lebens in dieses Projekt investiert hat. Es ist kein Fahrzeug. Es ist eine Haltung.',
       },
     ],
   },
@@ -1447,11 +1456,6 @@ export const ARTICLES: Article[] = [
         ],
       },
       {
-        type: 'quote',
-        text: 'Der Scrambler fragt: Wohin kann ich fahren? Der Tracker fragt: Wie schnell kann ich es tun.',
-        author: 'Anna Wolff, Freiburg',
-      },
-      {
         type: 'h2',
         text: 'Welcher Stil passt zu dir?',
       },
@@ -1462,137 +1466,6 @@ export const ARTICLES: Article[] = [
     ],
   },
 
-  {
-    slug: 'max-steiner-bobber-interview',
-    title: 'Max Steiner: "Ein Bobber muss fahren. Nicht nur stehen."',
-    metaTitle: 'Max Steiner Interview — Bobber Builder München',
-    metaDescription:
-      'Max Steiner über 22 fertiggestellte Builds, handlackierte Tanks und warum er bei Bobber-Projekten niemals Kompromisse eingeht.',
-    category: 'interview',
-    categoryLabel: 'Interview',
-    excerpt:
-      'Der Münchner Builder über Bobber-Philosophie, handlackierte Tanks und warum er nie Kompromisse eingeht.',
-    coverImage:
-      'https://images.unsplash.com/photo-1609202748711-feef2cdc7da3?w=1200&q=85',
-    publishedAt: '2026-01-30',
-    readTime: '12 min',
-    author: 'MotoDigital Redaktion',
-    tags: ['Interview', 'Bobber', 'Builder', 'München', 'BMW R-Serie'],
-    relatedSlugs: ['bobber-kaufen-guide', 'shovelhead-revival-kai-fuchs', 'was-kostet-ein-custom-bike'],
-    relatedBuilderSlug: 'max-steiner',
-    content: [
-      {
-        type: 'intro',
-        text: 'Max Steiner hat 22 Bikes fertiggestellt. Keines sieht wie das andere aus. Aber alle tragen unverkennbar seine Handschrift: reduzierten Linien, handlackierte Tanks, eine Konsequenz im Weglassen, die man nur durch Erfahrung entwickelt. Wir haben ihn in seiner Münchner Werkstatt getroffen.',
-      },
-      {
-        type: 'h2',
-        text: 'Max, 22 Builds — was hast du in dieser Zeit gelernt?',
-      },
-      {
-        type: 'p',
-        text: 'Dass weniger tatsächlich mehr ist. Mein erster Build war vollgepackt mit Ideen. Zu viele Ideen. Ein guter Bobber hat eine Aussage — eine, nicht zehn. Ich muss beim Kunden manchmal Dinge rausstreichen, die er sich wünscht, weil sie das Gesamtbild verwässern. Das ist kein angenehmes Gespräch. Aber das Ergebnis gibt mir meistens recht.',
-      },
-      {
-        type: 'h2',
-        text: 'Du lackierst Tanks ausschließlich von Hand. Warum?',
-      },
-      {
-        type: 'p',
-        text: 'Weil eine Maschine nicht lügen kann. Ein handlackierter Tank hat Tiefe — das Licht verhält sich anders, es gibt minimale Unregelmäßigkeiten, die ihn lebendig machen. Karosserielacke aus der Spritzpistole sind perfekt. Und Perfektion ist langweilig. Ich will, dass ein Bike Spuren trägt — nicht von Verschleiß, sondern von menschlicher Arbeit.',
-      },
-      {
-        type: 'quote',
-        text: 'Ein Bobber muss fahren. Nicht nur stehen. Wenn ein Kunde sagt, er will das Bike hauptsächlich ausstellen, arbeite ich mit ihm nicht zusammen.',
-        author: 'Max Steiner',
-      },
-      {
-        type: 'h2',
-        text: 'Was macht die BMW R-Serie zur perfekten Bobber-Basis?',
-      },
-      {
-        type: 'p',
-        text: 'Der Boxer-Motor gibt dir die Silhouette geschenkt. Dieses markante, breite Triebwerk — das ist nicht etwas, das du nachträglich erzählen musst. Es erzählt sich von allein. Dazu kommt die Zuverlässigkeit. Eine R80 oder R100 mit ordentlicher Revision läuft ohne Probleme. Das ist wichtig, denn ich will, dass die Bikes meiner Kunden täglich gefahren werden — nicht ins Wochenende getrailert.',
-      },
-      {
-        type: 'h2',
-        text: 'Wie gehst du mit Kunden um, die sehr genaue Vorstellungen mitbringen?',
-      },
-      {
-        type: 'p',
-        text: 'Ich frage immer zuerst: Was wollt ihr mit dem Bike erleben, nicht was wollt ihr sehen? Die Antwort verändert alles. Jemand, der täglich zur Arbeit fahren will, braucht ein anderes Bike als jemand, der Sonntagstouren macht. Erst wenn ich das verstanden habe, fangen wir an zu skizzieren. Pinterest-Boards nehme ich zur Kenntnis. Aber sie bestimmen nicht meinen Entwurf.',
-      },
-    ],
-  },
-
-  {
-    slug: 'berlin-ghost-build-story',
-    title: 'Berlin Ghost: Wie Studio Nord aus einer Suzuki GS750 ein Straßenmonster gemacht hat',
-    metaTitle: 'Berlin Ghost Build Story — Studio Nord Hamburg Custom',
-    metaDescription:
-      'Studio Nord verwandelt eine Suzuki GS750 in den Berlin Ghost: ein aggressiver Street-Custom mit Hafencharakter. Die komplette Build Story.',
-    category: 'build-story',
-    categoryLabel: 'Build Story',
-    excerpt:
-      'Das Hamburger Duo über Hafenluft, schlanke Builds und die Kunst des Weglassens.',
-    coverImage:
-      'https://images.unsplash.com/photo-1629628083289-009e6f87f5cf?w=1200&q=85',
-    publishedAt: '2026-05-10',
-    readTime: '9 min',
-    author: 'MotoDigital Redaktion',
-    tags: ['Build Story', 'Street', 'Suzuki', 'Hamburg', 'Custom'],
-    relatedSlugs: ['cafe-racer-kaufen-guide', 'cafe-racer-selber-bauen-basis-bikes', 'was-kostet-ein-custom-bike'],
-    relatedBuilderSlug: 'studio-nord',
-    relatedBuildSlug: 'berlin-ghost',
-    content: [
-      {
-        type: 'intro',
-        text: 'Der Berlin Ghost ist kein sanfter Umbau. Er ist eine Transformation. Studio Nord — das Hamburger Builder-Duo Lars und Mia — hat eine 1979er Suzuki GS750 bis auf den Rahmen zerlegt und neu gedacht. Das Ergebnis ist eines der eindrücklichsten Street-Customs, das 2024 aus deutschen Workshops gekommen ist.',
-      },
-      {
-        type: 'h2',
-        text: 'Ausgangspunkt: Eine GS750 mit Geschichte',
-      },
-      {
-        type: 'p',
-        text: 'Die GS750 kam aus Schweden, via einem Online-Inserat. 79er Baujahr, erstaunlich solide Substanz, aber jahrelang ohne Pflege. Studio Nord sah in der GS750 genau das, was sie gesucht hatten: einen robusten Parallelzweizylindermotor mit einem Rahmen, der Spielraum für eine völlig neue Interpretation ließ. "Die GS ist ehrlich", sagt Lars. "Keine versteckten Konstruktionsfehler, kein Marketingversprechen. Sie ist einfach da."',
-      },
-      {
-        type: 'h2',
-        text: 'Das Konzept: Hafen und Asphalt',
-      },
-      {
-        type: 'p',
-        text: 'Studio Nord arbeitet immer mit einer atmosphärischen Referenz. Beim Berlin Ghost war es der Gegensatz zwischen dem Hamburger Hafen — rau, industriell, grau — und den nächtlichen Straßen Berlins — lebhaft, harsch beleuchtet, kontrastreich. Das Bike sollte beide Welten verkörpern: tagsüber zurückhaltend, nachts dominant.',
-      },
-      {
-        type: 'image',
-        src: 'https://images.unsplash.com/photo-1629628083289-009e6f87f5cf?w=1200&q=85',
-        caption: 'Berlin Ghost bei der ersten Ausfahrt in Hamburg — Morgenlicht, nasses Pflaster.',
-      },
-      {
-        type: 'h2',
-        text: 'Die Technik: Alles für die Straße',
-      },
-      {
-        type: 'p',
-        text: 'Der Rahmen wurde verkürzt und mit einer minimalistischen Hecksektion aus handgefertigtem Stahl versehen. Die Telegabel wurde überholt, Öhlins-Stoßdämpfer hinten eingebaut. Besonders aufwendig war die Elektrik: Ein vollständig neuer Kabelbaum mit einem kleinen, versteckten Lithium-Akku unter der Sitzbank. Der Tacho ist ein Acewell-Einheitsrundscheibe, in schwarzem Aluminiumgehäuse — clean, funktional.',
-      },
-      {
-        type: 'quote',
-        text: 'Wir bauen keine Bikes für Wettbewerbe. Wir bauen Bikes für Leute, die fahren wollen — und die dabei gut aussehen möchten.',
-        author: 'Lars (Studio Nord)',
-      },
-      {
-        type: 'h2',
-        text: 'Das Finish: Grau in Grau, aber nicht langweilig',
-      },
-      {
-        type: 'p',
-        text: 'Die Farbgebung des Berlin Ghost ist subtil und präzise. Tiefschiefergrau am Rahmen, mit einem leichten Blauschimmer im Sonnenlicht. Der Tank in mattem Anthrazit, von Hand abgemischt. Die Motorabdeckungen wurden sandgestrahlt und klar versiegelt — keine Politur, kein Chrome. Der Berlin Ghost ist ein Bike, das seine Intension nicht laut ankündigt. Es lässt die Arbeit sprechen.',
-      },
-    ],
-  },
   // ── E: Motorrad Umbau Kosten ─────────────────────────────────────────────
   {
     slug: 'motorrad-umbau-kosten',
@@ -2017,6 +1890,15 @@ type ArticleOverlay = Partial<
 >
 
 const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
+  'eicma-2026-retro-neuheiten': {
+    title: 'EICMA 2026: the retro highlights for 2027 — Café Racers, classics and factory customs',
+    metaTitle: 'EICMA 2026: retro highlights 2027 — Café Racers & classics',
+    metaDescription:
+      'Continental GT 750, Bonneville T40, Speed Twin 1200 TFC: every retro launch at EICMA 2026 with specs, prices, release dates and custom potential.',
+    excerpt:
+      'A new flagship Café Racer from Royal Enfield, a 400 cc Bonneville for A2 riders and limited factory customs: the retro highlights of EICMA 2026.',
+    categoryLabel: 'Guide',
+  },
   'cafe-racer-umbau': {
     title: 'Café Racer conversion: an 8-step guide with costs and a TÜV checklist',
     metaTitle: 'Café Racer conversion — guide, costs & TÜV in 8 steps',
@@ -2116,24 +1998,6 @@ const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
       'Whether you\'re buying new, used or custom — a Café Racer is a big decision. This guide gives you the full picture: models at every price point, what to check at the first viewing, and how to tell a well-built conversion from a dressed-up disaster.',
     categoryLabel: 'Guide',
   },
-  'jakob-kraft-berlin-interview': {
-    title: '"A bike without a story is just a vehicle" — Jakob Kraft interviewed',
-    metaTitle: 'Jakob Kraft interview — Café Racer builder from Berlin',
-    metaDescription:
-      'Berlin-based builder Jakob Kraft on custom culture, his approach to Café Racers and what makes a great build.',
-    excerpt:
-      "Jakob Kraft builds Café Racers in a workshop in Neukölln. No social-media theatrics, no series builds — just one-offs with a backstory. A conversation about craft, patience and why every bike gets a name.",
-    categoryLabel: 'Interview',
-  },
-  'shovelhead-revival-kai-fuchs': {
-    title: 'Shovelhead Revival: 16 months, a \'76 engine and a clear statement',
-    metaTitle: 'Shovel Devil build story — Kai Fuchs Custom Stuttgart',
-    metaDescription:
-      'Kai Fuchs tells the full build story of the Shovel Devil — from a dusty 1976 Harley engine to a finished hand-built Shovelhead.',
-    excerpt:
-      "Sixteen months, a 1976 Shovelhead engine and a workshop in Stuttgart. Kai Fuchs tells the complete story of the Shovel Devil — including everything that went wrong along the way.",
-    categoryLabel: 'Build Story',
-  },
   'scrambler-vs-tracker-vergleich': {
     title: 'Scrambler vs. Tracker: what\'s the difference and which one suits you?',
     metaTitle: 'Scrambler vs. Tracker — differences & which to buy in 2026',
@@ -2143,15 +2007,6 @@ const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
       'They look similar at first glance — but scramblers and trackers are fundamentally different bikes. This comparison explains the differences, where each works best, and which one actually suits your riding style.',
     categoryLabel: 'Guide',
   },
-  'max-steiner-bobber-interview': {
-    title: 'Max Steiner on bobbers, patience and why every bolt matters',
-    metaTitle: 'Max Steiner interview — Bobber builder Munich',
-    metaDescription:
-      "Munich-based builder Max Steiner on his bobber philosophy, the temptation of shortcuts and why his builds take 18 months.",
-    excerpt:
-      "Max Steiner builds one bobber a year — and is booked out for the next three. A conversation about slow craft, customers who understand the wait, and why 'a bobber' always means more than just a silhouette.",
-    categoryLabel: 'Interview',
-  },
   'custom-auspuff-eintragung-kosten': {
     title: 'Custom exhaust: registration, costs and the best manufacturers',
     metaTitle: 'Custom exhaust registration Germany — costs, rules & brands 2026',
@@ -2160,15 +2015,6 @@ const ARTICLE_OVERLAYS_EN: Record<string, ArticleOverlay> = {
     excerpt:
       'A custom exhaust is one of the most impactful modifications on a custom bike — and one of the most legally complex. This guide explains ABE vs. TÜV registration, noise limits and what the whole thing actually costs.',
     categoryLabel: 'Guide',
-  },
-  'berlin-ghost-build-story': {
-    title: 'Berlin Ghost: the slate-grey build nobody expected',
-    metaTitle: 'Berlin Ghost build story — Studio Nord Hamburg Custom',
-    metaDescription:
-      'Studio Nord Hamburg on the Berlin Ghost — a minimalist BMW R-series build with deliberately muted finishes and maximum attention to detail.',
-    excerpt:
-      'No chrome. No high-gloss paint. No Instagram-ready photoshoot. The Berlin Ghost breaks every convention of the custom scene — and that\'s exactly why it works. A conversation with Studio Nord about a build that lets the work speak.',
-    categoryLabel: 'Build Story',
   },
 }
 

@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { getCategoryMetaForLocale } from '@/lib/data/magazine'
-import { getArticlesByCategoryAll } from '@/lib/magazine/articles'
+import { getActiveCategories, getArticlesByCategoryAll } from '@/lib/magazine/articles'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -17,6 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: meta.description,
     alternates: { canonical: 'https://motodigital.io/magazine/interview' },
     openGraph: { title: meta.title, description: meta.description, type: 'website', images: newest ? [{ url: newest.coverImage }] : undefined },
+    // An empty hub is a thin page — keep it out of the index until it has articles
+    ...(newest ? {} : { robots: { index: false, follow: true } }),
   }
 }
 
@@ -28,12 +30,13 @@ export default async function InterviewPage({ params }: { params: Promise<{ loca
   const articles = await getArticlesByCategoryAll('interview', locale)
   const meta = getCategoryMetaForLocale(locale)['interview']
 
+  const activeCategories = await getActiveCategories(locale)
   const CATEGORY_TABS = [
     { label: t('tabAll'),          href: '/magazine' as const },
-    { label: t('tabBuildStories'), href: '/magazine/build-story' as const },
-    { label: t('tabInterviews'),   href: '/magazine/interview' as const },
-    { label: t('tabGuides'),       href: '/magazine/guide' as const },
-  ]
+    { label: t('tabBuildStories'), href: '/magazine/build-story' as const, category: 'build-story' },
+    { label: t('tabInterviews'),   href: '/magazine/interview' as const,   category: 'interview' },
+    { label: t('tabGuides'),       href: '/magazine/guide' as const,       category: 'guide' },
+  ].filter(tab => !tab.category || activeCategories.has(tab.category))
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#222222]">
